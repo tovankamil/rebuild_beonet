@@ -26,37 +26,36 @@ export default function Header({
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 px-3 sm:px-6 lg:px-8 shadow-dashlite">
-      <div className="max-w-[1380px] mx-auto h-full flex items-center justify-between">
-        {/* Left: Hamburger Toggle (Mobile) + Section Header & Status */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Mobile Hamburger Button: visible only on screens smaller than lg */}
-          <button
-            type="button"
-            onClick={onToggleMobileSidebar}
-            aria-label="Toggle Mobile Menu"
-            className="lg:hidden p-2 -ml-1 rounded-xl text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-          >
-            {mobileOpen ? (
-              <X size={22} className="text-emerald-700" />
-            ) : (
-              <Menu size={22} />
-            )}
-          </button>
+    <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 px-6 sm:px-8 flex items-center justify-between shadow-dashlite">
+      {/* Left: Hamburger Toggle (Mobile) + Section Header & Status */}
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Mobile Hamburger Button: visible only on screens smaller than lg */}
+        <button
+          type="button"
+          onClick={onToggleMobileSidebar}
+          aria-label="Toggle Mobile Menu"
+          className="lg:hidden p-2 -ml-2 rounded-xl text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+        >
+          {mobileOpen ? (
+            <X size={22} className="text-emerald-700" />
+          ) : (
+            <Menu size={22} />
+          )}
+        </button>
 
-          <div>
-            <h2 className="font-heading font-bold text-base lg:text-lg text-slate-800 leading-tight">
-              Dashboard Kemitraan
-            </h2>
-            <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
-              Sistem Kemitraan & Penjualan Jaringan Herbal
-            </p>
-          </div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-700">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="hidden xs:inline">Network Live</span>
-          </div>
+        <div>
+          <h2 className="font-heading font-bold text-base lg:text-lg text-slate-800 leading-tight">
+            Dashboard Kemitraan
+          </h2>
+          <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
+            Sistem Kemitraan & Penjualan Jaringan Herbal
+          </p>
         </div>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-700">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="hidden xs:inline">Network Live</span>
+        </div>
+      </div>
 
         {/* Right: Actions & User Meta */}
         <div className="flex items-center gap-2.5">
@@ -112,7 +111,6 @@ export default function Header({
             </div>
           </div>
         </div>
-      </div>
-    </header>
-  );
-}
+      </header>
+    );
+  }

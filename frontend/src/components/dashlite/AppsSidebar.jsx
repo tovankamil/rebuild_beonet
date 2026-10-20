@@ -246,11 +246,6 @@ export default function AppsSidebar({
                     }`}
                   >
                     <Icon size={21} strokeWidth={isActive ? 2.2 : 1.9} />
-
-                    {/* Active Curved Tab Indicator on Left (Matches Screenshot) */}
-                    {isActive && (
-                      <span className="absolute -left-[9px] top-1/2 -translate-y-1/2 w-2 h-7 bg-emerald-400 rounded-r-md shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-                    )}
                   </button>
                 </div>
               );

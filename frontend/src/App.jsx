@@ -79,7 +79,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] flex text-slate-800 font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#f5f6fa] flex text-slate-800 font-sans">
       {/* 1. DashLite Demo 3 Slim Apps Sidebar with Responsive Mobile Drawer & Hover Flyouts */}
       <AppsSidebar
         activeTab={activeTab}
@@ -100,8 +100,8 @@ export default function App() {
           onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
         />
 
-        {/* 3. Fluid Page Content Area (Clean, balanced max-w container, neatly padded) */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 w-full max-w-[1380px] mx-auto">
+        {/* 3. Fluid Page Content Area (Full fluid width edge-to-edge) */}
+        <main className="flex-1 px-6 sm:px-8 py-6 w-full max-w-none">
           {activeTab === 'overview' && (
             <OverviewTab
               stats={stats}
@@ -140,17 +140,15 @@ export default function App() {
           {activeTab === 'components' && <ComponentsTab />}
         </main>
 
-        {/* DashLite Standard Footer */}
-        <footer className="py-4 px-4 sm:px-6 lg:px-8 border-t border-slate-200 bg-white text-xs text-slate-400">
-          <div className="max-w-[1380px] mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-            <div>
-              &copy; {new Date().getFullYear()} <strong className="text-slate-600">Bionet Network System</strong>. DashLite Demo 3 Architecture.
-            </div>
-            <div className="flex items-center gap-4 text-[11px] text-slate-500">
-              <span>Server: v6.0-UUID</span>
-              <span>Gateway: Flip.id Realtime</span>
-              <span>UI: DashLite Slim Suite</span>
-            </div>
+        {/* DashLite Standard Footer (Full fluid width) */}
+        <footer className="py-4 px-6 sm:px-8 border-t border-slate-200 bg-white text-xs text-slate-400 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <div>
+            &copy; {new Date().getFullYear()} <strong className="text-slate-600">Bionet Network System</strong>. DashLite Demo 3 Architecture.
+          </div>
+          <div className="flex items-center gap-4 text-[11px] text-slate-500">
+            <span>Server: v6.0-UUID</span>
+            <span>Gateway: Flip.id Realtime</span>
+            <span>UI: DashLite Slim Suite</span>
           </div>
         </footer>
       </div>

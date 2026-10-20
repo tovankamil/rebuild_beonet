@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   BIONET x DASHLITE DEMO 3 - ENTERPRISE DESIGN SYSTEM
+   Theme: Bio-Emerald Herbal MLM, Crisp Light Canvas & Deep Forest Apps Sidebar
+   ========================================================================== */
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', Courier, monospace;
+
+  /* DashLite Core Tokens */
+  --dash-sidebar-bg: #071e17;
+  --dash-sidebar-active: #0f3d30;
+  --dash-canvas-bg: #f5f6fa;
+  --dash-card-bg: #ffffff;
+  --dash-border: #e5e9f2;
+  --dash-text: #364a63;
+  --dash-soft: #8094ae;
+
+  /* Bionet Brand Accents */
+  --bionet-primary: #059669;
+  --bionet-emerald-dim: #ecfdf5;
+  --bionet-cyan: #06b6d4;
+  --bionet-cyan-dim: #f0fdfa;
+  --bionet-gold: #f59e0b;
+  --bionet-gold-dim: #fffbeb;
+  --bionet-rose: #ef4444;
+  --bionet-rose-dim: #fef2f2;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--dash-canvas-bg);
+  color: var(--dash-text);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar - DashLite subtle style */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Base Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: #1e293b;
+  letter-spacing: -0.015em;
+}
+
+/* DashLite Card Elements */
+.dash-card {
+  background: #ffffff;
+  border: 1px solid var(--dash-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dash-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* DashLite Overline Subheaders */
+.overline-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dash-soft);
+}
+
+/* DashLite Dot Badges */
+.badge-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-dot::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.badge-dot-success::before {
+  background-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.badge-dot-warning::before {
+  background-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.badge-dot-danger::before {
+  background-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.badge-dot-info::before {
+  background-color: #06b6d4;
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+}
+
+/* Binary Tree Connecting Lines */
+.tree-line-v {
+  width: 2px;
+  height: 28px;
+  background-color: #10b981;
+  margin: 0 auto;
+}
+
+.tree-branches {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  width: 100%;
+  max-width: 840px;
+  margin-top: 1.5rem;
+  position: relative;
+}
+
+/* DashLite Form Inputs */
+.dash-input {
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid var(--dash-border);
+  border-radius: 8px;
+  padding: 0.65rem 0.95rem;
+  font-size: 0.88rem;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.15s ease-in-out;
+}
+
+.dash-input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+}
+
+/* DashLite Table Row Hover */
+.dash-table tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.15s ease;
+}
+
+.dash-table tr:hover {
+  background-color: #f8fafc;
+}

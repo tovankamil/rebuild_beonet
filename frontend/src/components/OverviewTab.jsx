@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Wallet,
   Users,
@@ -17,10 +17,38 @@ import {
   HelpCircle,
   Clock,
   Landmark,
+  UserCheck,
+  UserPlus,
+  Edit3,
+  RefreshCw,
 } from 'lucide-react';
+import DashPagination from './dashlite/DashPagination';
+import ProfileModal from './ProfileModal';
+import api from '../services/api';
 
-export default function OverviewTab({ stats, setActiveTab }) {
+export default function OverviewTab({ stats, setActiveTab, currentUser, onProfileUpdated }) {
   const [chartHoverIndex, setChartHoverIndex] = useState(null);
+  const [txPage, setTxPage] = useState(1);
+  const [txPageSize, setTxPageSize] = useState(5);
+  const [recentMembers, setRecentMembers] = useState([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const fetchRecentMembers = async () => {
+    setLoadingMembers(true);
+    try {
+      const res = await api.get('/dashboard/recent-members');
+      setRecentMembers(res.data?.data || []);
+    } catch (err) {
+      console.error('Failed to load recent members:', err);
+    } finally {
+      setLoadingMembers(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecentMembers();
+  }, []);
 
   const formatRupiah = (val) => {
     return new Intl.NumberFormat('id-ID', {
@@ -49,6 +77,17 @@ export default function OverviewTab({ stats, setActiveTab }) {
     { day: 'Min', omset: 3800000, points: 45 },
   ];
 
+  const recentTxList = (stats?.recent_transactions && stats.recent_transactions.length > 0)
+    ? stats.recent_transactions
+    : [
+        { id: '7f9a2b8e-1', type: 'credit', amount: 500000, description: 'Bonus Sponsor Baru (Mitra @agus_bionet)', created_at: '2026-10-27T09:15:00Z', status: 'Selesai' },
+        { id: '3d4c1a5b-2', type: 'credit', amount: 250000, description: 'Bonus Pasangan Binary (10 Pasang Harian)', created_at: '2026-10-26T23:59:00Z', status: 'Selesai' },
+        { id: '118fae49-3', type: 'debit', amount: 1000000, description: 'Pencairan Saldo ke Rekening BCA', created_at: '2026-10-25T14:20:00Z', status: 'Berhasil Ditransfer' },
+      ];
+
+  const totalTxPages = Math.ceil(recentTxList.length / txPageSize) || 1;
+  const paginatedRecentTx = recentTxList.slice((txPage - 1) * txPageSize, txPage * txPageSize);
+
   return (
     <div className="space-y-6">
       {/* DashLite Demo 3 Page Title Block (nk-block-head) */}
@@ -61,7 +100,14 @@ export default function OverviewTab({ stats, setActiveTab }) {
             Selamat datang di panel kendali Bionet. Pantau omset, bonus pasangan, dan mutasi saldo secara real-time.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={() => setProfileModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors shadow-sm"
+          >
+            <Edit3 size={15} className="text-emerald-600" />
+            <span>Edit Profil & KYC</span>
+          </button>
           <button
             onClick={() => setActiveTab('genealogy')}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors shadow-sm"
@@ -364,6 +410,139 @@ export default function OverviewTab({ stats, setActiveTab }) {
         </div>
       </div>
 
+      {/* ======================================================== */}
+      {/* MITRA BARU BERGABUNG DI PLATFORM & JALUR DOWNLINE ANDA */}
+      {/* ======================================================== */}
+      <div className="dash-card overflow-hidden">
+        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gradient-to-r from-emerald-500/5 via-transparent to-transparent">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-xs">
+              <UserPlus size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="font-heading font-extrabold text-base text-slate-800">
+                  Mitra yang Baru Bergabung di Platform
+                </h4>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  <Sparkles size={11} className="text-emerald-600" />
+                  Real-Time
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Pantau perkembangan member baru. Anggota yang terdaftar di jalur downline atau sponsor Anda ditandai secara khusus.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={fetchRecentMembers}
+            disabled={loadingMembers}
+            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 transition-colors shadow-xs"
+          >
+            <RefreshCw size={13} className={loadingMembers ? 'animate-spin text-emerald-600' : ''} />
+            <span>Segarkan</span>
+          </button>
+        </div>
+
+        <div className="p-5">
+          {recentMembers.length === 0 ? (
+            <div className="py-8 text-center">
+              <UserPlus size={36} className="mx-auto text-slate-300 mb-2" />
+              <p className="text-xs text-slate-500 font-medium">Belum ada mitra baru terdaftar baru-baru ini.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {recentMembers.map((member) => {
+                const isDownline = member.is_downline;
+                return (
+                  <div
+                    key={member.id}
+                    className={`relative p-4 rounded-xl transition-all border ${
+                      isDownline
+                        ? 'bg-gradient-to-br from-emerald-50/90 via-white to-emerald-50/30 border-emerald-300 shadow-sm shadow-emerald-500/10 ring-1 ring-emerald-400/30'
+                        : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-xs'
+                    }`}
+                  >
+                    {/* Downline Highlight Ribbon / Badge */}
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <img
+                            src={member.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${member.username}`}
+                            alt={member.username}
+                            className={`w-11 h-11 rounded-xl object-cover bg-slate-50 border p-0.5 ${
+                              isDownline ? 'border-emerald-400 ring-2 ring-emerald-400/20' : 'border-slate-200'
+                            }`}
+                          />
+                          {isDownline && (
+                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center animate-pulse" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-heading font-bold text-sm text-slate-800 line-clamp-1">
+                            {member.full_name}
+                          </div>
+                          <div className="text-[11px] font-mono text-slate-500">
+                            @{member.username}
+                          </div>
+                        </div>
+                      </div>
+
+                      <span className="text-[10px] font-semibold text-slate-400 whitespace-nowrap">
+                        {member.created_at
+                          ? new Date(member.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+                          : '-'}
+                      </span>
+                    </div>
+
+                    {/* Badge Penanda Downline / Komunitas */}
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
+                      {isDownline ? (
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-600 text-white shadow-xs">
+                            <Sparkles size={11} className="text-emerald-200" />
+                            {member.downline_label}
+                          </span>
+                          {member.binary_side && (
+                            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
+                              Kaki {member.binary_side}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                          <Users size={11} className="text-slate-400" />
+                          {member.downline_label}
+                        </span>
+                      )}
+
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                        {member.package_name || 'Paket Gold'}
+                      </span>
+                    </div>
+
+                    {isDownline && (
+                      <div className="mt-2.5 pt-2 border-t border-emerald-200/60 flex items-center justify-between text-xs">
+                        <span className="text-[11px] font-medium text-emerald-700">
+                          Jaringan Anda
+                        </span>
+                        <button
+                          onClick={() => setActiveTab(member.downline_type === 'direct_referral' ? 'referrals' : 'genealogy')}
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+                        >
+                          <span>Pohon Jaringan</span>
+                          <ArrowRight size={12} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Bottom: Recent Activity & Quick Ledger (DashLite nk-tb-list style) */}
       <div className="dash-card overflow-hidden">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between">
@@ -409,82 +588,71 @@ export default function OverviewTab({ stats, setActiveTab }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs">
-              <tr className="hover:bg-slate-50/80">
-                <td className="py-3.5 px-5 font-mono text-slate-600 font-medium">
-                  #TX-7f9a2b8e
-                </td>
-                <td className="py-3.5 px-5">
-                  <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px]">
-                    <ArrowDownLeft size={12} /> Kredit
-                  </span>
-                </td>
-                <td className="py-3.5 px-5 font-bold text-emerald-600 font-heading text-sm">
-                  + Rp 500.000
-                </td>
-                <td className="py-3.5 px-5 text-slate-700 font-medium">
-                  Bonus Sponsor Baru (Mitra @agus_bionet)
-                </td>
-                <td className="py-3.5 px-5 text-slate-400">
-                  Hari ini, 09:15 WIB
-                </td>
-                <td className="py-3.5 px-5">
-                  <span className="badge-dot badge-dot-success text-[11px] text-emerald-700">
-                    Selesai
-                  </span>
-                </td>
-              </tr>
-              <tr className="hover:bg-slate-50/80">
-                <td className="py-3.5 px-5 font-mono text-slate-600 font-medium">
-                  #TX-3d4c1a5b
-                </td>
-                <td className="py-3.5 px-5">
-                  <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[11px]">
-                    <ArrowDownLeft size={12} /> Kredit
-                  </span>
-                </td>
-                <td className="py-3.5 px-5 font-bold text-emerald-600 font-heading text-sm">
-                  + Rp 250.000
-                </td>
-                <td className="py-3.5 px-5 text-slate-700 font-medium">
-                  Bonus Pasangan Binary (10 Pasang Harian)
-                </td>
-                <td className="py-3.5 px-5 text-slate-400">
-                  Kemarin, 23:59 WIB
-                </td>
-                <td className="py-3.5 px-5">
-                  <span className="badge-dot badge-dot-success text-[11px] text-emerald-700">
-                    Selesai
-                  </span>
-                </td>
-              </tr>
-              <tr className="hover:bg-slate-50/80">
-                <td className="py-3.5 px-5 font-mono text-slate-600 font-medium">
-                  #TX-118fae49
-                </td>
-                <td className="py-3.5 px-5">
-                  <span className="inline-flex items-center gap-1 font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded text-[11px]">
-                    <ArrowUpRight size={12} /> Debit
-                  </span>
-                </td>
-                <td className="py-3.5 px-5 font-bold text-rose-600 font-heading text-sm">
-                  - Rp 1.000.000
-                </td>
-                <td className="py-3.5 px-5 text-slate-700 font-medium">
-                  Pencairan Saldo ke Rekening BCA
-                </td>
-                <td className="py-3.5 px-5 text-slate-400">
-                  18 Okt 2026, 14:20 WIB
-                </td>
-                <td className="py-3.5 px-5">
-                  <span className="badge-dot badge-dot-success text-[11px] text-emerald-700">
-                    Berhasil Ditransfer
-                  </span>
-                </td>
-              </tr>
+              {paginatedRecentTx.map((tx) => {
+                const isCredit = tx.type === 'credit';
+                return (
+                  <tr key={tx.id} className="hover:bg-slate-50/80">
+                    <td className="py-3.5 px-5 font-mono text-slate-600 font-medium">
+                      #{tx.id.substring(0, 8)}...
+                    </td>
+                    <td className="py-3.5 px-5">
+                      <span
+                        className={`inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded text-[11px] ${
+                          isCredit
+                            ? 'text-emerald-700 bg-emerald-50'
+                            : 'text-rose-700 bg-rose-50'
+                        }`}
+                      >
+                        {isCredit ? <ArrowDownLeft size={12} /> : <ArrowUpRight size={12} />}
+                        {isCredit ? 'Kredit' : 'Debit'}
+                      </span>
+                    </td>
+                    <td
+                      className={`py-3.5 px-5 font-bold font-heading text-sm ${
+                        isCredit ? 'text-emerald-600' : 'text-rose-600'
+                      }`}
+                    >
+                      {isCredit ? '+' : '-'} {formatRupiah(tx.amount)}
+                    </td>
+                    <td className="py-3.5 px-5 text-slate-700 font-medium">
+                      {tx.description || 'Mutasi saldo sistem'}
+                    </td>
+                    <td className="py-3.5 px-5 text-slate-400">
+                      {tx.created_at ? new Date(tx.created_at).toLocaleString('id-ID') : 'Hari ini'}
+                    </td>
+                    <td className="py-3.5 px-5">
+                      <span className="badge-dot badge-dot-success text-[11px] text-emerald-700">
+                        {tx.status || 'Selesai'}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        <DashPagination
+          currentPage={txPage}
+          totalPages={totalTxPages}
+          totalItems={recentTxList.length}
+          pageSize={txPageSize}
+          pageSizeOptions={[3, 5, 10, 25]}
+          onPageChange={setTxPage}
+          onPageSizeChange={setTxPageSize}
+        />
       </div>
+
+      {/* Profile & KYC Edit Modal */}
+      <ProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        currentUser={currentUser || stats?.user}
+        onProfileUpdated={(updated) => {
+          if (onProfileUpdated) onProfileUpdated(updated);
+        }}
+      />
     </div>
   );
 }

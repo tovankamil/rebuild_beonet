@@ -31,6 +31,7 @@ type WalletTransaction struct {
 	BalanceAfter    float64   `gorm:"type:decimal(15,2);not null" json:"balance_after"`
 	Description     string    `gorm:"type:varchar(255);not null" json:"description"`
 	TransactionDate time.Time `gorm:"autoCreateTime;index:idx_user_date" json:"transaction_date"`
+	CreatedAt       time.Time `gorm:"autoCreateTime" json:"created_at"`
 
 	User *User `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user,omitempty"`
 }
@@ -38,6 +39,12 @@ type WalletTransaction struct {
 func (wt *WalletTransaction) BeforeCreate(tx *gorm.DB) (err error) {
 	if wt.ID == "" {
 		wt.ID = uuid.New().String()
+	}
+	if wt.TransactionDate.IsZero() {
+		wt.TransactionDate = time.Now()
+	}
+	if wt.CreatedAt.IsZero() {
+		wt.CreatedAt = wt.TransactionDate
 	}
 	return
 }

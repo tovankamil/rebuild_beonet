@@ -11,11 +11,16 @@ Selamat datang di dokumentasi resmi proyek **Rebuild Bionet**. Dokumentasi ini b
    - Pengelompokan 8 modul utama sistem (User, Genealogi MLM, Wallet, PIN/Stokis, Bonus & Reward, E-Commerce, Master Wilayah, System/Log).
    - Kamus data, jumlah baris, dan indeks utama tiap modul.
 
-2. **Rencana Arsitektur & Migrasi Rebuild (`rebuild_plan.md`)**
+2. [**Rencana Arsitektur & Migrasi Rebuild (`rebuild_plan.md`)**](./rebuild_plan.md)
    - Daftar 26 tabel yang direkomendasikan untuk didepresiasi/dihapus (tabel kosong & duplikat).
    - Strategi penyederhanaan skema dari 70 tabel menjadi 35 tabel inti.
    - Strategi optimasi *Tree Closure Table* untuk hirarki Sponsor & Upline.
    - Rekomendasi normalisasi Primary Key / Foreign Key (`user_id` vs `username`).
+
+3. [**Laporan Status Progress & Pending Roadmap (`STATUS_PROGRESS_REBUILD.md`)**](./STATUS_PROGRESS_REBUILD.md)
+   - Matriks komparasi fitur yang sudah selesai dikerjakan vs belum dikerjakan.
+   - Analisis kesenjangan pada Fase 1-4 dan PRD Dashboard Mitra.
+   - Catatan audit UI/UX dan rencana sprint selanjutnya.
 
 ---
 

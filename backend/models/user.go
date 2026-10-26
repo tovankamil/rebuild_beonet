@@ -12,11 +12,15 @@ type User struct {
 	Username     string    `gorm:"type:varchar(50);unique;not null" json:"username"`
 	FullName     string    `gorm:"type:varchar(150);not null" json:"full_name"`
 	PasswordHash string    `gorm:"type:varchar(255);not null" json:"-"`
-	Role         string    `gorm:"type:enum('member','admin','stokis');default:'member'" json:"role"`
-	Phone        *string   `gorm:"type:varchar(20)" json:"phone"`
-	Status       string    `gorm:"type:enum('active','suspended','pending');default:'active'" json:"status"`
-	CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	Role         string    `gorm:"type:varchar(30);default:'member'" json:"role"`
+	Phone        *string        `gorm:"type:varchar(20)" json:"phone"`
+	KTP          string         `gorm:"type:varchar(30)" json:"ktp"`
+	NPWP         string         `gorm:"type:varchar(30)" json:"npwp"`
+	Avatar       string         `gorm:"type:varchar(255)" json:"avatar"`
+	Status       string         `gorm:"type:enum('active','suspended','pending');default:'active'" json:"status"`
+	CreatedAt    time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt    time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	DeletedAt    gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

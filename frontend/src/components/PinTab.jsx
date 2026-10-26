@@ -11,10 +11,15 @@ import {
   Package,
 } from 'lucide-react';
 import api from '../services/api';
+import DashPagination from './dashlite/DashPagination';
+import ExportButtons from './dashlite/ExportButtons';
+import { formatExportDate } from '../utils/exportUtils';
 
 export default function PinTab() {
   const [pins, setPins] = useState([]);
   const [packages, setPackages] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedPinId, setSelectedPinId] = useState('');
   const [targetUsername, setTargetUsername] = useState('');
   const [loading, setLoading] = useState(false);
@@ -88,6 +93,8 @@ export default function PinTab() {
   };
 
   const activePins = pins.filter((p) => p.status === 'active');
+  const totalPages = Math.ceil(pins.length / pageSize) || 1;
+  const paginatedPins = pins.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="space-y-6">
@@ -226,13 +233,25 @@ export default function PinTab() {
 
         {/* PIN Inventory Table (Col 7) */}
         <div className="lg:col-span-7 dash-card overflow-hidden">
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+          <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h4 className="font-heading font-bold text-base text-slate-800">
                 Inventori PIN Anda
               </h4>
               <p className="text-xs text-slate-400">Total {pins.length} serial lisensi</p>
             </div>
+            <ExportButtons
+              filename="Inventori_PIN_Mitra"
+              title="INVENTORI SERIAL PIN MITRA BIONET"
+              subtitle="Stok serial PIN aktif dan terpakai untuk aktivasi paket hak usaha"
+              headers={['SERIAL CODE', 'PAKET HU', 'STATUS', 'TANGGAL']}
+              rows={pins.map((p) => [
+                p.serial_code,
+                p.package?.name || 'Paket Standar',
+                p.status === 'active' ? 'AKTIF (TERSEDIA)' : 'TERPAKAI',
+                formatExportDate(p.created_at, { includeTime: false }),
+              ])}
+            />
           </div>
 
           <div className="overflow-x-auto">
@@ -261,7 +280,7 @@ export default function PinTab() {
                     </td>
                   </tr>
                 ) : (
-                  pins.map((pin) => (
+                  paginatedPins.map((pin) => (
                     <tr key={pin.id} className="hover:bg-slate-50/80">
                       <td className="py-3 px-4 font-mono font-bold text-slate-800">
                         {pin.pin_code}
@@ -303,6 +322,16 @@ export default function PinTab() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          <DashPagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalItems={pins.length}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+          />
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import api from '../../services/api';
 import {
   LayoutDashboard,
   GitFork,
@@ -22,25 +23,228 @@ import {
   LogOut,
   ChevronRight,
   ExternalLink,
+  Boxes,
+  Truck,
+  Zap,
+  MessagesSquare,
 } from 'lucide-react';
 import DashAvatar from './DashAvatar';
 
 /**
- * DashLite Demo 3 - Signature Apps Sidebar with Mobile Drawer & Interactive Hover Flyouts
+ * Dynamic Role-Based Menu Modules Generator
  */
-export default function AppsSidebar({
-  activeTab,
-  setActiveTab,
-  user,
-  onLogout,
-  mobileOpen = false,
-  setMobileOpen,
-}) {
-  const [hoveredMenu, setHoveredMenu] = useState(null);
-  const [flyoutTop, setFlyoutTop] = useState(0);
-  const timeoutRef = useRef(null);
+function getRoleMenuModules(role) {
+  if (role === 'admin') {
+    return [
+      {
+        id: 'admin-overview',
+        title: 'Overview Admin',
+        icon: LayoutDashboard,
+        badge: 'Admin',
+        submenus: [
+          { id: 'admin-overview', title: 'Ringkasan Eksekutif', desc: 'KPI global pengguna, bonus & omset', icon: LayoutDashboard },
+          { id: 'admin-withdrawals', title: 'Approval Pencairan Dana', desc: 'Verifikasi penarikan saldo mitra', icon: Landmark },
+        ],
+      },
+      {
+        id: 'admin-users',
+        title: 'Manajemen Pengguna & RBAC',
+        icon: Users,
+        badge: 'RBAC',
+        submenus: [
+          { id: 'admin-users', title: 'Direktori Pengguna', desc: 'Mitra, Gudang, Administrator', icon: Users },
+          { id: 'admin-users', title: 'Alokasi Role & Status Akun', desc: 'Ubah role & status aktif/suspend', icon: Shield },
+        ],
+      },
+      {
+        id: 'admin-transactions',
+        title: 'Buku Besar & Bonus Pasangan',
+        icon: Wallet,
+        badge: 'Ledger',
+        submenus: [
+          { id: 'admin-transactions', title: 'Buku Besar Transaksi', desc: 'Seluruh mutasi kredit & debit platform', icon: Wallet },
+          { id: 'admin-transactions', title: 'Audit Bonus Pasangan', desc: 'Riwayat pembayaran matching binary', icon: Zap },
+        ],
+      },
+      {
+        id: 'admin-points',
+        title: 'Poin Pasangan Binary',
+        icon: GitFork,
+        badge: 'Kaki Binary',
+        submenus: [
+          { id: 'admin-points', title: 'Keseimbangan Kaki Kiri/Kanan', desc: 'Volume omset PV & rasio kaki', icon: GitFork },
+          { id: 'admin-points', title: 'Potensi Pasangan & Adjust Poin', desc: 'Matching pair & koreksi manual', icon: TrendingUp },
+        ],
+      },
+      {
+        id: 'admin-pins',
+        title: 'Stokis & Serial PIN',
+        icon: KeyRound,
+        badge: 'HU',
+        submenus: [
+          { id: 'admin-pins', title: 'Master Serial PIN', desc: 'Inventori PIN Silver, Gold, Platinum', icon: KeyRound },
+          { id: 'admin-pins', title: 'Log Transfer Antar Mitra', desc: 'Riwayat mutasi PIN jaringan', icon: Send },
+          { id: 'admin-pins', title: 'Pencetakan PIN Baru', desc: 'Generate serial PIN untuk mitra', icon: Sparkles },
+        ],
+      },
+      {
+        id: 'admin-orders',
+        title: 'Pesanan RO E-Commerce',
+        icon: ShoppingBag,
+        badge: 'RO',
+        submenus: [
+          { id: 'admin-orders', title: 'Daftar Invoice Belanja RO', desc: 'Pesanan produk repeat order mitra', icon: ShoppingBag },
+          { id: 'admin-orders', title: 'Audit Status & Resi Ekspedisi', desc: 'Alur fulfillment pesanan', icon: Truck },
+        ],
+      },
+      {
+        id: 'admin-withdrawals',
+        title: 'Pencairan Dana (WD)',
+        icon: Landmark,
+        badge: 'Flip.id',
+        submenus: [
+          { id: 'admin-withdrawals', title: 'Daftar Request Withdrawal', desc: 'Persetujuan transfer dana Flip.id', icon: Landmark },
+          { id: 'overview', title: 'Mode Pratinjau Portal Mitra', desc: 'Lihat tampilan dari sudut pandang mitra', icon: ExternalLink },
+        ],
+      },
+      {
+        id: 'chat',
+        title: 'Live Chat Bantuan',
+        icon: MessagesSquare,
+        badge: 'Support',
+        submenus: [
+          { id: 'chat', title: 'Helpdesk & Chat Mitra', desc: 'Respon tiket & pesan live mitra', icon: MessagesSquare },
+        ],
+      },
+      {
+        id: 'components',
+        title: 'Galeri Komponen',
+        icon: Palette,
+        badge: 'UI Kit',
+        submenus: [
+          { id: 'components', title: 'Komponen DashLite Demo 3', desc: 'Desain token & elemen UI', icon: Palette },
+        ],
+      },
+    ];
+  }
 
-  const menuModules = [
+  if (role === 'keuangan') {
+    return [
+      {
+        id: 'admin-overview',
+        title: 'Overview Finansial',
+        icon: LayoutDashboard,
+        badge: 'Kasir',
+        submenus: [
+          { id: 'admin-overview', title: 'Ringkasan Kas & Omset', desc: 'KPI finansial platform & kas masuk', icon: LayoutDashboard },
+        ],
+      },
+      {
+        id: 'admin-transactions',
+        title: 'Buku Besar & Bonus',
+        icon: Wallet,
+        badge: 'Ledger',
+        submenus: [
+          { id: 'admin-transactions', title: 'Buku Besar Transaksi', desc: 'Mutasi kredit & debit lengkap', icon: Wallet },
+        ],
+      },
+      {
+        id: 'admin-withdrawals',
+        title: 'Pencairan Dana (WD)',
+        icon: Landmark,
+        badge: 'Flip.id',
+        submenus: [
+          { id: 'admin-withdrawals', title: 'Validasi Approval Withdrawal', desc: 'Persetujuan transfer dana Flip.id', icon: Landmark },
+        ],
+      },
+      {
+        id: 'chat',
+        title: 'Live Chat Bantuan',
+        icon: MessagesSquare,
+        badge: 'CS',
+        submenus: [
+          { id: 'chat', title: 'Chat Mitra & Konfirmasi Payout', desc: 'Layanan tanya jawab transaksi', icon: MessagesSquare },
+        ],
+      },
+    ];
+  }
+
+  if (role === 'cs') {
+    return [
+      {
+        id: 'admin-overview',
+        title: 'Overview Helpdesk',
+        icon: LayoutDashboard,
+        badge: 'CS',
+        submenus: [
+          { id: 'admin-overview', title: 'Ringkasan Operasional CS', desc: 'Aktivitas mitra & performa layanan', icon: LayoutDashboard },
+        ],
+      },
+      {
+        id: 'admin-users',
+        title: 'Direktori Pengguna',
+        icon: Users,
+        badge: 'Mitra',
+        submenus: [
+          { id: 'admin-users', title: 'Data Anggota & Sponsor', desc: 'Audit profil & status akun mitra', icon: Users },
+        ],
+      },
+      {
+        id: 'chat',
+        title: 'Live Chat Bantuan',
+        icon: MessagesSquare,
+        badge: 'Live',
+        submenus: [
+          { id: 'chat', title: 'Tiket Chat Bantuan Mitra', desc: 'Layanan interaktif real-time 24/7', icon: MessagesSquare },
+        ],
+      },
+    ];
+  }
+
+  if (role === 'gudang') {
+    return [
+      {
+        id: 'warehouse-overview',
+        title: 'Portal Logistik Gudang',
+        icon: Building2,
+        badge: 'Gudang',
+        submenus: [
+          { id: 'warehouse-overview', title: 'Ringkasan Stok & Logistik', desc: 'Status fisik barang & antrean', icon: Building2 },
+          { id: 'warehouse-orders', title: 'Antrean Packing & Kirim', desc: 'Pemenuhan pesanan RO', icon: Truck },
+        ],
+      },
+      {
+        id: 'warehouse-inventory',
+        title: 'Inventori & Restock',
+        icon: Layers,
+        badge: 'Stok',
+        submenus: [
+          { id: 'warehouse-overview', title: 'Katalog Stok Fisik', desc: 'Penyesuaian stok produk', icon: Layers },
+        ],
+      },
+      {
+        id: 'warehouse-orders',
+        title: 'Pemrosesan Pesanan RO',
+        icon: ShoppingBag,
+        badge: 'Fulfillment',
+        submenus: [
+          { id: 'warehouse-overview', title: 'Daftar Pesanan Siap Kirim', desc: 'Input nomor resi pengiriman', icon: Send },
+        ],
+      },
+      {
+        id: 'products',
+        title: 'Katalog Produk Herbal',
+        icon: Sparkles,
+        badge: 'Produk',
+        submenus: [
+          { id: 'products', title: 'Katalog Produk Bionet', desc: 'Spesifikasi & foto produk', icon: ShoppingBag },
+        ],
+      },
+    ];
+  }
+
+  // Default: Member / Mitra
+  return [
     {
       id: 'overview',
       title: 'Overview & Sales',
@@ -123,6 +327,15 @@ export default function AppsSidebar({
       ],
     },
     {
+      id: 'chat',
+      title: 'Live Chat Bantuan',
+      icon: MessagesSquare,
+      badge: 'CS',
+      submenus: [
+        { id: 'chat', title: 'Chat Layanan Pelanggan', desc: 'Bantuan kemitraan & tiket kendala', icon: MessagesSquare },
+      ],
+    },
+    {
       id: 'components',
       title: 'Komponen DashLite',
       icon: Palette,
@@ -133,9 +346,51 @@ export default function AppsSidebar({
       ],
     },
   ];
+}
+
+/**
+ * DashLite Demo 3 - Signature Apps Sidebar with Mobile Drawer & Interactive Hover Flyouts
+ */
+export default function AppsSidebar({
+  activeTab,
+  setActiveTab,
+  user,
+  onLogout,
+  mobileOpen = false,
+  setMobileOpen,
+}) {
+  const [hoveredMenu, setHoveredMenu] = useState(null);
+  const [flyoutTop, setFlyoutTop] = useState(0);
+  const timeoutRef = useRef(null);
+
+  const userRole = user?.role || 'member';
+  const [dynamicAllowedKeys, setDynamicAllowedKeys] = useState(null);
+
+  // Load dynamic menu permissions from database for active role
+  useEffect(() => {
+    let isMounted = true;
+    api
+      .get('/rbac/my-menus')
+      .then((res) => {
+        if (isMounted && res.data?.data) {
+          const keys = res.data.data.map((m) => m.menu_key);
+          setDynamicAllowedKeys(keys);
+        }
+      })
+      .catch((err) => {
+        console.warn('Fallback to standard role menu structure:', err.message);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [userRole]);
+
+  const baseModules = getRoleMenuModules(userRole);
+  const menuModules = dynamicAllowedKeys
+    ? baseModules.filter((m) => dynamicAllowedKeys.includes(m.id))
+    : baseModules;
 
   const handleMouseEnter = (menuItem, event) => {
-    // On touch/mobile screen, hover shouldn't fire aggressively
     if (window.innerWidth < 1024) return;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     const rect = event.currentTarget.getBoundingClientRect();
@@ -158,7 +413,6 @@ export default function AppsSidebar({
   const handleIconClick = (item, event) => {
     setActiveTab(item.id);
     if (window.innerWidth < 1024) {
-      // On mobile devices, clicking toggles the flyout submenu so user can select a sub-feature
       if (hoveredMenu?.id === item.id) {
         setHoveredMenu(null);
         if (setMobileOpen) setMobileOpen(false);
@@ -185,9 +439,15 @@ export default function AppsSidebar({
     if (setMobileOpen) setMobileOpen(false);
   };
 
+  const roleLabel = {
+    admin: 'SUPER ADMIN',
+    gudang: 'TIM GUDANG',
+    member: 'MITRA BIONET',
+  }[userRole] || 'PENGGUNA';
+
   return (
     <>
-      {/* Mobile Backdrop Overlay (Visible only when mobile drawer is open) */}
+      {/* Mobile Backdrop Overlay */}
       {mobileOpen && (
         <div
           onClick={() => {
@@ -200,7 +460,6 @@ export default function AppsSidebar({
       )}
 
       {/* 1. Main 68px Slim Apps Icon Sidebar */}
-      {/* Hidden by default on mobile (-translate-x-full), visible on desktop (lg:translate-x-0) */}
       <aside
         className={`w-[68px] bg-[#051812] border-r border-[#0d362a] flex flex-col items-center justify-between py-4 fixed top-0 left-0 h-screen z-50 shadow-2xl select-none transition-transform duration-300 ease-in-out ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
@@ -210,18 +469,19 @@ export default function AppsSidebar({
         <div className="flex flex-col items-center gap-2.5 w-full">
           <div
             onClick={() => {
-              setActiveTab('overview');
+              const defaultTab = userRole === 'admin' ? 'admin-overview' : userRole === 'gudang' ? 'warehouse-overview' : 'overview';
+              setActiveTab(defaultTab);
               if (setMobileOpen) setMobileOpen(false);
             }}
             className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 flex items-center justify-center cursor-pointer shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 transition-transform"
-            title="Bionet Mitra Hub"
+            title="Bionet Hub"
           >
             <Layers size={22} className="text-white" strokeWidth={2} />
           </div>
 
           <div className="w-7 h-[1px] bg-emerald-900/60 my-1" />
 
-          {/* Navigation Icons List (with scrollbar-none for small phone heights) */}
+          {/* Navigation Icons List */}
           <nav className="flex flex-col items-center gap-2 w-full px-2 overflow-y-auto max-h-[calc(100vh-140px)] scrollbar-none">
             {menuModules.map((item) => {
               const Icon = item.icon;
@@ -253,7 +513,7 @@ export default function AppsSidebar({
           </nav>
         </div>
 
-        {/* Bottom User Avatar Trigger (Mint Circle with 'M' & Online Dot) */}
+        {/* Bottom User Avatar Trigger */}
         <div
           onClick={(e) => {
             if (window.innerWidth < 1024) {
@@ -261,11 +521,10 @@ export default function AppsSidebar({
               setFlyoutTop(Math.max(12, rect.top - 180));
               setHoveredMenu({
                 id: 'profile',
-                title: user?.full_name || user?.username || 'Mitra Bionet',
-                badge: 'Akun Mitra',
+                title: user?.full_name || user?.username || 'Akun Pengguna',
+                badge: roleLabel,
                 submenus: [
-                  { id: 'overview', title: 'Dashboard Utama', desc: `@${user?.username || 'mitra'}`, icon: LayoutDashboard },
-                  { action: 'copy_ref', title: 'Salin Link Referral', desc: 'Bagikan ke calon mitra baru', icon: Share2 },
+                  { action: 'copy_ref', title: 'Salin Link Referral', desc: 'Bagikan ke calon mitra', icon: Share2 },
                   { id: 'bank', title: 'Pengaturan Rekening Bank', desc: 'Data bank penerima bonus', icon: Building2 },
                   { action: 'logout', title: 'Keluar dari Sistem', desc: 'Akhiri sesi akun aman', icon: LogOut, danger: true },
                 ],
@@ -276,11 +535,10 @@ export default function AppsSidebar({
             handleMouseEnter(
               {
                 id: 'profile',
-                title: user?.full_name || user?.username || 'Mitra Bionet',
-                badge: 'Akun Mitra',
+                title: user?.full_name || user?.username || 'Akun Pengguna',
+                badge: roleLabel,
                 submenus: [
-                  { id: 'overview', title: 'Dashboard Utama', desc: `@${user?.username || 'mitra'}`, icon: LayoutDashboard },
-                  { action: 'copy_ref', title: 'Salin Link Referral', desc: 'Bagikan ke calon mitra baru', icon: Share2 },
+                  { action: 'copy_ref', title: 'Salin Link Referral', desc: 'Bagikan ke calon mitra', icon: Share2 },
                   { id: 'bank', title: 'Pengaturan Rekening Bank', desc: 'Data bank penerima bonus', icon: Building2 },
                   { action: 'logout', title: 'Keluar dari Sistem', desc: 'Akhiri sesi akun aman', icon: LogOut, danger: true },
                 ],
@@ -292,16 +550,21 @@ export default function AppsSidebar({
           className="relative flex items-center justify-center cursor-pointer p-1 rounded-full hover:scale-105 active:scale-95 transition-transform"
         >
           <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-[#bbf7d0] text-[#065f46] font-heading font-extrabold text-sm flex items-center justify-center shadow-sm">
-              {user?.username ? user.username.charAt(0).toUpperCase() : 'M'}
+            <div className={`w-10 h-10 rounded-full font-heading font-extrabold text-sm flex items-center justify-center shadow-sm ${
+              userRole === 'admin'
+                ? 'bg-amber-200 text-amber-900'
+                : userRole === 'gudang'
+                ? 'bg-sky-200 text-sky-900'
+                : 'bg-[#bbf7d0] text-[#065f46]'
+            }`}>
+              {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
             </div>
-            {/* Green Online Dot with Dark Ring */}
             <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#10b981] ring-2 ring-[#051812]" />
           </div>
         </div>
       </aside>
 
-      {/* 2. Floating Flyout Submenu Panel (Seamless hover on desktop, touch tap on mobile) */}
+      {/* 2. Floating Flyout Submenu Panel */}
       {hoveredMenu && (
         <div
           onMouseEnter={handleFlyoutMouseEnter}
@@ -309,13 +572,13 @@ export default function AppsSidebar({
           style={{ top: `${flyoutTop}px` }}
           className="fixed left-[68px] z-50 w-72 bg-[#061d15] border border-[#0f4637] rounded-xl shadow-[0_10px_35px_rgba(0,0,0,0.5)] p-3.5 text-white animate-in fade-in slide-in-from-left-1 duration-150 before:absolute before:-left-3 before:top-0 before:bottom-0 before:w-3 before:content-['']"
         >
-          {/* Subtle Left Connector Caret pointing at the hovered icon */}
+          {/* Subtle Left Connector Caret */}
           <div className="absolute -left-1.5 top-4 w-3 h-3 bg-[#061d15] border-l border-b border-[#0f4637] rotate-45 pointer-events-none" />
 
           {/* Header of Flyout */}
           <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-[#0f4637]/80 relative z-10">
             <div className="flex items-center gap-2">
-              <span className="font-heading font-extrabold text-xs text-white tracking-wide">
+              <span className="font-heading font-extrabold text-xs text-white tracking-wide truncate max-w-[170px]">
                 {hoveredMenu.title}
               </span>
             </div>
@@ -326,7 +589,7 @@ export default function AppsSidebar({
             )}
           </div>
 
-          {/* Submenu Links List */}
+          {/* Submenu Links List (Best-practice clean transparent background, shows bg on hover only) */}
           <div className="space-y-1 relative z-10">
             {hoveredMenu.submenus?.map((sub, idx) => {
               const SubIcon = sub.icon || ChevronRight;
@@ -344,34 +607,36 @@ export default function AppsSidebar({
                       handleSubmenuClick(sub);
                     }
                   }}
-                  className={`w-full flex items-start gap-2.5 p-2 rounded-lg text-left transition-all ${
+                  className={`w-full flex items-start gap-2.5 p-2 rounded-lg text-left transition-colors duration-150 group bg-transparent hover:bg-[#0a2e22] ${
                     sub.danger
-                      ? 'hover:bg-rose-500/10 text-rose-400 hover:text-rose-300'
+                      ? 'text-rose-400 hover:text-rose-300'
                       : isSubActive
-                      ? 'bg-emerald-600/30 border border-emerald-500/40 text-emerald-200'
-                      : 'hover:bg-[#0a2e22] text-slate-300 hover:text-white'
+                      ? 'text-emerald-300 hover:text-white'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
                   <div
-                    className={`p-1.5 rounded-md flex-shrink-0 mt-0.5 ${
-                      isSubActive
-                        ? 'bg-emerald-500 text-slate-900'
-                        : sub.danger
+                    className={`p-1.5 rounded-md flex-shrink-0 mt-0.5 transition-colors ${
+                      sub.danger
                         ? 'bg-rose-500/20 text-rose-400'
-                        : 'bg-[#0d3b2c] text-emerald-300'
+                        : isSubActive
+                        ? 'bg-[#0d3b2c] text-emerald-400 ring-1 ring-emerald-500/30'
+                        : 'bg-[#082218] text-slate-400 group-hover:text-emerald-300'
                     }`}
                   >
                     <SubIcon size={14} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-bold leading-tight flex items-center justify-between">
-                      <span>{sub.title}</span>
+                      <span className={isSubActive ? 'text-emerald-300 group-hover:text-white' : 'text-slate-200 group-hover:text-white'}>
+                        {sub.title}
+                      </span>
                       {isSubActive && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" title="Menu Aktif" />
                       )}
                     </div>
                     {sub.desc && (
-                      <p className="text-[10px] text-emerald-400/60 leading-tight mt-0.5 truncate">
+                      <p className="text-[10px] text-emerald-400/60 leading-tight mt-0.5 truncate group-hover:text-emerald-300/80">
                         {sub.desc}
                       </p>
                     )}

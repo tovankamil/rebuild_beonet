@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, RefreshCw, Sparkles, CheckCircle2, ShieldCheck, Heart } from 'lucide-react';
 import api from '../services/api';
+import DashPagination from './dashlite/DashPagination';
 
 export default function ProductsTab() {
   const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
   const [fetching, setFetching] = useState(true);
   const [orderedItem, setOrderedItem] = useState(null);
 
@@ -37,6 +40,9 @@ export default function ProductsTab() {
     setOrderedItem(prod);
     setTimeout(() => setOrderedItem(null), 3500);
   };
+
+  const totalPages = Math.ceil(products.length / pageSize) || 1;
+  const paginatedProducts = products.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="space-y-6">
@@ -78,8 +84,9 @@ export default function ProductsTab() {
           <p className="text-xs">Memuat katalog produk herbal...</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((p) => (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {paginatedProducts.map((p) => (
             <div
               key={p.id}
               className="dash-card overflow-hidden flex flex-col justify-between group hover:border-emerald-300 transition-all"
@@ -139,6 +146,20 @@ export default function ProductsTab() {
             </div>
           ))}
         </div>
+
+        {/* Catalog Pagination */}
+        <div className="dash-card p-0 overflow-hidden bg-white shadow-xs">
+          <DashPagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalItems={products.length}
+            pageSize={pageSize}
+            pageSizeOptions={[4, 8, 12, 24, 48]}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+          />
+        </div>
+      </div>
       )}
     </div>
   );

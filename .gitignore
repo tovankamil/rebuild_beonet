@@ -24,6 +24,11 @@ backend/.env
 .env.local
 .env.*.local
 
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Logs
 *.log
 npm-debug.log*
@@ -34,3 +39,4 @@ yarn-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
+

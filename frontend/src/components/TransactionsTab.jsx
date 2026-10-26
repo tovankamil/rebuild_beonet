@@ -9,10 +9,15 @@ import {
   Filter,
 } from 'lucide-react';
 import api from '../services/api';
+import DashPagination from './dashlite/DashPagination';
+import ExportButtons from './dashlite/ExportButtons';
+import { formatExportDate } from '../utils/exportUtils';
 
 export default function TransactionsTab({ walletBalance }) {
   const [transactions, setTransactions] = useState([]);
   const [filterType, setFilterType] = useState('all');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -47,6 +52,9 @@ export default function TransactionsTab({ walletBalance }) {
     if (filterType === 'all') return true;
     return t.type === filterType;
   });
+
+  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   const totalCredit = transactions
     .filter((t) => t.type === 'credit')
@@ -131,20 +139,41 @@ export default function TransactionsTab({ walletBalance }) {
             <p className="text-xs text-slate-400">Menampilkan {filtered.length} transaksi</p>
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+          <div className="flex flex-wrap items-center gap-2">
+            <ExportButtons
+              filename="Mutasi_Saldo_Bionet"
+              title="BUKU BESAR MUTASI SALDO DOMPET MITRA"
+              subtitle="Rekapitulasi transaksi kredit (bonus) & debit (penarikan dana)"
+              headers={['TANGGAL', 'TIPE', 'NOMINAL (RP)', 'SALDO AKHIR (RP)', 'DESKRIPSI']}
+              rows={filtered.map((t) => [
+                formatExportDate(t.transaction_date || t.created_at),
+                t.type === 'credit' ? 'KREDIT (+)' : 'DEBIT (-)',
+                formatRupiah(t.amount),
+                formatRupiah(t.balance_after),
+                t.description,
+              ])}
+            />
+
+            {/* Filter Pills */}
+            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+              <button
+                onClick={() => {
+                  setFilterType('all');
+                  setPage(1);
+                }}
+                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                  filterType === 'all'
+                    ? 'bg-white text-slate-800 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                Semua
+              </button>
             <button
-              onClick={() => setFilterType('all')}
-              className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
-                filterType === 'all'
-                  ? 'bg-white text-slate-800 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Semua
-            </button>
-            <button
-              onClick={() => setFilterType('credit')}
+              onClick={() => {
+                setFilterType('credit');
+                setPage(1);
+              }}
               className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
                 filterType === 'credit'
                   ? 'bg-white text-emerald-700 shadow-sm'
@@ -153,16 +182,20 @@ export default function TransactionsTab({ walletBalance }) {
             >
               Kredit (+)
             </button>
-            <button
-              onClick={() => setFilterType('debit')}
-              className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
-                filterType === 'debit'
-                  ? 'bg-white text-rose-700 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Debit (-)
-            </button>
+              <button
+                onClick={() => {
+                  setFilterType('debit');
+                  setPage(1);
+                }}
+                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                  filterType === 'debit'
+                    ? 'bg-white text-rose-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                Debit (-)
+              </button>
+            </div>
           </div>
         </div>
 
@@ -202,7 +235,7 @@ export default function TransactionsTab({ walletBalance }) {
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => (
+                paginated.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/80">
                     <td className="py-3.5 px-5 font-mono text-slate-600 font-medium">
                       #{item.id.substring(0, 8)}...
@@ -241,6 +274,16 @@ export default function TransactionsTab({ walletBalance }) {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        <DashPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={filtered.length}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
     </div>
   );

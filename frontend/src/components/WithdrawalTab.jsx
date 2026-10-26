@@ -13,11 +13,16 @@ import {
   Check,
 } from 'lucide-react';
 import api from '../services/api';
+import DashPagination from './dashlite/DashPagination';
+import ExportButtons from './dashlite/ExportButtons';
+import { formatExportDate } from '../utils/exportUtils';
 
 export default function WithdrawalTab({ walletBalance, onWithdrawalSuccess, bank }) {
   const [amount, setAmount] = useState('');
   const [withdrawals, setWithdrawals] = useState([]);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [successMsg, setSuccessMsg] = useState('');
@@ -113,6 +118,9 @@ export default function WithdrawalTab({ walletBalance, onWithdrawalSuccess, bank
     if (filterStatus === 'rejected') return w.status === 'rejected';
     return true;
   });
+
+  const totalWdPages = Math.ceil(filteredWithdrawals.length / pageSize) || 1;
+  const paginatedWithdrawals = filteredWithdrawals.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="space-y-6">
@@ -322,38 +330,67 @@ export default function WithdrawalTab({ walletBalance, onWithdrawalSuccess, bank
             <p className="text-xs text-slate-400">Daftar transaksi penarikan saldo dompet ke rekening bank</p>
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg self-start sm:self-auto">
-            <button
-              onClick={() => setFilterStatus('all')}
-              className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
-                filterStatus === 'all'
-                  ? 'bg-white text-slate-800 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Semua
-            </button>
-            <button
-              onClick={() => setFilterStatus('pending')}
-              className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
-                filterStatus === 'pending'
-                  ? 'bg-white text-amber-700 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Sedang Diproses
-            </button>
-            <button
-              onClick={() => setFilterStatus('completed')}
-              className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
-                filterStatus === 'completed'
-                  ? 'bg-white text-emerald-700 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Berhasil
-            </button>
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <ExportButtons
+              filename="Riwayat_Pencairan_Bionet"
+              title="RIWAYAT PENCAIRAN DANA (WITHDRAWAL)"
+              subtitle="Rekapitulasi riwayat penarikan saldo mitra Bionet ke rekening bank"
+              headers={['ID REF', 'TANGGAL', 'BANK TUJUAN', 'NO. REKENING', 'PEMILIK', 'NOMINAL KOTOR', 'BIAYA ADMIN', 'NOMINAL BERSIH', 'STATUS']}
+              rows={filteredWithdrawals.map((w) => [
+                w.id ? w.id.slice(0, 8).toUpperCase() : '-',
+                formatExportDate(w.created_at || w.updated_at),
+                w.bank?.bank_name || 'BCA',
+                w.bank?.account_number || '-',
+                w.bank?.account_name || '-',
+                formatRupiah(w.amount),
+                formatRupiah(w.admin_fee),
+                formatRupiah(w.net_amount),
+                w.status === 'completed' || w.status === 'approved' ? 'SELESAI' : w.status === 'rejected' ? 'DITOLAK' : 'PROSES',
+              ])}
+            />
+
+            {/* Filter Pills */}
+            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+              <button
+                onClick={() => {
+                  setFilterStatus('all');
+                  setPage(1);
+                }}
+                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                  filterStatus === 'all'
+                    ? 'bg-white text-slate-800 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                Semua
+              </button>
+              <button
+                onClick={() => {
+                  setFilterStatus('pending');
+                  setPage(1);
+                }}
+                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                  filterStatus === 'pending'
+                    ? 'bg-white text-amber-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                Sedang Diproses
+              </button>
+              <button
+                onClick={() => {
+                  setFilterStatus('completed');
+                  setPage(1);
+                }}
+                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${
+                  filterStatus === 'completed'
+                    ? 'bg-white text-emerald-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                Berhasil
+              </button>
+            </div>
           </div>
         </div>
 
@@ -386,7 +423,7 @@ export default function WithdrawalTab({ walletBalance, onWithdrawalSuccess, bank
                   </td>
                 </tr>
               ) : (
-                filteredWithdrawals.map((w) => (
+                paginatedWithdrawals.map((w) => (
                   <tr key={w.id} className="hover:bg-slate-50/80">
                     <td className="py-3.5 px-5 font-mono text-slate-600 font-medium">
                       <div className="flex items-center gap-1.5">
@@ -430,6 +467,16 @@ export default function WithdrawalTab({ walletBalance, onWithdrawalSuccess, bank
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        <DashPagination
+          currentPage={page}
+          totalPages={totalWdPages}
+          totalItems={filteredWithdrawals.length}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
     </div>
   );

@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Search, RefreshCw, Phone, CheckCircle2, AlertCircle, Share2, Check } from 'lucide-react';
 import api from '../services/api';
+import DashPagination from './dashlite/DashPagination';
+import ExportButtons from './dashlite/ExportButtons';
+import { formatExportDate } from '../utils/exportUtils';
 
 export default function ReferralsTab() {
   const [referrals, setReferrals] = useState([]);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
@@ -40,6 +45,9 @@ export default function ReferralsTab() {
     item.username.toLowerCase().includes(search.toLowerCase()) ||
     item.full_name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="space-y-6">
@@ -91,15 +99,34 @@ export default function ReferralsTab() {
             <p className="text-xs text-slate-400">Total mitra di bawah garis sponsor langsung Anda</p>
           </div>
 
-          <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Cari nama / username..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="dash-input pl-9 py-1.5 text-xs w-60"
+          <div className="flex items-center gap-2">
+            <ExportButtons
+              filename="Direct_Referral_Bionet"
+              title="DAFTAR MITRA SPONSOR LANGSUNG (DIRECT REFERRALS)"
+              subtitle="Data mitra binaan yang mendaftar melalui link sponsor Anda"
+              headers={['USERNAME', 'NAMA MITRA', 'KONTAK WHATSAPP', 'STATUS', 'TANGGAL BERGABUNG']}
+              rows={filtered.map((item) => [
+                item.username,
+                item.full_name || '-',
+                item.phone || '-',
+                item.status === 'active' ? 'AKTIF' : 'NON-AKTIF',
+                formatExportDate(item.created_at, { includeTime: false }),
+              ])}
             />
+
+            <div className="relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari nama / username..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="dash-input pl-9 py-1.5 text-xs w-52 sm:w-60"
+              />
+            </div>
           </div>
         </div>
 
@@ -136,7 +163,7 @@ export default function ReferralsTab() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => (
+                paginated.map((item) => (
                   <tr key={item.id} className="hover:bg-slate-50/80">
                     <td className="py-3.5 px-5">
                       <div className="flex items-center gap-3">
@@ -178,6 +205,16 @@ export default function ReferralsTab() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        <DashPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalItems={filtered.length}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
       </div>
     </div>
   );

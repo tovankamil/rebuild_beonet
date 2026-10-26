@@ -13,9 +13,10 @@ type UserBank struct {
 	BankName      string    `gorm:"type:varchar(100);not null" json:"bank_name"`
 	AccountNumber string    `gorm:"type:varchar(50);not null" json:"account_number"`
 	AccountName   string    `gorm:"type:varchar(150);not null" json:"account_name"`
-	IsPrimary     bool      `gorm:"default:true" json:"is_primary"`
-	CreatedAt     time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt     time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	IsPrimary     bool           `gorm:"default:true" json:"is_primary"`
+	CreatedAt     time.Time      `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt     time.Time      `gorm:"autoUpdateTime" json:"updated_at"`
+	DeletedAt     gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 
 	User *User `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user,omitempty"`
 }

@@ -4,7 +4,7 @@ import "bionet-backend/models"
 
 type DashboardRepository interface {
 	GetStats(userID string) (*models.DashboardStatsResponse, error)
-	GetGenealogy(userID string) (*models.BinaryNode, error)
+	GetGenealogy(userID string, targetIdentifier string) (*models.BinaryNode, error)
 	GetDirectReferrals(userID string) ([]models.ReferralItem, error)
 	GetWalletTransactions(userID string) ([]models.WalletTransaction, error)
 	GetUserBank(userID string) (*models.UserBank, error)
@@ -18,6 +18,7 @@ type DashboardRepository interface {
 	GetMyPins(userID string) ([]models.Pin, error)
 	GetPinPackages() ([]models.PinPackage, error)
 	TransferPin(fromUserID string, pinID string, targetUsername string) error
+	RegisterDownline(sponsorUserID string, req models.RegisterDownlineRequest) (*models.RegisterDownlineResponse, error)
 
 	// Products
 	GetProducts() ([]models.Product, error)
@@ -25,7 +26,7 @@ type DashboardRepository interface {
 
 type DashboardService interface {
 	GetStats(userID string) (*models.DashboardStatsResponse, error)
-	GetGenealogy(userID string) (*models.BinaryNode, error)
+	GetGenealogy(userID string, targetIdentifier string) (*models.BinaryNode, error)
 	GetDirectReferrals(userID string) ([]models.ReferralItem, error)
 	GetWalletTransactions(userID string) ([]models.WalletTransaction, error)
 	GetUserBank(userID string) (*models.UserBank, error)
@@ -39,6 +40,7 @@ type DashboardService interface {
 	GetMyPins(userID string) ([]models.Pin, error)
 	GetPinPackages() ([]models.PinPackage, error)
 	TransferPin(fromUserID string, pinID string, targetUsername string) error
+	RegisterDownline(sponsorUserID string, req models.RegisterDownlineRequest) (*models.RegisterDownlineResponse, error)
 
 	// Products
 	GetProducts() ([]models.Product, error)

@@ -7,7 +7,7 @@
  *   Default URL: http://localhost:8080
  */
 
-const BASE_URL = process.argv[2] || 'http://localhost:8080';
+const BASE_URL = process.argv[2] || process.env.API_URL || 'http://localhost:8081';
 
 let authToken = '';
 let passedCount = 0;

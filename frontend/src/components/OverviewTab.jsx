@@ -23,16 +23,14 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import DashPagination from './dashlite/DashPagination';
-import ProfileModal from './ProfileModal';
 import api from '../services/api';
 
-export default function OverviewTab({ stats, setActiveTab, currentUser, onProfileUpdated }) {
+export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenProfile, onProfileUpdated }) {
   const [chartHoverIndex, setChartHoverIndex] = useState(null);
   const [txPage, setTxPage] = useState(1);
   const [txPageSize, setTxPageSize] = useState(5);
   const [recentMembers, setRecentMembers] = useState([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   const fetchRecentMembers = async () => {
     setLoadingMembers(true);
@@ -100,24 +98,24 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onProfil
             Selamat datang di panel kendali Bionet. Pantau omset, bonus pasangan, dan mutasi saldo secara real-time.
           </p>
         </div>
-        <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="grid grid-cols-1 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
           <button
-            onClick={() => setProfileModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors shadow-sm"
+            onClick={() => onOpenProfile && onOpenProfile('profile')}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors shadow-sm w-full sm:w-auto"
           >
             <Edit3 size={15} className="text-emerald-600" />
             <span>Edit Profil & KYC</span>
           </button>
           <button
             onClick={() => setActiveTab('genealogy')}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors shadow-sm"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors shadow-sm w-full sm:w-auto"
           >
             <GitFork size={15} className="text-emerald-600" />
             <span>Pohon Jaringan</span>
           </button>
           <button
             onClick={() => setActiveTab('withdrawal')}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-sm shadow-emerald-600/30"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-sm shadow-emerald-600/30 w-full sm:w-auto"
           >
             <Landmark size={15} />
             <span>Tarik Saldo</span>
@@ -643,16 +641,6 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onProfil
           onPageSizeChange={setTxPageSize}
         />
       </div>
-
-      {/* Profile & KYC Edit Modal */}
-      <ProfileModal
-        isOpen={profileModalOpen}
-        onClose={() => setProfileModalOpen(false)}
-        currentUser={currentUser || stats?.user}
-        onProfileUpdated={(updated) => {
-          if (onProfileUpdated) onProfileUpdated(updated);
-        }}
-      />
     </div>
   );
 }

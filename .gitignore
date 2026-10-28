@@ -40,3 +40,22 @@ yarn-debug.log*
 .DS_Store
 Thumbs.db
 
+# Scratch, browser automation profiles & temporary testing data
+scratch*/
+*scratch*
+*_data/
+*_chrome_data/
+.tempmediaStorage/
+.system_generated/
+
+# Temporary screenshots & testing media in root
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+screenshot_*.png
+mobile_*.png
+
+# Temporary scratch & automation scripts
+scripts/*.mjs
+scripts/temp_*

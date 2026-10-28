@@ -3,12 +3,14 @@ package repositories
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"bionet-backend/interfaces"
 	"bionet-backend/models"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -99,14 +101,25 @@ func (r *dashboardRepositoryImpl) buildTreeNode(userID string, position string, 
 		ptRight = pt.PointRight
 	}
 
+	var np models.NetworkPosition
+	var uplineIDPtr, uplineUserPtr *string
+	if err := r.db.Where("user_id = ?", userID).Preload("UplineUser").First(&np).Error; err == nil {
+		uplineIDPtr = &np.UplineID
+		if np.UplineUser != nil {
+			uplineUserPtr = &np.UplineUser.Username
+		}
+	}
+
 	node := &models.BinaryNode{
-		ID:         user.ID,
-		Username:   user.Username,
-		FullName:   user.FullName,
-		Position:   position,
-		Status:     user.Status,
-		PointLeft:  ptLeft,
-		PointRight: ptRight,
+		ID:             user.ID,
+		Username:       user.Username,
+		FullName:       user.FullName,
+		Position:       position,
+		Status:         user.Status,
+		PointLeft:      ptLeft,
+		PointRight:     ptRight,
+		UplineID:       uplineIDPtr,
+		UplineUsername: uplineUserPtr,
 	}
 
 	if currentDepth < maxDepth {
@@ -124,8 +137,37 @@ func (r *dashboardRepositoryImpl) buildTreeNode(userID string, position string, 
 	return node
 }
 
-func (r *dashboardRepositoryImpl) GetGenealogy(userID string) (*models.BinaryNode, error) {
-	tree := r.buildTreeNode(userID, "root", 1, 3)
+func (r *dashboardRepositoryImpl) GetGenealogy(userID string, targetIdentifier string) (*models.BinaryNode, error) {
+	rootID := userID
+
+	if targetIdentifier != "" && targetIdentifier != userID {
+		var targetUser models.User
+		if err := r.db.Where("id = ? OR username = ?", targetIdentifier, targetIdentifier).First(&targetUser).Error; err != nil {
+			return nil, errors.New("member target tidak ditemukan")
+		}
+
+		if targetUser.ID != userID {
+			var loggedInUser models.User
+			if err := r.db.Where("id = ?", userID).First(&loggedInUser).Error; err != nil {
+				return nil, errors.New("user autentikasi tidak valid")
+			}
+
+			// Admin berhak melihat seluruh jaringan; member hanya berhak melihat dirinya & downline-nya
+			if loggedInUser.Role != "admin" {
+				var count int64
+				r.db.Model(&models.UplinePath{}).
+					Where("ancestor_id = ? AND descendant_id = ?", userID, targetUser.ID).
+					Count(&count)
+				if count == 0 {
+					return nil, errors.New("akses ditolak: Anda hanya berhak melihat struktur jaringan diri sendiri dan member downline Anda")
+				}
+			}
+
+			rootID = targetUser.ID
+		}
+	}
+
+	tree := r.buildTreeNode(rootID, "root", 1, 3)
 	return tree, nil
 }
 
@@ -330,3 +372,306 @@ func (r *dashboardRepositoryImpl) GetProducts() ([]models.Product, error) {
 	err := r.db.Where("is_active = ?", true).Order("name ASC").Find(&list).Error
 	return list, err
 }
+
+func addPointBalance(tx *gorm.DB, userID string, points float64, position string) error {
+	if points <= 0 {
+		return nil
+	}
+	var pb models.PointBalance
+	if err := tx.Where("user_id = ?", userID).First(&pb).Error; err != nil {
+		pb = models.PointBalance{
+			ID:         uuid.New().String(),
+			UserID:     userID,
+			PointLeft:  0,
+			PointRight: 0,
+		}
+		if position == "kiri" {
+			pb.PointLeft = points
+		} else {
+			pb.PointRight = points
+		}
+		return tx.Create(&pb).Error
+	}
+	if position == "kiri" {
+		return tx.Model(&pb).Update("point_left", pb.PointLeft+points).Error
+	}
+	return tx.Model(&pb).Update("point_right", pb.PointRight+points).Error
+}
+
+func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req models.RegisterDownlineRequest) (*models.RegisterDownlineResponse, error) {
+	req.Position = strings.ToLower(strings.TrimSpace(req.Position))
+	if req.Position != "kiri" && req.Position != "kanan" {
+		return nil, errors.New("posisi binary tidak valid, harus 'kiri' atau 'kanan'")
+	}
+
+	username := strings.ToLower(strings.TrimSpace(req.Username))
+	if len(username) < 4 {
+		return nil, errors.New("username minimal 4 karakter")
+	}
+
+	fullName := strings.TrimSpace(req.FullName)
+	if fullName == "" {
+		return nil, errors.New("nama lengkap tidak boleh kosong")
+	}
+
+	if len(req.Password) < 6 {
+		return nil, errors.New("kata sandi minimal 6 karakter")
+	}
+
+	var response *models.RegisterDownlineResponse
+
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		// 1. Validasi Serial PIN milik sponsor
+		var pin models.Pin
+		if err := tx.Preload("Package").Where("id = ? AND owner_id = ? AND status = 'active'", req.PinID, sponsorUserID).First(&pin).Error; err != nil {
+			return errors.New("serial PIN tidak valid, sudah digunakan, atau bukan milik Anda")
+		}
+		if pin.Package == nil {
+			return errors.New("data paket PIN aktivasi tidak ditemukan")
+		}
+
+		// 2. Validasi Upline
+		var upline models.User
+		if err := tx.Where("id = ? AND status = 'active'", req.UplineID).First(&upline).Error; err != nil {
+			return errors.New("upline tidak ditemukan atau akun sedang tidak aktif")
+		}
+
+		// Security Check: Upline harus sponsor itu sendiri atau berada di bawah pohon binary sponsor
+		if upline.ID != sponsorUserID {
+			var uplineCheck int64
+			tx.Model(&models.UplinePath{}).Where("ancestor_id = ? AND descendant_id = ?", sponsorUserID, upline.ID).Count(&uplineCheck)
+			if uplineCheck == 0 {
+				return errors.New("upline yang dipilih berada di luar jaringan binary Anda")
+			}
+		}
+
+		// 3. Validasi Slot Posisi Upline (apakah slot kiri/kanan sudah terisi)
+		var existingSlot models.NetworkPosition
+		if err := tx.Where("upline_id = ? AND position = ?", req.UplineID, req.Position).First(&existingSlot).Error; err == nil {
+			return fmt.Errorf("slot kaki %s di bawah upline @%s sudah terisi oleh mitra lain", req.Position, upline.Username)
+		}
+
+		// 4. Validasi Username Unik
+		var existingUser models.User
+		if err := tx.Where("username = ?", username).First(&existingUser).Error; err == nil {
+			return fmt.Errorf("username '@%s' sudah digunakan, silakan pilih username lain", username)
+		}
+
+		// 5. Enkripsi Password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return errors.New("gagal memproses enkripsi kata sandi")
+		}
+
+		// 6. Buat Akun User Baru
+		now := time.Now()
+		newUserID := uuid.New().String()
+		newUser := models.User{
+			ID:           newUserID,
+			Username:     username,
+			FullName:     fullName,
+			PasswordHash: string(hashedPassword),
+			Role:         "member",
+			Status:       "active",
+			KTP:          strings.TrimSpace(req.KTP),
+			CreatedAt:    now,
+			UpdatedAt:    now,
+		}
+		if req.Phone != "" {
+			phoneClean := strings.TrimSpace(req.Phone)
+			newUser.Phone = &phoneClean
+		}
+		if err := tx.Create(&newUser).Error; err != nil {
+			return err
+		}
+
+		// 7. Buat Wallet Baru
+		newWallet := models.Wallet{
+			ID:      uuid.New().String(),
+			UserID:  newUserID,
+			Balance: 0.00,
+		}
+		if err := tx.Create(&newWallet).Error; err != nil {
+			return err
+		}
+
+		// 8. Buat PointBalance Baru
+		newPoint := models.PointBalance{
+			ID:         uuid.New().String(),
+			UserID:     newUserID,
+			PointLeft:  0.00,
+			PointRight: 0.00,
+		}
+		if err := tx.Create(&newPoint).Error; err != nil {
+			return err
+		}
+
+		// 9. Kaitkan Direct Sponsor & Sponsor Paths (Closure Table)
+		directSponsor := models.Sponsor{
+			ID:        uuid.New().String(),
+			UserID:    newUserID,
+			SponsorID: sponsorUserID,
+		}
+		if err := tx.Create(&directSponsor).Error; err != nil {
+			return err
+		}
+
+		// Self path sponsor
+		if err := tx.Create(&models.SponsorPath{
+			ID:           uuid.New().String(),
+			AncestorID:   newUserID,
+			DescendantID: newUserID,
+			Level:        0,
+		}).Error; err != nil {
+			return err
+		}
+
+		// Direct sponsor path (Level 1)
+		if err := tx.Create(&models.SponsorPath{
+			ID:           uuid.New().String(),
+			AncestorID:   sponsorUserID,
+			DescendantID: newUserID,
+			Level:        1,
+		}).Error; err != nil {
+			return err
+		}
+
+		// Copy higher ancestors from sponsor
+		var sponsorAncestors []models.SponsorPath
+		tx.Where("descendant_id = ? AND level > 0", sponsorUserID).Find(&sponsorAncestors)
+		for _, sa := range sponsorAncestors {
+			tx.Create(&models.SponsorPath{
+				ID:           uuid.New().String(),
+				AncestorID:   sa.AncestorID,
+				DescendantID: newUserID,
+				Level:        sa.Level + 1,
+			})
+		}
+
+		// 10. Kaitkan NetworkPosition (Direct Upline & Placement)
+		netPos := models.NetworkPosition{
+			ID:       uuid.New().String(),
+			UserID:   newUserID,
+			UplineID: upline.ID,
+			Position: req.Position,
+		}
+		if err := tx.Create(&netPos).Error; err != nil {
+			return err
+		}
+
+		// 11. Kaitkan UplinePath (Closure Table for Binary Hierarchy)
+		// Self path
+		if err := tx.Create(&models.UplinePath{
+			ID:           uuid.New().String(),
+			AncestorID:   newUserID,
+			DescendantID: newUserID,
+			Level:        0,
+			PathPosition: nil,
+		}).Error; err != nil {
+			return err
+		}
+
+		// Direct upline path (Level 1)
+		directPos := req.Position
+		if err := tx.Create(&models.UplinePath{
+			ID:           uuid.New().String(),
+			AncestorID:   upline.ID,
+			DescendantID: newUserID,
+			Level:        1,
+			PathPosition: &directPos,
+		}).Error; err != nil {
+			return err
+		}
+
+		// Copy higher ancestors from upline
+		var uplineAncestors []models.UplinePath
+		tx.Where("descendant_id = ? AND level > 0", upline.ID).Find(&uplineAncestors)
+		for _, ua := range uplineAncestors {
+			tx.Create(&models.UplinePath{
+				ID:           uuid.New().String(),
+				AncestorID:   ua.AncestorID,
+				DescendantID: newUserID,
+				Level:        ua.Level + 1,
+				PathPosition: ua.PathPosition, // Inherits root branch direction
+			})
+		}
+
+		// 12. Propagate Binary Volume Points to all ancestors!
+		pointsToAdd := pin.Package.Points
+		if pointsToAdd > 0 {
+			// Update direct upline
+			if err := addPointBalance(tx, upline.ID, pointsToAdd, req.Position); err != nil {
+				return err
+			}
+
+			// Update all higher ancestors
+			for _, ua := range uplineAncestors {
+				if ua.PathPosition != nil {
+					if err := addPointBalance(tx, ua.AncestorID, pointsToAdd, *ua.PathPosition); err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		// 13. Credit Sponsor Commission Bonus to Sponsor Wallet
+		sponsorBonus := pin.Package.SponsorBonus
+		var updatedSponsorBalance float64 = 0.0
+		var sponsorWallet models.Wallet
+		if err := tx.Where("user_id = ?", sponsorUserID).First(&sponsorWallet).Error; err != nil {
+			sponsorWallet = models.Wallet{
+				ID:      uuid.New().String(),
+				UserID:  sponsorUserID,
+				Balance: 0.00,
+			}
+			tx.Create(&sponsorWallet)
+		}
+
+		if sponsorBonus > 0 {
+			newBal := sponsorWallet.Balance + sponsorBonus
+			if err := tx.Model(&sponsorWallet).Update("balance", newBal).Error; err != nil {
+				return err
+			}
+			updatedSponsorBalance = newBal
+
+			// Log Wallet Transaction
+			txLog := models.WalletTransaction{
+				ID:           uuid.New().String(),
+				UserID:       sponsorUserID,
+				Type:         "credit",
+				Amount:       sponsorBonus,
+				BalanceAfter: newBal,
+				Description:  fmt.Sprintf("Bonus Sponsor Pendaftaran Mitra Baru @%s (%s)", username, pin.Package.Name),
+			}
+			if err := tx.Create(&txLog).Error; err != nil {
+				return err
+			}
+		} else {
+			updatedSponsorBalance = sponsorWallet.Balance
+		}
+
+		// 14. Update Status PIN to 'used'
+		if err := tx.Model(&pin).Updates(map[string]interface{}{
+			"status":     "used",
+			"used_by_id": newUserID,
+			"used_at":    now,
+		}).Error; err != nil {
+			return err
+		}
+
+		response = &models.RegisterDownlineResponse{
+			User:          newUser,
+			Pin:           pin,
+			Position:      req.Position,
+			Upline:        upline,
+			SponsorBonus:  sponsorBonus,
+			PointsAwarded: pointsToAdd,
+			WalletBalance: updatedSponsorBalance,
+		}
+
+		return nil
+	})
+
+	return response, err
+}
+

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Users,
   ShieldCheck,
+  ShieldAlert,
   TrendingUp,
   Landmark,
   KeyRound,
@@ -12,6 +13,7 @@ import {
   AlertCircle,
   RefreshCw,
   ExternalLink,
+  BookOpen,
 } from 'lucide-react';
 import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
@@ -95,15 +97,65 @@ export default function AdminOverviewTab({ setActiveTab }) {
           </p>
         </div>
 
-        <button
-          onClick={fetchOverview}
-          disabled={loading}
-          className="self-start sm:self-auto px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
-        >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          <span>Segarkan Data</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          {setActiveTab && (
+            <>
+              <button
+                onClick={() => setActiveTab('admin-guide')}
+                className="px-3.5 py-2 rounded-lg bg-teal-50 border border-teal-200 hover:bg-teal-100 text-teal-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+                title="Buka panduan lengkap semua modul & fitur platform"
+              >
+                <BookOpen size={14} className="text-teal-600" />
+                <span>Panduan Fitur &amp; Menu</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('admin-fraud')}
+                className="px-3.5 py-2 rounded-lg bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+              >
+                <ShieldAlert size={14} className="text-rose-600" />
+                <span>Fraud Control &amp; Risiko</span>
+              </button>
+            </>
+          )}
+          <button
+            onClick={fetchOverview}
+            disabled={loading}
+            className="px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+          >
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            <span>Segarkan Data</span>
+          </button>
+        </div>
       </div>
+
+      {/* Discovery Banner for System Guide */}
+      {setActiveTab && (
+        <div className="p-4 rounded-xl bg-gradient-to-r from-teal-900 via-slate-900 to-indigo-950 text-white shadow-md border border-teal-700/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-teal-500/20 border border-teal-400/30 flex items-center justify-center shrink-0">
+              <BookOpen size={20} className="text-teal-300" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-white">Panduan Lengkap Fitur &amp; Menu Platform Bionet</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/30 text-teal-200 border border-teal-400/40">
+                  Modul Baru
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-0.5">
+                Pelajari arsitektur MLM Binary, alur Flip.id, Kemendagri API, AI Copilot, serta panduan 12 modul lengkap.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveTab('admin-guide')}
+            className="px-4 py-2 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shrink-0 flex items-center gap-1.5 shadow-sm transition-all hover:shadow-teal-500/20 hover:scale-[1.02]"
+          >
+            <span>Buka Direktori Menu</span>
+            <ExternalLink size={13} />
+          </button>
+        </div>
+      )}
 
       {message && (
         <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">

@@ -33,11 +33,16 @@ import {
   FileText,
   AlertTriangle,
   UserX,
+  Copy,
+  Eye,
+  EyeOff,
+  MapPin,
 } from 'lucide-react';
 import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
 import ExportButtons from '../dashlite/ExportButtons';
 import { formatExportDate } from '../../utils/exportUtils';
+import IndonesianRegionSelect from '../common/IndonesianRegionSelect';
 
 export default function AdminUsersTab() {
   const [activeSubTab, setActiveSubTab] = useState('users'); // 'users' | 'rbac-matrix' | 'audit-logs'
@@ -58,9 +63,18 @@ export default function AdminUsersTab() {
   const [statusFilter, setStatusFilter] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [notification, setNotification] = useState({ text: '', type: 'success' });
+  const [kpiStats, setKpiStats] = useState({
+    total_users: 0,
+    total_members: 0,
+    total_gudang: 0,
+    total_admins: 0,
+    active_users: 0,
+    suspended_users: 0,
+  });
 
-  // Modal State for Edit User (KTP, NPWP, Avatar, Name, Phone, Role, Status)
+  // Modal State for Edit User (KTP, NPWP, Avatar, Name, Phone, Role, Status, Address)
   const [editModalUser, setEditModalUser] = useState(null);
+  const [editModalTab, setEditModalTab] = useState('identity'); // 'identity' | 'address'
   const [editFormData, setEditFormData] = useState({
     full_name: '',
     phone: '',
@@ -69,10 +83,22 @@ export default function AdminUsersTab() {
     avatar: '',
     role: 'member',
     status: 'active',
+    recipient_name: '',
+    address: '',
+    province: '',
+    city: '',
+    district: '',
+    postal_code: '',
   });
 
   // Soft Delete Confirmation Modal State
   const [deleteModalUser, setDeleteModalUser] = useState(null);
+
+  // Reset Password Modal State
+  const [resetPasswordModalUser, setResetPasswordModalUser] = useState(null);
+  const [adminNewPassword, setAdminNewPassword] = useState('');
+  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [passwordCopied, setPasswordCopied] = useState(false);
 
   // Modal State for RBAC Role Changer
   const [roleModalUser, setRoleModalUser] = useState(null);
@@ -101,6 +127,9 @@ export default function AdminUsersTab() {
       const res = await api.get('/admin/users', { params });
       if (res.data?.data) {
         setUsers(res.data.data);
+      }
+      if (res.data?.stats) {
+        setKpiStats(res.data.stats);
       }
     } catch (err) {
       console.error('Failed to load users:', err);
@@ -158,6 +187,7 @@ export default function AdminUsersTab() {
 
   const openEditModal = (u) => {
     setEditModalUser(u);
+    setEditModalTab('identity');
     setEditFormData({
       full_name: u.full_name || '',
       phone: u.phone || '',
@@ -166,6 +196,12 @@ export default function AdminUsersTab() {
       avatar: u.avatar || '',
       role: u.role || 'member',
       status: u.status || 'active',
+      recipient_name: u.recipient_name || u.full_name || '',
+      address: u.address || '',
+      province: u.province || '',
+      city: u.city || '',
+      district: u.district || '',
+      postal_code: u.postal_code || '',
     });
   };
 
@@ -195,6 +231,54 @@ export default function AdminUsersTab() {
       fetchUsers();
     } catch (err) {
       showNotice(err.response?.data?.message || 'Gagal menghapus pengguna', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openResetPasswordModal = (u) => {
+    setResetPasswordModalUser(u);
+    setAdminNewPassword('');
+    setShowAdminPassword(false);
+    setPasswordCopied(false);
+  };
+
+  const handleGenerateRandomPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%';
+    let pwd = 'Bio#';
+    for (let i = 0; i < 6; i++) {
+      pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setAdminNewPassword(pwd);
+    setShowAdminPassword(true);
+  };
+
+  const handleCopyNewPassword = () => {
+    if (!adminNewPassword) return;
+    navigator.clipboard.writeText(adminNewPassword);
+    setPasswordCopied(true);
+    setTimeout(() => setPasswordCopied(false), 2000);
+  };
+
+  const handleSaveResetPassword = async (e) => {
+    e.preventDefault();
+    if (!resetPasswordModalUser) return;
+    if (adminNewPassword.length < 6) {
+      showNotice('Kata sandi baru minimal harus 6 karakter', 'error');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await api.patch(`/admin/users/${resetPasswordModalUser.id}/password`, {
+        new_password: adminNewPassword,
+      });
+      showNotice(`Kata sandi akun @${resetPasswordModalUser.username} berhasil diperbarui!`);
+      setResetPasswordModalUser(null);
+      setAdminNewPassword('');
+      fetchUsers();
+    } catch (err) {
+      showNotice(err.response?.data?.message || 'Gagal mereset kata sandi pengguna', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -304,11 +388,48 @@ export default function AdminUsersTab() {
   const paginatedMenus = filteredMenus.slice((matrixPage - 1) * matrixPageSize, matrixPage * matrixPageSize);
 
   // Calculations for KPI Cards
-  const totalUsers = users.length;
-  const totalMembers = users.filter((u) => u.role === 'member').length;
-  const totalGudang = users.filter((u) => u.role === 'gudang').length;
-  const totalAdmins = users.filter((u) => u.role === 'admin').length;
-  const activeUsers = users.filter((u) => u.status === 'active').length;
+  const statTotal = kpiStats.total_users || users.length || 0;
+  const statMembers = kpiStats.total_members || users.filter((u) => u.role === 'member').length;
+  const statGudang = kpiStats.total_gudang || users.filter((u) => u.role === 'gudang').length;
+  const statAdmins = kpiStats.total_admins || users.filter((u) => u.role === 'admin').length;
+  const statActive = kpiStats.active_users || users.filter((u) => u.status === 'active').length;
+  const statSuspended = kpiStats.suspended_users !== undefined ? kpiStats.suspended_users : Math.max(0, statTotal - statActive);
+
+  const pctMembers = statTotal > 0 ? Math.round((statMembers / statTotal) * 100) : 0;
+  const pctGudang = statTotal > 0 ? Math.round((statGudang / statTotal) * 100) : 0;
+  const pctAdmins = statTotal > 0 ? Math.round((statAdmins / statTotal) * 100) : 0;
+
+  // Active filter state detection
+  const isTotalFilterActive = !roleFilter && !statusFilter;
+  const isMitraFilterActive = roleFilter === 'member' && !statusFilter;
+  const isGudangFilterActive = roleFilter === 'gudang' && !statusFilter;
+  const isAdminFilterActive = roleFilter === 'admin' && !statusFilter;
+  const isSuspendedFilterActive = statusFilter === 'suspended' && !roleFilter;
+
+  const handleCardFilter = (role, status) => {
+    setUserPage(1);
+    if (!role && !status) {
+      setRoleFilter('');
+      setStatusFilter('');
+      return;
+    }
+    if (role) {
+      if (roleFilter === role && !statusFilter) {
+        setRoleFilter('');
+      } else {
+        setRoleFilter(role);
+        setStatusFilter('');
+      }
+    }
+    if (status) {
+      if (statusFilter === status && !roleFilter) {
+        setStatusFilter('');
+      } else {
+        setStatusFilter(status);
+        setRoleFilter('');
+      }
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -407,38 +528,217 @@ export default function AdminUsersTab() {
       {/* ============================================================== */}
       {activeSubTab === 'users' && (
         <div className="space-y-6">
-          {/* KPI Summary Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            <div className="dash-card p-4 bg-white border-l-4 border-l-slate-800">
-              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total User</div>
-              <div className="text-xl font-heading font-extrabold text-slate-900 mt-1">{totalUsers}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">{activeUsers} Akun Aktif</div>
-            </div>
+          {/* KPI Summary Cards - Redesigned with Rich Gradients & Tactile Interactive Quick Filter */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+            {/* Card 1: TOTAL USER */}
+            <div
+              onClick={() => handleCardFilter('', '')}
+              title="Klik untuk tampilkan semua pengguna"
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
+                isTotalFilterActive
+                  ? 'bg-gradient-to-br from-slate-900/[0.04] via-white to-indigo-50/40 border-slate-900 shadow-md ring-2 ring-slate-900/15 -translate-y-0.5'
+                  : 'bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
+              }`}
+            >
+              <div className="h-1 w-full bg-gradient-to-r from-slate-800 via-indigo-900 to-slate-900" />
+              <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                      TOTAL USER
+                    </span>
+                    <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 border border-slate-200/80 flex items-center justify-center transition-transform duration-200 group-hover:scale-110 shadow-xs">
+                      <Users size={16} />
+                    </div>
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-black font-heading text-slate-900 tracking-tight mt-1.5">
+                    {statTotal}
+                  </div>
+                </div>
 
-            <div className="dash-card p-4 bg-white border-l-4 border-l-emerald-600">
-              <div className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Mitra Jaringan</div>
-              <div className="text-xl font-heading font-extrabold text-slate-900 mt-1">{totalMembers}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Member MLM</div>
-            </div>
-
-            <div className="dash-card p-4 bg-white border-l-4 border-l-sky-600">
-              <div className="text-[11px] font-bold text-sky-700 uppercase tracking-wider">Staff Gudang</div>
-              <div className="text-xl font-heading font-extrabold text-slate-900 mt-1">{totalGudang}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Logistik &amp; RO</div>
-            </div>
-
-            <div className="dash-card p-4 bg-white border-l-4 border-l-amber-600">
-              <div className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Administrator</div>
-              <div className="text-xl font-heading font-extrabold text-slate-900 mt-1">{totalAdmins}</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Akses Penuh</div>
-            </div>
-
-            <div className="dash-card p-4 bg-white border-l-4 border-l-rose-500 col-span-2 sm:col-span-1">
-              <div className="text-[11px] font-bold text-rose-700 uppercase tracking-wider">Akun Suspended</div>
-              <div className="text-xl font-heading font-extrabold text-slate-900 mt-1">
-                {totalUsers - activeUsers}
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50/90 border border-emerald-200/60 px-2 py-0.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    {statActive} Aktif
+                  </span>
+                  {isTotalFilterActive ? (
+                    <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-slate-900 text-white shadow-xs">
+                      Semua
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 group-hover:text-slate-600 transition-colors">
+                      Lihat semua
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Perlu Peninjauan</div>
+            </div>
+
+            {/* Card 2: MITRA JARINGAN */}
+            <div
+              onClick={() => handleCardFilter('member', '')}
+              title="Klik untuk filter hanya Mitra Jaringan"
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
+                isMitraFilterActive
+                  ? 'bg-gradient-to-br from-emerald-500/10 via-white to-emerald-50/30 border-emerald-600 shadow-md ring-2 ring-emerald-500/20 -translate-y-0.5'
+                  : 'bg-white border-slate-200/90 hover:border-emerald-300 hover:shadow-md hover:-translate-y-0.5'
+              }`}
+            >
+              <div className="h-1 w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400" />
+              <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      MITRA JARINGAN
+                    </span>
+                    <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 flex items-center justify-center transition-transform duration-200 group-hover:scale-110 shadow-xs">
+                      <UserCheck size={16} />
+                    </div>
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-black font-heading text-slate-900 tracking-tight mt-1.5">
+                    {statMembers}
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500">
+                    <span className="font-extrabold text-emerald-700">{pctMembers}%</span> • Member MLM
+                  </span>
+                  {isMitraFilterActive && (
+                    <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-600 text-white shadow-xs">
+                      Filter Aktif
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: STAFF GUDANG */}
+            <div
+              onClick={() => handleCardFilter('gudang', '')}
+              title="Klik untuk filter hanya Staff Gudang"
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
+                isGudangFilterActive
+                  ? 'bg-gradient-to-br from-sky-500/10 via-white to-sky-50/30 border-sky-600 shadow-md ring-2 ring-sky-500/20 -translate-y-0.5'
+                  : 'bg-white border-slate-200/90 hover:border-sky-300 hover:shadow-md hover:-translate-y-0.5'
+              }`}
+            >
+              <div className="h-1 w-full bg-gradient-to-r from-sky-600 via-sky-500 to-blue-400" />
+              <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-sky-700 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+                      STAFF GUDANG
+                    </span>
+                    <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-200/80 flex items-center justify-center transition-transform duration-200 group-hover:scale-110 shadow-xs">
+                      <Truck size={16} />
+                    </div>
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-black font-heading text-slate-900 tracking-tight mt-1.5">
+                    {statGudang}
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500">
+                    <span className="font-extrabold text-sky-700">{pctGudang}%</span> • Logistik &amp; RO
+                  </span>
+                  {isGudangFilterActive && (
+                    <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-sky-600 text-white shadow-xs">
+                      Filter Aktif
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: ADMINISTRATOR */}
+            <div
+              onClick={() => handleCardFilter('admin', '')}
+              title="Klik untuk filter hanya Administrator"
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
+                isAdminFilterActive
+                  ? 'bg-gradient-to-br from-amber-500/10 via-white to-amber-50/30 border-amber-600 shadow-md ring-2 ring-amber-500/20 -translate-y-0.5'
+                  : 'bg-white border-slate-200/90 hover:border-amber-300 hover:shadow-md hover:-translate-y-0.5'
+              }`}
+            >
+              <div className="h-1 w-full bg-gradient-to-r from-amber-500 via-amber-400 to-orange-400" />
+              <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      ADMINISTRATOR
+                    </span>
+                    <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/80 flex items-center justify-center transition-transform duration-200 group-hover:scale-110 shadow-xs">
+                      <ShieldCheck size={16} />
+                    </div>
+                  </div>
+                  <div className="text-2xl lg:text-3xl font-black font-heading text-slate-900 tracking-tight mt-1.5">
+                    {statAdmins}
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-500">
+                    <span className="font-extrabold text-amber-700">{pctAdmins}%</span> • Akses Penuh
+                  </span>
+                  {isAdminFilterActive && (
+                    <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-amber-600 text-white shadow-xs">
+                      Filter Aktif
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Card 5: AKUN SUSPENDED */}
+            <div
+              onClick={() => handleCardFilter('', 'suspended')}
+              title="Klik untuk filter akun yang ditangguhkan/suspended"
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] col-span-2 sm:col-span-1 ${
+                isSuspendedFilterActive
+                  ? 'bg-gradient-to-br from-rose-500/10 via-white to-rose-50/30 border-rose-600 shadow-md ring-2 ring-rose-500/20 -translate-y-0.5'
+                  : 'bg-white border-slate-200/90 hover:border-rose-300 hover:shadow-md hover:-translate-y-0.5'
+              }`}
+            >
+              <div className="h-1 w-full bg-gradient-to-r from-rose-600 via-rose-500 to-red-400" />
+              <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-rose-700 flex items-center gap-1.5">
+                      <span className={`w-1.5 h-1.5 rounded-full ${statSuspended > 0 ? 'bg-rose-500 animate-ping' : 'bg-slate-300'}`}></span>
+                      AKUN SUSPENDED
+                    </span>
+                    <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/80 flex items-center justify-center transition-transform duration-200 group-hover:scale-110 shadow-xs">
+                      <UserX size={16} />
+                    </div>
+                  </div>
+                  <div className={`text-2xl lg:text-3xl font-black font-heading tracking-tight mt-1.5 ${statSuspended > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
+                    {statSuspended}
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+                  {statSuspended > 0 ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full animate-pulse">
+                      <AlertTriangle size={11} /> Perlu Peninjauan
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400">
+                      <CheckCircle size={11} className="text-emerald-500" /> Semua Normal
+                    </span>
+                  )}
+                  {isSuspendedFilterActive && (
+                    <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-rose-600 text-white shadow-xs">
+                      Filter Aktif
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -644,6 +944,15 @@ export default function AdminUsersTab() {
                               >
                                 <Edit2 size={11} />
                                 <span>Edit</span>
+                              </button>
+
+                              <button
+                                onClick={() => openResetPasswordModal(u)}
+                                title="Reset Kata Sandi Customer"
+                                className="px-2 py-1 rounded text-[11px] font-semibold bg-amber-50 hover:bg-amber-100 text-amber-800 transition-colors border border-amber-200 flex items-center gap-1"
+                              >
+                                <KeyRound size={11} />
+                                <span>Sandi</span>
                               </button>
 
                               <button
@@ -1096,8 +1405,8 @@ export default function AdminUsersTab() {
 
       {/* 5. RBAC Role Changer Modal */}
       {roleModalUser && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-slate-200">
+        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Shield size={18} className="text-emerald-700" />
@@ -1284,136 +1593,252 @@ export default function AdminUsersTab() {
         </div>
       )}
 
-      {/* Edit User Modal (KTP, NPWP, Avatar, Full Name, Phone, Role, Status) */}
+      {/* Edit User Modal (KTP, NPWP, Avatar, Full Name, Phone, Role, Status & Alamat) */}
       {editModalUser && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 border border-slate-100 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <Edit2 size={18} className="text-emerald-700" />
-                <h3 className="font-heading font-extrabold text-base text-slate-900">
-                  Edit Data Pengguna &amp; KYC
-                </h3>
+        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-[0_25px_60px_rgba(15,23,42,0.35)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-xl w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-200 ease-out">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-slate-50 to-white">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100/60 shadow-xs">
+                  <Edit2 size={18} />
+                </div>
+                <div>
+                  <h3 className="font-heading font-extrabold text-base text-slate-900 leading-tight">
+                    Edit Data Pengguna &amp; Alamat
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    UID: <span className="font-mono text-slate-600">{editModalUser.id.substring(0, 16)}...</span>
+                  </p>
+                </div>
               </div>
               <button
+                type="button"
                 onClick={() => setEditModalUser(null)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveEditUser} className="space-y-3.5">
-              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <img
-                  src={editFormData.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${editModalUser.username}`}
-                  alt="Avatar"
-                  className="w-12 h-12 rounded-xl object-cover border border-slate-200 bg-white p-0.5"
-                />
-                <div>
-                  <div className="font-bold text-sm text-slate-900">@{editModalUser.username}</div>
-                  <div className="text-xs text-slate-400">UID: {editModalUser.id}</div>
-                </div>
-              </div>
+            {/* Sub-Tabs: Identitas vs Alamat */}
+            <div className="flex items-center gap-1 px-6 border-b border-slate-200 bg-slate-50/60 pt-2">
+              <button
+                type="button"
+                onClick={() => setEditModalTab('identity')}
+                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all ${
+                  editModalTab === 'identity'
+                    ? 'border-emerald-600 text-emerald-700 bg-white shadow-xs rounded-t-lg'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <Users size={14} />
+                <span>Identitas &amp; Akun</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditModalTab('address')}
+                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all ${
+                  editModalTab === 'address'
+                    ? 'border-emerald-600 text-emerald-700 bg-white shadow-xs rounded-t-lg'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <MapPin size={14} />
+                <span>Alamat Pengiriman &amp; Domisili</span>
+              </button>
+            </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Nama Lengkap</label>
-                <input
-                  type="text"
-                  required
-                  value={editFormData.full_name}
-                  onChange={(e) => setEditFormData({ ...editFormData, full_name: e.target.value })}
-                  className="dash-input text-xs w-full py-2 px-3"
-                />
-              </div>
+            {/* Form Body */}
+            <form onSubmit={handleSaveEditUser} className="flex-1 overflow-y-auto p-6 space-y-4">
+              {editModalTab === 'identity' ? (
+                <>
+                  <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <img
+                      src={editFormData.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${editModalUser.username}`}
+                      alt="Avatar"
+                      className="w-12 h-12 rounded-xl object-cover border border-slate-200 bg-white p-0.5"
+                    />
+                    <div>
+                      <div className="font-bold text-sm text-slate-900">@{editModalUser.username}</div>
+                      <div className="text-xs text-slate-400">UID: {editModalUser.id}</div>
+                    </div>
+                  </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Nomor Handphone</label>
-                <input
-                  type="text"
-                  value={editFormData.phone}
-                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
-                  placeholder="0812xxxxxxxx"
-                  className="dash-input text-xs w-full py-2 px-3"
-                />
-              </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Nama Lengkap</label>
+                    <input
+                      type="text"
+                      required
+                      value={editFormData.full_name}
+                      onChange={(e) => setEditFormData({ ...editFormData, full_name: e.target.value })}
+                      className="dash-input text-xs w-full py-2 px-3"
+                    />
+                  </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Nomor KTP (16 Digit)</label>
-                  <input
-                    type="text"
-                    maxLength={16}
-                    value={editFormData.ktp}
-                    onChange={(e) => setEditFormData({ ...editFormData, ktp: e.target.value.replace(/\D/g, '') })}
-                    placeholder="3201xxxxxxxx0001"
-                    className="dash-input text-xs w-full py-2 px-3 font-mono"
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Nomor Handphone</label>
+                    <input
+                      type="text"
+                      value={editFormData.phone}
+                      onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                      placeholder="0812xxxxxxxx"
+                      className="dash-input text-xs w-full py-2 px-3"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Nomor KTP (16 Digit)</label>
+                      <input
+                        type="text"
+                        maxLength={16}
+                        value={editFormData.ktp}
+                        onChange={(e) => setEditFormData({ ...editFormData, ktp: e.target.value.replace(/\D/g, '') })}
+                        placeholder="3201xxxxxxxx0001"
+                        className="dash-input text-xs w-full py-2 px-3 font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">NPWP</label>
+                      <input
+                        type="text"
+                        value={editFormData.npwp}
+                        onChange={(e) => setEditFormData({ ...editFormData, npwp: e.target.value })}
+                        placeholder="98.765.432.1-012.000"
+                        className="dash-input text-xs w-full py-2 px-3 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">URL Avatar</label>
+                    <input
+                      type="text"
+                      value={editFormData.avatar}
+                      onChange={(e) => setEditFormData({ ...editFormData, avatar: e.target.value })}
+                      placeholder="https://..."
+                      className="dash-input text-xs w-full py-2 px-3"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Role Akun</label>
+                      <select
+                        value={editFormData.role}
+                        onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}
+                        className="dash-input text-xs w-full py-2 px-3"
+                      >
+                        <option value="member">Mitra / Member</option>
+                        <option value="keuangan">Tim Keuangan</option>
+                        <option value="cs">Customer Service</option>
+                        <option value="gudang">Tim Gudang</option>
+                        <option value="admin">Administrator</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-1">Status Akun</label>
+                      <select
+                        value={editFormData.status}
+                        onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                        className="dash-input text-xs w-full py-2 px-3"
+                      >
+                        <option value="active">Aktif</option>
+                        <option value="suspended">Suspended</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Shortcut to Reset Password Modal */}
+                  <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200 flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                        <KeyRound size={14} className="text-amber-700" />
+                        <span>Reset Kata Sandi Pengguna</span>
+                      </div>
+                      <div className="text-[10px] text-amber-700/80">
+                        Perbarui kata sandi customer jika lupa login
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const target = editModalUser;
+                        setEditModalUser(null);
+                        openResetPasswordModal(target);
+                      }}
+                      className="px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold shadow-xs transition"
+                    >
+                      Reset Sandi
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="p-3 bg-emerald-50/70 rounded-xl border border-emerald-100 flex items-start gap-2.5 text-xs text-emerald-800">
+                    <MapPin size={16} className="text-emerald-700 shrink-0 mt-0.5" />
+                    <span>
+                      Alamat ini digunakan oleh tim logistik gudang untuk pengiriman produk Repeat Order (RO) dan fulfillment barang herbal.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Nama Penerima Paket</label>
+                    <input
+                      type="text"
+                      value={editFormData.recipient_name}
+                      onChange={(e) => setEditFormData({ ...editFormData, recipient_name: e.target.value })}
+                      placeholder="Nama lengkap penerima"
+                      className="dash-input text-xs w-full py-2 px-3"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">Alamat Lengkap (Jalan, No Rumah, RT/RW)</label>
+                    <textarea
+                      rows={3}
+                      value={editFormData.address}
+                      onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+                      placeholder="Jl. Merdeka No. 12, RT 02/RW 05..."
+                      className="dash-input text-xs w-full py-2 px-3 resize-none"
+                    />
+                  </div>
+
+                  {/* Indonesian Region Cascading & Auto-Suggest Component */}
+                  <IndonesianRegionSelect
+                    province={editFormData.province}
+                    city={editFormData.city}
+                    district={editFormData.district}
+                    postalCode={editFormData.postal_code}
+                    onChange={({ province, city, district, postalCode }) => {
+                      setEditFormData((prev) => ({
+                        ...prev,
+                        province,
+                        city,
+                        district,
+                        postal_code: postalCode,
+                      }));
+                    }}
+                    disabled={actionLoading}
                   />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">NPWP</label>
-                  <input
-                    type="text"
-                    value={editFormData.npwp}
-                    onChange={(e) => setEditFormData({ ...editFormData, npwp: e.target.value })}
-                    placeholder="98.765.432.1-012.000"
-                    className="dash-input text-xs w-full py-2 px-3 font-mono"
-                  />
-                </div>
-              </div>
+                </>
+              )}
 
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">URL Avatar</label>
-                <input
-                  type="text"
-                  value={editFormData.avatar}
-                  onChange={(e) => setEditFormData({ ...editFormData, avatar: e.target.value })}
-                  placeholder="https://..."
-                  className="dash-input text-xs w-full py-2 px-3"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Role Akun</label>
-                  <select
-                    value={editFormData.role}
-                    onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}
-                    className="dash-input text-xs w-full py-2 px-3"
-                  >
-                    <option value="member">Mitra / Member</option>
-                    <option value="keuangan">Tim Keuangan</option>
-                    <option value="cs">Customer Service</option>
-                    <option value="gudang">Tim Gudang</option>
-                    <option value="admin">Administrator</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">Status Akun</label>
-                  <select
-                    value={editFormData.status}
-                    onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
-                    className="dash-input text-xs w-full py-2 px-3"
-                  >
-                    <option value="active">Aktif</option>
-                    <option value="suspended">Suspended</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+              {/* Footer */}
+              <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setEditModalUser(null)}
-                  className="px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={actionLoading}
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-colors flex items-center gap-1.5"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
                 >
                   {actionLoading && <RefreshCw size={12} className="animate-spin" />}
                   <span>Simpan Perubahan</span>
@@ -1426,8 +1851,8 @@ export default function AdminUsersTab() {
 
       {/* Soft Delete Confirmation Modal */}
       {deleteModalUser && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-rose-100">
+        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-rose-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out">
             <div className="flex items-center gap-3 text-rose-600">
               <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
                 <AlertTriangle size={20} />
@@ -1469,6 +1894,113 @@ export default function AdminUsersTab() {
                 <span>Ya, Nonaktifkan (Soft Delete)</span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Admin Reset Password Modal */}
+      {resetPasswordModalUser && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <KeyRound size={18} className="text-amber-600" />
+                <h3 className="font-heading font-extrabold text-base text-slate-900">
+                  Reset Kata Sandi Customer
+                </h3>
+              </div>
+              <button
+                onClick={() => setResetPasswordModalUser(null)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-3">
+              <img
+                src={resetPasswordModalUser.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${resetPasswordModalUser.username}`}
+                alt="Avatar"
+                className="w-10 h-10 rounded-xl object-cover border border-slate-200 bg-white p-0.5"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="font-bold text-slate-900 text-sm truncate">
+                  {resetPasswordModalUser.full_name || resetPasswordModalUser.username}
+                </div>
+                <div className="text-xs text-slate-400 truncate">
+                  @{resetPasswordModalUser.username} • Role: <span className="uppercase font-semibold text-slate-600">{resetPasswordModalUser.role}</span>
+                </div>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveResetPassword} className="space-y-3.5">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Kata Sandi Baru <span className="text-rose-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateRandomPassword}
+                    className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
+                  >
+                    <Sparkles size={12} />
+                    <span>Generate Acak</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showAdminPassword ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={adminNewPassword}
+                    onChange={(e) => setAdminNewPassword(e.target.value)}
+                    placeholder="Masukkan sandi baru (min 6 karakter)"
+                    className="dash-input text-xs w-full py-2.5 pl-3 pr-20 font-mono font-medium"
+                  />
+                  <div className="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
+                    {adminNewPassword && (
+                      <button
+                        type="button"
+                        onClick={handleCopyNewPassword}
+                        title="Salin Sandi"
+                        className="p-1 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                      >
+                        {passwordCopied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminPassword(!showAdminPassword)}
+                      className="p-1 rounded text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                    >
+                      {showAdminPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                  </div>
+                </div>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Password langsung aktif dan tindakan ini dicatat dalam log audit platform.
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setResetPasswordModalUser(null)}
+                  className="px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={actionLoading || !adminNewPassword}
+                  className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {actionLoading ? <RefreshCw size={12} className="animate-spin" /> : <KeyRound size={12} />}
+                  <span>{actionLoading ? 'Menyimpan...' : 'Simpan Sandi Baru'}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

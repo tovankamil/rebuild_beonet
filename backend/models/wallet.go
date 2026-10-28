@@ -9,7 +9,7 @@ import (
 
 type Wallet struct {
 	ID        string    `gorm:"type:char(36);primaryKey" json:"id"`
-	UserID    string    `gorm:"type:char(36);not null;uniqueIndex" json:"user_id"`
+	UserID    string    `gorm:"type:char(36);not null;index" json:"user_id"`
 	Balance   float64   `gorm:"type:decimal(15,2);default:0.00" json:"balance"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 
@@ -51,7 +51,7 @@ func (wt *WalletTransaction) BeforeCreate(tx *gorm.DB) (err error) {
 
 type PointBalance struct {
 	ID         string    `gorm:"type:char(36);primaryKey" json:"id"`
-	UserID     string    `gorm:"type:char(36);not null;uniqueIndex" json:"user_id"`
+	UserID     string    `gorm:"type:char(36);not null;index" json:"user_id"`
 	PointLeft  float64   `gorm:"type:decimal(15,2);default:0.00" json:"point_left"`
 	PointRight float64   `gorm:"type:decimal(15,2);default:0.00" json:"point_right"`
 	UpdatedAt  time.Time `gorm:"autoUpdateTime" json:"updated_at"`

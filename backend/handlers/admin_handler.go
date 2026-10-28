@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AdminHandler struct{}
@@ -80,24 +81,30 @@ func (h *AdminHandler) GetOverview(c *gin.Context) {
 	})
 }
 
-// UserWithFinancesDTO representasi data pengguna dengan saldo, poin, identitas (KTP/NPWP), dan avatar
+// UserWithFinancesDTO representasi data pengguna dengan saldo, poin, identitas (KTP/NPWP), avatar, dan alamat
 type UserWithFinancesDTO struct {
-	ID         string    `json:"id"`
-	Username   string    `json:"username"`
-	FullName   string    `json:"full_name"`
-	Role       string    `json:"role"`
-	Phone      *string   `json:"phone"`
-	KTP        string    `json:"ktp"`
-	NPWP       string    `json:"npwp"`
-	Avatar     string    `json:"avatar"`
-	Status     string    `json:"status"`
-	CreatedAt  time.Time `json:"created_at"`
-	Balance    float64   `json:"balance"`
-	PointLeft  float64   `json:"point_left"`
-	PointRight float64   `json:"point_right"`
+	ID            string    `json:"id"`
+	Username      string    `json:"username"`
+	FullName      string    `json:"full_name"`
+	Role          string    `json:"role"`
+	Phone         *string   `json:"phone"`
+	KTP           string    `json:"ktp"`
+	NPWP          string    `json:"npwp"`
+	Avatar        string    `json:"avatar"`
+	Status        string    `json:"status"`
+	CreatedAt     time.Time `json:"created_at"`
+	Balance       float64   `json:"balance"`
+	PointLeft     float64   `json:"point_left"`
+	PointRight    float64   `json:"point_right"`
+	RecipientName string    `json:"recipient_name"`
+	Address       string    `json:"address"`
+	Province      string    `json:"province"`
+	City          string    `json:"city"`
+	District      string    `json:"district"`
+	PostalCode    string    `json:"postal_code"`
 }
 
-// GetUsers mengambil daftar seluruh pengguna dengan saldo dompet dan poin binary
+// GetUsers mengambil daftar seluruh pengguna dengan saldo dompet, poin binary, dan alamat primer
 func (h *AdminHandler) GetUsers(c *gin.Context) {
 	db := config.DB
 	search := c.Query("search")
@@ -105,13 +112,14 @@ func (h *AdminHandler) GetUsers(c *gin.Context) {
 	statusFilter := c.Query("status")
 
 	query := db.Table("users").
-		Select("users.id, users.username, users.full_name, users.role, users.phone, COALESCE(users.ktp, '') as ktp, COALESCE(users.npwp, '') as npwp, COALESCE(users.avatar, '') as avatar, users.status, users.created_at, COALESCE(wallets.balance, 0) as balance, COALESCE(point_balances.point_left, 0) as point_left, COALESCE(point_balances.point_right, 0) as point_right").
+		Select("users.id, users.username, users.full_name, users.role, users.phone, COALESCE(users.ktp, '') as ktp, COALESCE(users.npwp, '') as npwp, COALESCE(users.avatar, '') as avatar, users.status, users.created_at, COALESCE(wallets.balance, 0) as balance, COALESCE(point_balances.point_left, 0) as point_left, COALESCE(point_balances.point_right, 0) as point_right, COALESCE(user_addresses.recipient_name, '') as recipient_name, COALESCE(user_addresses.address, '') as address, COALESCE(user_addresses.province, '') as province, COALESCE(user_addresses.city, '') as city, COALESCE(user_addresses.district, '') as district, COALESCE(user_addresses.postal_code, '') as postal_code").
 		Joins("LEFT JOIN wallets ON wallets.user_id = users.id").
 		Joins("LEFT JOIN point_balances ON point_balances.user_id = users.id").
+		Joins("LEFT JOIN user_addresses ON user_addresses.user_id = users.id AND user_addresses.is_primary = true").
 		Where("users.deleted_at IS NULL")
 
 	if search != "" {
-		query = query.Where("users.username LIKE ? OR users.full_name LIKE ? OR users.ktp LIKE ? OR users.npwp LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%")
+		query = query.Where("users.username LIKE ? OR users.full_name LIKE ? OR users.ktp LIKE ? OR users.npwp LIKE ? OR user_addresses.address LIKE ? OR user_addresses.city LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%")
 	}
 	if roleFilter != "" {
 		query = query.Where("users.role = ?", roleFilter)
@@ -126,18 +134,44 @@ func (h *AdminHandler) GetUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "success", "data": results})
+	// Hitung global stats untuk KPI summary cards dashboard
+	var stats struct {
+		TotalUsers     int64 `json:"total_users"`
+		TotalMembers   int64 `json:"total_members"`
+		TotalGudang    int64 `json:"total_gudang"`
+		TotalAdmins    int64 `json:"total_admins"`
+		ActiveUsers    int64 `json:"active_users"`
+		SuspendedUsers int64 `json:"suspended_users"`
+	}
+	db.Model(&models.User{}).Where("deleted_at IS NULL").Count(&stats.TotalUsers)
+	db.Model(&models.User{}).Where("deleted_at IS NULL AND role = ?", "member").Count(&stats.TotalMembers)
+	db.Model(&models.User{}).Where("deleted_at IS NULL AND role = ?", "gudang").Count(&stats.TotalGudang)
+	db.Model(&models.User{}).Where("deleted_at IS NULL AND role = ?", "admin").Count(&stats.TotalAdmins)
+	db.Model(&models.User{}).Where("deleted_at IS NULL AND status = ?", "active").Count(&stats.ActiveUsers)
+	db.Model(&models.User{}).Where("deleted_at IS NULL AND status = ?", "suspended").Count(&stats.SuspendedUsers)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   results,
+		"stats":  stats,
+	})
 }
 
-// UpdateUserRequest struct untuk update data user oleh Admin / CS
+// UpdateUserRequest struct untuk update data user & alamat oleh Admin / CS
 type UpdateUserRequest struct {
-	FullName string  `json:"full_name" binding:"required"`
-	Phone    *string `json:"phone"`
-	KTP      string  `json:"ktp"`
-	NPWP     string  `json:"npwp"`
-	Avatar   string  `json:"avatar"`
-	Role     string  `json:"role"`
-	Status   string  `json:"status"`
+	FullName      string  `json:"full_name" binding:"required"`
+	Phone         *string `json:"phone"`
+	KTP           string  `json:"ktp"`
+	NPWP          string  `json:"npwp"`
+	Avatar        string  `json:"avatar"`
+	Role          string  `json:"role"`
+	Status        string  `json:"status"`
+	RecipientName string  `json:"recipient_name"`
+	Address       string  `json:"address"`
+	Province      string  `json:"province"`
+	City          string  `json:"city"`
+	District      string  `json:"district"`
+	PostalCode    string  `json:"postal_code"`
 }
 
 // UpdateUser mengubah data profil, KTP, NPWP, Avatar, status, atau role pengguna
@@ -182,13 +216,100 @@ func (h *AdminHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
+	// Update / Create Primary Address jika ada data alamat yang diisi
+	if req.Address != "" || req.Province != "" || req.City != "" || req.District != "" || req.PostalCode != "" {
+		var userAddr models.UserAddress
+		if err := config.DB.Where("user_id = ? AND is_primary = true", user.ID).First(&userAddr).Error; err != nil {
+			recipient := req.RecipientName
+			if recipient == "" {
+				recipient = req.FullName
+			}
+			phone := ""
+			if req.Phone != nil {
+				phone = *req.Phone
+			}
+			userAddr = models.UserAddress{
+				ID:            uuid.New().String(),
+				UserID:        user.ID,
+				RecipientName: recipient,
+				Phone:         phone,
+				Address:       req.Address,
+				Province:      req.Province,
+				City:          req.City,
+				District:      req.District,
+				PostalCode:    req.PostalCode,
+				IsPrimary:     true,
+			}
+			_ = config.DB.Create(&userAddr).Error
+		} else {
+			addrUpdates := map[string]interface{}{
+				"address":     req.Address,
+				"province":    req.Province,
+				"city":        req.City,
+				"district":    req.District,
+				"postal_code": req.PostalCode,
+			}
+			if req.RecipientName != "" {
+				addrUpdates["recipient_name"] = req.RecipientName
+			}
+			if req.Phone != nil && *req.Phone != "" {
+				addrUpdates["phone"] = *req.Phone
+			}
+			_ = config.DB.Model(&userAddr).Updates(addrUpdates).Error
+		}
+	}
+
 	// Record Audit Log
 	services.RecordAudit(c, adminID, "UPDATE", "users", id, oldData, updates)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
-		"message": "Data pengguna berhasil diperbarui",
+		"message": "Data pengguna & alamat berhasil diperbarui",
 		"data":    user,
+	})
+}
+
+// AdminResetPasswordRequest struct untuk reset/update password oleh admin
+type AdminResetPasswordRequest struct {
+	NewPassword string `json:"new_password" binding:"required,min=6"`
+}
+
+// UpdateUserPassword mengubah password customer/pengguna langsung oleh Administrator
+func (h *AdminHandler) UpdateUserPassword(c *gin.Context) {
+	id := c.Param("id")
+	adminID := c.GetString("user_id")
+
+	var req AdminResetPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Password baru minimal 6 karakter", "error": err.Error()})
+		return
+	}
+
+	var user models.User
+	if err := config.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Pengguna tidak ditemukan"})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal mengenkripsi kata sandi baru"})
+		return
+	}
+
+	if err := config.DB.Model(&user).Update("password_hash", string(hashedPassword)).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal memperbarui kata sandi pengguna"})
+		return
+	}
+
+	// Audit log
+	services.RecordAudit(c, adminID, "ADMIN_RESET_PASSWORD", "users", id, nil, map[string]interface{}{"username": user.Username})
+
+	_ = CreateNotification(user.ID, "Kata Sandi Diperbarui oleh Admin", "Kata sandi akun Anda telah diperbarui oleh Administrator sistem.", "info", "/overview")
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Kata sandi pengguna @" + user.Username + " berhasil diperbarui",
 	})
 }
 

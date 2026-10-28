@@ -222,4 +222,43 @@ func TestAPI_ProtectedRoutes_WithValidToken(t *testing.T) {
 			t.Errorf("Expected BankName 'BSI (Bank Syariah Indonesia)', got %s", getResp.Data.BankName)
 		}
 	})
+
+	// 7. Uji POST /api/pins/register-downline
+	t.Run("POST /api/pins/register-downline", func(t *testing.T) {
+		regPayload, _ := json.Marshal(models.RegisterDownlineRequest{
+			PinID:    "pin-uuid-demo",
+			UplineID: "user-test-uuid",
+			Position: "kiri",
+			Username: "mitra_baru01",
+			FullName: "Mitra Sukses Baru",
+			Password: "password123",
+			Phone:    "081234567890",
+			KTP:      "3201234567890001",
+		})
+		req, _ := http.NewRequest(http.MethodPost, "/api/pins/register-downline", bytes.NewBuffer(regPayload))
+		req.Header.Set("Authorization", "Bearer "+token)
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected 200 on registering downline, got %d. Body: %s", w.Code, w.Body.String())
+		}
+
+		var regResp struct {
+			Status  string                          `json:"status"`
+			Message string                          `json:"message"`
+			Data    models.RegisterDownlineResponse `json:"data"`
+		}
+		json.Unmarshal(w.Body.Bytes(), &regResp)
+		if regResp.Status != "success" {
+			t.Errorf("Expected status 'success', got %s", regResp.Status)
+		}
+		if regResp.Data.User.Username != "mitra_baru01" {
+			t.Errorf("Expected registered username 'mitra_baru01', got %s", regResp.Data.User.Username)
+		}
+		if regResp.Data.Position != "kiri" {
+			t.Errorf("Expected binary position 'kiri', got %s", regResp.Data.Position)
+		}
+	})
 }

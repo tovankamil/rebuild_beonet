@@ -70,3 +70,25 @@ type TransferPinRequest struct {
 	PinID          string `json:"pin_id" binding:"required"`
 	TargetUsername string `json:"target_username" binding:"required"`
 }
+
+type RegisterDownlineRequest struct {
+	PinID    string `json:"pin_id" binding:"required"`
+	UplineID string `json:"upline_id" binding:"required"`
+	Position string `json:"position" binding:"required"` // "kiri" atau "kanan"
+	Username string `json:"username" binding:"required"`
+	FullName string `json:"full_name" binding:"required"`
+	Password string `json:"password" binding:"required,min=6"`
+	Phone    string `json:"phone"`
+	KTP      string `json:"ktp"`
+}
+
+type RegisterDownlineResponse struct {
+	User          User       `json:"user"`
+	Pin           Pin        `json:"pin"`
+	Position      string     `json:"position"`
+	Upline        User       `json:"upline"`
+	SponsorBonus  float64    `json:"sponsor_bonus"`
+	PointsAwarded float64    `json:"points_awarded"`
+	WalletBalance float64    `json:"wallet_balance"`
+}
+

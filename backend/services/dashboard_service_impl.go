@@ -17,8 +17,8 @@ func (s *dashboardServiceImpl) GetStats(userID string) (*models.DashboardStatsRe
 	return s.repo.GetStats(userID)
 }
 
-func (s *dashboardServiceImpl) GetGenealogy(userID string) (*models.BinaryNode, error) {
-	return s.repo.GetGenealogy(userID)
+func (s *dashboardServiceImpl) GetGenealogy(userID string, targetIdentifier string) (*models.BinaryNode, error) {
+	return s.repo.GetGenealogy(userID, targetIdentifier)
 }
 
 func (s *dashboardServiceImpl) GetDirectReferrals(userID string) ([]models.ReferralItem, error) {
@@ -59,6 +59,10 @@ func (s *dashboardServiceImpl) GetPinPackages() ([]models.PinPackage, error) {
 
 func (s *dashboardServiceImpl) TransferPin(fromUserID string, pinID string, targetUsername string) error {
 	return s.repo.TransferPin(fromUserID, pinID, targetUsername)
+}
+
+func (s *dashboardServiceImpl) RegisterDownline(sponsorUserID string, req models.RegisterDownlineRequest) (*models.RegisterDownlineResponse, error) {
+	return s.repo.RegisterDownline(sponsorUserID, req)
 }
 
 func (s *dashboardServiceImpl) GetProducts() ([]models.Product, error) {

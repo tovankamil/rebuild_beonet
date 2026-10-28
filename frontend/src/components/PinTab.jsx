@@ -9,10 +9,12 @@ import {
   Copy,
   Check,
   Package,
+  UserPlus,
 } from 'lucide-react';
 import api from '../services/api';
 import DashPagination from './dashlite/DashPagination';
 import ExportButtons from './dashlite/ExportButtons';
+import RegisterDownlineModal from './RegisterDownlineModal';
 import { formatExportDate } from '../utils/exportUtils';
 
 export default function PinTab() {
@@ -27,6 +29,8 @@ export default function PinTab() {
   const [copiedCode, setCopiedCode] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [registerModalOpen, setRegisterModalOpen] = useState(false);
+  const [selectedPinForReg, setSelectedPinForReg] = useState('');
 
   const formatRupiah = (val) => {
     return new Intl.NumberFormat('id-ID', {
@@ -197,7 +201,7 @@ export default function PinTab() {
                 <option value="">-- Pilih PIN dari Inventori --</option>
                 {activePins.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.pin_code} ({p.package?.name || 'Paket'})
+                    {p.serial_code || p.pin_code} ({p.package?.name || 'Paket'})
                   </option>
                 ))}
               </select>
@@ -246,7 +250,7 @@ export default function PinTab() {
               subtitle="Stok serial PIN aktif dan terpakai untuk aktivasi paket hak usaha"
               headers={['SERIAL CODE', 'PAKET HU', 'STATUS', 'TANGGAL']}
               rows={pins.map((p) => [
-                p.serial_code,
+                p.serial_code || p.pin_code,
                 p.package?.name || 'Paket Standar',
                 p.status === 'active' ? 'AKTIF (TERSEDIA)' : 'TERPAKAI',
                 formatExportDate(p.created_at, { includeTime: false }),
@@ -283,7 +287,7 @@ export default function PinTab() {
                   paginatedPins.map((pin) => (
                     <tr key={pin.id} className="hover:bg-slate-50/80">
                       <td className="py-3 px-4 font-mono font-bold text-slate-800">
-                        {pin.pin_code}
+                        {pin.serial_code || pin.pin_code}
                       </td>
                       <td className="py-3 px-4 font-semibold text-slate-700">
                         {pin.package?.name || 'Paket Silver'}
@@ -304,17 +308,32 @@ export default function PinTab() {
                         )}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => handleCopyCode(pin.pin_code)}
-                          className="p-1.5 rounded text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
-                          title="Salin Kode Serial"
-                        >
-                          {copiedCode === pin.pin_code ? (
-                            <Check size={14} className="text-emerald-600" />
-                          ) : (
-                            <Copy size={14} />
+                        <div className="flex items-center justify-end gap-1.5">
+                          {pin.status === 'active' && (
+                            <button
+                              onClick={() => {
+                                setSelectedPinForReg(pin.id);
+                                setRegisterModalOpen(true);
+                              }}
+                              className="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold rounded text-[11px] transition-colors flex items-center gap-1 shadow-xs"
+                              title="Daftarkan Downline dengan PIN ini"
+                            >
+                              <UserPlus size={13} />
+                              <span className="hidden sm:inline">Aktivasi</span>
+                            </button>
                           )}
-                        </button>
+                          <button
+                            onClick={() => handleCopyCode(pin.serial_code || pin.pin_code)}
+                            className="p-1.5 rounded text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                            title="Salin Kode Serial"
+                          >
+                            {copiedCode === (pin.serial_code || pin.pin_code) ? (
+                              <Check size={14} className="text-emerald-600" />
+                            ) : (
+                              <Copy size={14} />
+                            )}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -334,6 +353,21 @@ export default function PinTab() {
           />
         </div>
       </div>
+
+      {/* Registration Downline Modal */}
+      {registerModalOpen && (
+        <RegisterDownlineModal
+          isOpen={registerModalOpen}
+          onClose={() => {
+            setRegisterModalOpen(false);
+            setSelectedPinForReg('');
+          }}
+          preselectedPinId={selectedPinForReg}
+          onSuccess={() => {
+            fetchData();
+          }}
+        />
+      )}
     </div>
   );
 }

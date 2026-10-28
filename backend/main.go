@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -469,6 +470,25 @@ func seedDefaultData() {
 			})
 		}
 
+		// Ensure admin-fraud menu exists if DB was already seeded
+		var fraudMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "admin-fraud").First(&fraudMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "admin-fraud",
+				Title:       "Fraud Control & Risiko",
+				Description: "Pusat deteksi kecurangan, duplikasi identitas/bank & spike penarikan",
+				Category:    "Admin",
+				IconName:    "ShieldAlert",
+				OrderIndex:  7,
+			})
+			for _, r := range []string{"admin", "keuangan"} {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID: uuid.New().String(), Role: r, MenuKey: "admin-fraud", IsEnabled: true,
+				})
+			}
+		}
+
 		// Ensure permissions for keuangan and cs
 		for _, roleKey := range []struct {
 			role  string
@@ -642,8 +662,8 @@ func main() {
 	// Initialize Database
 	config.ConnectDatabase()
 
-	// AutoMigrate all 100% UUID tables
-	err = config.DB.AutoMigrate(
+	// AutoMigrate all 100% UUID tables sequentially
+	allModels := []interface{}{
 		&models.User{},
 		&models.UserBank{},
 		&models.UserAddress{},
@@ -666,14 +686,23 @@ func main() {
 		&models.ChatMessage{},
 		&models.Notification{},
 		&models.AuditLog{},
-	)
-	if err != nil {
-		log.Println("AutoMigrate notice:", err)
+		&models.FraudCase{},
+	}
+	for _, m := range allModels {
+		if err := config.DB.AutoMigrate(m); err != nil {
+			log.Printf("AutoMigrate notice for %T: %v", m, err)
+		}
 	}
 
-	// Ensure RBAC, Communication, and Audit tables are migrated explicitly
-	if err := config.DB.AutoMigrate(&models.AppMenu{}, &models.RoleMenuPermission{}, &models.ChatMessage{}, &models.Notification{}, &models.AuditLog{}); err != nil {
-		log.Println("Tables migration notice:", err)
+	// Ensure wallet_transactions has created_at column in MySQL
+	var colCount int64
+	config.DB.Raw("SELECT count(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'wallet_transactions' AND COLUMN_NAME = 'created_at'").Scan(&colCount)
+	if colCount == 0 {
+		if err := config.DB.Exec("ALTER TABLE wallet_transactions ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP").Error; err != nil {
+			log.Println("Notice adding created_at to wallet_transactions:", err)
+		} else {
+			log.Println("Successfully added missing created_at column to wallet_transactions table")
+		}
 	}
 
 	// Seed demo data
@@ -689,10 +718,22 @@ func main() {
 	dashboardHandler := handlers.NewDashboardHandler(dashboardService)
 
 	adminHandler := handlers.NewAdminHandler()
+	fraudHandler := handlers.NewFraudHandler()
 	warehouseHandler := handlers.NewWarehouseHandler()
 	rbacHandler := handlers.NewRBACHandler()
 	chatHandler := handlers.NewChatHandler()
 	notificationHandler := handlers.NewNotificationHandler()
+
+	regionHandler := handlers.NewRegionHandler()
+
+	// Initialize Google Gemini AI Service
+	if _, err := services.NewGeminiService(); err != nil {
+		log.Printf("[Notice] GeminiService init: %v", err)
+	}
+
+	// Initialize Telegram Bot Service (Starts background polling if token is set)
+	telegramSvc := services.NewTelegramService()
+	telegramSvc.StartBotListener(context.Background())
 
 	// Initialize Gin Router
 	r := gin.Default()
@@ -713,6 +754,33 @@ func main() {
 			})
 		})
 
+		// Wilayah Indonesia API (indonesia_kode & wilayahindonesia)
+		api.GET("/regions/provinces", regionHandler.GetProvinces)
+		api.GET("/regions/regencies", regionHandler.GetRegencies)
+		api.GET("/regions/districts", regionHandler.GetDistricts)
+		api.GET("/regions/search", regionHandler.SearchRegions)
+
+		// Gemini AI Assistant Endpoint
+		api.POST("/ai/chat", func(c *gin.Context) {
+			var req struct {
+				Prompt string `json:"prompt" binding:"required"`
+			}
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(400, gin.H{"status": "error", "message": "prompt is required"})
+				return
+			}
+			if services.GlobalGeminiService == nil {
+				c.JSON(503, gin.H{"status": "error", "message": "Gemini AI service is not initialized"})
+				return
+			}
+			reply, err := services.GlobalGeminiService.ProcessBionetAssistant(c.Request.Context(), "Web User", "guest", req.Prompt, "Bionet Web API")
+			if err != nil {
+				c.JSON(500, gin.H{"status": "error", "message": err.Error()})
+				return
+			}
+			c.JSON(200, gin.H{"status": "success", "reply": reply})
+		})
+
 		// Auth
 		api.POST("/auth/login", authHandler.Login)
 
@@ -722,6 +790,9 @@ func main() {
 		{
 			protected.GET("/auth/me", authHandler.GetMe)
 			protected.PUT("/dashboard/profile", dashboardHandler.UpdateProfile)
+			protected.PUT("/dashboard/password", dashboardHandler.UpdatePassword)
+			protected.GET("/dashboard/address", dashboardHandler.GetUserAddress)
+			protected.PUT("/dashboard/address", dashboardHandler.UpdateUserAddress)
 			protected.GET("/dashboard/recent-members", dashboardHandler.GetRecentMembers)
 			protected.GET("/dashboard/stats", dashboardHandler.GetStats)
 			protected.GET("/dashboard/genealogy", dashboardHandler.GetGenealogy)
@@ -744,6 +815,7 @@ func main() {
 			protected.GET("/pins/my-pins", dashboardHandler.GetMyPins)
 			protected.GET("/pins/packages", dashboardHandler.GetPinPackages)
 			protected.POST("/pins/transfer", dashboardHandler.TransferPin)
+			protected.POST("/pins/register-downline", dashboardHandler.RegisterDownline)
 
 			// Products
 			protected.GET("/products", dashboardHandler.GetProducts)
@@ -781,6 +853,7 @@ func main() {
 				adminGroup.DELETE("/users/:id", middleware.RequireRole("admin"), adminHandler.DeleteUser)
 				adminGroup.PATCH("/users/:id/role", middleware.RequireRole("admin"), adminHandler.UpdateUserRole)
 				adminGroup.PATCH("/users/:id/status", middleware.RequireRole("admin"), adminHandler.UpdateUserStatus)
+				adminGroup.PATCH("/users/:id/password", middleware.RequireRole("admin"), adminHandler.UpdateUserPassword)
 
 				// RBAC Role-Menu Matrix & Permission Toggles (Admin only)
 				adminGroup.GET("/rbac/matrix", middleware.RequireRole("admin"), rbacHandler.GetMatrix)
@@ -808,6 +881,12 @@ func main() {
 				// Withdrawals Approval (Admin & Keuangan)
 				adminGroup.GET("/withdrawals", middleware.RequireRole("admin", "keuangan"), adminHandler.GetWithdrawals)
 				adminGroup.PATCH("/withdrawals/:id/status", middleware.RequireRole("admin", "keuangan"), adminHandler.UpdateWithdrawalStatus)
+
+				// Fraud Control & Risk Monitoring (Admin & Keuangan)
+				adminGroup.GET("/fraud/overview", fraudHandler.GetFraudOverview)
+				adminGroup.POST("/fraud/scan", fraudHandler.RunScan)
+				adminGroup.POST("/fraud/cases/:id/freeze", middleware.RequireRole("admin"), fraudHandler.FreezeUserCase)
+				adminGroup.POST("/fraud/cases/:id/resolve", middleware.RequireRole("admin", "keuangan"), fraudHandler.ResolveCase)
 			}
 
 			// ==============================================

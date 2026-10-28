@@ -27,6 +27,7 @@ export default function Header({
   mobileOpen,
   onToggleMobileSidebar,
   onNavigate,
+  onOpenProfile,
 }) {
   const [copied, setCopied] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -134,19 +135,19 @@ export default function Header({
   return (
     <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-8 flex items-center justify-between shadow-xs">
       {/* Left: Hamburger Toggle (Mobile) + Section Header & Status */}
-      <div className="flex items-center gap-2.5 sm:gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         {/* Mobile Hamburger Button */}
         <button
           type="button"
           onClick={onToggleMobileSidebar}
           aria-label="Toggle Mobile Menu"
-          className="lg:hidden p-2 -ml-2 rounded-xl text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+          className="lg:hidden p-2 -ml-2 rounded-xl text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/20 flex-shrink-0"
         >
           {mobileOpen ? <X size={22} className="text-emerald-700" /> : <Menu size={22} />}
         </button>
 
-        <div>
-          <h2 className="font-heading font-bold text-base lg:text-lg text-slate-800 leading-tight">
+        <div className="min-w-0">
+          <h2 className="font-heading font-bold text-sm sm:text-base lg:text-lg text-slate-800 leading-snug truncate">
             {user?.role === 'admin'
               ? 'Portal Administrasi Pusat'
               : user?.role === 'keuangan'
@@ -157,7 +158,7 @@ export default function Header({
               ? 'Portal Logistik Pergudangan'
               : 'Dashboard Kemitraan'}
           </h2>
-          <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
+          <p className="text-[11px] text-slate-400 font-medium hidden sm:block truncate">
             {user?.role === 'admin'
               ? 'Panel Kontrol Pusat & Manajemen Eksekutif Bionet'
               : user?.role === 'keuangan'
@@ -169,9 +170,9 @@ export default function Header({
               : 'Sistem Kemitraan & Penjualan Jaringan Herbal'}
           </p>
         </div>
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-700">
+        <div className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[11px] font-semibold text-emerald-700 flex-shrink-0">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="hidden xs:inline">Network Live</span>
+          <span>Network Live</span>
         </div>
       </div>
 
@@ -230,7 +231,7 @@ export default function Header({
 
           {/* Notifications Dropdown Panel */}
           {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-in fade-in-50 zoom-in-95 duration-150">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-in fade-in-50 zoom-in-95 duration-150">
               <div className="p-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Bell size={16} className="text-emerald-600" />
@@ -401,22 +402,27 @@ export default function Header({
           )}
         </div>
 
-        {/* Refresh Button */}
+        {/* Refresh Button (Visible on sm+ screens to preserve mobile header space) */}
         <button
           onClick={onRefresh}
           disabled={loading}
           title="Segarkan Data Real-Time"
-          className="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors shadow-xs"
+          className="hidden sm:inline-flex p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors shadow-xs"
         >
           <RefreshCw size={14} className={loading ? 'animate-spin text-emerald-600' : ''} />
         </button>
 
         <div className="h-6 w-px bg-slate-200 mx-0.5 hidden sm:block" />
 
-        {/* User Mini Profile */}
-        <div className="flex items-center gap-2">
+        {/* User Mini Profile Trigger */}
+        <button
+          type="button"
+          onClick={() => onOpenProfile && onOpenProfile('profile')}
+          title="Buka Pengaturan Profil & Kata Sandi"
+          className="flex items-center gap-2 p-1 sm:px-2 sm:py-1 rounded-xl hover:bg-slate-100/90 active:scale-95 transition-all text-left group cursor-pointer border border-transparent hover:border-slate-200"
+        >
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center font-heading font-extrabold text-xs shadow-xs flex-shrink-0 ${
+            className={`w-8 h-8 rounded-full flex items-center justify-center font-heading font-extrabold text-xs shadow-xs flex-shrink-0 group-hover:ring-2 group-hover:ring-emerald-500/40 transition-all ${
               user?.role === 'admin'
                 ? 'bg-amber-100 text-amber-800'
                 : user?.role === 'keuangan'
@@ -431,14 +437,14 @@ export default function Header({
             {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
           </div>
           <div className="hidden md:block text-left">
-            <div className="text-xs font-bold text-slate-800 leading-tight">
+            <div className="text-xs font-bold text-slate-800 leading-tight group-hover:text-emerald-700 transition-colors">
               {user?.full_name || user?.username || 'Pengguna'}
             </div>
             <div className="text-[10px] text-slate-400 font-medium">
               @{user?.username || 'user'} • <span className="uppercase font-semibold">{user?.role || 'member'}</span>
             </div>
           </div>
-        </div>
+        </button>
       </div>
     </header>
   );

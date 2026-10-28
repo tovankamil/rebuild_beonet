@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"bionet-backend/config"
 	"bionet-backend/models"
+	"bionet-backend/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -58,6 +60,11 @@ func NotifyAdminsAndFinance(title string, message string, notifType string, link
 	db.Where("role IN ('admin', 'keuangan')").Find(&users)
 	for _, u := range users {
 		_ = CreateNotification(u.ID, title, message, notifType, link)
+	}
+
+	// Real-time Telegram notification to Admin
+	if services.GlobalTelegramService != nil {
+		_ = services.GlobalTelegramService.NotifyAdmin(fmt.Sprintf("🔔 *%s*\n\n%s", title, message))
 	}
 }
 

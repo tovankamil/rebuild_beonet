@@ -150,6 +150,7 @@ CREATE TABLE `wallet_transactions` (
     `balance_after` DECIMAL(15,2) NOT NULL,
     `description` VARCHAR(255) NOT NULL,
     `transaction_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
     INDEX `idx_wallet_tx_user_date` (`user_id`, `transaction_date`)
 ) ENGINE=InnoDB;

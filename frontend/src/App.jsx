@@ -17,8 +17,12 @@ import AdminPointsTab from './components/admin/AdminPointsTab';
 import AdminPinsTab from './components/admin/AdminPinsTab';
 import AdminOrdersTab from './components/admin/AdminOrdersTab';
 import AdminWithdrawalsTab from './components/admin/AdminWithdrawalsTab';
+import AdminFraudTab from './components/admin/AdminFraudTab';
+import AdminSystemGuideTab from './components/admin/AdminSystemGuideTab';
 import WarehouseTab from './components/warehouse/WarehouseTab';
 import ChatTab from './components/ChatTab';
+import ProfileModal from './components/ProfileModal';
+import AIAssistantWidget from './components/AIAssistantWidget';
 import LoginPage from './pages/LoginPage';
 import api from './services/api';
 
@@ -41,6 +45,13 @@ export default function App() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [profileModalTab, setProfileModalTab] = useState('profile');
+
+  const handleOpenProfile = (tab = 'profile') => {
+    setProfileModalTab(tab);
+    setProfileModalOpen(true);
+  };
 
   const fetchStats = async () => {
     if (!token) return;
@@ -94,7 +105,7 @@ export default function App() {
     if (role === 'admin') return;
 
     if (role === 'keuangan') {
-      const allowed = ['admin-overview', 'admin-transactions', 'admin-withdrawals', 'overview', 'chat', 'components'];
+      const allowed = ['admin-overview', 'admin-transactions', 'admin-withdrawals', 'admin-fraud', 'admin-guide', 'overview', 'chat', 'components'];
       if (!allowed.includes(activeTab)) {
         setActiveTab(getInitialTab(role));
       }
@@ -102,7 +113,7 @@ export default function App() {
     }
 
     if (role === 'cs') {
-      const allowed = ['admin-overview', 'admin-users', 'chat', 'overview', 'components'];
+      const allowed = ['admin-overview', 'admin-users', 'admin-guide', 'chat', 'overview', 'components'];
       if (!allowed.includes(activeTab)) {
         setActiveTab(getInitialTab(role));
       }
@@ -110,7 +121,7 @@ export default function App() {
     }
 
     if (role === 'gudang') {
-      const allowed = ['warehouse-overview', 'warehouse-inventory', 'warehouse-orders', 'products'];
+      const allowed = ['warehouse-overview', 'warehouse-inventory', 'warehouse-orders', 'admin-guide', 'products'];
       if (!allowed.includes(activeTab)) {
         setActiveTab(getInitialTab(role));
       }
@@ -164,10 +175,11 @@ export default function App() {
         onLogout={handleLogout}
         mobileOpen={mobileSidebarOpen}
         setMobileOpen={setMobileSidebarOpen}
+        onOpenProfile={handleOpenProfile}
       />
 
       {/* 2. Main Content Wrapper */}
-      <div className="flex-1 ml-0 lg:ml-[68px] flex flex-col min-w-0 min-h-screen transition-all duration-300">
+      <div className="flex-1 ml-0 lg:ml-[68px] flex flex-col min-w-0 min-h-screen min-h-dvh transition-all duration-300">
         <Header
           user={user}
           onRefresh={fetchStats}
@@ -175,10 +187,11 @@ export default function App() {
           mobileOpen={mobileSidebarOpen}
           onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
           onNavigate={setActiveTab}
+          onOpenProfile={handleOpenProfile}
         />
 
-        {/* 3. Fluid Page Content Area */}
-        <main className="flex-1 px-4 sm:px-8 py-6 w-full max-w-none">
+        {/* 3. Fluid Page Content Area with Mobile Native Spacing */}
+        <main className="flex-1 px-3.5 sm:px-8 py-4 sm:py-6 safe-bottom w-full max-w-none">
           {/* ==================== ADMIN ROLE VIEWS ==================== */}
           {activeTab === 'admin-overview' && (
             <AdminOverviewTab setActiveTab={setActiveTab} />
@@ -196,6 +209,14 @@ export default function App() {
 
           {activeTab === 'admin-withdrawals' && <AdminWithdrawalsTab />}
 
+          {activeTab === 'admin-fraud' && (
+            <AdminFraudTab onNavigateToAudit={() => setActiveTab('admin-users')} />
+          )}
+
+          {activeTab === 'admin-guide' && (
+            <AdminSystemGuideTab setActiveTab={setActiveTab} />
+          )}
+
           {/* ==================== WAREHOUSE ROLE VIEWS ==================== */}
           {(activeTab === 'warehouse-overview' ||
             activeTab === 'warehouse-inventory' ||
@@ -207,6 +228,7 @@ export default function App() {
               stats={stats}
               setActiveTab={setActiveTab}
               currentUser={user}
+              onOpenProfile={handleOpenProfile}
               onProfileUpdated={(updated) => {
                 setUser((prev) => ({ ...prev, ...updated }));
                 fetchStats();
@@ -260,6 +282,21 @@ export default function App() {
           </div>
         </footer>
       </div>
+
+      {/* Global Profile & Password Modal */}
+      <ProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        currentUser={user}
+        initialTab={profileModalTab}
+        onProfileUpdated={(updated) => {
+          setUser((prev) => ({ ...prev, ...updated }));
+          fetchStats();
+        }}
+      />
+
+      {/* Floating AI Copilot Widget */}
+      <AIAssistantWidget currentUser={user} />
     </div>
   );
 }

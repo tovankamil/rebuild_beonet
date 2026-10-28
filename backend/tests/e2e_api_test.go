@@ -63,7 +63,7 @@ func (s *fullMockDashboardService) GetStats(userID string) (*models.DashboardSta
 	}, nil
 }
 
-func (s *fullMockDashboardService) GetGenealogy(userID string) (*models.BinaryNode, error) {
+func (s *fullMockDashboardService) GetGenealogy(userID string, targetIdentifier string) (*models.BinaryNode, error) {
 	return &models.BinaryNode{
 		ID:         userID,
 		Username:   "mitra01",
@@ -135,6 +135,21 @@ func (s *fullMockDashboardService) TransferPin(fromUserID string, pinID string, 
 	return nil
 }
 
+func (s *fullMockDashboardService) RegisterDownline(sponsorUserID string, req models.RegisterDownlineRequest) (*models.RegisterDownlineResponse, error) {
+	return &models.RegisterDownlineResponse{
+		User: models.User{
+			ID:       "new-downline-uuid",
+			Username: req.Username,
+			FullName: req.FullName,
+			Role:     "member",
+			Status:   "active",
+		},
+		Position:      req.Position,
+		SponsorBonus:  50000,
+		PointsAwarded: 1,
+	}, nil
+}
+
 func (s *fullMockDashboardService) GetProducts() ([]models.Product, error) {
 	return []models.Product{}, nil
 }
@@ -176,6 +191,7 @@ func setupTestServer() *gin.Engine {
 			protected.GET("/pins/my-pins", dashboardHandler.GetMyPins)
 			protected.GET("/pins/packages", dashboardHandler.GetPinPackages)
 			protected.POST("/pins/transfer", dashboardHandler.TransferPin)
+			protected.POST("/pins/register-downline", dashboardHandler.RegisterDownline)
 
 			// Products
 			protected.GET("/products", dashboardHandler.GetProducts)

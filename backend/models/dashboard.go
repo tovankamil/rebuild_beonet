@@ -22,13 +22,15 @@ type ReferralItem struct {
 }
 
 type BinaryNode struct {
-	ID         string      `json:"id"`
-	Username   string      `json:"username"`
-	FullName   string      `json:"full_name"`
-	Position   string      `json:"position"` // "root", "kiri", "kanan"
-	Status     string      `json:"status"`
-	PointLeft  float64     `json:"point_left"`
-	PointRight float64     `json:"point_right"`
-	LeftNode   *BinaryNode `json:"left_node,omitempty"`
-	RightNode  *BinaryNode `json:"right_node,omitempty"`
+	ID             string      `json:"id"`
+	Username       string      `json:"username"`
+	FullName       string      `json:"full_name"`
+	Position       string      `json:"position"` // "root", "kiri", "kanan"
+	Status         string      `json:"status"`
+	PointLeft      float64     `json:"point_left"`
+	PointRight     float64     `json:"point_right"`
+	UplineID       *string     `json:"upline_id,omitempty"`
+	UplineUsername *string     `json:"upline_username,omitempty"`
+	LeftNode       *BinaryNode `json:"left_node,omitempty"`
+	RightNode      *BinaryNode `json:"right_node,omitempty"`
 }

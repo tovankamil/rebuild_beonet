@@ -23,7 +23,7 @@ func (m *mockDashboardRepository) GetStats(userID string) (*models.DashboardStat
 	return m.stats, nil
 }
 
-func (m *mockDashboardRepository) GetGenealogy(userID string) (*models.BinaryNode, error) {
+func (m *mockDashboardRepository) GetGenealogy(userID string, targetIdentifier string) (*models.BinaryNode, error) {
 	return m.genealogy, nil
 }
 
@@ -62,6 +62,17 @@ func (m *mockDashboardRepository) GetPinPackages() ([]models.PinPackage, error) 
 
 func (m *mockDashboardRepository) TransferPin(fromUserID string, pinID string, targetUsername string) error {
 	return nil
+}
+
+func (m *mockDashboardRepository) RegisterDownline(sponsorUserID string, req models.RegisterDownlineRequest) (*models.RegisterDownlineResponse, error) {
+	return &models.RegisterDownlineResponse{
+		User: models.User{
+			ID:       "user-downline-new",
+			Username: req.Username,
+			FullName: req.FullName,
+		},
+		Position: req.Position,
+	}, nil
 }
 
 func (m *mockDashboardRepository) GetProducts() ([]models.Product, error) {
@@ -150,7 +161,7 @@ func TestDashboardService_GetGenealogy(t *testing.T) {
 
 	service := NewDashboardService(mockRepo)
 
-	tree, err := service.GetGenealogy("root-1")
+	tree, err := service.GetGenealogy("root-1", "")
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}

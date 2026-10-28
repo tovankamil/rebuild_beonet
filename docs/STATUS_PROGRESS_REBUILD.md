@@ -13,10 +13,10 @@ Aplikasi saat ini telah berhasil dirancang ulang (*rebuild*) dari monolitik lama
 - **Role-Based Access Control (RBAC)**: Multi-Role Engine dengan pemisahan antarmuka penuh untuk **Administrator Pusat**, **Staff Gudang & Logistik**, dan **Mitra / Member Jaringan**.
 
 ```mermaid
-pie title Distribusi Status Fitur Keseluruhan (Update 27 Okt 2026)
-    "Sudah Dikerjakan (Selesai)" : 85
-    "Sebagian Dikerjakan (Pending Integrasi)" : 10
-    "Belum Dikerjakan (Pending Roadmap)" : 5
+pie title Distribusi Status Fitur Keseluruhan (Update 27 Okt 2026 - Sprint 1 & Fraud Control Selesai)
+    "Sudah Dikerjakan (Selesai)" : 95
+    "Sebagian Dikerjakan (Pending Integrasi)" : 3
+    "Belum Dikerjakan (Pending Roadmap)" : 2
 ```
 
 ---
@@ -77,7 +77,7 @@ graph LR
 | **E. Stokis & PIN** | **1. Katalog Paket PIN** | ✅ **Selesai** | Daftar paket PIN Silver, Gold, Platinum beserta potensi bonus. |
 | | **2. Inventori PIN Mitra** | ✅ **Selesai** | Daftar serial PIN aktif, terpakai, dan riwayat perolehan. |
 | | **3. Transfer PIN Antar Mitra** | ✅ **Selesai** | Endpoint `/api/pins/transfer` dengan validasi username tujuan dan perpindahan kepemilikan aman. |
-| | *4. Aktivasi Mitra Baru via PIN* | ❌ **Belum Dikerjakan** | **Fitur Kunci MLM**: Form dan endpoint pendaftaran member baru (downline) langsung di bawah jaringan menggunakan PIN serial yang dimiliki belum dibuat. |
+| | **4. Aktivasi Mitra Baru via PIN** | ✅ **Selesai (100%)** | **Fitur Kunci MLM**: Form modal interaktif `RegisterDownlineModal.jsx` dan endpoint `POST /api/pins/register-downline` dengan penempatan slot binary kaki kiri/kanan, validasi serial PIN, closure paths (`upline_paths` & `sponsor_paths`), propagasi poin PV ke seluruh upline, dan auto-kredit bonus sponsor ke saldo dompet. |
 | **F. E-Commerce & RO** | **1. Katalog Produk Herbal** | ✅ **Selesai** | Tampilan katalog produk fisik, foto, harga, dan ketersediaan stok. |
 | | *2. Checkout & Order Repeat Order (RO)* | ⚠️ **Sebagian** | API order dan admin view sudah lengkap; keranjang belanja frontend mitra dalam proses penyempurnaan. |
 | | **3. Pelacakan Status Pesanan** | ✅ **Selesai** | Manajemen status pesanan lengkap di portal Admin dan portal Gudang. |
@@ -346,19 +346,97 @@ Komponen reusable `ExportButtons.jsx` telah disematkan pada seluruh menu tabel y
 
 ---
 
-## 🚀 10. Roadmap Selanjutnya
+---
+
+## 🌟 10. Pembaruan Sprint 1: Fitur Pendaftaran Mitra Baru / Downline via Serial PIN (27 Oktober 2026)
+
+### A. Fitur Inti Operasional Kemitraan MLM:
+1. **Endpoint Backend Transaksional (`POST /api/pins/register-downline`)**:
+   - Dijalankan dalam satu transaksi database ACID terisolasi penuh (`r.db.Transaction`).
+   - **Validasi Serial PIN**: Memverifikasi PIN berstatus `active`, milik pengguna yang sedang login (`owner_id = sponsor_id`), serta membaca paket hak usaha (Silver / Gold / Platinum).
+   - **Validasi Upline & Placement**:
+     - Memastikan upline valid dan berada di bawah jaringan binary sponsor (mencegah penempatan *cross-line* ilegal).
+     - Memverifikasi slot posisi (`kiri` atau `kanan`) di bawah upline belum ditempati mitra lain di tabel `network_positions`.
+   - **Pembuatan Akun Mitra Baru**:
+     - UUID PK baru, password ter-hash aman dengan `bcrypt`.
+     - Inisialisasi otomatis dompet saldo (`wallets` balance 0) dan neraca poin binary (`point_balances` point_left 0 & point_right 0).
+   - **Rekonstruksi Closure Table Hierarki**:
+     - `sponsor_paths`: Menyisipkan jalur self (level 0), direct sponsor (level 1), dan seluruh relasi ancestor sponsor di atasnya.
+     - `upline_paths`: Menyisipkan penempatan binary slot (level 0 self, level 1 direct upline dengan `path_position`, dan mewariskan cabang kaki untuk seluruh leluhur binary di atasnya).
+   - **Propagasi Volume Poin Binary (`point_balances`)**:
+     - Omset poin (`pin.Package.Points`, misal 1 PV, 3 PV, 7 PV) secara otomatis bertambah ke `point_left` atau `point_right` seluruh upline di jalur binary.
+   - **Auto-Kredit Komisi Bonus Sponsor**:
+     - Komisi sponsor (`pin.Package.SponsorBonus`, misal Rp 50.000, Rp 150.000) langsung dikreditkan ke saldo dompet sponsor.
+     - Dicatat dalam buku besar transaksi `wallet_transactions` dengan keterangan transparan.
+   - **Pembaruan Status PIN Lisensi**:
+     - PIN lisensi berubah status menjadi `used`, dengan stempel `used_by_id` dan `used_at`.
+   - **Audit Trail & Notifikasi**:
+     - Peristiwa dicatat di `audit_logs` (`REGISTER_DOWNLINE`).
+     - Notifikasi langsung dikirimkan ke akun sponsor dan upline.
+
+### B. Antarmuka Pengguna Frontend (DashLite Demo 3):
+1. **Modal Pendaftaran Interaktif (`RegisterDownlineModal.jsx`)**:
+   - Terintegrasi langsung saat mitra mengklik **"Slot Kosong (+Daftarkan Downline)"** pada visualisasi pohon jaringan `BinaryTreeTab.jsx`.
+   - Informasi Upline dan posisi kaki (`Kaki Kiri (Left)` / `Kaki Kanan (Right)`) terkunci otomatis sesuai slot yang diklik.
+   - Dropdown cerdas memilih serial PIN aktif dari inventori sponsor, lengkap dengan *preview card* paket kemitraan (potensi bonus sponsor & penambahan omset PV).
+   - Formulir validasi instan: Username unik (huruf kecil & angka), Nama Lengkap, Kata Sandi dengan intip password (`Eye`/`EyeOff`), WhatsApp, dan NIK KTP (16 digit).
+   - Tampilan sukses transaksional yang menampilkan rangkuman komisi masuk dan tombol kembali.
+2. **Aktivasi dari Inventori PIN (`PinTab.jsx`)**:
+   - Perbaikan referensi serial code PIN (`p.serial_code`).
+   - Tombol cepat **"Aktivasi"** pada setiap baris serial PIN aktif yang membuka modal pendaftaran dengan pemilihan slot kaki kiri/kanan fleksibel.
+
+---
+
+## 🛡️ 11. Pembaruan Fitur: Fraud Control & Risk Center (Pusat Pengendalian Risiko Finansial)
+
+Fitur khusus deteksi anomali dan mitigasi kecurangan (*Sybil / Fake Node Network Stacking*) dirancang khusus untuk industri MLM dan pencairan dana gateway:
+
+### A. Engine Deteksi & Heuristik Otomatis (`backend/handlers/fraud_handler.go`):
+1. **`DUPLICATE_BANK` (Duplikasi Nomor Rekening Bank)**:
+   - Mendeteksi 1 nomor rekening bank yang didaftarkan pada lebih dari satu akun mitra berbeda.
+   - Mencegah oknum membuat akun *tuyul* / cloning untuk menyedot bonus pairing/sponsor ke satu rekening penampung.
+   - Status risiko: **HIGH (Tinggi)**.
+2. **`DUPLICATE_KTP` (Duplikasi NIK KTP)**:
+   - Mendeteksi NIK KTP yang sama didaftarkan pada multiple akun dengan nama berbeda.
+   - Status risiko: **HIGH (Tinggi)**.
+3. **`WITHDRAWAL_SPIKE` (Lonjakan Penarikan Dana)**:
+   - Mendeteksi penarikan dana tunggal dalam jumlah besar (>= Rp 5.000.000).
+   - Memerlukan review manual verifikasi oleh staf Keuangan sebelum dana diproses ke Flip.id.
+   - Status risiko: **MEDIUM (Sedang)**.
+4. **`NEW_ACCOUNT_DRAIN` (Penarikan Dana Akun Baru < 72 Jam)**:
+   - Mendeteksi akun baru yang umurnya kurang dari 3 hari namun langsung mengajukan pencairan saldo dompet >= Rp 1.000.000.
+   - Status risiko: **HIGH (Tinggi)**.
+
+### B. RESTful API Endpoints (`/api/admin/fraud/*`):
+- `GET /api/admin/fraud/overview`: Ringkasan metrik risiko (total kasus, high/med/low, open/resolved, akun dibekukan) dan daftar kasus dengan filter level risiko dan status.
+- `POST /api/admin/fraud/scan`: Memicu pemindaian heuristik mandiri database secara menyeluruh.
+- `POST /api/admin/fraud/cases/:id/freeze`: Pembekuan akun pengguna terkait kasus secara instan (`user.status = 'suspended'`), pencatatan audit log platform, dan notifikasi ke pengguna.
+- `POST /api/admin/fraud/cases/:id/resolve`: Penyelesaian kasus audit dengan pilihan tindakan (`CLEARED`, `WARNED`, `FROZEN`) dan catatan investigasi staf admin/keuangan.
+
+### C. Antarmuka Pengguna Admin (`AdminFraudTab.jsx`):
+- **Banner Ringkasan Metrik Risiko**: Kartu interaktif total kasus, kasus risiko tinggi, kasus dalam investigasi, kasus selesai, dan total akun dibekukan.
+- **Penyaring Canggih & Pencarian**: Filter cepat status (*open*, *investigating*, *resolved*, *dismissed*) dan tingkat risiko (*all*, *high*, *medium*, *low*).
+- **Tindakan Cepat Pembekuan Akun**: Modal konfirmasi pembekuan akun dengan peringatan dampak pembatasan hak penarikan dana mitra.
+- **Modal Resolusi Kasus**: Catatan investigasi resmi staf dan pemilihan status akhir.
+- **Ekspor Data**: Dukungan cetak PDF dan unduh berkas Excel untuk laporan kepatuhan (*compliance report*).
+- **Integrasi RBAC**: Terdaftar di modul dynamic sidebar `AppsSidebar.jsx` dan navigasi cepat dari `AdminOverviewTab.jsx`.
+
+---
+
+## 🚀 12. Roadmap Selanjutnya
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ SPRINT 1: FITUR OPERASIONAL MITRA (Downline & PIN Registration) │
-│ - Endpoint & Form Pendaftaran Mitra Baru via Serial PIN         │
+│ SPRINT 1: FITUR OPERASIONAL MITRA & FRAUD CONTROL ENGINE       │
+│ - Endpoint & Form Pendaftaran Mitra Baru via Serial PIN         │ ───► [SELESAI (100%)]
 │ - Penempatan posisi biner (Placement Kiri / Kanan)              │
+│ - Fraud Control & Risk Center (Duplikasi Bank/KTP, Spike WD)   │ ───► [SELESAI (100%)]
 └─────────────────────────────────────────────────────────────────┘
                                │
                                ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │ SPRINT 2: DATA MIGRATION ENGINE (bionetv5 -> bionetv6)          │
-│ - Script ETL Go/Node.js untuk konversi 5.5k user ke UUID        │
+│ - Script ETL Go/Node.js untuk konversi 5.5k user ke UUID        │ ───► [PRIORITAS BERIKUTNYA]
 │ - Migrasi 11.4k PIN, 36k wallet, dan closure paths              │
 │ - Script verifikasi audit rekonsiliasi keuangan 100% identik    │
 └─────────────────────────────────────────────────────────────────┘
@@ -374,3 +452,5 @@ Komponen reusable `ExportButtons.jsx` telah disematkan pada seluruh menu tabel y
 
 ---
 *Dokumen ini diperbarui secara berkala sebagai acuan kerja resmi status dan roadmap pengembangan Rebuild Bionet.*
+
+

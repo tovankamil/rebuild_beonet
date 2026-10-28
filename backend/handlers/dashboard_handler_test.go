@@ -28,7 +28,7 @@ func (m *mockDashboardServiceForHandler) GetStats(userID string) (*models.Dashbo
 	return m.stats, nil
 }
 
-func (m *mockDashboardServiceForHandler) GetGenealogy(userID string) (*models.BinaryNode, error) {
+func (m *mockDashboardServiceForHandler) GetGenealogy(userID string, targetIdentifier string) (*models.BinaryNode, error) {
 	return m.genealogy, nil
 }
 
@@ -68,6 +68,19 @@ func (m *mockDashboardServiceForHandler) GetPinPackages() ([]models.PinPackage, 
 
 func (m *mockDashboardServiceForHandler) TransferPin(fromUserID string, pinID string, targetUsername string) error {
 	return nil
+}
+
+func (m *mockDashboardServiceForHandler) RegisterDownline(sponsorUserID string, req models.RegisterDownlineRequest) (*models.RegisterDownlineResponse, error) {
+	return &models.RegisterDownlineResponse{
+		User: models.User{
+			ID:       "mock-new-user-id",
+			Username: req.Username,
+			FullName: req.FullName,
+		},
+		Position:      req.Position,
+		SponsorBonus:  50000,
+		PointsAwarded: 1,
+	}, nil
 }
 
 func (m *mockDashboardServiceForHandler) GetProducts() ([]models.Product, error) {

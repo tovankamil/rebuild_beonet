@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"bionet-backend/config"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type DashboardHandler struct {
@@ -45,9 +47,20 @@ func (h *DashboardHandler) GetGenealogy(c *gin.Context) {
 		return
 	}
 
-	tree, err := h.dashboardService.GetGenealogy(userID)
+	target := c.Query("username")
+	if target == "" {
+		target = c.Query("user_id")
+	}
+
+	tree, err := h.dashboardService.GetGenealogy(userID, target)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal mengambil pohon jaringan", "error": err.Error()})
+		status := http.StatusInternalServerError
+		if strings.Contains(err.Error(), "akses ditolak") {
+			status = http.StatusForbidden
+		} else if strings.Contains(err.Error(), "tidak ditemukan") {
+			status = http.StatusNotFound
+		}
+		c.JSON(status, gin.H{"status": "error", "message": err.Error()})
 		return
 	}
 
@@ -287,7 +300,9 @@ func (h *DashboardHandler) RequestWithdrawal(c *gin.Context) {
 
 	// 2. Notifikasi untuk Tim Admin & Keuangan
 	var user models.User
-	config.DB.Where("id = ?", userID).First(&user)
+	if config.DB != nil {
+		config.DB.Where("id = ?", userID).First(&user)
+	}
 	NotifyAdminsAndFinance(
 		"Pengajuan Withdrawal Baru",
 		fmt.Sprintf("Mitra @%s mengajukan penarikan dana sebesar Rp %.0f", user.Username, req.Amount),
@@ -366,8 +381,10 @@ func (h *DashboardHandler) TransferPin(c *gin.Context) {
 	// Notifikasi untuk pengirim & penerima
 	var sender models.User
 	var targetUser models.User
-	config.DB.Where("id = ?", userID).First(&sender)
-	config.DB.Where("username = ?", req.TargetUsername).First(&targetUser)
+	if config.DB != nil {
+		config.DB.Where("id = ?", userID).First(&sender)
+		config.DB.Where("username = ?", req.TargetUsername).First(&targetUser)
+	}
 
 	_ = CreateNotification(
 		userID,
@@ -388,6 +405,63 @@ func (h *DashboardHandler) TransferPin(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"status": "success", "message": "PIN berhasil ditransfer ke mitra tujuan"})
 }
+
+func (h *DashboardHandler) RegisterDownline(c *gin.Context) {
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Unauthorized"})
+		return
+	}
+
+	var req models.RegisterDownlineRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Data pendaftaran mitra tidak lengkap", "error": err.Error()})
+		return
+	}
+
+	resp, err := h.dashboardService.RegisterDownline(userID, req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": err.Error()})
+		return
+	}
+
+	// 1. Audit Log
+	services.RecordAudit(c, userID, "REGISTER_DOWNLINE", "users", resp.User.ID, nil, gin.H{
+		"username":      resp.User.Username,
+		"upline":        resp.Upline.Username,
+		"position":      resp.Position,
+		"pin_code":      resp.Pin.SerialCode,
+		"sponsor_bonus": resp.SponsorBonus,
+		"points":        resp.PointsAwarded,
+	})
+
+	// 2. Notifikasi Transaksional untuk Sponsor
+	_ = CreateNotification(
+		userID,
+		"Pendaftaran Downline Berhasil!",
+		fmt.Sprintf("Selamat! Mitra baru @%s berhasil didaftarkan di slot kaki %s upline @%s. Bonus sponsor sebesar Rp %.0f telah masuk ke dompet Anda.", resp.User.Username, resp.Position, resp.Upline.Username, resp.SponsorBonus),
+		"network",
+		"/genealogy",
+	)
+
+	// 3. Notifikasi jika upline berbeda dengan sponsor
+	if resp.Upline.ID != userID {
+		_ = CreateNotification(
+			resp.Upline.ID,
+			"Downline Baru Ditempatkan!",
+			fmt.Sprintf("Mitra baru @%s telah ditempatkan pada kaki %s jaringan binary Anda.", resp.User.Username, resp.Position),
+			"network",
+			"/genealogy",
+		)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": fmt.Sprintf("Mitra baru @%s berhasil didaftarkan dan ditempatkan pada pohon jaringan!", resp.User.Username),
+		"data":    resp,
+	})
+}
+
 
 // ----------------------------------------------------
 // PRODUCTS
@@ -458,6 +532,60 @@ func (h *DashboardHandler) UpdateProfile(c *gin.Context) {
 		"status":  "success",
 		"message": "Profil berhasil diperbarui",
 		"data":    user,
+	})
+}
+
+type UpdatePasswordRequest struct {
+	CurrentPassword string `json:"current_password" binding:"required"`
+	NewPassword     string `json:"new_password" binding:"required,min=6"`
+}
+
+// UpdatePassword memperbarui kata sandi mandiri oleh customer/mitra yang telah login
+func (h *DashboardHandler) UpdatePassword(c *gin.Context) {
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Unauthorized"})
+		return
+	}
+
+	var req UpdatePasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Kata sandi baru minimal 6 karakter", "error": err.Error()})
+		return
+	}
+
+	var user models.User
+	if err := config.DB.Where("id = ?", userID).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "User tidak ditemukan"})
+		return
+	}
+
+	// Verifikasi kata sandi lama
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.CurrentPassword)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Kata sandi saat ini tidak sesuai"})
+		return
+	}
+
+	// Enkripsi kata sandi baru
+	newHash, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal mengenkripsi kata sandi baru"})
+		return
+	}
+
+	if err := config.DB.Model(&user).Update("password_hash", string(newHash)).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal memperbarui kata sandi"})
+		return
+	}
+
+	// Audit Log
+	services.RecordAudit(c, userID, "UPDATE_PASSWORD", "users", userID, nil, map[string]interface{}{"status": "self_password_changed"})
+
+	_ = CreateNotification(userID, "Kata Sandi Berhasil Diperbarui", "Kata sandi akun Anda baru saja diperbarui. Jaga kerahasiaan akun Anda.", "info", "/overview")
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Kata sandi Anda berhasil diperbarui!",
 	})
 }
 
@@ -574,4 +702,85 @@ func (h *DashboardHandler) GetRecentMembers(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "success", "data": results})
+}
+
+// UserAddressRequest struct untuk update data alamat pengguna/mitra
+type UserAddressRequest struct {
+	RecipientName string `json:"recipient_name" binding:"required"`
+	Phone         string `json:"phone" binding:"required"`
+	Address       string `json:"address" binding:"required"`
+	Province      string `json:"province" binding:"required"`
+	City          string `json:"city" binding:"required"`
+	District      string `json:"district" binding:"required"`
+	PostalCode    string `json:"postal_code" binding:"required"`
+}
+
+// GetUserAddress mengambil alamat primer pengguna saat ini
+func (h *DashboardHandler) GetUserAddress(c *gin.Context) {
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Unauthorized"})
+		return
+	}
+
+	var addr models.UserAddress
+	if err := config.DB.Where("user_id = ? AND is_primary = true", userID).First(&addr).Error; err != nil {
+		c.JSON(http.StatusOK, gin.H{"status": "success", "data": nil})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "success", "data": addr})
+}
+
+// UpdateUserAddress memperbarui atau membuat alamat pengiriman primer pengguna
+func (h *DashboardHandler) UpdateUserAddress(c *gin.Context) {
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Unauthorized"})
+		return
+	}
+
+	var req UserAddressRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Lengkapi semua data alamat pengiriman", "error": err.Error()})
+		return
+	}
+
+	var addr models.UserAddress
+	if err := config.DB.Where("user_id = ? AND is_primary = true", userID).First(&addr).Error; err != nil {
+		// Buat baru
+		addr = models.UserAddress{
+			ID:            uuid.New().String(),
+			UserID:        userID,
+			RecipientName: req.RecipientName,
+			Phone:         req.Phone,
+			Address:       req.Address,
+			Province:      req.Province,
+			City:          req.City,
+			District:      req.District,
+			PostalCode:    req.PostalCode,
+			IsPrimary:     true,
+		}
+		if err := config.DB.Create(&addr).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal menyimpan alamat", "error": err.Error()})
+			return
+		}
+	} else {
+		// Update
+		updates := map[string]interface{}{
+			"recipient_name": req.RecipientName,
+			"phone":          req.Phone,
+			"address":        req.Address,
+			"province":       req.Province,
+			"city":           req.City,
+			"district":       req.District,
+			"postal_code":    req.PostalCode,
+		}
+		if err := config.DB.Model(&addr).Updates(updates).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal memperbarui alamat", "error": err.Error()})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "success", "message": "Alamat pengiriman berhasil disimpan", "data": addr})
 }

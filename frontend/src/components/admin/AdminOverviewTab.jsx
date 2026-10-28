@@ -14,6 +14,7 @@ import {
   RefreshCw,
   ExternalLink,
   BookOpen,
+  Activity,
 } from 'lucide-react';
 import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
@@ -100,6 +101,14 @@ export default function AdminOverviewTab({ setActiveTab }) {
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
           {setActiveTab && (
             <>
+              <button
+                onClick={() => setActiveTab('admin-monitoring')}
+                className="px-3.5 py-2 rounded-lg bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+                title="Buka live monitoring user online, RAM server & traffic"
+              >
+                <Activity size={14} className="text-indigo-600 animate-pulse" />
+                <span>Live Monitoring &amp; RAM</span>
+              </button>
               <button
                 onClick={() => setActiveTab('admin-guide')}
                 className="px-3.5 py-2 rounded-lg bg-teal-50 border border-teal-200 hover:bg-teal-100 text-teal-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"

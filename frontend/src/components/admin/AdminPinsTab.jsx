@@ -343,11 +343,18 @@ export default function AdminPinsTab() {
 
                           {/* Package */}
                           <td className="py-3 px-4">
-                            <span className="font-semibold text-slate-800">
-                              {p.package?.name || 'Paket Hak Usaha'}
-                            </span>
+                            <div className="flex items-center space-x-1.5">
+                              <span className="font-semibold text-slate-800">
+                                {p.package?.name || 'Paket Hak Usaha'}
+                              </span>
+                              {(p.package?.price === 0 || p.package?.points === 0) && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-200">
+                                  FREE PROMO
+                                </span>
+                              )}
+                            </div>
                             <div className="text-[10px] text-slate-400">
-                              Rp {(p.package?.price || 0).toLocaleString('id-ID')}
+                              Rp {(p.package?.price || 0).toLocaleString('id-ID')} • {p.package?.points || 0} PV
                             </div>
                           </td>
 

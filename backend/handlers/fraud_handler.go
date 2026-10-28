@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"strings"
 	"fmt"
 	"net/http"
 	"time"
@@ -18,6 +19,27 @@ type FraudHandler struct{}
 
 func NewFraudHandler() *FraudHandler {
 	return &FraudHandler{}
+}
+
+func notifyFraudCaseToTelegram(fc models.FraudCase) {
+	if services.GlobalTelegramService == nil {
+		return
+	}
+	alertMsg := fmt.Sprintf(
+		"🚨 <b>[FRAUD ALERT BIONET v6] INDIKASI KECURANGAN TERDETEKSI!</b>\n\n" +
+			"⚠️ Aturan: <b>%s</b>\n" +
+			"🔴 Tingkat Risiko: <b>%s</b>\n" +
+			"📌 Judul: <b>%s</b>\n" +
+			"📝 Keterangan: %s\n" +
+			"🕐 Waktu: <b>%s</b>\n\n" +
+			"<i>Buka Tab Admin: Fraud Control &amp; Risiko untuk tindakan mitigasi.</i>",
+		fc.RuleKey,
+		strings.ToUpper(fc.RiskLevel),
+		fc.Title,
+		fc.Description,
+		time.Now().Format("2006-01-02 15:04:05 WIB"),
+	)
+	_ = services.GlobalTelegramService.NotifyAdmin(alertMsg)
 }
 
 // RunFraudDetectionScan memindai seluruh database untuk mendeteksi indikasi kecurangan / anomali
@@ -87,6 +109,7 @@ func runFraudDetectionScan(db *gorm.DB) {
 				Status:      "open",
 			}
 			db.Create(&newCase)
+			notifyFraudCaseToTelegram(newCase)
 		}
 	}
 
@@ -146,6 +169,7 @@ func runFraudDetectionScan(db *gorm.DB) {
 				Status:      "open",
 			}
 			db.Create(&newCase)
+			notifyFraudCaseToTelegram(newCase)
 		}
 	}
 
@@ -177,6 +201,7 @@ func runFraudDetectionScan(db *gorm.DB) {
 				Status:      "open",
 			}
 			db.Create(&newCase)
+			notifyFraudCaseToTelegram(newCase)
 		}
 	}
 
@@ -210,6 +235,7 @@ func runFraudDetectionScan(db *gorm.DB) {
 				Status:      "open",
 			}
 			db.Create(&newCase)
+			notifyFraudCaseToTelegram(newCase)
 		}
 	}
 }
@@ -318,6 +344,21 @@ func (h *FraudHandler) FreezeUserCase(c *gin.Context) {
 		"resolved_by":  adminID,
 		"resolved_at":  now,
 	})
+
+	if services.GlobalTelegramService != nil {
+		freezeMsg := fmt.Sprintf(
+			"🔒 <b>[FRAUD MITIGATION] AKUN BERHASIL DIBEKUKAN</b>\n\n" +
+				"👤 Mitra: <b>@%s (%s)</b>\n" +
+				"⚖️ Terkait Kasus: <b>%s</b>\n" +
+				"👮 Tindakan: <b>Pembekuan Sementara (Suspended)</b>\n" +
+				"🕐 Waktu: <b>%s</b>",
+			user.Username,
+			user.FullName,
+			fcase.Title,
+			now.Format("2006-01-02 15:04:05 WIB"),
+		)
+		_ = services.GlobalTelegramService.NotifyAdmin(freezeMsg)
+	}
 
 	// Catat audit log
 	services.RecordAudit(c, adminID, "FRAUD_FREEZE", "users", user.ID, gin.H{"status": oldStatus}, gin.H{"status": "suspended", "case_id": caseID, "rule": fcase.RuleKey})

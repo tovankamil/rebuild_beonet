@@ -12,6 +12,9 @@ import {
   Eye,
   X,
   CreditCard,
+  Printer,
+  QrCode,
+  Barcode,
 } from 'lucide-react';
 import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
@@ -31,6 +34,7 @@ export default function AdminOrdersTab() {
 
   // Selected Order for Detail Modal
   const [detailOrder, setDetailOrder] = useState(null);
+  const [printOrder, setPrintOrder] = useState(null);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -300,7 +304,15 @@ export default function AdminOrdersTab() {
                       </td>
 
                       {/* Action */}
-                      <td className="py-3 px-4 text-right">
+                      <td className="py-3 px-4 text-right space-x-1.5">
+                        <button
+                          onClick={() => setPrintOrder(o)}
+                          className="px-2.5 py-1 rounded text-[11px] font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors inline-flex items-center gap-1 shadow-xs"
+                          title="Cetak Label Pengiriman Thermal (100x150 mm)"
+                        >
+                          <Printer size={12} />
+                          <span>Label Resi</span>
+                        </button>
                         <button
                           onClick={() => setDetailOrder(o)}
                           className="px-2.5 py-1 rounded text-[11px] font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors inline-flex items-center gap-1 shadow-xs"
@@ -407,6 +419,137 @@ export default function AdminOrdersTab() {
               >
                 Tutup
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Thermal Shipping Label Modal (Standar Ekspedisi 100x150 mm) */}
+      {printOrder && (
+        <div className="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center space-x-2">
+                <Printer className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-extrabold text-slate-900 text-base">
+                  Cetak Label Resi Thermal (100x150 mm)
+                </h3>
+              </div>
+              <button
+                onClick={() => setPrintOrder(null)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Thermal Label 100x150 mm Preview Container */}
+            <div
+              id="printable-thermal-label"
+              className="bg-white border-2 border-black p-4 font-mono text-black text-xs space-y-3 rounded-lg shadow-xs select-none"
+              style={{ width: '100%', maxWidth: '360px', margin: '0 auto' }}
+            >
+              {/* Header: Logo & Courier */}
+              <div className="flex items-center justify-between border-b-2 border-black pb-2">
+                <div>
+                  <div className="font-black text-base tracking-tighter">BIONET LOGISTICS</div>
+                  <div className="text-[10px] font-sans font-bold text-slate-700">HERBAL E-COMMERCE 3PL</div>
+                </div>
+                <div className="text-right">
+                  <div className="bg-black text-white px-2 py-0.5 font-black text-xs uppercase rounded">
+                    J&amp;T EZ
+                  </div>
+                  <div className="text-[9px] font-bold mt-0.5">NON-COD</div>
+                </div>
+              </div>
+
+              {/* Barcode & Tracking Number */}
+              <div className="text-center py-1 border-b-2 border-black">
+                {/* Visual Barcode bars */}
+                <div className="h-10 flex items-center justify-center space-x-1 overflow-hidden my-1">
+                  <div className="w-1 h-10 bg-black"></div>
+                  <div className="w-2 h-10 bg-black"></div>
+                  <div className="w-0.5 h-10 bg-black"></div>
+                  <div className="w-1.5 h-10 bg-black"></div>
+                  <div className="w-3 h-10 bg-black"></div>
+                  <div className="w-0.5 h-10 bg-black"></div>
+                  <div className="w-2 h-10 bg-black"></div>
+                  <div className="w-1 h-10 bg-black"></div>
+                  <div className="w-2.5 h-10 bg-black"></div>
+                  <div className="w-1 h-10 bg-black"></div>
+                  <div className="w-3 h-10 bg-black"></div>
+                  <div className="w-1.5 h-10 bg-black"></div>
+                  <div className="w-0.5 h-10 bg-black"></div>
+                  <div className="w-2 h-10 bg-black"></div>
+                  <div className="w-1 h-10 bg-black"></div>
+                  <div className="w-2.5 h-10 bg-black"></div>
+                  <div className="w-1.5 h-10 bg-black"></div>
+                  <div className="w-3 h-10 bg-black"></div>
+                  <div className="w-1 h-10 bg-black"></div>
+                </div>
+                <div className="font-bold text-sm tracking-wider">
+                  BIO-EXP-{printOrder.order_number?.replace('#', '') || '992019'}
+                </div>
+              </div>
+
+              {/* Address Details */}
+              <div className="grid grid-cols-1 gap-2 text-[11px] border-b-2 border-black pb-2">
+                <div>
+                  <div className="font-bold uppercase text-[9px] text-slate-600">Penerima:</div>
+                  <div className="font-bold text-xs">{printOrder.user?.full_name || 'Mitra Bionet'}</div>
+                  <div className="text-[10px]">{printOrder.user?.phone || '0812-3456-7890'}</div>
+                  <div className="text-[10px] mt-0.5 leading-tight">
+                    Jl. Sukajadi No. 45, RT 02/05, Kel. Pasteur, Kec. Sukajadi, Kota Bandung, Jawa Barat (40161)
+                  </div>
+                </div>
+
+                <div className="pt-1 border-t border-dashed border-black">
+                  <div className="font-bold uppercase text-[9px] text-slate-600">Pengirim (Warehouse Pusat):</div>
+                  <div className="font-bold text-[10px]">BIONET LOGISTICS CENTER</div>
+                  <div className="text-[10px]">0821-8899-7711 | Gudang Herbal Bandung, Jawa Barat</div>
+                </div>
+              </div>
+
+              {/* Package Content & Notes */}
+              <div className="text-[10px] space-y-1">
+                <div className="flex justify-between">
+                  <span className="font-bold">Berat Paket:</span>
+                  <span>1.0 Kg (Koli: 1/1)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-bold">Isi Barang:</span>
+                  <span>Herbal Bio-Drops ({printOrder.items?.length || 1} macam)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-bold">Invoice RO:</span>
+                  <span className="font-mono">{printOrder.order_number}</span>
+                </div>
+                <div className="p-1 bg-slate-100 rounded text-[9px] text-center font-bold border border-slate-300 mt-2">
+                  ⚠️ PERHATIAN: FRAGILE / JANGAN DIBANTING / SIMPAN DI TEMPAT SEJUK
+                </div>
+              </div>
+            </div>
+
+            {/* Print Action Buttons */}
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+              <span className="text-xs text-slate-500">Standar Printer: Thermal 100x150 mm</span>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setPrintOrder(null)}
+                  className="px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 flex items-center space-x-1.5 shadow-sm"
+                >
+                  <Printer size={14} />
+                  <span>Cetak Label Thermal</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

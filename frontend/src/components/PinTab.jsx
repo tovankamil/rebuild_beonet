@@ -124,23 +124,27 @@ export default function PinTab() {
       </div>
 
       {/* Package Showcase Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {packages.map((pkg) => (
           <div key={pkg.id} className="dash-card p-5 relative overflow-hidden flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="overline-title text-[10px] text-emerald-600 font-bold uppercase tracking-wider">
-                  Paket Kemitraan
+                  {pkg.points === 0 ? 'Promo Eksklusif' : 'Paket Kemitraan'}
                 </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  {pkg.points} PV
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                  pkg.points === 0
+                    ? 'bg-teal-50 text-teal-700 border-teal-200'
+                    : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                }`}>
+                  {pkg.points === 0 ? 'FREE (0 PV)' : `${pkg.points} PV`}
                 </span>
               </div>
-              <h4 className="font-heading font-extrabold text-lg text-slate-900 mb-1">
+              <h4 className="font-heading font-extrabold text-base text-slate-900 mb-1">
                 {pkg.name}
               </h4>
               <div className="font-heading font-extrabold text-xl text-emerald-600 mb-4">
-                {formatRupiah(pkg.price)}
+                {pkg.price === 0 ? 'GRATIS (Rp 0)' : formatRupiah(pkg.price)}
               </div>
               <div className="space-y-2 text-xs text-slate-600 pt-3 border-t border-slate-100">
                 <div className="flex justify-between">
@@ -153,7 +157,9 @@ export default function PinTab() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Hak Usaha (HU):</span>
-                  <span className="font-bold text-emerald-700">{pkg.points} Titik Usaha</span>
+                  <span className="font-bold text-emerald-700">
+                    {pkg.points === 0 ? 'Akun Uji Coba (0 HU)' : `${pkg.points} Titik Usaha`}
+                  </span>
                 </div>
               </div>
             </div>

@@ -32,6 +32,8 @@ import {
   X,
   User,
   BookOpen,
+  Activity,
+  Video,
 } from 'lucide-react';
 import DashAvatar from './DashAvatar';
 
@@ -123,12 +125,31 @@ function getRoleMenuModules(role) {
         ],
       },
       {
+        id: 'admin-monitoring',
+        title: 'Live Telemetry & User',
+        icon: Activity,
+        badge: 'Live',
+        submenus: [
+          { id: 'admin-monitoring', title: 'User Online & Bandwidth Traffic', desc: 'Monitoring realtime user aktif, RAM server & traffic jaringan', icon: Activity },
+          { id: 'admin-overview', title: 'Ringkasan Eksekutif & Omset', desc: 'KPI global platform', icon: LayoutDashboard },
+        ],
+      },
+      {
         id: 'chat',
         title: 'Live Chat Bantuan',
         icon: MessagesSquare,
         badge: 'Support',
         submenus: [
           { id: 'chat', title: 'Helpdesk & Chat Mitra', desc: 'Respon tiket & pesan live mitra', icon: MessagesSquare },
+        ],
+      },
+      {
+        id: 'meetings',
+        title: 'Video Conference & BOP',
+        icon: Video,
+        badge: 'Webinar',
+        submenus: [
+          { id: 'meetings', title: 'Ruang Meeting & Webinar BOP', desc: 'Jadwal BOP, Video KYC & live meeting', icon: Video },
         ],
       },
       {
@@ -180,6 +201,15 @@ function getRoleMenuModules(role) {
         badge: 'Risk',
         submenus: [
           { id: 'admin-fraud', title: 'Pusat Deteksi Risiko Penarikan', desc: 'Analisis anomali penarikan & rekening duplikat', icon: ShieldAlert },
+        ],
+      },
+      {
+        id: 'admin-monitoring',
+        title: 'Live Telemetry & User',
+        icon: Activity,
+        badge: 'Live',
+        submenus: [
+          { id: 'admin-monitoring', title: 'User Online & Bandwidth Traffic', desc: 'Monitoring realtime user aktif & trafik', icon: Activity },
         ],
       },
       {
@@ -372,6 +402,15 @@ function getRoleMenuModules(role) {
       ],
     },
     {
+      id: 'meetings',
+      title: 'Video Conference & BOP',
+      icon: Video,
+      badge: 'Live',
+      submenus: [
+        { id: 'meetings', title: 'Webinar BOP & Konsultasi', desc: 'Presentasi bisnis live, KYC & konsultasi herbal', icon: Video },
+      ],
+    },
+    {
       id: 'components',
       title: 'Komponen DashLite',
       icon: Palette,
@@ -424,7 +463,10 @@ export default function AppsSidebar({
 
   const baseModules = getRoleMenuModules(userRole);
   const menuModules = dynamicAllowedKeys
-    ? baseModules.filter((m) => dynamicAllowedKeys.includes(m.id))
+    ? baseModules.filter((m) => {
+        if (userRole === 'admin') return true;
+        return dynamicAllowedKeys.includes(m.id) || m.id === 'meetings' || m.id === 'chat' || m.id === 'admin-guide';
+      })
     : baseModules;
 
   const handleMouseEnter = (menuItem, event) => {

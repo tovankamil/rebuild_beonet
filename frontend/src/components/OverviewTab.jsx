@@ -21,9 +21,11 @@ import {
   UserPlus,
   Edit3,
   RefreshCw,
+  Store,
 } from 'lucide-react';
 import DashPagination from './dashlite/DashPagination';
 import api from '../services/api';
+import AffiliateStoreModal from './store/AffiliateStoreModal';
 
 export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenProfile, onProfileUpdated }) {
   const [chartHoverIndex, setChartHoverIndex] = useState(null);
@@ -31,6 +33,7 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenPr
   const [txPageSize, setTxPageSize] = useState(5);
   const [recentMembers, setRecentMembers] = useState([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
+  const [showStoreModal, setShowStoreModal] = useState(false);
 
   const fetchRecentMembers = async () => {
     setLoadingMembers(true);
@@ -105,6 +108,14 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenPr
           >
             <Edit3 size={15} className="text-emerald-600" />
             <span>Edit Profil & KYC</span>
+          </button>
+          <button
+            onClick={() => setShowStoreModal(true)}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 transition-colors shadow-xs w-full sm:w-auto"
+            title="Kelola Toko Online Afiliasi Mandiri Anda"
+          >
+            <Store size={15} className="text-teal-600" />
+            <span>Toko Afiliasi Saya</span>
           </button>
           <button
             onClick={() => setActiveTab('genealogy')}
@@ -235,6 +246,33 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenPr
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Discovery Banner: Toko Online Afiliasi Mandiri */}
+      <div className="p-4 md:p-5 rounded-2xl bg-gradient-to-r from-teal-900 via-emerald-900 to-slate-900 text-white shadow-md border border-teal-700/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0">
+            <Store size={24} />
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <h3 className="text-sm md:text-base font-bold text-white">Toko Online Afiliasi Anda Siap Digunakan!</h3>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-400/30">
+                Reseller Store
+              </span>
+            </div>
+            <p className="text-xs text-emerald-100/80 mt-0.5">
+              Sebarkan link toko kustom Anda ke konsumen. Margin keuntungan ritel langsung masuk ke dompet Anda saat terjadi pembelian.
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowStoreModal(true)}
+          className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition self-start sm:self-auto flex items-center space-x-1.5 shrink-0"
+        >
+          <Store size={14} />
+          <span>Buka &amp; Kelola Toko Saya</span>
+        </button>
       </div>
 
       {/* Main Section: Omset Chart & Pairing Meter */}
@@ -641,6 +679,14 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenPr
           onPageSizeChange={setTxPageSize}
         />
       </div>
+
+      {/* Affiliate Replicated Storefront Modal */}
+      {showStoreModal && (
+        <AffiliateStoreModal
+          user={currentUser}
+          onClose={() => setShowStoreModal(false)}
+        />
+      )}
     </div>
   );
 }

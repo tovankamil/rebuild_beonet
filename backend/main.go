@@ -412,6 +412,7 @@ func seedDefaultData() {
 			{ID: uuid.New().String(), MenuKey: "pins", Title: "Stokis & Serial PIN", Description: "Stok PIN aktif & transfer lisensi ke downline", Category: "Member", IconName: "KeyRound", OrderIndex: 16},
 			{ID: uuid.New().String(), MenuKey: "products", Title: "Katalog Produk Herbal (RO)", Description: "Katalog produk herbal BPOM untuk repeat order", Category: "Member", IconName: "ShoppingBag", OrderIndex: 17},
 			{ID: uuid.New().String(), MenuKey: "bank", Title: "Rekening Bank Mitra", Description: "Pengaturan rekening bank tujuan pencairan", Category: "Member", IconName: "Building2", OrderIndex: 18},
+			{ID: uuid.New().String(), MenuKey: "meetings", Title: "Video Conference & BOP", Description: "Ruang webinar BOP, Video KYC & live meeting", Category: "Komunikasi", IconName: "Video", OrderIndex: 18},
 			{ID: uuid.New().String(), MenuKey: "chat", Title: "Live Chat Bantuan", Description: "Pusat bantuan & komunikasi interaktif mitra, CS & admin", Category: "Komunikasi", IconName: "MessagesSquare", OrderIndex: 19},
 			{ID: uuid.New().String(), MenuKey: "components", Title: "Galeri Komponen DashLite", Description: "UI Kit & dokumentasi sistem desain", Category: "Core", IconName: "Palette", OrderIndex: 20},
 		}
@@ -514,6 +515,81 @@ func seedDefaultData() {
 			if err := config.DB.Where("role = ? AND menu_key = ?", r, "chat").First(&p).Error; err != nil {
 				config.DB.Create(&models.RoleMenuPermission{
 					ID: uuid.New().String(), Role: r, MenuKey: "chat", IsEnabled: true,
+				})
+			}
+		}
+
+		// Ensure meetings menu & permissions exist
+		var meetingMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "meetings").First(&meetingMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "meetings",
+				Title:       "Video Conference & BOP",
+				Description: "Ruang webinar BOP, Video KYC & live meeting",
+				Category:    "Komunikasi",
+				IconName:    "Video",
+				OrderIndex:  18,
+			})
+		}
+		for _, r := range []string{"admin", "member", "cs", "keuangan"} {
+			var p models.RoleMenuPermission
+			if err := config.DB.Where("role = ? AND menu_key = ?", r, "meetings").First(&p).Error; err != nil {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID:        uuid.New().String(),
+					Role:      r,
+					MenuKey:   "meetings",
+					IsEnabled: true,
+				})
+			}
+		}
+
+		// Ensure admin-monitoring menu & permissions exist
+		var monitoringMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "admin-monitoring").First(&monitoringMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "admin-monitoring",
+				Title:       "Live Telemetry & User",
+				Description: "Monitoring realtime user aktif, RAM server & traffic jaringan",
+				Category:    "Admin",
+				IconName:    "Activity",
+				OrderIndex:  8,
+			})
+		}
+		for _, r := range []string{"admin", "keuangan"} {
+			var p models.RoleMenuPermission
+			if err := config.DB.Where("role = ? AND menu_key = ?", r, "admin-monitoring").First(&p).Error; err != nil {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID:        uuid.New().String(),
+					Role:      r,
+					MenuKey:   "admin-monitoring",
+					IsEnabled: true,
+				})
+			}
+		}
+
+		// Ensure admin-guide menu & permissions exist
+		var guideMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "admin-guide").First(&guideMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "admin-guide",
+				Title:       "Panduan Fitur & Menu",
+				Description: "Penjelasan semua fitur & menu aplikasi",
+				Category:    "Bantuan",
+				IconName:    "BookOpen",
+				OrderIndex:  21,
+			})
+		}
+		for _, r := range []string{"admin", "keuangan", "cs", "gudang", "member"} {
+			var p models.RoleMenuPermission
+			if err := config.DB.Where("role = ? AND menu_key = ?", r, "admin-guide").First(&p).Error; err != nil {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID:        uuid.New().String(),
+					Role:      r,
+					MenuKey:   "admin-guide",
+					IsEnabled: true,
 				})
 			}
 		}
@@ -687,6 +763,9 @@ func main() {
 		&models.Notification{},
 		&models.AuditLog{},
 		&models.FraudCase{},
+		&models.Meeting{},
+		&models.MeetingAttendee{},
+		&models.MeetingParticipant{},
 	}
 	for _, m := range allModels {
 		if err := config.DB.AutoMigrate(m); err != nil {
@@ -725,6 +804,8 @@ func main() {
 	notificationHandler := handlers.NewNotificationHandler()
 
 	regionHandler := handlers.NewRegionHandler()
+	monitoringHandler := handlers.NewMonitoringHandler()
+	meetingHandler := handlers.NewMeetingHandler()
 
 	// Initialize Google Gemini AI Service
 	if _, err := services.NewGeminiService(); err != nil {
@@ -741,8 +822,14 @@ func main() {
 	// Enable CORS
 	r.Use(middleware.CORSMiddleware())
 
+	// Real-time Traffic & Bandwidth Monitoring Middleware
+	r.Use(middleware.TrafficMonitorMiddleware())
+
 	// Static files serving for chat attachments & avatars
 	r.Static("/uploads", "./uploads")
+
+	// Native WebRTC Video Conference Signaling WebSocket Hub
+	r.GET("/ws/meetings/:room_id", meetingHandler.MeetingSignalingHandler)
 
 	// Public Routes
 	api := r.Group("/api")
@@ -759,6 +846,11 @@ func main() {
 		api.GET("/regions/regencies", regionHandler.GetRegencies)
 		api.GET("/regions/districts", regionHandler.GetDistricts)
 		api.GET("/regions/search", regionHandler.SearchRegions)
+
+		// Public Video Conference & Webinar Guest Access (BOP, KYC, Herbal)
+		api.GET("/public/meetings/:room_id", meetingHandler.GetPublicMeeting)
+		api.POST("/public/meetings/:room_id/register", meetingHandler.RegisterPublicAttendee)
+		api.GET("/public/meetings/:room_id/participants", meetingHandler.GetMeetingParticipants)
 
 		// Gemini AI Assistant Endpoint
 		api.POST("/ai/chat", func(c *gin.Context) {
@@ -837,6 +929,24 @@ func main() {
 			protected.PATCH("/chat/read", chatHandler.MarkRead)
 			protected.GET("/chat/unread-count", chatHandler.GetUnreadCount)
 
+			// Heartbeat & Online Presence Tracking (Semua user)
+			protected.POST("/user/heartbeat", monitoringHandler.UserHeartbeat)
+			protected.POST("/user/logout-ping", monitoringHandler.UserLogoutPing)
+
+			// Video Conference & Webinars (BOP, KYC, Herbal Consultation)
+			protected.GET("/meetings", meetingHandler.GetMeetings)
+			protected.POST("/meetings", meetingHandler.CreateMeeting)
+			protected.GET("/meetings/:room_id", meetingHandler.GetMeetingByRoom)
+			protected.PUT("/meetings/:room_id", meetingHandler.UpdateMeeting)
+			protected.DELETE("/meetings/:room_id", meetingHandler.DeleteMeeting)
+			protected.POST("/meetings/:room_id/end", meetingHandler.EndMeeting)
+			protected.GET("/meetings/:room_id/attendees", meetingHandler.GetMeetingAttendees)
+			protected.POST("/meetings/:room_id/join", meetingHandler.JoinMeetingRoom)
+			protected.POST("/meetings/:room_id/leave", meetingHandler.LeaveMeetingRoom)
+			protected.POST("/meetings/:room_id/heartbeat", meetingHandler.HeartbeatMeeting)
+			protected.GET("/meetings/:room_id/participants", meetingHandler.GetMeetingParticipants)
+			protected.POST("/meetings/:room_id/recordings", meetingHandler.UploadRecording)
+
 			// ==============================================
 			// RBAC: ADMIN & MANAGEMENT ROUTES (Admin, Keuangan, CS)
 			// ==============================================
@@ -887,6 +997,17 @@ func main() {
 				adminGroup.POST("/fraud/scan", fraudHandler.RunScan)
 				adminGroup.POST("/fraud/cases/:id/freeze", middleware.RequireRole("admin"), fraudHandler.FreezeUserCase)
 				adminGroup.POST("/fraud/cases/:id/resolve", middleware.RequireRole("admin", "keuangan"), fraudHandler.ResolveCase)
+
+				// Live Traffic, Bandwidth & Online Users Monitoring (Admin & Keuangan)
+				adminGroup.GET("/monitoring/overview", monitoringHandler.GetMonitoringOverview)
+				adminGroup.GET("/monitoring/online-users", monitoringHandler.GetOnlineUsers)
+				adminGroup.POST("/monitoring/force-disconnect/:id", middleware.RequireRole("admin"), monitoringHandler.ForceDisconnectUser)
+				adminGroup.POST("/monitoring/test-alert", middleware.RequireRole("admin"), monitoringHandler.TestTelegramAlert)
+
+				// WhatsApp Gateway & Automated Notifications (Admin & Keuangan)
+				adminGroup.GET("/whatsapp/status", monitoringHandler.GetWhatsAppStatus)
+				adminGroup.GET("/whatsapp/logs", monitoringHandler.GetWhatsAppLogs)
+				adminGroup.POST("/whatsapp/send-test", monitoringHandler.SendWhatsAppTest)
 			}
 
 			// ==============================================

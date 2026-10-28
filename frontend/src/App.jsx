@@ -18,12 +18,16 @@ import AdminPinsTab from './components/admin/AdminPinsTab';
 import AdminOrdersTab from './components/admin/AdminOrdersTab';
 import AdminWithdrawalsTab from './components/admin/AdminWithdrawalsTab';
 import AdminFraudTab from './components/admin/AdminFraudTab';
+import AdminMonitoringTab from './components/admin/AdminMonitoringTab';
 import AdminSystemGuideTab from './components/admin/AdminSystemGuideTab';
 import WarehouseTab from './components/warehouse/WarehouseTab';
 import ChatTab from './components/ChatTab';
+import MeetingTab from './components/MeetingTab';
 import ProfileModal from './components/ProfileModal';
 import AIAssistantWidget from './components/AIAssistantWidget';
 import LoginPage from './pages/LoginPage';
+import PublicStorefrontPage from './components/store/PublicStorefrontPage';
+import PublicMeetingPage from './components/meeting/PublicMeetingPage';
 import api from './services/api';
 
 export default function App() {
@@ -105,7 +109,7 @@ export default function App() {
     if (role === 'admin') return;
 
     if (role === 'keuangan') {
-      const allowed = ['admin-overview', 'admin-transactions', 'admin-withdrawals', 'admin-fraud', 'admin-guide', 'overview', 'chat', 'components'];
+      const allowed = ['admin-overview', 'admin-transactions', 'admin-withdrawals', 'admin-fraud', 'admin-monitoring', 'admin-guide', 'overview', 'chat', 'meetings', 'components'];
       if (!allowed.includes(activeTab)) {
         setActiveTab(getInitialTab(role));
       }
@@ -113,7 +117,7 @@ export default function App() {
     }
 
     if (role === 'cs') {
-      const allowed = ['admin-overview', 'admin-users', 'admin-guide', 'chat', 'overview', 'components'];
+      const allowed = ['admin-overview', 'admin-users', 'admin-guide', 'chat', 'meetings', 'overview', 'components'];
       if (!allowed.includes(activeTab)) {
         setActiveTab(getInitialTab(role));
       }
@@ -145,19 +149,84 @@ export default function App() {
     return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
   }, []);
 
+  // Heartbeat tracking for online presence
+  useEffect(() => {
+    if (!token || !user) return;
+
+    const sendHeartbeat = async () => {
+      try {
+        await api.post('/user/heartbeat', {
+          current_page: activeTab,
+          full_name: user?.full_name || user?.username,
+        });
+      } catch (err) {
+        // Silently ignore ping errors
+      }
+    };
+
+    // Send immediately when tab changes or initially mounts
+    sendHeartbeat();
+
+    // Periodic heartbeat every 20 seconds
+    const interval = setInterval(sendHeartbeat, 20000);
+
+    const handleBeforeUnload = () => {
+      try {
+        navigator.sendBeacon?.('/api/user/logout-ping');
+      } catch (e) {}
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [token, user?.id, activeTab]);
+
   const handleLoginSuccess = (userData) => {
     setToken(localStorage.getItem('bionet_token'));
     setUser(userData);
     setActiveTab(getInitialTab(userData?.role));
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await api.post('/user/logout-ping');
+    } catch (e) {}
     localStorage.removeItem('bionet_token');
     localStorage.removeItem('bionet_user');
     setToken(null);
     setUser(null);
     setStats(null);
   };
+
+  // 0. Public Handlers (Bisa diakses publik tanpa login)
+  const searchParams = new URLSearchParams(window.location.search);
+  const storeParam = searchParams.get('store');
+  const meetingParam = searchParams.get('meeting');
+
+  if (meetingParam) {
+    return (
+      <PublicMeetingPage
+        roomId={meetingParam}
+        onGoHome={() => {
+          window.location.href = window.location.pathname;
+        }}
+      />
+    );
+  }
+
+  if (storeParam) {
+    return (
+      <PublicStorefrontPage
+        storeUsername={storeParam}
+        onGoToLogin={() => {
+          window.location.href = window.location.pathname;
+        }}
+      />
+    );
+  }
 
   if (!token) {
     return <LoginPage onLoginSuccess={handleLoginSuccess} />;
@@ -213,6 +282,10 @@ export default function App() {
             <AdminFraudTab onNavigateToAudit={() => setActiveTab('admin-users')} />
           )}
 
+          {activeTab === 'admin-monitoring' && (
+            <AdminMonitoringTab setActiveTab={setActiveTab} />
+          )}
+
           {activeTab === 'admin-guide' && (
             <AdminSystemGuideTab setActiveTab={setActiveTab} />
           )}
@@ -265,6 +338,10 @@ export default function App() {
           )}
 
           {activeTab === 'chat' && <ChatTab currentUser={user} />}
+
+          {activeTab === 'meetings' && (
+            <MeetingTab user={user} setActiveTab={setActiveTab} />
+          )}
 
           {activeTab === 'components' && <ComponentsTab />}
         </main>

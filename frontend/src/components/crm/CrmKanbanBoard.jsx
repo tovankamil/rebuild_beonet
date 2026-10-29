@@ -21,7 +21,10 @@ import {
   User,
   Trash2,
   Edit3,
+  Smartphone,
+  Download,
 } from 'lucide-react';
+import { downloadVCardContact } from '../../utils/vCardGenerator';
 
 export const KANBAN_STAGES = [
   {
@@ -426,8 +429,23 @@ export default function CrmKanbanBoard({
                             <ArrowRight className="w-3.5 h-3.5" />
                           </button>
 
-                          {/* Edit / Delete */}
+                          {/* Save vCard & Edit / Delete */}
                           <div className="flex items-center space-x-0.5 border-l border-slate-100 pl-1">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                downloadVCardContact({
+                                  name: lead.name,
+                                  phone: lead.phone,
+                                  city: lead.city,
+                                  notes: `Prospek: ${lead.product_interest || ''}`,
+                                })
+                              }
+                              className="p-1 rounded-md text-slate-400 hover:text-emerald-600 transition"
+                              title="Simpan Kontak ke HP (.vcf)"
+                            >
+                              <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+                            </button>
                             <button
                               type="button"
                               onClick={() => onOpenEdit && onOpenEdit(lead)}

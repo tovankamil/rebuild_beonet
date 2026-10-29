@@ -22,9 +22,12 @@ import {
   Send,
   Droplets,
   Award,
+  Smartphone,
+  Download,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
+import { downloadVCardContact } from '../../utils/vCardGenerator';
 
 // 4 Milestone Definisi Siklus Herbal Bionet
 export const HEALTH_MILESTONES = [
@@ -641,7 +644,7 @@ export default function CustomerHealthJourneyView({ user }) {
                   </p>
                 )}
 
-                {/* 1-Click WhatsApp Trigger with Smart Milestone Template */}
+                {/* 1-Click WhatsApp Trigger & Save Contact */}
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
                   <a
                     href={waUrl}
@@ -652,6 +655,23 @@ export default function CustomerHealthJourneyView({ user }) {
                     <MessageCircle className="w-4 h-4 text-emerald-200" />
                     <span>Kirim WA {activeMilestone.title}: {activeMilestone.subtitle}</span>
                   </a>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      downloadVCardContact({
+                        name: record.customer_name,
+                        phone: record.phone,
+                        city: record.city,
+                        notes: `Pasien: ${record.chief_complaint} (${record.product || ''})`,
+                      })
+                    }
+                    className="py-2.5 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold text-xs transition flex items-center space-x-1.5"
+                    title="Simpan Kontak Pasien ke HP (.vcf)"
+                  >
+                    <Smartphone className="w-4 h-4 text-indigo-600" />
+                    <span>.vcf</span>
+                  </button>
                 </div>
               </div>
             );

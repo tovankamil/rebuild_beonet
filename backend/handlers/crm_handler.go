@@ -1276,3 +1276,368 @@ func (h *CRMHandler) PublicLeadWebhook(c *gin.Context) {
 	})
 }
 
+
+
+// ============================================================================
+// WHATSAPP GATEWAY DIRECT DISPATCH & LIVE MONITORING TELEMETRY HANDLERS
+// ============================================================================
+
+type SendWhatsAppDirectRequest struct {
+	Phone     string `json:"phone" binding:"required"`
+	Recipient string `json:"recipient"`
+	Category  string `json:"category"` // 'crm_followup', 'crm_objection', 'custom', 'bonus', 'shipping'
+	Message   string `json:"message" binding:"required"`
+	LeadID    string `json:"lead_id"`
+}
+
+// SendDirectWhatsApp mengirimkan pesan WhatsApp langsung dari server via WhatsApp Gateway
+func (h *CRMHandler) SendDirectWhatsApp(c *gin.Context) {
+	var req SendWhatsAppDirectRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Parameter tidak lengkap: nomor telepon (phone) dan pesan (message) wajib diisi",
+		})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	if waService == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"status":  "error",
+			"message": "Layanan WhatsApp Gateway sedang tidak tersedia",
+		})
+		return
+	}
+
+	recipientName := strings.TrimSpace(req.Recipient)
+	if recipientName == "" {
+		recipientName = "Konsumen Bionet"
+	}
+	category := strings.TrimSpace(req.Category)
+	if category == "" {
+		category = "crm_followup"
+	}
+
+	logEntry, err := waService.SendCrmDirectMessage(req.Phone, recipientName, category, req.Message)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Gagal mengirim pesan WhatsApp: " + err.Error(),
+		})
+		return
+	}
+
+	// Update CRM Follow-up activity log jika ada lead_id
+	if req.LeadID != "" {
+		db := config.DB
+		if db != nil {
+			var lead models.Lead
+			if err := db.Where("id = ?", req.LeadID).First(&lead).Error; err == nil {
+				now := time.Now()
+				lead.LastContactedAt = &now
+				lead.Notes = fmt.Sprintf("WhatsApp Gateway: %s\n%s", req.Message, lead.Notes)
+				if lead.Status == "new" {
+					lead.Status = "contacted"
+				}
+				db.Save(&lead)
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Pesan WhatsApp berhasil dikirim via Gateway",
+		"data":    logEntry,
+	})
+}
+
+// GetWhatsAppGatewayLogs mengembalikan riwayat pesan terkirim & status centang delivery
+func (h *CRMHandler) GetWhatsAppGatewayLogs(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	logs := waService.GetLogs()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   logs,
+		"total":  len(logs),
+	})
+}
+
+// GetWhatsAppGatewayStatus mengembalikan status koneksi gateway & metrik delivery
+func (h *CRMHandler) GetWhatsAppGatewayStatus(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	status := waService.GetStatus()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   status,
+	})
+}
+
+// WhatsAppWebhookListener menerima webhook callback status (delivered/read) & chat masuk dari Fonnte/WAHA
+func (h *CRMHandler) WhatsAppWebhookListener(c *gin.Context) {
+	var body map[string]interface{}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+
+	// 1. Cek apakah ada update status delivery
+	if msgID, ok := body["id"].(string); ok {
+		if status, ok := body["status"].(string); ok {
+			waService.UpdateStatus(msgID, status)
+		}
+	}
+
+	// 2. Cek apakah ada chat balasan masuk (Inbound Message)
+	from, _ := body["from"].(string)
+	if from == "" {
+		from, _ = body["sender"].(string)
+	}
+	message, _ := body["message"].(string)
+	if message == "" {
+		message, _ = body["text"].(string)
+	}
+	senderName, _ := body["name"].(string)
+	if senderName == "" {
+		senderName = "Pelanggan WhatsApp"
+	}
+
+	if from != "" && message != "" {
+		waService.RecordInboundMessage(from, senderName, message)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Webhook processed successfully",
+	})
+}
+
+// GetWhatsAppThreads mengembalikan semua daftar percakapan aktif WhatsApp (Chat List)
+func (h *CRMHandler) GetWhatsAppThreads(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	threads := waService.GetChatThreads()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   threads,
+		"total":  len(threads),
+	})
+}
+
+// GetWhatsAppThreadMessages mengembalikan riwayat pesan di satu obrolan
+func (h *CRMHandler) GetWhatsAppThreadMessages(c *gin.Context) {
+	threadID := c.Param("id")
+	waService := services.InitWhatsAppService()
+	messages := waService.GetThreadMessages(threadID)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "success",
+		"thread_id": threadID,
+		"data":      messages,
+		"total":     len(messages),
+	})
+}
+
+// SendWhatsAppThreadMessage mengirim pesan langsung ke dalam chat room obrolan
+func (h *CRMHandler) SendWhatsAppThreadMessage(c *gin.Context) {
+	threadID := c.Param("id")
+	var req struct {
+		Text      string `json:"text" binding:"required"`
+		MediaType string `json:"media_type"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Pesan tidak boleh kosong"})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	msg, err := waService.SendMessageInThread(threadID, req.Text, req.MediaType)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Pesan berhasil dikirim",
+		"data":    msg,
+	})
+}
+
+// CreateWhatsAppThread membuat thread obrolan baru dengan nomor kontak
+func (h *CRMHandler) CreateWhatsAppThread(c *gin.Context) {
+	var req struct {
+		Phone       string `json:"phone" binding:"required"`
+		ContactName string `json:"contact_name" binding:"required"`
+		Product     string `json:"product"`
+		City        string `json:"city"`
+		LeadStage   string `json:"lead_stage"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Nomor dan nama kontak wajib diisi"})
+		return
+	}
+
+	if req.LeadStage == "" {
+		req.LeadStage = "new"
+	}
+	if req.Product == "" {
+		req.Product = "Bio-Propolis Trigona 30ml"
+	}
+
+	waService := services.InitWhatsAppService()
+	thread := waService.CreateNewThread(req.Phone, req.ContactName, req.Product, req.City, req.LeadStage)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Percakapan WhatsApp baru berhasil dibuat",
+		"data":    thread,
+	})
+}
+
+// GetWhatsAppBroadcasts mengembalikan daftar campaign siaran massal
+func (h *CRMHandler) GetWhatsAppBroadcasts(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	broadcasts := waService.GetBroadcasts()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   broadcasts,
+	})
+}
+
+// CreateWhatsAppBroadcast membuat dan meluncurkan blast siaran massal
+func (h *CRMHandler) CreateWhatsAppBroadcast(c *gin.Context) {
+	var req struct {
+		Title         string `json:"title" binding:"required"`
+		TargetSegment string `json:"target_segment" binding:"required"`
+		Template      string `json:"template" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Judul, target, dan naskah template wajib diisi"})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	bc := waService.CreateBroadcast(req.Title, req.TargetSegment, req.Template)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Broadcast WhatsApp berhasil diluncurkan",
+		"data":    bc,
+	})
+}
+
+// GetWhatsAppBotRules mengembalikan aturan auto-responder
+func (h *CRMHandler) GetWhatsAppBotRules(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	rules := waService.GetBotRules()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   rules,
+	})
+}
+
+// SaveWhatsAppBotRule menyimpan atau memperbarui aturan chatbot
+func (h *CRMHandler) SaveWhatsAppBotRule(c *gin.Context) {
+	var rule services.WhatsAppBotRule
+	if err := c.ShouldBindJSON(&rule); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Format aturan bot tidak valid"})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	saved := waService.SaveBotRule(rule)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Aturan auto-responder berhasil disimpan",
+		"data":    saved,
+	})
+}
+
+// ToggleWhatsAppBotRule mengaktifkan/menonaktifkan kata kunci bot
+func (h *CRMHandler) ToggleWhatsAppBotRule(c *gin.Context) {
+	id := c.Param("id")
+	waService := services.InitWhatsAppService()
+	active := waService.ToggleBotRule(id)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "success",
+		"is_active": active,
+	})
+}
+
+// DeleteWhatsAppBotRule menghapus aturan bot
+func (h *CRMHandler) DeleteWhatsAppBotRule(c *gin.Context) {
+	id := c.Param("id")
+	waService := services.InitWhatsAppService()
+	deleted := waService.DeleteBotRule(id)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"deleted": deleted,
+	})
+}
+
+// GetWhatsAppDeviceSession mengembalikan status device & QR pairing
+func (h *CRMHandler) GetWhatsAppDeviceSession(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	session := waService.GetDeviceSession()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   session,
+	})
+}
+
+// PairWhatsAppDevice menghubungkan nomor WhatsApp
+func (h *CRMHandler) PairWhatsAppDevice(c *gin.Context) {
+	var req struct {
+		PhoneNumber string `json:"phone_number" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Nomor WhatsApp wajib diisi"})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	session := waService.PairDevice(req.PhoneNumber)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Perangkat WhatsApp berhasil terhubung",
+		"data":    session,
+	})
+}
+
+// DisconnectWhatsAppDevice memutuskan sesi perangkat
+func (h *CRMHandler) DisconnectWhatsAppDevice(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	session := waService.DisconnectDevice()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Perangkat WhatsApp telah diputuskan",
+		"data":    session,
+	})
+}
+
+// ToggleWhatsAppAutoResponder mengaktifkan/mematikan bot auto responder global
+func (h *CRMHandler) ToggleWhatsAppAutoResponder(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	state := waService.ToggleAutoResponder()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":            "success",
+		"auto_responder_on": state,
+	})
+}

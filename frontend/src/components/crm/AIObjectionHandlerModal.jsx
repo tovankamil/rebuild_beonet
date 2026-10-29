@@ -18,8 +18,12 @@ import {
   Lightbulb,
   CheckCircle2,
   BookOpen,
+  Smartphone,
+  Radio,
+  AlertCircle,
 } from 'lucide-react';
 import api from '../../services/api';
+import { downloadVCardContact } from '../../utils/vCardGenerator';
 
 export const OBJECTION_CATEGORIES = [
   {
@@ -99,6 +103,9 @@ export default function AIObjectionHandlerModal({
   const [framework, setFramework] = useState('');
   const [closingTip, setClosingTip] = useState('');
   const [copied, setCopied] = useState(false);
+  const [sendingDirect, setSendingDirect] = useState(false);
+  const [directSendSuccess, setDirectSendSuccess] = useState('');
+  const [directSendError, setDirectSendError] = useState('');
 
   // Sync when lead prop changes
   useEffect(() => {
@@ -224,6 +231,47 @@ export default function AIObjectionHandlerModal({
     navigator.clipboard.writeText(generatedText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSendDirect = async () => {
+    if (!phone) {
+      setDirectSendError('Nomor WhatsApp belum terisi!');
+      return;
+    }
+    if (!generatedText) return;
+
+    setSendingDirect(true);
+    setDirectSendSuccess('');
+    setDirectSendError('');
+
+    try {
+      const res = await api.post('/crm/whatsapp/send-direct', {
+        lead_id: lead?.id || 0,
+        phone: phone,
+        recipient: customerName || 'Konsumen Bionet',
+        category: 'objection_closure',
+        message: generatedText,
+      });
+
+      if (res.data?.status === 'success' || res.status === 200) {
+        setDirectSendSuccess('Pesan closing terkirim via WhatsApp Gateway!');
+        setTimeout(() => setDirectSendSuccess(''), 4500);
+      }
+    } catch (err) {
+      setDirectSendError(err.response?.data?.message || err.message || 'Gagal mengirim langsung via server gateway');
+      setTimeout(() => setDirectSendError(''), 4500);
+    } finally {
+      setSendingDirect(false);
+    }
+  };
+
+  const handleDownloadVCard = () => {
+    downloadVCardContact({
+      name: customerName || 'Calon Prospek Bionet',
+      phone: phone || '',
+      city: lead?.city || '',
+      notes: `Minat: ${productName}. Keberatan: ${selectedType}. ${framework}`,
+    });
   };
 
   if (!isOpen) return null;
@@ -397,29 +445,67 @@ export default function AIObjectionHandlerModal({
           )}
         </div>
 
-        {/* Action Buttons: WhatsApp & Copy */}
+        {/* Success or Error Alerts */}
+        {directSendSuccess && (
+          <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center space-x-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <span>{directSendSuccess}</span>
+          </div>
+        )}
+        {directSendError && (
+          <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs font-semibold flex items-center space-x-2">
+            <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+            <span>{directSendError}</span>
+          </div>
+        )}
+
+        {/* Action Buttons: Direct Send, WhatsApp, vCard & Copy */}
         <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
+          {/* Direct Send via Server Gateway */}
+          <button
+            type="button"
+            onClick={handleSendDirect}
+            disabled={sendingDirect || !generatedText}
+            className="w-full sm:flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-950 flex items-center justify-center space-x-2 disabled:opacity-50"
+          >
+            <Send className="w-4 h-4" />
+            <span>{sendingDirect ? 'Mengirim ke Server...' : 'Kirim Langsung via Gateway'}</span>
+          </button>
+
+          {/* Save vCard Contact */}
+          <button
+            type="button"
+            onClick={handleDownloadVCard}
+            className="w-full sm:w-auto px-4 py-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold text-xs transition flex items-center justify-center space-x-1.5"
+            title="Download .vcf untuk langsung disimpan ke buku kontak HP"
+          >
+            <Smartphone className="w-4 h-4 text-indigo-600" />
+            <span>Simpan (.vcf)</span>
+          </button>
+
+          {/* External WhatsApp Web/App */}
           <a
             href={waUrl}
             target="_blank"
             rel="noreferrer"
-            className="w-full sm:flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-950 flex items-center justify-center space-x-2"
+            className="w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center space-x-1.5"
+            title="Buka di WhatsApp Web atau aplikasi WhatsApp"
           >
-            <Send className="w-4 h-4" />
-            <span>Salin Jawaban &amp; Buka WhatsApp</span>
+            <ExternalLink className="w-4 h-4 text-emerald-600" />
+            <span>wa.me</span>
           </a>
 
           <button
             type="button"
             onClick={handleCopy}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center space-x-1.5"
+            className="w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center space-x-1.5"
           >
             {copied ? (
               <Check className="w-4 h-4 text-emerald-600" />
             ) : (
               <Copy className="w-4 h-4" />
             )}
-            <span>{copied ? 'Tersalin!' : 'Salin Teks'}</span>
+            <span>{copied ? 'Tersalin!' : 'Salin'}</span>
           </button>
         </div>
       </div>

@@ -9,6 +9,7 @@ import {
   MapPin,
   Calendar,
   MessageSquare,
+  MessageCircle,
   Sparkles,
   CheckCircle2,
   Clock,
@@ -35,6 +36,9 @@ import {
   Zap,
   ShieldCheck,
   Globe,
+  Smartphone,
+  Download,
+  Radio,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
@@ -44,6 +48,8 @@ import CustomerHealthJourneyView from './CustomerHealthJourneyView';
 import AIObjectionHandlerModal from './AIObjectionHandlerModal';
 import TestimonialVaultView from './TestimonialVaultView';
 import CrmWebhookView from './CrmWebhookView';
+import WhatsAppMessengerSuite from './WhatsAppMessengerSuite';
+import { downloadVCardContact, downloadBatchVCard } from '../../utils/vCardGenerator';
 
 export default function LeadsCRMTab({ user }) {
   const [leads, setLeads] = useState([]);
@@ -80,6 +86,8 @@ export default function LeadsCRMTab({ user }) {
   const [aiGeneratedText, setAiGeneratedText] = useState('');
   const [aiWhatsAppUrl, setAiWhatsAppUrl] = useState('');
   const [copiedAiText, setCopiedAiText] = useState(false);
+  const [aiDirectSending, setAiDirectSending] = useState(false);
+  const [aiDirectSendAlert, setAiDirectSendAlert] = useState('');
 
   // Form state
   const [formName, setFormName] = useState('');
@@ -260,6 +268,28 @@ export default function LeadsCRMTab({ user }) {
     setTimeout(() => setCopiedAiText(false), 2000);
   };
 
+  const handleSendAiDirect = async () => {
+    if (!selectedLead?.phone || !aiGeneratedText) return;
+    setAiDirectSending(true);
+    setAiDirectSendAlert('');
+    try {
+      await api.post('/crm/whatsapp/send-direct', {
+        lead_id: selectedLead.id,
+        phone: selectedLead.phone,
+        recipient: selectedLead.name,
+        category: 'crm_followup',
+        message: aiGeneratedText,
+      });
+      setAiDirectSendAlert('Pesan terkirim via WhatsApp Gateway!');
+      handleQuickStatusChange(selectedLead.id, 'contacted');
+      setTimeout(() => setAiDirectSendAlert(''), 4500);
+    } catch (err) {
+      alert('Gagal mengirim langsung via server: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setAiDirectSending(false);
+    }
+  };
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'new':
@@ -329,6 +359,12 @@ export default function LeadsCRMTab({ user }) {
   // Modern CRM Tabs Navigation Definition
   const CRM_TABS = [
     {
+      key: 'whatsapp-suite',
+      label: 'WhatsApp Live & Gateway Suite',
+      icon: MessageCircle,
+      badge: 'Live',
+    },
+    {
       key: 'kanban',
       label: 'Papan Kanban',
       icon: Layers,
@@ -387,6 +423,27 @@ export default function LeadsCRMTab({ user }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+            {/* Header Action: Buka WhatsApp Suite */}
+            <button
+              onClick={() => setViewMode('whatsapp-suite')}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs transition shadow-lg shadow-emerald-950/40 flex items-center space-x-2 animate-in fade-in"
+              title="Buka WhatsApp Web Messenger, Broadcast & Bot Gateway"
+            >
+              <MessageCircle className="w-4 h-4 text-slate-950 fill-slate-950" />
+              <span>WhatsApp Suite</span>
+            </button>
+
+            {/* Header Action: Ekspor Kontak HP (.vcf) */}
+            <button
+              onClick={() => downloadBatchVCard(leads, 'semua-prospek-bionet-crm')}
+              disabled={leads.length === 0}
+              className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs transition flex items-center space-x-1.5"
+              title="Download semua kontak prospek dalam file .vcf untuk disimpan ke buku telepon HP"
+            >
+              <Smartphone className="w-4 h-4 text-emerald-400" />
+              <span>Simpan Kontak (.vcf)</span>
+            </button>
+
             {/* Header Action: Asisten AI Penjual (Objection Handler) */}
             <button
               onClick={() => handleOpenObjectionModal(null)}
@@ -466,21 +523,19 @@ export default function LeadsCRMTab({ user }) {
                 key={tab.key}
                 type="button"
                 onClick={() => setViewMode(tab.key)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
-                  isActive
-                    ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-950/20'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                }`}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${isActive
+                  ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-950/20'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
               >
                 <IconComp className={`w-4 h-4 ${isActive ? 'text-amber-200' : 'text-slate-500'}`} />
                 <span>{tab.label}</span>
                 {tab.badge !== null && (
                   <span
-                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
-                      isActive
-                        ? 'bg-white/20 text-white'
-                        : 'bg-slate-200/80 text-slate-700'
-                    }`}
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${isActive
+                      ? 'bg-white/20 text-white'
+                      : 'bg-slate-200/80 text-slate-700'
+                      }`}
                   >
                     {tab.badge}
                   </span>
@@ -544,6 +599,14 @@ export default function LeadsCRMTab({ user }) {
             <span>Segarkan Data</span>
           </button>
         </div>
+      )}
+
+      {/* VIEW 0: WHATSAPP LIVE & GATEWAY SUITE */}
+      {viewMode === 'whatsapp-suite' && (
+        <WhatsAppMessengerSuite
+          user={user}
+          onOpenObjectionModal={handleOpenObjectionModal}
+        />
       )}
 
       {/* VIEW 1: PAPAN VISUAL KANBAN CRM */}
@@ -610,6 +673,23 @@ export default function LeadsCRMTab({ user }) {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center justify-center space-x-1.5">
+                          {/* Simpan Kontak .vcf */}
+                          <button
+                            onClick={() =>
+                              downloadVCardContact({
+                                name: lead.name,
+                                phone: lead.phone,
+                                city: lead.city,
+                                notes: `Prospek: ${lead.product_interest || ''}`,
+                              })
+                            }
+                            className="px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] flex items-center space-x-1 border border-indigo-200 transition"
+                            title="Simpan Kontak ke HP (.vcf)"
+                          >
+                            <Smartphone className="w-3 h-3 text-indigo-600" />
+                            <span>.vcf</span>
+                          </button>
+
                           {/* Bantu AI Button */}
                           <button
                             onClick={() => handleOpenObjectionModal(lead)}
@@ -976,17 +1056,55 @@ export default function LeadsCRMTab({ user }) {
               )}
             </div>
 
+            {/* Success Alert */}
+            {aiDirectSendAlert && (
+              <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center space-x-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                <span>{aiDirectSendAlert}</span>
+              </div>
+            )}
+
             {/* Modal Actions */}
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
+              {/* Direct Server Send Button */}
+              <button
+                type="button"
+                onClick={handleSendAiDirect}
+                disabled={aiDirectSending || !aiGeneratedText}
+                className="w-full sm:flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-950 flex items-center justify-center space-x-2 disabled:opacity-50"
+              >
+                <Zap className="w-4 h-4 text-amber-300" />
+                <span>{aiDirectSending ? 'Mengirim ke Server...' : 'Kirim Langsung via Gateway'}</span>
+              </button>
+
+              {/* Save vCard Contact */}
+              <button
+                type="button"
+                onClick={() =>
+                  downloadVCardContact({
+                    name: selectedLead.name,
+                    phone: selectedLead.phone,
+                    city: selectedLead.city,
+                    notes: `Minat: ${selectedLead.product_interest || ''}`,
+                  })
+                }
+                className="w-full sm:w-auto px-3.5 py-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold text-xs transition flex items-center justify-center space-x-1.5"
+                title="Download file .vcf untuk membuka dialog simpan kontak di HP"
+              >
+                <Smartphone className="w-4 h-4 text-indigo-600" />
+                <span>Simpan (.vcf)</span>
+              </button>
+
+              {/* External wa.me link */}
               <a
                 href={aiWhatsAppUrl || `https://wa.me/${selectedLead.phone}?text=${encodeURIComponent(aiGeneratedText)}`}
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => handleQuickStatusChange(selectedLead.id, 'contacted')}
-                className="w-full sm:flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-950 flex items-center justify-center space-x-2"
+                className="w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center space-x-1.5"
               >
-                <Send className="w-4 h-4" />
-                <span>Buka &amp; Kirim via WhatsApp</span>
+                <Send className="w-4 h-4 text-emerald-600" />
+                <span>wa.me</span>
               </a>
 
               <button
@@ -995,7 +1113,7 @@ export default function LeadsCRMTab({ user }) {
                 className="w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center space-x-1.5"
               >
                 {copiedAiText ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-                <span>{copiedAiText ? 'Tersalin!' : 'Salin Pesan'}</span>
+                <span>{copiedAiText ? 'Tersalin!' : 'Salin'}</span>
               </button>
             </div>
           </div>

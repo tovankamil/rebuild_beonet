@@ -911,6 +911,7 @@ func main() {
 		api.GET("/public/meetings/:room_id/participants", meetingHandler.GetMeetingParticipants)
 		api.POST("/public/leads", leadHandler.PublicCaptureLead)
 		api.POST("/public/leads/webhook", crmHandler.PublicLeadWebhook)
+		api.POST("/public/whatsapp/webhook", crmHandler.WhatsAppWebhookListener)
 
 		// Public Verification (Module 5: Digital ID & Certificate Verification)
 		api.GET("/public/verify/member/:id", verificationHandler.VerifyMember)
@@ -1038,6 +1039,25 @@ func main() {
 			protected.POST("/crm/ai/objection-handler", crmHandler.HandleObjectionAI)
 			protected.PUT("/crm/leads/:id/status", crmHandler.UpdateLeadStatus)
 			protected.GET("/crm/testimonials", crmHandler.GetTestimonials)
+
+			// WhatsApp Direct Gateway & Live Telemetry Monitoring
+			protected.POST("/crm/whatsapp/send-direct", crmHandler.SendDirectWhatsApp)
+			protected.GET("/crm/whatsapp/logs", crmHandler.GetWhatsAppGatewayLogs)
+			protected.GET("/crm/whatsapp/status", crmHandler.GetWhatsAppGatewayStatus)
+			protected.GET("/crm/whatsapp/threads", crmHandler.GetWhatsAppThreads)
+			protected.GET("/crm/whatsapp/threads/:id/messages", crmHandler.GetWhatsAppThreadMessages)
+			protected.POST("/crm/whatsapp/threads/:id/messages", crmHandler.SendWhatsAppThreadMessage)
+			protected.POST("/crm/whatsapp/threads", crmHandler.CreateWhatsAppThread)
+			protected.GET("/crm/whatsapp/broadcasts", crmHandler.GetWhatsAppBroadcasts)
+			protected.POST("/crm/whatsapp/broadcasts", crmHandler.CreateWhatsAppBroadcast)
+			protected.GET("/crm/whatsapp/bot-rules", crmHandler.GetWhatsAppBotRules)
+			protected.POST("/crm/whatsapp/bot-rules", crmHandler.SaveWhatsAppBotRule)
+			protected.PATCH("/crm/whatsapp/bot-rules/:id/toggle", crmHandler.ToggleWhatsAppBotRule)
+			protected.DELETE("/crm/whatsapp/bot-rules/:id", crmHandler.DeleteWhatsAppBotRule)
+			protected.GET("/crm/whatsapp/device", crmHandler.GetWhatsAppDeviceSession)
+			protected.POST("/crm/whatsapp/device/pair", crmHandler.PairWhatsAppDevice)
+			protected.POST("/crm/whatsapp/device/disconnect", crmHandler.DisconnectWhatsAppDevice)
+			protected.POST("/crm/whatsapp/device/toggle-bot", crmHandler.ToggleWhatsAppAutoResponder)
 
 			// PWA Web Push Notification (Module 7)
 			protected.POST("/notifications/push-subscribe", prospectingHandler.SubscribePush)

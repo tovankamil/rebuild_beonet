@@ -26,6 +26,7 @@ import {
   Zap,
 } from 'lucide-react';
 import api from '../../services/api';
+import TikTokVideoModal from './TikTokVideoModal';
 
 export default function AIMarketingStudioTab({ user }) {
   const [platform, setPlatform] = useState('whatsapp');
@@ -36,6 +37,7 @@ export default function AIMarketingStudioTab({ user }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showTikTokModal, setShowTikTokModal] = useState(false);
   const outputBoxRef = useRef(null);
 
   // Auto-scroll output container to top when new copy is generated or loaded
@@ -404,6 +406,15 @@ export default function AIMarketingStudioTab({ user }) {
               {result && (
                 <div className="flex items-center space-x-1.5">
                   <button
+                    onClick={() => setShowTikTokModal(true)}
+                    className="px-3 py-1 rounded-xl bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 text-white text-xs font-black transition flex items-center space-x-1.5 shadow-md shadow-rose-950"
+                    title="Render Video TikTok 9:16 Siap Upload"
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span>🎬 Render Video TikTok</span>
+                  </button>
+
+                  <button
                     onClick={() => handleCopyText(result)}
                     className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center space-x-1 border border-slate-700"
                     title="Salin Naskah"
@@ -435,9 +446,35 @@ export default function AIMarketingStudioTab({ user }) {
             {/* Body */}
             {result ? (
               <div className="flex-1 flex flex-col justify-between">
+                {/* TikTok Video Render Banner */}
+                <div className="mb-3 p-3.5 rounded-2xl bg-gradient-to-r from-rose-950/70 via-purple-950/70 to-slate-900 border border-rose-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-rose-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                      <Video className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-extrabold text-white flex items-center gap-1.5">
+                        <span>Konten Video TikTok Siap Dibuat</span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-rose-500/30 text-rose-200 border border-rose-400/30 font-bold">9:16 Vertikal</span>
+                      </div>
+                      <div className="text-[11px] text-slate-300">
+                        Render naskah ini menjadi video animasi kinetik BPOM & soundtrack langsung di aplikasi
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowTikTokModal(true)}
+                    className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-extrabold text-xs transition shadow-md shadow-rose-950 flex items-center justify-center space-x-1.5 shrink-0 active:scale-95"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <span>Buka Studio Render Video</span>
+                  </button>
+                </div>
+
                 <div
                   ref={outputBoxRef}
-                  className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-sans text-xs text-slate-200 leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-[420px] select-text shadow-inner"
+                  className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-sans text-xs text-slate-200 leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-[360px] select-text shadow-inner"
                 >
                   {result}
                 </div>
@@ -538,6 +575,15 @@ export default function AIMarketingStudioTab({ user }) {
           </div>
         </div>
       </div>
+
+      {/* In-App TikTok 9:16 Video Motion Generator Modal */}
+      <TikTokVideoModal
+        isOpen={showTikTokModal}
+        onClose={() => setShowTikTokModal(false)}
+        scriptText={result}
+        productName={product}
+        mitraUsername={user?.username || 'mitra01'}
+      />
     </div>
   );
 }

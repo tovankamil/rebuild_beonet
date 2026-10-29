@@ -19,6 +19,8 @@ import {
   Disc3,
   Sliders,
   Check,
+  Copy,
+  Video,
   Loader2,
   ArrowRight,
   Flame,
@@ -51,6 +53,33 @@ export default function TikTokVideoModal({
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [renderedBlob, setRenderedBlob] = useState(null);
   const [activeSceneIdx, setActiveSceneIdx] = useState(0);
+
+  // Mode Switcher: 'motion' (In-App Canvas) | 'veo' (Google Veo 3 Cinematic AI)
+  const [activeMode, setActiveMode] = useState('motion');
+  const [veoModel, setVeoModel] = useState('veo-3.1-generate-preview');
+  const [veoRatio, setVeoRatio] = useState('9:16');
+  const [veoPreset, setVeoPreset] = useState('rainforest');
+  const [veoCopied, setVeoCopied] = useState(false);
+  const [veoPrompt, setVeoPrompt] = useState(
+    `Cinematic 4K close-up shot of a luxury dark amber dropper bottle labeled "${productName}" resting on a wet mossy forest stone with fresh morning dew droplets. Golden sun rays penetrate tropical emerald leaves, soft mist drifting around the bottle. High-end natural medicine commercial, photorealistic, cinematic lighting, 9:16 vertical aspect ratio.`
+  );
+
+  const handleVeoPresetChange = (presetKey) => {
+    setVeoPreset(presetKey);
+    if (presetKey === 'rainforest') {
+      setVeoPrompt(`Cinematic 4K close-up shot of a luxury dark amber dropper bottle labeled "${productName}" resting on a wet mossy forest stone with fresh morning dew droplets. Golden sun rays penetrate tropical emerald leaves, soft mist drifting around the bottle. High-end natural medicine commercial, photorealistic, cinematic lighting, ${veoRatio} aspect ratio.`);
+    } else if (presetKey === 'biotech') {
+      setVeoPrompt(`High-tech pharmaceutical laboratory commercial shot of ${productName} bottle surrounded by glowing cyan and emerald botanical molecules, precision pipettes, clean room aesthetic, crystal clear glass reflection, 4K resolution, photorealistic, ${veoRatio} vertical video.`);
+    } else if (presetKey === 'lifestyle') {
+      setVeoPrompt(`Warm morning lifestyle commercial of a healthy Indonesian woman smiling as she prepares her morning herbal drink with drops of ${productName}, bright minimalist kitchen, soft natural window light, joyful wellness atmosphere, 4K ultra-realistic, ${veoRatio} aspect ratio.`);
+    }
+  };
+
+  const handleCopyVeoPrompt = () => {
+    navigator.clipboard.writeText(veoPrompt);
+    setVeoCopied(true);
+    setTimeout(() => setVeoCopied(false), 2000);
+  };
 
   // Extracted scenes from script or smart defaults
   const [scenes, setScenes] = useState([
@@ -635,7 +664,37 @@ export default function TikTokVideoModal({
             </button>
           </div>
 
-          {/* Main Grid: Phone Player Preview & Controls */}
+          {/* Mode Switcher Tabs */}
+          <div className="flex items-center gap-2 mt-4 p-1.5 rounded-2xl bg-slate-950 border border-slate-800">
+            <button
+              type="button"
+              onClick={() => setActiveMode('motion')}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+                activeMode === 'motion'
+                  ? 'bg-rose-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Sparkles size={14} />
+              <span>1. In-App Motion Canvas (Instan &amp; Gratis)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveMode('veo')}
+              className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+                activeMode === 'veo'
+                  ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Video size={14} />
+              <span>2. Google Veo 3 / 3.1 (Cinematic AI Video)</span>
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 font-bold">DeepMind</span>
+            </button>
+          </div>
+
+          {/* VIEW 1: IN-APP MOTION CANVAS */}
+          {activeMode === 'motion' && (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-5 overflow-y-auto">
             {/* Left: TikTok Phone Mockup (5 Cols) */}
             <div className="md:col-span-5 flex flex-col items-center justify-center">
@@ -814,13 +873,199 @@ export default function TikTokVideoModal({
 
                 <div className="text-[10.5px] text-slate-400 text-center flex items-center justify-center gap-1.5">
                   <CheckCircle2 size={12} className="text-emerald-400" />
-                  <span>Format 9:16 cocok langsung di-upload ke TikTok, IG Reels, Shorts & WA Status</span>
+                  <span>Format 9:16 cocok langsung di-upload ke TikTok, IG Reels, Shorts &amp; WA Status</span>
                 </div>
               </div>
             </div>
           </div>
+          )}
+
+          {/* VIEW 2: GOOGLE VEO 3 / 3.1 DEEPMIND CINEMATIC STUDIO */}
+          {activeMode === 'veo' && (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-5 overflow-y-auto">
+              {/* Left Column: Veo Model Capabilities & Showcase */}
+              <div className="md:col-span-5 space-y-4">
+                <div className="rounded-3xl p-5 bg-gradient-to-br from-indigo-950/70 via-slate-900 to-purple-950/70 border border-indigo-500/30 shadow-xl space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                      Google DeepMind Video Model
+                    </span>
+                    <span className="text-xs font-mono font-bold text-emerald-400">v3.1 Preview</span>
+                  </div>
+
+                  <h4 className="font-heading font-black text-lg text-white leading-tight">
+                    Google Veo 3 Generative Video Engine
+                  </h4>
+
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Model AI video generasi terbaru dari Google yang mampu menghasilkan video sinematik fotorealistik 1080p / 4K dengan pencahayaan alami, pergerakan kamera halus, dan audio suara ambient asli.
+                  </p>
+
+                  <div className="pt-2 border-t border-indigo-900/60 space-y-2 text-xs">
+                    <div className="flex items-center justify-between text-slate-300">
+                      <span>• Format Output:</span>
+                      <strong className="text-white">9:16 Vertikal &amp; 16:9 Landscape</strong>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-300">
+                      <span>• Durasi Per Klip:</span>
+                      <strong className="text-white">5 – 8 Detik Sinematik</strong>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-300">
+                      <span>• Kualitas Visual:</span>
+                      <strong className="text-emerald-400">1080p Full HD / 4K Ultra</strong>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-300">
+                      <span>• Audio Native:</span>
+                      <strong className="text-cyan-400">Suara Air, Tetesan &amp; Musik Halus</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 text-xs space-y-2 text-slate-300">
+                  <div className="font-bold text-amber-300 flex items-center gap-1.5">
+                    <span>💡 Catatan Integrasi Google Veo 3:</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-slate-400">
+                    Google Veo memerlukan akses <strong>Google Cloud Vertex AI</strong> atau <strong>Gemini API (Video Quota Whitelist)</strong> karena proses render video memerlukan cluster GPU TPU Cloud.
+                  </p>
+                  <p className="text-[11px] leading-relaxed text-slate-400">
+                    Anda dapat menggunakan <strong>Prompt Sinematik di samping</strong> langsung di <strong>Google AI Studio</strong> (aistudio.google.com) atau menghubungkan API Key Vertex AI project Anda.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column: Prompt Generator & Controls */}
+              <div className="md:col-span-7 space-y-4">
+                {/* Scene Presets */}
+                <div>
+                  <label className="text-xs font-bold text-slate-300 block mb-2 uppercase tracking-wider">
+                    Pilih Gaya Sinematik Naskah:
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleVeoPresetChange('rainforest')}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition ${
+                        veoPreset === 'rainforest'
+                          ? 'bg-emerald-950/80 border-emerald-500 text-white ring-1 ring-emerald-500/40'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="font-bold">🌿 Rainforest Dew</div>
+                      <div className="text-[10px] text-slate-400 truncate">Hutan &amp; Embun Pagi</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleVeoPresetChange('biotech')}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition ${
+                        veoPreset === 'biotech'
+                          ? 'bg-indigo-950/80 border-indigo-500 text-white ring-1 ring-indigo-500/40'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="font-bold">⚡ Lab Biotech</div>
+                      <div className="text-[10px] text-slate-400 truncate">Molekul &amp; Kaca Modern</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleVeoPresetChange('lifestyle')}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition ${
+                        veoPreset === 'lifestyle'
+                          ? 'bg-amber-950/80 border-amber-500 text-white ring-1 ring-amber-500/40'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="font-bold">☀️ Pagi Bugar</div>
+                      <div className="text-[10px] text-slate-400 truncate">Wanita Sehat Indonesia</div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Parameters Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Model AI:</label>
+                    <select
+                      value={veoModel}
+                      onChange={(e) => setVeoModel(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-hidden focus:border-indigo-500"
+                    >
+                      <option value="veo-3.1-generate-preview">Google Veo 3.1 (Flagship + Audio)</option>
+                      <option value="veo-2.0-generate">Google Veo 2.0 (Fast Commercial)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Aspek Rasio:</label>
+                    <select
+                      value={veoRatio}
+                      onChange={(e) => {
+                        setVeoRatio(e.target.value);
+                        setVeoPrompt((prev) => prev.replace(/(9:16|16:9)/g, e.target.value));
+                      }}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-hidden focus:border-indigo-500"
+                    >
+                      <option value="9:16">9:16 Vertikal (TikTok / Reels / Shorts)</option>
+                      <option value="16:9">16:9 Landscape (YouTube / TV Ads)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Prompt Box */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[11px] font-bold text-slate-300">
+                      Prompt Sinematik Siap Kirim (Standard Input Veo 3):
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleCopyVeoPrompt}
+                      className="text-indigo-400 hover:text-indigo-300 text-xs font-bold flex items-center gap-1"
+                    >
+                      {veoCopied ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                      <span>{veoCopied ? 'Tersalin!' : 'Salin Prompt'}</span>
+                    </button>
+                  </div>
+                  <textarea
+                    rows={4}
+                    value={veoPrompt}
+                    onChange={(e) => setVeoPrompt(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3.5 text-xs font-mono text-indigo-200 leading-relaxed focus:outline-hidden focus:border-indigo-500 shadow-inner"
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="pt-2 border-t border-slate-800 space-y-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyVeoPrompt}
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-xs transition shadow-xl shadow-indigo-950 flex items-center justify-center space-x-2 active:scale-98"
+                  >
+                    {veoCopied ? (
+                      <>
+                        <Check size={16} className="text-emerald-300" />
+                        <span>Prompt Veo 3 Berhasil Disalin!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} />
+                        <span>Salin Prompt Google Veo 3 &amp; Buka Google AI Studio</span>
+                      </>
+                    )}
+                  </button>
+
+                  <p className="text-[10.5px] text-slate-400 text-center">
+                    Gunakan prompt di atas di portal <strong>aistudio.google.com</strong> pada menu <em>Generate Video</em> untuk merender video 4K fotorealistik gratis dengan kuota developer Anda.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
     </AnimatePresence>
   );
 }
+

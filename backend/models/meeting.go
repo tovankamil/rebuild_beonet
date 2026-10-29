@@ -53,5 +53,3 @@ type MeetingParticipant struct {
 	LastSeenAt time.Time `gorm:"index" json:"last_seen_at"`
 	JoinedAt   time.Time `json:"joined_at"`
 }
-
-

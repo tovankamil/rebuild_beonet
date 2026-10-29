@@ -180,5 +180,3 @@ func (h *MonitoringHandler) SendWhatsAppTest(c *gin.Context) {
 		"message": "Notifikasi WhatsApp berhasil diproses dan dicatat dalam antrean gateway!",
 	})
 }
-
-

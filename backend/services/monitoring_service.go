@@ -44,12 +44,12 @@ type FrontendRouteStat struct {
 }
 
 type MonitoringMetrics struct {
-	OnlineUsersCount int            `json:"online_users_count"`
-	ActiveUsersCount int            `json:"active_users_count"`
-	IdleUsersCount   int            `json:"idle_users_count"`
-	Traffic          TrafficSummary `json:"traffic"`
-	System           SystemMetrics  `json:"system"`
-	TopEndpoints     []EndpointStat `json:"top_endpoints"`
+	OnlineUsersCount int                 `json:"online_users_count"`
+	ActiveUsersCount int                 `json:"active_users_count"`
+	IdleUsersCount   int                 `json:"idle_users_count"`
+	Traffic          TrafficSummary      `json:"traffic"`
+	System           SystemMetrics       `json:"system"`
+	TopEndpoints     []EndpointStat      `json:"top_endpoints"`
 	RecentUsers      []OnlineUser        `json:"recent_users"`
 	FrontendRoutes   []FrontendRouteStat `json:"frontend_routes"`
 }
@@ -128,11 +128,11 @@ var (
 func GetMonitoringService() *MonitoringService {
 	monitorOnce.Do(func() {
 		GlobalMonitor = &MonitoringService{
-			startTime:     time.Now(),
-			onlineUsers:   make(map[string]*OnlineUser),
+			startTime:      time.Now(),
+			onlineUsers:    make(map[string]*OnlineUser),
 			endpointStats:  make(map[string]*EndpointStat),
 			frontendVisits: make(map[string]int64),
-			lastCalcTime:  time.Now(),
+			lastCalcTime:   time.Now(),
 		}
 		// Background rate calculation & cleanup ticker
 		go GlobalMonitor.backgroundWorker()
@@ -357,29 +357,29 @@ func (m *MonitoringService) recordFrontendVisit(page string) {
 
 func getMenuFriendlyTitle(key string) string {
 	titles := map[string]string{
-		"overview":             "Dashboard Ringkasan Mitra",
-		"genealogy":            "Pohon Jaringan Binary",
-		"referrals":            "Daftar Referal Langsung",
-		"withdrawal":           "Form Penarikan Saldo (WD)",
-		"transactions":         "Buku Kas & Transaksi",
-		"pins":                 "Master PIN & Stokis",
-		"products":             "Katalog Produk & RO",
-		"bank":                 "Kelola Rekening Bank Mitra",
-		"chat":                 "Live Chat Bantuan CS",
-		"components":           "Galeri Komponen DashLite",
-		"admin-overview":       "Admin Ringkasan Eksekutif",
-		"admin-users":          "Admin Manajemen Pengguna",
-		"admin-transactions":   "Admin Buku Besar & Bonus",
-		"admin-points":         "Admin Poin Pasangan Binary",
-		"admin-pins":           "Admin Master Serial PIN",
-		"admin-orders":         "Admin Pesanan E-Commerce RO",
-		"admin-withdrawals":    "Admin Persetujuan WD",
-		"admin-fraud":          "Admin Fraud Control & Risiko",
-		"admin-monitoring":     "Admin Live Telemetri & User",
-		"admin-guide":          "Admin Panduan Sistem",
-		"warehouse-overview":   "Gudang Ringkasan Inventori",
-		"warehouse-inventory":  "Gudang Manajemen Stok",
-		"warehouse-orders":     "Gudang Fulfillment Pesanan",
+		"overview":            "Dashboard Ringkasan Mitra",
+		"genealogy":           "Pohon Jaringan Binary",
+		"referrals":           "Daftar Referal Langsung",
+		"withdrawal":          "Form Penarikan Saldo (WD)",
+		"transactions":        "Buku Kas & Transaksi",
+		"pins":                "Master PIN & Stokis",
+		"products":            "Katalog Produk & RO",
+		"bank":                "Kelola Rekening Bank Mitra",
+		"chat":                "Live Chat Bantuan CS",
+		"components":          "Galeri Komponen DashLite",
+		"admin-overview":      "Admin Ringkasan Eksekutif",
+		"admin-users":         "Admin Manajemen Pengguna",
+		"admin-transactions":  "Admin Buku Besar & Bonus",
+		"admin-points":        "Admin Poin Pasangan Binary",
+		"admin-pins":          "Admin Master Serial PIN",
+		"admin-orders":        "Admin Pesanan E-Commerce RO",
+		"admin-withdrawals":   "Admin Persetujuan WD",
+		"admin-fraud":         "Admin Fraud Control & Risiko",
+		"admin-monitoring":    "Admin Live Telemetri & User",
+		"admin-guide":         "Admin Panduan Sistem",
+		"warehouse-overview":  "Gudang Ringkasan Inventori",
+		"warehouse-inventory": "Gudang Manajemen Stok",
+		"warehouse-orders":    "Gudang Fulfillment Pesanan",
 	}
 	if t, exists := titles[key]; exists {
 		return t

@@ -393,7 +393,14 @@ func (h *LeadHandler) GenerateLeadFollowUpAI(c *gin.Context) {
 	}
 
 	var user models.User
-	config.DB.Where("id = ?", uID).First(&user)
+	if err := config.DB.Where("id = ?", uID).First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Pengguna tidak ditemukan"})
+		return
+	}
+	if user.Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Akses ditolak: Studio Konten AI & Generator Video hanya dapat diakses oleh Administrator"})
+		return
+	}
 	mitraName := user.FullName
 	if mitraName == "" {
 		mitraName = user.Username
@@ -468,7 +475,14 @@ func (h *LeadHandler) GenerateMarketingCopyAI(c *gin.Context) {
 	uID := fmt.Sprintf("%v", userID)
 
 	var user models.User
-	config.DB.Where("id = ?", uID).First(&user)
+	if err := config.DB.Where("id = ?", uID).First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Pengguna tidak ditemukan"})
+		return
+	}
+	if user.Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Akses ditolak: Studio Konten AI & Generator Video hanya dapat diakses oleh Administrator"})
+		return
+	}
 	mitraName := user.FullName
 	if mitraName == "" {
 		mitraName = user.Username
@@ -479,7 +493,7 @@ func (h *LeadHandler) GenerateMarketingCopyAI(c *gin.Context) {
 		Platform      string `json:"platform" binding:"required"` // 'whatsapp', 'instagram', 'tiktok', 'story', 'closing'
 		Audience      string `json:"audience"`                    // 'ibu_rumah_tangga', 'karyawan', 'diabetes_kolesterol', 'umum'
 		Tone          string `json:"tone"`                        // 'persuasif', 'edukatif', 'santai', 'urgensi_promo'
-		HighlightInfo string `json:"highlight_info"`             // e.g. 'Promo Diskon 20%', 'Free Ongkir', 'BPOM Resmi'
+		HighlightInfo string `json:"highlight_info"`              // e.g. 'Promo Diskon 20%', 'Free Ongkir', 'BPOM Resmi'
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -534,4 +548,3 @@ Tuliskan materi promosi dalam Bahasa Indonesia yang sangat persuasif, legal, eti
 		"mitra_name":     mitraName,
 	})
 }
-

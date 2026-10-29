@@ -1007,7 +1007,7 @@ func main() {
 			protected.POST("/leads/:id/ai-followup", leadHandler.GenerateLeadFollowUpAI)
 
 			// AI Marketing & Sales Copywriting Studio (Poin 1 di Roadmap)
-			protected.POST("/ai/marketing/generate", leadHandler.GenerateMarketingCopyAI)
+			protected.POST("/ai/marketing/generate", middleware.RequireRole("admin"), leadHandler.GenerateMarketingCopyAI)
 
 			// ==============================================
 			// RBAC: ADMIN & MANAGEMENT ROUTES (Admin, Keuangan, CS)

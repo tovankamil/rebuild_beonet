@@ -674,4 +674,3 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 
 	return response, err
 }
-

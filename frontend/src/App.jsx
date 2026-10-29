@@ -136,7 +136,7 @@ export default function App() {
     }
 
     // Member
-    if (activeTab.startsWith('admin-') || activeTab.startsWith('warehouse-')) {
+    if (activeTab.startsWith('admin-') || activeTab.startsWith('warehouse-') || activeTab === 'ai-marketing') {
       setActiveTab(getInitialTab(role));
     }
   }, [user?.role, activeTab]);
@@ -352,7 +352,7 @@ export default function App() {
 
               {activeTab === 'leads' && <LeadsCRMTab user={user} />}
 
-              {activeTab === 'ai-marketing' && (
+              {activeTab === 'ai-marketing' && role === 'admin' && (
                 <AIMarketingStudioTab user={user} />
               )}
 

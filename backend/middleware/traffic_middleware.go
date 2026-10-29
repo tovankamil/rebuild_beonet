@@ -88,4 +88,3 @@ func TrafficMonitorMiddleware() gin.HandlerFunc {
 		}
 	}
 }
-

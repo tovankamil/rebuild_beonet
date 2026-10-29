@@ -33,12 +33,12 @@ func (fc *FraudCase) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 type FraudOverviewDTO struct {
-	TotalCases        int64       `json:"total_cases"`
-	HighRiskCount     int64       `json:"high_risk_count"`
-	MediumRiskCount   int64       `json:"medium_risk_count"`
-	LowRiskCount      int64       `json:"low_risk_count"`
-	OpenCasesCount    int64       `json:"open_cases_count"`
-	ResolvedCount     int64       `json:"resolved_count"`
-	FrozenUsersCount  int64       `json:"frozen_users_count"`
-	Cases             []FraudCase `json:"cases"`
+	TotalCases       int64       `json:"total_cases"`
+	HighRiskCount    int64       `json:"high_risk_count"`
+	MediumRiskCount  int64       `json:"medium_risk_count"`
+	LowRiskCount     int64       `json:"low_risk_count"`
+	OpenCasesCount   int64       `json:"open_cases_count"`
+	ResolvedCount    int64       `json:"resolved_count"`
+	FrozenUsersCount int64       `json:"frozen_users_count"`
+	Cases            []FraudCase `json:"cases"`
 }

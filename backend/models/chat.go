@@ -8,10 +8,10 @@ import (
 )
 
 type ChatMessage struct {
-	ID         string    `gorm:"type:char(36);primaryKey" json:"id"`
-	SenderID   string    `gorm:"type:char(36);not null;index" json:"sender_id"`
-	ReceiverID string    `gorm:"type:char(36);index" json:"receiver_id"` // user id of recipient or empty for support
-	Room       string    `gorm:"type:varchar(50);default:'support';index" json:"room"`
+	ID             string         `gorm:"type:char(36);primaryKey" json:"id"`
+	SenderID       string         `gorm:"type:char(36);not null;index" json:"sender_id"`
+	ReceiverID     string         `gorm:"type:char(36);index" json:"receiver_id"` // user id of recipient or empty for support
+	Room           string         `gorm:"type:varchar(50);default:'support';index" json:"room"`
 	Message        string         `gorm:"type:text;not null" json:"message"`
 	AttachmentURL  string         `gorm:"type:varchar(255)" json:"attachment_url,omitempty"`
 	AttachmentType string         `gorm:"type:varchar(50)" json:"attachment_type,omitempty"` // image, document

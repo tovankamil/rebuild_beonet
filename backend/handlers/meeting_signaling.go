@@ -21,7 +21,7 @@ var upgrader = websocket.Upgrader{
 
 // SignalMessage represents messages exchanged over WebRTC signaling
 type SignalMessage struct {
-	Type    string          `json:"type"`              // "join", "room-users", "user-joined", "user-left", "offer", "answer", "candidate", "media-state", "chat", "end-meeting"
+	Type    string          `json:"type"` // "join", "room-users", "user-joined", "user-left", "offer", "answer", "candidate", "media-state", "chat", "end-meeting"
 	RoomID  string          `json:"room_id"`
 	FromID  string          `json:"from_id"`
 	ToID    string          `json:"to_id,omitempty"`   // Targeted peer for offer/answer/candidate

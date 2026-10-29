@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"strings"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"bionet-backend/config"
@@ -26,12 +26,12 @@ func notifyFraudCaseToTelegram(fc models.FraudCase) {
 		return
 	}
 	alertMsg := fmt.Sprintf(
-		"🚨 <b>[FRAUD ALERT BIONET v6] INDIKASI KECURANGAN TERDETEKSI!</b>\n\n" +
-			"⚠️ Aturan: <b>%s</b>\n" +
-			"🔴 Tingkat Risiko: <b>%s</b>\n" +
-			"📌 Judul: <b>%s</b>\n" +
-			"📝 Keterangan: %s\n" +
-			"🕐 Waktu: <b>%s</b>\n\n" +
+		"🚨 <b>[FRAUD ALERT BIONET v6] INDIKASI KECURANGAN TERDETEKSI!</b>\n\n"+
+			"⚠️ Aturan: <b>%s</b>\n"+
+			"🔴 Tingkat Risiko: <b>%s</b>\n"+
+			"📌 Judul: <b>%s</b>\n"+
+			"📝 Keterangan: %s\n"+
+			"🕐 Waktu: <b>%s</b>\n\n"+
 			"<i>Buka Tab Admin: Fraud Control &amp; Risiko untuk tindakan mitigasi.</i>",
 		fc.RuleKey,
 		strings.ToUpper(fc.RiskLevel),
@@ -347,10 +347,10 @@ func (h *FraudHandler) FreezeUserCase(c *gin.Context) {
 
 	if services.GlobalTelegramService != nil {
 		freezeMsg := fmt.Sprintf(
-			"🔒 <b>[FRAUD MITIGATION] AKUN BERHASIL DIBEKUKAN</b>\n\n" +
-				"👤 Mitra: <b>@%s (%s)</b>\n" +
-				"⚖️ Terkait Kasus: <b>%s</b>\n" +
-				"👮 Tindakan: <b>Pembekuan Sementara (Suspended)</b>\n" +
+			"🔒 <b>[FRAUD MITIGATION] AKUN BERHASIL DIBEKUKAN</b>\n\n"+
+				"👤 Mitra: <b>@%s (%s)</b>\n"+
+				"⚖️ Terkait Kasus: <b>%s</b>\n"+
+				"👮 Tindakan: <b>Pembekuan Sementara (Suspended)</b>\n"+
 				"🕐 Waktu: <b>%s</b>",
 			user.Username,
 			user.FullName,

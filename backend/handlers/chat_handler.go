@@ -261,13 +261,13 @@ func (h *ChatHandler) GetConversations(c *gin.Context) {
 
 	// For CS / Admin, find all distinct members who sent or received messages
 	type ConvSummary struct {
-		UserID       string `json:"user_id"`
-		Username     string `json:"username"`
-		FullName     string `json:"full_name"`
-		Role         string `json:"role"`
-		LastMessage  string `json:"last_message"`
+		UserID        string `json:"user_id"`
+		Username      string `json:"username"`
+		FullName      string `json:"full_name"`
+		Role          string `json:"role"`
+		LastMessage   string `json:"last_message"`
 		LastMessageAt string `json:"last_message_at"`
-		UnreadCount  int    `json:"unread_count"`
+		UnreadCount   int    `json:"unread_count"`
 	}
 
 	// Fetch recent distinct senders/receivers

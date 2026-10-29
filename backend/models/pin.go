@@ -83,12 +83,11 @@ type RegisterDownlineRequest struct {
 }
 
 type RegisterDownlineResponse struct {
-	User          User       `json:"user"`
-	Pin           Pin        `json:"pin"`
-	Position      string     `json:"position"`
-	Upline        User       `json:"upline"`
-	SponsorBonus  float64    `json:"sponsor_bonus"`
-	PointsAwarded float64    `json:"points_awarded"`
-	WalletBalance float64    `json:"wallet_balance"`
+	User          User    `json:"user"`
+	Pin           Pin     `json:"pin"`
+	Position      string  `json:"position"`
+	Upline        User    `json:"upline"`
+	SponsorBonus  float64 `json:"sponsor_bonus"`
+	PointsAwarded float64 `json:"points_awarded"`
+	WalletBalance float64 `json:"wallet_balance"`
 }
-

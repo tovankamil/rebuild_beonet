@@ -420,8 +420,8 @@ func (h *MeetingHandler) UploadRecording(c *gin.Context) {
 		ext := strings.ToLower(filepath.Ext(file.Filename))
 		allowedExts := map[string]bool{
 			".mp4": true, ".webm": true, ".mkv": true,
-			".mov": true, ".avi":  true, ".mp3": true,
-			".wav": true, ".m4a":  true, ".ogg": true,
+			".mov": true, ".avi": true, ".mp3": true,
+			".wav": true, ".m4a": true, ".ogg": true,
 		}
 		if !allowedExts[ext] {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -654,7 +654,6 @@ func (h *MeetingHandler) GetMeetingAttendees(c *gin.Context) {
 		"data":   attendees,
 	})
 }
-
 
 // JoinMeetingRoom records or updates a participant joining a meeting room
 func (h *MeetingHandler) JoinMeetingRoom(c *gin.Context) {

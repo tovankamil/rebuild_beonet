@@ -101,11 +101,11 @@ func (s *WhatsAppService) GetStatus() map[string]interface{} {
 	s.logsLock.RUnlock()
 
 	return map[string]interface{}{
-		"provider":   s.provider,
-		"enabled":    s.isEnabled,
+		"provider":    s.provider,
+		"enabled":     s.isEnabled,
 		"has_api_key": s.apiKey != "",
-		"total_sent": totalSent,
-		"status":     "active",
+		"total_sent":  totalSent,
+		"status":      "active",
 	}
 }
 
@@ -168,4 +168,3 @@ func (s *WhatsAppService) SendCustomMessage(phone, recipient, message string) er
 	log.Printf("[WhatsApp Gateway] Sent Custom message to %s (%s)", phone, recipient)
 	return nil
 }
-

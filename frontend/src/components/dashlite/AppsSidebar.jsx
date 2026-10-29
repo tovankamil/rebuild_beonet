@@ -148,12 +148,12 @@ function getRoleMenuModules(role) {
       },
       {
         id: 'ai-marketing',
-        title: 'Studio Konten AI',
+        title: 'Studio Konten AI & Video (Admin)',
         icon: Sparkles,
-        badge: 'AI',
+        badge: 'Admin Only',
         submenus: [
-          { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi siap kirim berizin BPOM', icon: Sparkles },
-          { id: 'ai-marketing', title: 'Naskah Video TikTok & Reels', desc: 'Script 30-45 detik hook & problem-solution', icon: Video },
+          { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi resmi berizin BPOM', icon: Sparkles },
+          { id: 'ai-marketing', title: 'Naskah & Generator Video TikTok / Reels', desc: 'Script 9:16 & rendering video kinetik', icon: Video },
         ],
       },
       {
@@ -245,16 +245,6 @@ function getRoleMenuModules(role) {
         ],
       },
       {
-        id: 'ai-marketing',
-        title: 'Studio Konten AI',
-        icon: Sparkles,
-        badge: 'AI',
-        submenus: [
-          { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi siap kirim berizin BPOM', icon: Sparkles },
-          { id: 'ai-marketing', title: 'Naskah Video TikTok & Reels', desc: 'Script 30-45 detik hook & problem-solution', icon: Video },
-        ],
-      },
-      {
         id: 'chat',
         title: 'Live Chat Bantuan',
         icon: MessagesSquare,
@@ -294,16 +284,6 @@ function getRoleMenuModules(role) {
         submenus: [
           { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
           { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
-        ],
-      },
-      {
-        id: 'ai-marketing',
-        title: 'Studio Konten AI',
-        icon: Sparkles,
-        badge: 'AI',
-        submenus: [
-          { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi siap kirim berizin BPOM', icon: Sparkles },
-          { id: 'ai-marketing', title: 'Naskah Video TikTok & Reels', desc: 'Script 30-45 detik hook & problem-solution', icon: Video },
         ],
       },
       {
@@ -465,16 +445,6 @@ function getRoleMenuModules(role) {
       ],
     },
     {
-      id: 'ai-marketing',
-      title: 'Studio Konten AI',
-      icon: Sparkles,
-      badge: 'AI',
-      submenus: [
-        { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi siap kirim berizin BPOM', icon: Sparkles },
-        { id: 'ai-marketing', title: 'Naskah Video TikTok & Reels', desc: 'Script 30-45 detik hook & problem-solution', icon: Video },
-      ],
-    },
-    {
       id: 'chat',
       title: 'Live Chat Bantuan',
       icon: MessagesSquare,
@@ -571,8 +541,7 @@ export default function AppsSidebar({
           m.id === 'meetings' ||
           m.id === 'chat' ||
           m.id === 'admin-guide' ||
-          m.id === 'leads' ||
-          m.id === 'ai-marketing'
+          m.id === 'leads'
         );
       })
     : baseModules;

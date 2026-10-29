@@ -8,11 +8,11 @@ import (
 )
 
 type User struct {
-	ID           string    `gorm:"type:char(36);primaryKey" json:"id"`
-	Username     string    `gorm:"type:varchar(50);unique;not null" json:"username"`
-	FullName     string    `gorm:"type:varchar(150);not null" json:"full_name"`
-	PasswordHash string    `gorm:"type:varchar(255);not null" json:"-"`
-	Role         string    `gorm:"type:varchar(30);default:'member'" json:"role"`
+	ID           string         `gorm:"type:char(36);primaryKey" json:"id"`
+	Username     string         `gorm:"type:varchar(50);unique;not null" json:"username"`
+	FullName     string         `gorm:"type:varchar(150);not null" json:"full_name"`
+	PasswordHash string         `gorm:"type:varchar(255);not null" json:"-"`
+	Role         string         `gorm:"type:varchar(30);default:'member'" json:"role"`
 	Phone        *string        `gorm:"type:varchar(20)" json:"phone"`
 	KTP          string         `gorm:"type:varchar(30)" json:"ktp"`
 	NPWP         string         `gorm:"type:varchar(30)" json:"npwp"`

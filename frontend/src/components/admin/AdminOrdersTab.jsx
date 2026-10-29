@@ -20,6 +20,7 @@ import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
 import ExportButtons from '../dashlite/ExportButtons';
 import { formatExportDate } from '../../utils/exportUtils';
+import ModalPortal from '../common/ModalPortal';
 
 export default function AdminOrdersTab() {
   const [orders, setOrders] = useState([]);
@@ -342,8 +343,11 @@ export default function AdminOrdersTab() {
 
       {/* 5. Order Detail & Status Override Modal */}
       {detailOrder && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-lg w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out">
+        <ModalPortal isOpen={!!detailOrder} onClose={() => setDetailOrder(null)} ariaLabel="Rincian Pesanan">
+          <div
+            className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-lg w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-heading font-extrabold text-base text-slate-900">
@@ -399,11 +403,10 @@ export default function AdminOrdersTab() {
                     key={st}
                     onClick={() => handleUpdateStatus(detailOrder.id, st)}
                     disabled={actionLoading || detailOrder.status === st}
-                    className={`px-2 py-1.5 rounded-lg text-xs font-bold uppercase transition-all border ${
-                      detailOrder.status === st
-                        ? 'bg-slate-900 text-white border-slate-900'
-                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                    }`}
+                    className={`px-2 py-1.5 rounded-lg text-xs font-bold uppercase transition-all border ${detailOrder.status === st
+                      ? 'bg-slate-900 text-white border-slate-900'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                      }`}
                   >
                     {st}
                   </button>
@@ -421,13 +424,16 @@ export default function AdminOrdersTab() {
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {/* 6. Thermal Shipping Label Modal (Standar Ekspedisi 100x150 mm) */}
       {printOrder && (
-        <div className="fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 space-y-4">
+        <ModalPortal isOpen={!!printOrder} onClose={() => setPrintOrder(null)} ariaLabel="Cetak Label Resi Thermal">
+          <div
+            className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
                 <Printer className="w-5 h-5 text-emerald-600" />
@@ -552,7 +558,7 @@ export default function AdminOrdersTab() {
               </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

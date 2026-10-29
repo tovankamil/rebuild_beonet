@@ -43,6 +43,7 @@ import DashPagination from '../dashlite/DashPagination';
 import ExportButtons from '../dashlite/ExportButtons';
 import { formatExportDate } from '../../utils/exportUtils';
 import IndonesianRegionSelect from '../common/IndonesianRegionSelect';
+import ModalPortal from '../common/ModalPortal';
 
 export default function AdminUsersTab() {
   const [activeSubTab, setActiveSubTab] = useState('users'); // 'users' | 'rbac-matrix' | 'audit-logs'
@@ -465,11 +466,10 @@ export default function AdminUsersTab() {
       {/* Notification Toast */}
       {notification.text && (
         <div
-          className={`p-3 rounded-lg text-xs flex items-center justify-between border ${
-            notification.type === 'error'
-              ? 'bg-rose-50 border-rose-200 text-rose-800'
-              : 'bg-emerald-50 border-emerald-200 text-emerald-800'
-          }`}
+          className={`p-3 rounded-lg text-xs flex items-center justify-between border ${notification.type === 'error'
+            ? 'bg-rose-50 border-rose-200 text-rose-800'
+            : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+            }`}
         >
           <span>{notification.text}</span>
           <button onClick={() => setNotification({ text: '', type: 'success' })} className="font-bold ml-2">
@@ -482,11 +482,10 @@ export default function AdminUsersTab() {
       <div className="flex border-b border-slate-200 overflow-x-auto">
         <button
           onClick={() => setActiveSubTab('users')}
-          className={`px-4 py-2.5 text-xs font-bold border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors ${
-            activeSubTab === 'users'
-              ? 'border-emerald-600 text-emerald-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
+          className={`px-4 py-2.5 text-xs font-bold border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors ${activeSubTab === 'users'
+            ? 'border-emerald-600 text-emerald-800'
+            : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
         >
           <Users size={15} />
           <span>Direktori Akun Pengguna ({users.length})</span>
@@ -494,11 +493,10 @@ export default function AdminUsersTab() {
 
         <button
           onClick={() => setActiveSubTab('rbac-matrix')}
-          className={`px-4 py-2.5 text-xs font-bold border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors ${
-            activeSubTab === 'rbac-matrix'
-              ? 'border-emerald-600 text-emerald-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
+          className={`px-4 py-2.5 text-xs font-bold border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors ${activeSubTab === 'rbac-matrix'
+            ? 'border-emerald-600 text-emerald-800'
+            : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
         >
           <Layers size={15} />
           <span>Matriks Hak Akses RBAC</span>
@@ -509,11 +507,10 @@ export default function AdminUsersTab() {
 
         <button
           onClick={() => setActiveSubTab('audit-logs')}
-          className={`px-4 py-2.5 text-xs font-bold border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors ${
-            activeSubTab === 'audit-logs'
-              ? 'border-emerald-600 text-emerald-800'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
+          className={`px-4 py-2.5 text-xs font-bold border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors ${activeSubTab === 'audit-logs'
+            ? 'border-emerald-600 text-emerald-800'
+            : 'border-transparent text-slate-500 hover:text-slate-800'
+            }`}
         >
           <History size={15} />
           <span>Audit Log Aktivitas Platform</span>
@@ -534,11 +531,10 @@ export default function AdminUsersTab() {
             <div
               onClick={() => handleCardFilter('', '')}
               title="Klik untuk tampilkan semua pengguna"
-              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
-                isTotalFilterActive
-                  ? 'bg-gradient-to-br from-slate-900/[0.04] via-white to-indigo-50/40 border-slate-900 shadow-md ring-2 ring-slate-900/15 -translate-y-0.5'
-                  : 'bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
-              }`}
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${isTotalFilterActive
+                ? 'bg-gradient-to-br from-slate-900/[0.04] via-white to-indigo-50/40 border-slate-900 shadow-md ring-2 ring-slate-900/15 -translate-y-0.5'
+                : 'bg-white border-slate-200/90 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5'
+                }`}
             >
               <div className="h-1 w-full bg-gradient-to-r from-slate-800 via-indigo-900 to-slate-900" />
               <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
@@ -579,11 +575,10 @@ export default function AdminUsersTab() {
             <div
               onClick={() => handleCardFilter('member', '')}
               title="Klik untuk filter hanya Mitra Jaringan"
-              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
-                isMitraFilterActive
-                  ? 'bg-gradient-to-br from-emerald-500/10 via-white to-emerald-50/30 border-emerald-600 shadow-md ring-2 ring-emerald-500/20 -translate-y-0.5'
-                  : 'bg-white border-slate-200/90 hover:border-emerald-300 hover:shadow-md hover:-translate-y-0.5'
-              }`}
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${isMitraFilterActive
+                ? 'bg-gradient-to-br from-emerald-500/10 via-white to-emerald-50/30 border-emerald-600 shadow-md ring-2 ring-emerald-500/20 -translate-y-0.5'
+                : 'bg-white border-slate-200/90 hover:border-emerald-300 hover:shadow-md hover:-translate-y-0.5'
+                }`}
             >
               <div className="h-1 w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400" />
               <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
@@ -619,11 +614,10 @@ export default function AdminUsersTab() {
             <div
               onClick={() => handleCardFilter('gudang', '')}
               title="Klik untuk filter hanya Staff Gudang"
-              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
-                isGudangFilterActive
-                  ? 'bg-gradient-to-br from-sky-500/10 via-white to-sky-50/30 border-sky-600 shadow-md ring-2 ring-sky-500/20 -translate-y-0.5'
-                  : 'bg-white border-slate-200/90 hover:border-sky-300 hover:shadow-md hover:-translate-y-0.5'
-              }`}
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${isGudangFilterActive
+                ? 'bg-gradient-to-br from-sky-500/10 via-white to-sky-50/30 border-sky-600 shadow-md ring-2 ring-sky-500/20 -translate-y-0.5'
+                : 'bg-white border-slate-200/90 hover:border-sky-300 hover:shadow-md hover:-translate-y-0.5'
+                }`}
             >
               <div className="h-1 w-full bg-gradient-to-r from-sky-600 via-sky-500 to-blue-400" />
               <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
@@ -659,11 +653,10 @@ export default function AdminUsersTab() {
             <div
               onClick={() => handleCardFilter('admin', '')}
               title="Klik untuk filter hanya Administrator"
-              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
-                isAdminFilterActive
-                  ? 'bg-gradient-to-br from-amber-500/10 via-white to-amber-50/30 border-amber-600 shadow-md ring-2 ring-amber-500/20 -translate-y-0.5'
-                  : 'bg-white border-slate-200/90 hover:border-amber-300 hover:shadow-md hover:-translate-y-0.5'
-              }`}
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${isAdminFilterActive
+                ? 'bg-gradient-to-br from-amber-500/10 via-white to-amber-50/30 border-amber-600 shadow-md ring-2 ring-amber-500/20 -translate-y-0.5'
+                : 'bg-white border-slate-200/90 hover:border-amber-300 hover:shadow-md hover:-translate-y-0.5'
+                }`}
             >
               <div className="h-1 w-full bg-gradient-to-r from-amber-500 via-amber-400 to-orange-400" />
               <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
@@ -699,11 +692,10 @@ export default function AdminUsersTab() {
             <div
               onClick={() => handleCardFilter('', 'suspended')}
               title="Klik untuk filter akun yang ditangguhkan/suspended"
-              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] col-span-2 sm:col-span-1 ${
-                isSuspendedFilterActive
-                  ? 'bg-gradient-to-br from-rose-500/10 via-white to-rose-50/30 border-rose-600 shadow-md ring-2 ring-rose-500/20 -translate-y-0.5'
-                  : 'bg-white border-slate-200/90 hover:border-rose-300 hover:shadow-md hover:-translate-y-0.5'
-              }`}
+              className={`group relative overflow-hidden rounded-2xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] col-span-2 sm:col-span-1 ${isSuspendedFilterActive
+                ? 'bg-gradient-to-br from-rose-500/10 via-white to-rose-50/30 border-rose-600 shadow-md ring-2 ring-rose-500/20 -translate-y-0.5'
+                : 'bg-white border-slate-200/90 hover:border-rose-300 hover:shadow-md hover:-translate-y-0.5'
+                }`}
             >
               <div className="h-1 w-full bg-gradient-to-r from-rose-600 via-rose-500 to-red-400" />
               <div className="p-4 flex flex-col justify-between h-[calc(100%-4px)]">
@@ -916,9 +908,8 @@ export default function AdminUsersTab() {
                           {/* Status */}
                           <td className="py-3 px-4">
                             <span
-                              className={`inline-flex items-center gap-1.5 text-[11px] font-semibold ${
-                                isActive ? 'text-emerald-700' : 'text-rose-700'
-                              }`}
+                              className={`inline-flex items-center gap-1.5 text-[11px] font-semibold ${isActive ? 'text-emerald-700' : 'text-rose-700'
+                                }`}
                             >
                               <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                               {isActive ? 'Aktif' : 'Suspended'}
@@ -967,11 +958,10 @@ export default function AdminUsersTab() {
                                   <button
                                     onClick={() => handleToggleStatus(u.id, u.status)}
                                     disabled={actionLoading}
-                                    className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors border ${
-                                      isActive
-                                        ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200'
-                                        : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
-                                    }`}
+                                    className={`px-2 py-1 rounded text-[11px] font-semibold transition-colors border ${isActive
+                                      ? 'bg-amber-50 hover:bg-amber-100 text-amber-700 border-amber-200'
+                                      : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+                                      }`}
                                   >
                                     {isActive ? 'Suspend' : 'Aktifkan'}
                                   </button>
@@ -1074,11 +1064,10 @@ export default function AdminUsersTab() {
                     setMatrixCategory(cat);
                     setMatrixPage(1);
                   }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    matrixCategory === cat
-                      ? 'bg-[#0d3b2e] text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${matrixCategory === cat
+                    ? 'bg-[#0d3b2e] text-white shadow-sm'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
                 >
                   {cat === 'all' ? 'Semua Kategori' : cat}
                 </button>
@@ -1164,11 +1153,10 @@ export default function AdminUsersTab() {
                               type="button"
                               onClick={() => handleTogglePermission('admin', m.menu_key, isAdminEnabled)}
                               title={`Ubah izin Admin untuk ${m.title}`}
-                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all shadow-xs ${
-                                isAdminEnabled
-                                  ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                                  : 'bg-slate-200 hover:bg-slate-300 text-slate-500'
-                              }`}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all shadow-xs ${isAdminEnabled
+                                ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                                : 'bg-slate-200 hover:bg-slate-300 text-slate-500'
+                                }`}
                             >
                               {isAdminEnabled ? <Check size={12} strokeWidth={3} /> : <X size={12} />}
                               <span>{isAdminEnabled ? 'Aktif' : 'Nonaktif'}</span>
@@ -1181,11 +1169,10 @@ export default function AdminUsersTab() {
                               type="button"
                               onClick={() => handleTogglePermission('gudang', m.menu_key, isGudangEnabled)}
                               title={`Ubah izin Gudang untuk ${m.title}`}
-                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all shadow-xs ${
-                                isGudangEnabled
-                                  ? 'bg-sky-600 hover:bg-sky-700 text-white'
-                                  : 'bg-slate-200 hover:bg-slate-300 text-slate-500'
-                              }`}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all shadow-xs ${isGudangEnabled
+                                ? 'bg-sky-600 hover:bg-sky-700 text-white'
+                                : 'bg-slate-200 hover:bg-slate-300 text-slate-500'
+                                }`}
                             >
                               {isGudangEnabled ? <Check size={12} strokeWidth={3} /> : <X size={12} />}
                               <span>{isGudangEnabled ? 'Aktif' : 'Nonaktif'}</span>
@@ -1198,11 +1185,10 @@ export default function AdminUsersTab() {
                               type="button"
                               onClick={() => handleTogglePermission('member', m.menu_key, isMemberEnabled)}
                               title={`Ubah izin Mitra untuk ${m.title}`}
-                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all shadow-xs ${
-                                isMemberEnabled
-                                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                                  : 'bg-slate-200 hover:bg-slate-300 text-slate-500'
-                              }`}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all shadow-xs ${isMemberEnabled
+                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                : 'bg-slate-200 hover:bg-slate-300 text-slate-500'
+                                }`}
                             >
                               {isMemberEnabled ? <Check size={12} strokeWidth={3} /> : <X size={12} />}
                               <span>{isMemberEnabled ? 'Aktif' : 'Nonaktif'}</span>
@@ -1350,11 +1336,10 @@ export default function AdminUsersTab() {
                             </td>
                             <td className="py-3 px-4">
                               <span
-                                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-bold border ${
-                                  isDelete
-                                    ? 'bg-rose-50 text-rose-700 border-rose-200'
-                                    : 'bg-amber-50 text-amber-700 border-amber-200'
-                                }`}
+                                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-bold border ${isDelete
+                                  ? 'bg-rose-50 text-rose-700 border-rose-200'
+                                  : 'bg-amber-50 text-amber-700 border-amber-200'
+                                  }`}
                               >
                                 {isDelete ? <Trash2 size={11} /> : <Edit2 size={11} />}
                                 {log.action === 'DELETE' ? 'SOFT DELETE' : 'UPDATE'}
@@ -1405,8 +1390,11 @@ export default function AdminUsersTab() {
 
       {/* 5. RBAC Role Changer Modal */}
       {roleModalUser && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out">
+        <ModalPortal isOpen={!!roleModalUser} onClose={() => setRoleModalUser(null)} ariaLabel="Ubah Hak Akses (RBAC)">
+          <div
+            className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Shield size={18} className="text-emerald-700" />
@@ -1438,11 +1426,10 @@ export default function AdminUsersTab() {
               {/* Option: Member */}
               <div
                 onClick={() => setSelectedRole('member')}
-                className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                  selectedRole === 'member'
-                    ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-500'
-                    : 'border-slate-200 hover:bg-slate-50'
-                }`}
+                className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedRole === 'member'
+                  ? 'border-emerald-600 bg-emerald-50/50 ring-1 ring-emerald-500'
+                  : 'border-slate-200 hover:bg-slate-50'
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
@@ -1465,11 +1452,10 @@ export default function AdminUsersTab() {
               {/* Option: Keuangan */}
               <div
                 onClick={() => setSelectedRole('keuangan')}
-                className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                  selectedRole === 'keuangan'
-                    ? 'border-purple-600 bg-purple-50/50 ring-1 ring-purple-500'
-                    : 'border-slate-200 hover:bg-slate-50'
-                }`}
+                className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedRole === 'keuangan'
+                  ? 'border-purple-600 bg-purple-50/50 ring-1 ring-purple-500'
+                  : 'border-slate-200 hover:bg-slate-50'
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
@@ -1492,11 +1478,10 @@ export default function AdminUsersTab() {
               {/* Option: CS */}
               <div
                 onClick={() => setSelectedRole('cs')}
-                className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                  selectedRole === 'cs'
-                    ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-500'
-                    : 'border-slate-200 hover:bg-slate-50'
-                }`}
+                className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedRole === 'cs'
+                  ? 'border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-500'
+                  : 'border-slate-200 hover:bg-slate-50'
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
@@ -1519,11 +1504,10 @@ export default function AdminUsersTab() {
               {/* Option: Gudang */}
               <div
                 onClick={() => setSelectedRole('gudang')}
-                className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                  selectedRole === 'gudang'
-                    ? 'border-sky-600 bg-sky-50/50 ring-1 ring-sky-500'
-                    : 'border-slate-200 hover:bg-slate-50'
-                }`}
+                className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedRole === 'gudang'
+                  ? 'border-sky-600 bg-sky-50/50 ring-1 ring-sky-500'
+                  : 'border-slate-200 hover:bg-slate-50'
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
@@ -1546,11 +1530,10 @@ export default function AdminUsersTab() {
               {/* Option: Admin */}
               <div
                 onClick={() => setSelectedRole('admin')}
-                className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                  selectedRole === 'admin'
-                    ? 'border-amber-600 bg-amber-50/50 ring-1 ring-amber-500'
-                    : 'border-slate-200 hover:bg-slate-50'
-                }`}
+                className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedRole === 'admin'
+                  ? 'border-amber-600 bg-amber-50/50 ring-1 ring-amber-500'
+                  : 'border-slate-200 hover:bg-slate-50'
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
@@ -1590,13 +1573,16 @@ export default function AdminUsersTab() {
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {/* Edit User Modal (KTP, NPWP, Avatar, Full Name, Phone, Role, Status & Alamat) */}
       {editModalUser && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-[0_25px_60px_rgba(15,23,42,0.35)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-xl w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-200 ease-out">
+        <ModalPortal isOpen={!!editModalUser} onClose={() => setEditModalUser(null)} ariaLabel="Edit Data Pengguna">
+          <div
+            className="bg-white rounded-2xl shadow-[0_25px_60px_rgba(15,23,42,0.35)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-xl w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-200 ease-out"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-gradient-to-r from-slate-50 to-white">
               <div className="flex items-center gap-2.5">
@@ -1626,11 +1612,10 @@ export default function AdminUsersTab() {
               <button
                 type="button"
                 onClick={() => setEditModalTab('identity')}
-                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all ${
-                  editModalTab === 'identity'
-                    ? 'border-emerald-600 text-emerald-700 bg-white shadow-xs rounded-t-lg'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
+                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all ${editModalTab === 'identity'
+                  ? 'border-emerald-600 text-emerald-700 bg-white shadow-xs rounded-t-lg'
+                  : 'border-transparent text-slate-500 hover:text-slate-700'
+                  }`}
               >
                 <Users size={14} />
                 <span>Identitas &amp; Akun</span>
@@ -1638,11 +1623,10 @@ export default function AdminUsersTab() {
               <button
                 type="button"
                 onClick={() => setEditModalTab('address')}
-                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all ${
-                  editModalTab === 'address'
-                    ? 'border-emerald-600 text-emerald-700 bg-white shadow-xs rounded-t-lg'
-                    : 'border-transparent text-slate-500 hover:text-slate-700'
-                }`}
+                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold border-b-2 transition-all ${editModalTab === 'address'
+                  ? 'border-emerald-600 text-emerald-700 bg-white shadow-xs rounded-t-lg'
+                  : 'border-transparent text-slate-500 hover:text-slate-700'
+                  }`}
               >
                 <MapPin size={14} />
                 <span>Alamat Pengiriman &amp; Domisili</span>
@@ -1846,13 +1830,16 @@ export default function AdminUsersTab() {
               </div>
             </form>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {/* Soft Delete Confirmation Modal */}
       {deleteModalUser && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-rose-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out">
+        <ModalPortal isOpen={!!deleteModalUser} onClose={() => setDeleteModalUser(null)} ariaLabel="Konfirmasi Soft Delete">
+          <div
+            className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-rose-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 text-rose-600">
               <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
                 <AlertTriangle size={20} />
@@ -1895,13 +1882,16 @@ export default function AdminUsersTab() {
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {/* 6. Admin Reset Password Modal */}
       {resetPasswordModalUser && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out">
+        <ModalPortal isOpen={!!resetPasswordModalUser} onClose={() => setResetPasswordModalUser(null)} ariaLabel="Reset Kata Sandi Customer">
+          <div
+            className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <KeyRound size={18} className="text-amber-600" />
@@ -2002,7 +1992,7 @@ export default function AdminUsersTab() {
               </div>
             </form>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

@@ -23,6 +23,7 @@ import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
 import ExportButtons from '../dashlite/ExportButtons';
 import { formatExportDate } from '../../utils/exportUtils';
+import ModalPortal from '../common/ModalPortal';
 
 export default function AdminFraudTab({ onNavigateToAudit }) {
   const [loading, setLoading] = useState(true);
@@ -483,10 +484,7 @@ export default function AdminFraudTab({ onNavigateToAudit }) {
 
       {/* Freeze Account Confirmation Modal */}
       {freezeModalCase && (
-        <div
-          className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
-          onClick={() => setFreezeModalCase(null)}
-        >
+        <ModalPortal isOpen={!!freezeModalCase} onClose={() => setFreezeModalCase(null)} ariaLabel="Bekukan Akun Pengguna">
           <div
             className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200 ease-out"
             onClick={(e) => e.stopPropagation()}
@@ -536,15 +534,12 @@ export default function AdminFraudTab({ onNavigateToAudit }) {
               </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {/* Resolve Case Modal */}
       {resolveModalCase && (
-        <div
-          className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
-          onClick={() => setResolveModalCase(null)}
-        >
+        <ModalPortal isOpen={!!resolveModalCase} onClose={() => setResolveModalCase(null)} ariaLabel="Penyelesaian Kasus Fraud">
           <div
             className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200 ease-out"
             onClick={(e) => e.stopPropagation()}
@@ -618,7 +613,7 @@ export default function AdminFraudTab({ onNavigateToAudit }) {
               </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

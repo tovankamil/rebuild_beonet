@@ -30,8 +30,20 @@ import {
   ChevronDown,
   RefreshCw,
   X,
+  Droplets,
+  HeartHandshake,
+  Zap,
+  ShieldCheck,
+  Globe,
 } from 'lucide-react';
 import api from '../../services/api';
+import ModalPortal from '../common/ModalPortal';
+import SmartROReminderCard from './SmartROReminderCard';
+import CrmKanbanBoard from './CrmKanbanBoard';
+import CustomerHealthJourneyView from './CustomerHealthJourneyView';
+import AIObjectionHandlerModal from './AIObjectionHandlerModal';
+import TestimonialVaultView from './TestimonialVaultView';
+import CrmWebhookView from './CrmWebhookView';
 
 export default function LeadsCRMTab({ user }) {
   const [leads, setLeads] = useState([]);
@@ -48,12 +60,16 @@ export default function LeadsCRMTab({ user }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
-  const [viewMode, setViewMode] = useState('pipeline'); // 'pipeline' | 'table'
+  const [viewMode, setViewMode] = useState('kanban'); // 'kanban' | 'table' | 'health-journey' | 'testimonials' | 'webhook' | 'ro-reminders'
 
   // Modals state
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
+
+  // AI Objection Handler Modal State
+  const [objectionModalOpen, setObjectionModalOpen] = useState(false);
+  const [objectionLead, setObjectionLead] = useState(null);
 
   // AI Follow-up Modal State
   const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -188,14 +204,25 @@ export default function LeadsCRMTab({ user }) {
     }
   };
 
-  // Quick Status Change
+  // Quick Status Change with backend fallback
   const handleQuickStatusChange = async (leadId, newStatus) => {
     try {
-      await api.put(`/leads/${leadId}`, { status: newStatus });
+      await api.put(`/crm/leads/${leadId}/status`, { status: newStatus });
       fetchLeads();
     } catch (err) {
-      console.error('Quick status update failed:', err);
+      try {
+        await api.put(`/leads/${leadId}`, { status: newStatus });
+        fetchLeads();
+      } catch (e) {
+        console.error('Quick status update failed:', e);
+      }
     }
+  };
+
+  // Open Objection Handler Modal
+  const handleOpenObjectionModal = (lead = null) => {
+    setObjectionLead(lead);
+    setObjectionModalOpen(true);
   };
 
   // AI WhatsApp Follow-up Generator
@@ -299,13 +326,44 @@ export default function LeadsCRMTab({ user }) {
     }
   };
 
-  // Pipeline columns definition
-  const pipelineStages = [
-    { key: 'new', title: 'Prospek Baru', color: 'border-t-red-500', bg: 'bg-red-50/50' },
-    { key: 'contacted', title: 'Sudah Dihubungi', color: 'border-t-amber-500', bg: 'bg-amber-50/50' },
-    { key: 'interested', title: 'Berminat Produk', color: 'border-t-blue-500', bg: 'bg-blue-50/50' },
-    { key: 'webinar', title: 'Ikut Seminar BOP', color: 'border-t-purple-500', bg: 'bg-purple-50/50' },
-    { key: 'closing', title: 'Closing / Jadi Member', color: 'border-t-emerald-500', bg: 'bg-emerald-50/50' },
+  // Modern CRM Tabs Navigation Definition
+  const CRM_TABS = [
+    {
+      key: 'kanban',
+      label: 'Papan Kanban',
+      icon: Layers,
+      badge: leads.length,
+    },
+    {
+      key: 'table',
+      label: 'Daftar Tabel Prospek',
+      icon: Filter,
+      badge: null,
+    },
+    {
+      key: 'health-journey',
+      label: 'Customer Health Journey (3-25 Hari)',
+      icon: HeartHandshake,
+      badge: 'Siklus',
+    },
+    {
+      key: 'testimonials',
+      label: 'Bank Testimoni',
+      icon: MessageSquare,
+      badge: 'BPOM',
+    },
+    {
+      key: 'webhook',
+      label: 'Integrasi Webhook Iklan',
+      icon: Zap,
+      badge: 'Meta/TikTok',
+    },
+    {
+      key: 'ro-reminders',
+      label: 'Smart RO Reminder',
+      icon: Droplets,
+      badge: null,
+    },
   ];
 
   return (
@@ -318,17 +376,28 @@ export default function LeadsCRMTab({ user }) {
           <div className="space-y-2">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold">
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>CRM &amp; Manajemen Prospek Calon Mitra Terintegrasi</span>
+              <span>Sistem CRM &amp; Pipeline Konversi Mitra Terintegrasi</span>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-              Pusat Leads &amp; Pipeline Konversi Mitra
+              Pusat Leads, Health Journey &amp; Otomasi Penjualan
             </h1>
             <p className="text-xs sm:text-sm text-indigo-200/90 max-w-2xl leading-relaxed">
-              Pantau calon pembeli produk herbal dari Toko Afiliasi dan peserta Webinar BOP. Dapatkan pesan follow-up otomatis berbasis AI untuk meningkatkan angka penjualan dan perekrutan downline.
+              Pantau prospek dari Meta &amp; TikTok Ads, gerakkan kartu Kanban secara visual, dampingi konsumen herbal dalam siklus 3-7-14-25 hari, dan atasi keraguan pembeli dengan Asisten AI Penjual.
             </p>
           </div>
 
-          <div className="flex items-center space-x-2.5 flex-shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+            {/* Header Action: Asisten AI Penjual (Objection Handler) */}
+            <button
+              onClick={() => handleOpenObjectionModal(null)}
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs transition shadow-lg shadow-amber-950/40 flex items-center space-x-2 animate-in fade-in"
+              title="Buka Asisten Penjawab Keraguan Konsumen"
+            >
+              <Sparkles className="w-4 h-4 text-slate-950 fill-slate-950" />
+              <span>Asisten AI Penjual</span>
+            </button>
+
+            {/* Header Action: Tambah Prospek Manual */}
             <button
               onClick={handleOpenCreate}
               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs transition shadow-lg shadow-indigo-950 flex items-center space-x-2"
@@ -340,7 +409,7 @@ export default function LeadsCRMTab({ user }) {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards (Overview Pipeline) */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Leads</div>
@@ -385,189 +454,113 @@ export default function LeadsCRMTab({ user }) {
         </div>
       </div>
 
-      {/* Control Bar: Filters, Search, and View Mode Toggle */}
-      <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div className="flex-1 flex flex-wrap items-center gap-2">
-          {/* Search Box */}
-          <div className="relative flex-1 min-w-[220px]">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari nama, WhatsApp, kota, produk..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
-            />
-          </div>
+      {/* Top Modern Tab Switcher Bar */}
+      <div className="bg-white p-2 rounded-2xl border border-slate-200/90 shadow-xs overflow-x-auto">
+        <div className="flex items-center space-x-1.5 min-w-max">
+          {CRM_TABS.map((tab) => {
+            const isActive = viewMode === tab.key;
+            const IconComp = tab.icon;
 
-          {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-500"
-          >
-            <option value="all">Semua Status</option>
-            <option value="new">🔴 Prospek Baru</option>
-            <option value="contacted">🟡 Dihubungi</option>
-            <option value="interested">🔵 Berminat</option>
-            <option value="webinar">🟣 Ikut Webinar</option>
-            <option value="closing">🟢 Closing / Member</option>
-            <option value="lost">⚪ Tidak Aktif</option>
-          </select>
-
-          {/* Source Filter */}
-          <select
-            value={sourceFilter}
-            onChange={(e) => setSourceFilter(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-500"
-          >
-            <option value="all">Semua Sumber</option>
-            <option value="store_affiliate">Toko Afiliasi</option>
-            <option value="webinar_bop">Tamu Webinar BOP</option>
-            <option value="referral_link">Link Referral</option>
-            <option value="manual">Manual / Offline</option>
-          </select>
-        </div>
-
-        {/* View Mode Toggle */}
-        <div className="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl flex-shrink-0">
-          <button
-            onClick={() => setViewMode('pipeline')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
-              viewMode === 'pipeline' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Papan Pipeline</span>
-          </button>
-          <button
-            onClick={() => setViewMode('table')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 ${
-              viewMode === 'table' ? 'bg-white text-indigo-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Filter className="w-3.5 h-3.5" />
-            <span>Daftar Tabel</span>
-          </button>
-        </div>
-      </div>
-
-      {/* VIEW 1: KANBAN PIPELINE COLUMNS */}
-      {viewMode === 'pipeline' ? (
-        <div className="flex xl:grid xl:grid-cols-5 gap-4 overflow-x-auto pb-4 snap-x snap-mandatory xl:snap-none -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none">
-          {pipelineStages.map((stage) => {
-            const stageLeads = leads.filter((l) => l.status === stage.key);
             return (
-              <div
-                key={stage.key}
-                className={`flex-shrink-0 w-[280px] sm:w-[300px] xl:w-auto snap-start bg-slate-100/70 rounded-2xl p-3 border-t-4 ${stage.color} border-slate-200 flex flex-col min-h-[450px]`}
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setViewMode(tab.key)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
+                  isActive
+                    ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-950/20'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`}
               >
-                {/* Column Header */}
-                <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-200">
-                  <h3 className="font-extrabold text-xs text-slate-800">{stage.title}</h3>
-                  <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-black flex items-center justify-center">
-                    {stageLeads.length}
+                <IconComp className={`w-4 h-4 ${isActive ? 'text-amber-200' : 'text-slate-500'}`} />
+                <span>{tab.label}</span>
+                {tab.badge !== null && (
+                  <span
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                      isActive
+                        ? 'bg-white/20 text-white'
+                        : 'bg-slate-200/80 text-slate-700'
+                    }`}
+                  >
+                    {tab.badge}
                   </span>
-                </div>
-
-                {/* Cards List */}
-                <div className="space-y-3 flex-1 overflow-y-auto max-h-[600px] pr-1">
-                  {stageLeads.length === 0 ? (
-                    <div className="p-4 text-center text-slate-400 text-xs italic">
-                      Tidak ada prospek di tahap ini
-                    </div>
-                  ) : (
-                    stageLeads.map((lead) => (
-                      <div
-                        key={lead.id}
-                        className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-xs hover:shadow-md transition space-y-2.5"
-                      >
-                        {/* Top: Name & Quick Actions */}
-                        <div className="flex items-start justify-between gap-1">
-                          <div>
-                            <h4 className="font-bold text-slate-900 text-xs leading-snug">{lead.name}</h4>
-                            <div className="text-[10px] text-slate-500 flex items-center space-x-1.5 mt-0.5">
-                              <Phone className="w-3 h-3 text-emerald-600" />
-                              <span className="font-mono">{lead.phone}</span>
-                            </div>
-                          </div>
-                          {getSourceBadge(lead.source)}
-                        </div>
-
-                        {/* Product & City */}
-                        <div className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 space-y-1">
-                          {lead.product_interest && (
-                            <div className="flex items-center space-x-1 text-indigo-700 font-semibold truncate">
-                              <ShoppingBag className="w-3 h-3 flex-shrink-0" />
-                              <span className="truncate">{lead.product_interest}</span>
-                            </div>
-                          )}
-                          {lead.city && (
-                            <div className="flex items-center space-x-1 text-slate-500 truncate text-[10px]">
-                              <MapPin className="w-3 h-3 flex-shrink-0" />
-                              <span className="truncate">{lead.city}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {lead.notes && (
-                          <p className="text-[10px] text-slate-500 italic line-clamp-2 bg-amber-50/50 p-1.5 rounded border border-amber-100">
-                            "{lead.notes}"
-                          </p>
-                        )}
-
-                        {/* Bottom Actions: AI WhatsApp Follow-up & Status Shift */}
-                        <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                          <button
-                            onClick={() => handleOpenAiFollowUp(lead)}
-                            className="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] flex items-center space-x-1 shadow-xs transition"
-                            title="Generate Pesan WhatsApp dengan AI"
-                          >
-                            <Sparkles className="w-3 h-3 text-amber-200" />
-                            <span>Follow-up AI</span>
-                          </button>
-
-                          <div className="flex items-center space-x-1">
-                            <button
-                              onClick={() => handleOpenEdit(lead)}
-                              className="p-1 rounded-md text-slate-400 hover:text-indigo-600 transition"
-                              title="Edit Data Prospek"
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteLead(lead.id, lead.name)}
-                              className="p-1 rounded-md text-slate-400 hover:text-red-600 transition"
-                              title="Hapus Prospek"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Quick Move Dropdown */}
-                        <select
-                          value={lead.status}
-                          onChange={(e) => handleQuickStatusChange(lead.id, e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-semibold text-slate-700"
-                        >
-                          <option value="new">Tahap: Prospek Baru</option>
-                          <option value="contacted">Tahap: Sudah Dihubungi</option>
-                          <option value="interested">Tahap: Berminat Produk</option>
-                          <option value="webinar">Tahap: Ikut Seminar BOP</option>
-                          <option value="closing">Tahap: Closing / Member</option>
-                          <option value="lost">Tahap: Batal / Tidak Aktif</option>
-                        </select>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+                )}
+              </button>
             );
           })}
         </div>
-      ) : (
-        /* VIEW 2: DATA TABLE VIEW */
+      </div>
+
+      {/* Control Bar: Filters & Search (Only displayed on Kanban & Table views) */}
+      {(viewMode === 'kanban' || viewMode === 'table') && (
+        <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex-1 flex flex-wrap items-center gap-2">
+            {/* Search Box */}
+            <div className="relative flex-1 min-w-[220px]">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari nama, WhatsApp, kota, produk..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-500"
+            >
+              <option value="all">Semua Status</option>
+              <option value="new">🔴 Prospek Baru</option>
+              <option value="contacted">🟡 Dihubungi</option>
+              <option value="interested">🔵 Berminat</option>
+              <option value="webinar">🟣 Ikut Webinar</option>
+              <option value="closing">🟢 Closing / Member</option>
+              <option value="lost">⚪ Tidak Aktif</option>
+            </select>
+
+            {/* Source Filter */}
+            <select
+              value={sourceFilter}
+              onChange={(e) => setSourceFilter(e.target.value)}
+              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-indigo-500"
+            >
+              <option value="all">Semua Sumber</option>
+              <option value="store_affiliate">Toko Afiliasi</option>
+              <option value="webinar_bop">Tamu Webinar BOP</option>
+              <option value="referral_link">Link Referral</option>
+              <option value="manual">Manual / Offline</option>
+            </select>
+          </div>
+
+          <button
+            onClick={fetchLeads}
+            className="px-3 py-2 rounded-xl text-slate-600 hover:text-indigo-600 hover:bg-slate-100 text-xs font-bold transition flex items-center space-x-1.5 self-end md:self-auto"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>Segarkan Data</span>
+          </button>
+        </div>
+      )}
+
+      {/* VIEW 1: PAPAN VISUAL KANBAN CRM */}
+      {viewMode === 'kanban' && (
+        <CrmKanbanBoard
+          leads={leads}
+          onStatusChange={handleQuickStatusChange}
+          onOpenAiFollowUp={handleOpenAiFollowUp}
+          onOpenObjectionHandler={handleOpenObjectionModal}
+          onOpenEdit={handleOpenEdit}
+          onDeleteLead={handleDeleteLead}
+          onOpenCreate={handleOpenCreate}
+        />
+      )}
+
+      {/* VIEW 2: DAFTAR TABEL PROSPEK */}
+      {viewMode === 'table' && (
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
@@ -613,27 +606,41 @@ export default function LeadsCRMTab({ user }) {
                       <td className="py-3 px-4">{getSourceBadge(lead.source)}</td>
                       <td className="py-3 px-4">{getStatusBadge(lead.status)}</td>
                       <td className="py-3 px-4 font-mono text-slate-800">
-                        {lead.estimated_value ? `Rp ${lead.estimated_value.toLocaleString('id-ID')}` : '-'}
+                        {lead.estimated_value ? `Rp ${Number(lead.estimated_value).toLocaleString('id-ID')}` : '-'}
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center justify-center space-x-1.5">
+                          {/* Bantu AI Button */}
                           <button
-                            onClick={() => handleOpenAiFollowUp(lead)}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] flex items-center space-x-1 shadow-xs transition"
-                            title="Follow-up WhatsApp dengan AI"
+                            onClick={() => handleOpenObjectionModal(lead)}
+                            className="px-2 py-1 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-[10px] flex items-center space-x-1 shadow-xs transition"
+                            title="Bantu Jawab AI Keraguan Konsumen"
                           >
                             <Sparkles className="w-3 h-3 text-amber-200" />
-                            <span>AI Chat</span>
+                            <span>Bantu AI</span>
                           </button>
+
+                          {/* AI Chat Follow-up */}
+                          <button
+                            onClick={() => handleOpenAiFollowUp(lead)}
+                            className="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] flex items-center space-x-1 shadow-xs transition"
+                            title="Follow-up WhatsApp dengan AI"
+                          >
+                            <MessageSquare className="w-3 h-3 text-emerald-100" />
+                            <span>WA</span>
+                          </button>
+
                           <button
                             onClick={() => handleOpenEdit(lead)}
                             className="p-1 rounded-md text-slate-400 hover:text-indigo-600"
+                            title="Edit Data"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteLead(lead.id, lead.name)}
                             className="p-1 rounded-md text-slate-400 hover:text-red-600"
+                            title="Hapus Prospek"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -648,10 +655,27 @@ export default function LeadsCRMTab({ user }) {
         </div>
       )}
 
+      {/* VIEW 3: CUSTOMER HEALTH JOURNEY (3-25 HARI) */}
+      {viewMode === 'health-journey' && <CustomerHealthJourneyView user={user} />}
+
+      {/* VIEW 4: BANK TESTIMONI & BUKTI KLINIS */}
+      {viewMode === 'testimonials' && <TestimonialVaultView />}
+
+      {/* VIEW 5: INTEGRASI IKLAN & WEBHOOK */}
+      {viewMode === 'webhook' && <CrmWebhookView user={user} onLeadAdded={fetchLeads} />}
+
+      {/* VIEW 6: SMART RO REMINDER CARD */}
+      {viewMode === 'ro-reminders' && <SmartROReminderCard user={user} />}
+
+      {/* ============================================================== */}
       {/* MODAL 1: TAMBAH PROSPEK MANUAL */}
+      {/* ============================================================== */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95">
+        <ModalPortal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)}>
+          <div
+            className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <h3 className="font-extrabold text-slate-900 text-base">Tambah Calon Prospek Baru</h3>
               <button onClick={() => setCreateModalOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -706,8 +730,8 @@ export default function LeadsCRMTab({ user }) {
                     <option value="store_affiliate">Toko Afiliasi</option>
                     <option value="webinar_bop">Webinar BOP</option>
                     <option value="referral_link">Link Referral</option>
-                    <option value="instagram">Instagram</option>
-                    <option value="tiktok">TikTok</option>
+                    <option value="instagram">Instagram Ads</option>
+                    <option value="tiktok">TikTok Ads</option>
                   </select>
                 </div>
               </div>
@@ -755,13 +779,18 @@ export default function LeadsCRMTab({ user }) {
               </div>
             </form>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
+      {/* ============================================================== */}
       {/* MODAL 2: EDIT DATA PROSPEK */}
+      {/* ============================================================== */}
       {editModalOpen && selectedLead && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95">
+        <ModalPortal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)}>
+          <div
+            className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <h3 className="font-extrabold text-slate-900 text-base">Edit Data Prospek</h3>
               <button onClick={() => setEditModalOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -846,13 +875,18 @@ export default function LeadsCRMTab({ user }) {
               </div>
             </form>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
+      {/* ============================================================== */}
       {/* MODAL 3: AI WHATSAPP FOLLOW-UP ASSISTANT */}
+      {/* ============================================================== */}
       {aiModalOpen && selectedLead && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 space-y-4">
+        <ModalPortal isOpen={aiModalOpen} onClose={() => setAiModalOpen(false)}>
+          <div
+            className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-xs">
@@ -965,9 +999,21 @@ export default function LeadsCRMTab({ user }) {
               </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
+
+      {/* ============================================================== */}
+      {/* MODAL 4: AI OBJECTION HANDLING ASSISTANT (ASISTEN PENJUAL) */}
+      {/* ============================================================== */}
+      <AIObjectionHandlerModal
+        isOpen={objectionModalOpen}
+        onClose={() => {
+          setObjectionModalOpen(false);
+          setObjectionLead(null);
+        }}
+        lead={objectionLead}
+        user={user}
+      />
     </div>
   );
 }
-

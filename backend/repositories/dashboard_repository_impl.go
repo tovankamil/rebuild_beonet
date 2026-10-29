@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type dashboardRepositoryImpl struct {
@@ -257,9 +258,11 @@ func (r *dashboardRepositoryImpl) RequestWithdrawal(userID string, amount float6
 			return errors.New("silakan lengkapi rekening bank tujuan pencairan terlebih dahulu")
 		}
 
-		// 2. Cek Saldo Dompet
+		// 2. Cek Saldo Dompet dengan Pessimistic Row Lock (FOR UPDATE)
 		var wallet models.Wallet
-		if err := tx.Where("user_id = ?", userID).First(&wallet).Error; err != nil || wallet.Balance < amount {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("user_id = ?", userID).
+			First(&wallet).Error; err != nil || wallet.Balance < amount {
 			return errors.New("saldo dompet tidak mencukupi untuk melakukan penarikan ini")
 		}
 
@@ -335,7 +338,9 @@ func (r *dashboardRepositoryImpl) GetPinPackages() ([]models.PinPackage, error) 
 func (r *dashboardRepositoryImpl) TransferPin(fromUserID string, pinID string, targetUsername string) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var pin models.Pin
-		if err := tx.Where("id = ? AND owner_id = ? AND status = 'active'", pinID, fromUserID).First(&pin).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("id = ? AND owner_id = ? AND status = 'active'", pinID, fromUserID).
+			First(&pin).Error; err != nil {
 			return errors.New("PIN tidak ditemukan atau sudah tidak aktif")
 		}
 
@@ -378,7 +383,7 @@ func addPointBalance(tx *gorm.DB, userID string, points float64, position string
 		return nil
 	}
 	var pb models.PointBalance
-	if err := tx.Where("user_id = ?", userID).First(&pb).Error; err != nil {
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("user_id = ?", userID).First(&pb).Error; err != nil {
 		pb = models.PointBalance{
 			ID:         uuid.New().String(),
 			UserID:     userID,
@@ -390,12 +395,20 @@ func addPointBalance(tx *gorm.DB, userID string, points float64, position string
 		} else {
 			pb.PointRight = points
 		}
-		return tx.Create(&pb).Error
+		if err := tx.Create(&pb).Error; err != nil {
+			// If concurrent transaction created it first, fallback to atomic increment
+			if position == "kiri" {
+				return tx.Model(&models.PointBalance{}).Where("user_id = ?", userID).Update("point_left", gorm.Expr("point_left + ?", points)).Error
+			}
+			return tx.Model(&models.PointBalance{}).Where("user_id = ?", userID).Update("point_right", gorm.Expr("point_right + ?", points)).Error
+		}
+		return nil
 	}
+
 	if position == "kiri" {
-		return tx.Model(&pb).Update("point_left", pb.PointLeft+points).Error
+		return tx.Model(&pb).Update("point_left", gorm.Expr("point_left + ?", points)).Error
 	}
-	return tx.Model(&pb).Update("point_right", pb.PointRight+points).Error
+	return tx.Model(&pb).Update("point_right", gorm.Expr("point_right + ?", points)).Error
 }
 
 func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req models.RegisterDownlineRequest) (*models.RegisterDownlineResponse, error) {
@@ -421,9 +434,12 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 	var response *models.RegisterDownlineResponse
 
 	err := r.db.Transaction(func(tx *gorm.DB) error {
-		// 1. Validasi Serial PIN milik sponsor
+		// 1. Validasi & Kunci Serial PIN milik sponsor (Pessimistic Row Lock dengan FOR UPDATE)
 		var pin models.Pin
-		if err := tx.Preload("Package").Where("id = ? AND owner_id = ? AND status = 'active'", req.PinID, sponsorUserID).First(&pin).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Preload("Package").
+			Where("id = ? AND owner_id = ? AND status = 'active'", req.PinID, sponsorUserID).
+			First(&pin).Error; err != nil {
 			return errors.New("serial PIN tidak valid, sudah digunakan, atau bukan milik Anda")
 		}
 		if pin.Package == nil {
@@ -447,7 +463,9 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 
 		// 3. Validasi Slot Posisi Upline (apakah slot kiri/kanan sudah terisi)
 		var existingSlot models.NetworkPosition
-		if err := tx.Where("upline_id = ? AND position = ?", req.UplineID, req.Position).First(&existingSlot).Error; err == nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("upline_id = ? AND position = ?", req.UplineID, req.Position).
+			First(&existingSlot).Error; err == nil {
 			return fmt.Errorf("slot kaki %s di bawah upline @%s sudah terisi oleh mitra lain", req.Position, upline.Username)
 		}
 
@@ -482,6 +500,9 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 			newUser.Phone = &phoneClean
 		}
 		if err := tx.Create(&newUser).Error; err != nil {
+			if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "username") {
+				return fmt.Errorf("username '@%s' sudah digunakan, silakan pilih username lain", username)
+			}
 			return err
 		}
 
@@ -556,6 +577,9 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 			Position: req.Position,
 		}
 		if err := tx.Create(&netPos).Error; err != nil {
+			if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "uk_upline_position") {
+				return fmt.Errorf("slot kaki %s di bawah upline @%s sudah terisi oleh mitra lain", req.Position, upline.Username)
+			}
 			return err
 		}
 
@@ -614,17 +638,19 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 			}
 		}
 
-		// 13. Credit Sponsor Commission Bonus to Sponsor Wallet
+		// 13. Credit Sponsor Commission Bonus to Sponsor Wallet (Pessimistic Row Lock FOR UPDATE)
 		sponsorBonus := pin.Package.SponsorBonus
 		var updatedSponsorBalance float64 = 0.0
 		var sponsorWallet models.Wallet
-		if err := tx.Where("user_id = ?", sponsorUserID).First(&sponsorWallet).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("user_id = ?", sponsorUserID).First(&sponsorWallet).Error; err != nil {
 			sponsorWallet = models.Wallet{
 				ID:      uuid.New().String(),
 				UserID:  sponsorUserID,
 				Balance: 0.00,
 			}
-			tx.Create(&sponsorWallet)
+			if err := tx.Create(&sponsorWallet).Error; err != nil {
+				return err
+			}
 		}
 
 		if sponsorBonus > 0 {
@@ -672,5 +698,13 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 		return nil
 	})
 
-	return response, err
+	if err != nil {
+		errStr := strings.ToLower(err.Error())
+		if strings.Contains(errStr, "deadlock") || strings.Contains(errStr, "1213") {
+			return nil, fmt.Errorf("slot jaringan sedang diproses oleh pendaftaran lain atau telah terisi, silakan muat ulang pohon jaringan")
+		}
+		return nil, err
+	}
+
+	return response, nil
 }

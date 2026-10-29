@@ -160,6 +160,9 @@ func setupTestServer() *gin.Engine {
 
 	authHandler := handlers.NewAuthHandler(&fullMockAuthService{}, &fullMockAuthRepo{})
 	dashboardHandler := handlers.NewDashboardHandler(&fullMockDashboardService{})
+	verificationHandler := handlers.NewVerificationHandler()
+	crmHandler := handlers.NewCRMHandler()
+	prospectingHandler := handlers.NewProspectingHandler()
 
 	r := gin.New()
 	r.Use(middleware.CORSMiddleware())
@@ -171,6 +174,13 @@ func setupTestServer() *gin.Engine {
 		})
 
 		api.POST("/auth/login", authHandler.Login)
+
+		// Public Routes (Module 4, 5, 7)
+		api.GET("/public/verify/member/:id", verificationHandler.VerifyMember)
+		api.GET("/public/verify/certificate/:cert_no", verificationHandler.VerifyCertificate)
+		api.POST("/prospecting/simulate", prospectingHandler.Simulate)
+		api.GET("/public/push/public-key", prospectingHandler.GetVapidPublicKey)
+		api.POST("/public/leads/webhook", crmHandler.PublicLeadWebhook)
 
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware())
@@ -195,6 +205,21 @@ func setupTestServer() *gin.Engine {
 
 			// Products
 			protected.GET("/products", dashboardHandler.GetProducts)
+
+			// Module 6: CRM & RO Reminders & Expanded CRM
+			protected.GET("/crm/ro-reminders", crmHandler.GetROReminders)
+			protected.POST("/crm/ro-reminders/log", crmHandler.LogFollowUp)
+			protected.GET("/crm/health-records", crmHandler.GetHealthRecords)
+			protected.POST("/crm/health-records", crmHandler.SaveHealthRecord)
+			protected.PUT("/crm/health-records/:id/milestone", crmHandler.UpdateHealthMilestone)
+			protected.POST("/crm/ai/objection-handler", crmHandler.HandleObjectionAI)
+			protected.PUT("/crm/leads/:id/status", crmHandler.UpdateLeadStatus)
+			protected.GET("/crm/testimonials", crmHandler.GetTestimonials)
+
+			// Module 7: PWA Web Push
+			protected.POST("/notifications/push-subscribe", prospectingHandler.SubscribePush)
+			protected.GET("/notifications/push-public-key", prospectingHandler.GetVapidPublicKey)
+			protected.POST("/notifications/push-test", prospectingHandler.TestPushNotification)
 		}
 	}
 

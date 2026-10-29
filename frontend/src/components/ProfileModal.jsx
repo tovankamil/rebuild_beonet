@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -16,9 +17,11 @@ import {
   KeyRound,
   Sparkles,
   MapPin,
+  Volume2,
 } from 'lucide-react';
 import api from '../services/api';
 import IndonesianRegionSelect from './common/IndonesianRegionSelect';
+import { playCoinChime } from '../utils/soundNotification';
 
 const AVATAR_PRESETS = [
   'https://api.dicebear.com/7.x/bottts/svg?seed=mitra01',
@@ -51,6 +54,7 @@ export default function ProfileModal({
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileError, setProfileError] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
+  const [chimeTested, setChimeTested] = useState(false);
 
   // Shipping Address Form State
   const [addressData, setAddressData] = useState({
@@ -80,6 +84,21 @@ export default function ProfileModal({
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
+
+  // Body Scroll Lock & ESC Key Listener
+  useEffect(() => {
+    if (!isOpen) return;
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && onClose) onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = orig;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (initialTab) {
@@ -246,17 +265,17 @@ export default function ProfileModal({
     }
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-4">
+        <div className="fixed inset-0 z-[120] w-screen h-screen min-h-screen min-h-dvh flex items-center justify-center p-3.5 sm:p-4 !m-0">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-0 bg-slate-950/70 backdrop-blur-md"
+            className="fixed inset-0 w-screen h-screen min-h-screen min-h-dvh bg-slate-950/65 backdrop-blur-md !m-0"
             onClick={onClose}
           />
 
@@ -480,6 +499,39 @@ export default function ProfileModal({
                   Opsional untuk pemotongan PPh 21 komisi
                 </span>
               </div>
+            </div>
+
+            {/* Audio Notifikasi Chime Test */}
+            <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0">
+                  <Volume2 size={16} />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-800">
+                    Notifikasi Audio Komisi Masuk
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    Sintesis Web Audio API (efek koin emas berdering, 100% offline)
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  playCoinChime();
+                  setChimeTested(true);
+                  setTimeout(() => setChimeTested(false), 2000);
+                }}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                  chimeTested
+                    ? 'bg-amber-200 text-amber-900 border-amber-400 scale-95'
+                    : 'bg-white hover:bg-amber-100/50 text-amber-900 border-amber-300 shadow-xs'
+                }`}
+              >
+                <Volume2 size={13} className={chimeTested ? 'animate-bounce text-amber-700' : ''} />
+                <span>{chimeTested ? 'Kring! Berdering' : 'Uji Suara Komisi'}</span>
+              </button>
             </div>
 
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2.5 text-xs text-slate-500">
@@ -798,6 +850,7 @@ export default function ProfileModal({
         </motion.div>
       </div>
     )}
-  </AnimatePresence>
+  </AnimatePresence>,
+  document.body
   );
 }

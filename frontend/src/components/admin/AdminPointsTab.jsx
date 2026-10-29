@@ -16,6 +16,7 @@ import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
 import ExportButtons from '../dashlite/ExportButtons';
 import { formatExportDate } from '../../utils/exportUtils';
+import ModalPortal from '../common/ModalPortal';
 
 export default function AdminPointsTab() {
   const [points, setPoints] = useState([]);
@@ -359,10 +360,11 @@ export default function AdminPointsTab() {
 
       {/* 5. Adjust Point Modal */}
       {adjustModal && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <ModalPortal isOpen={!!adjustModal} onClose={() => setAdjustModal(null)} ariaLabel="Penyesuaian Poin Binary">
           <form
             onSubmit={handleSaveAdjust}
             className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200 ease-out"
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
@@ -442,7 +444,7 @@ export default function AdminPointsTab() {
               </button>
             </div>
           </form>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

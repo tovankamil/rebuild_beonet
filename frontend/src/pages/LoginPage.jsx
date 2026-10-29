@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import BionetAmbientBackground from '../components/BionetAmbientBackground';
+import ModalPortal from '../components/common/ModalPortal';
 
 export default function LoginPage({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
@@ -431,8 +432,11 @@ export default function LoginPage({ onLoginSuccess }) {
 
       {/* Forgot Password Modal */}
       {forgotModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-scale">
-          <div className="bg-slate-900 rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl border border-slate-800 relative text-white">
+        <ModalPortal isOpen={forgotModalOpen} onClose={() => setForgotModalOpen(false)} ariaLabel="Bantuan Reset Sandi">
+          <div
+            className="bg-slate-900 rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl border border-slate-800 relative text-white"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               onClick={() => setForgotModalOpen(false)}
@@ -465,7 +469,7 @@ export default function LoginPage({ onLoginSuccess }) {
               Mengerti &amp; Tutup
             </button>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

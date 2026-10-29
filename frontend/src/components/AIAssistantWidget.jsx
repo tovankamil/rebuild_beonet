@@ -38,6 +38,23 @@ export default function AIAssistantWidget({ currentUser }) {
     }
   }, [messages, isOpen]);
 
+  // Listener untuk membuka copilot dari event global & listener tombol ESC
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('bionet:open-copilot', handleOpen);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('bionet:open-copilot', handleOpen);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
   const quickPrompts = [
     'Bagaimana cara perhitungan bonus pairing?',
     'Apa saja produk herbal BPOM yang aktif?',

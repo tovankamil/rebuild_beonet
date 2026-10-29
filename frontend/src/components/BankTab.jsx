@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import api from '../services/api';
+import ModalPortal from './common/ModalPortal';
 
 export default function BankTab({ onBankUpdated }) {
   const [banks, setBanks] = useState([]);
@@ -359,7 +360,7 @@ export default function BankTab({ onBankUpdated }) {
 
       {/* Modal Tambah Rekening Baru */}
       {showAddModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
+        <ModalPortal isOpen={showAddModal} onClose={() => setShowAddModal(false)} ariaLabel="Tambah Rekening Bank">
           <div
             className="w-full max-w-md bg-white rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-slate-200/90 ring-1 ring-slate-900/5 overflow-hidden animate-in zoom-in-95 duration-200 ease-out"
             onClick={(e) => e.stopPropagation()}
@@ -467,7 +468,7 @@ export default function BankTab({ onBankUpdated }) {
               </div>
             </form>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

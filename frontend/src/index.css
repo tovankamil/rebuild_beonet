@@ -388,3 +388,45 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
+
+/* ==========================================================================
+   PRINT OPTIMIZATION ENGINE (Brosur Prospek & E-Sertifikat)
+   ========================================================================== */
+@media print {
+  /* Hide all app chrome, sidebars, headers, floating widgets, background */
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-area,
+  .printable-area * {
+    visibility: visible;
+  }
+
+  .printable-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 24px !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

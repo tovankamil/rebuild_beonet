@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ModalPortal from '../common/ModalPortal';
 import {
   Store,
   Share2,
@@ -100,8 +101,11 @@ export default function AffiliateStoreModal({ user, onClose }) {
   const currentTplMeta = getTemplateById(selectedTemplate);
 
   return (
-    <div className="fixed inset-0 z-[120] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-5xl w-full overflow-hidden my-auto animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
+    <ModalPortal isOpen={true} onClose={onClose} ariaLabel="Toko Online Afiliasi Mandiri">
+      <div
+        className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-5xl w-full overflow-hidden my-auto animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header Modal */}
         <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 p-4 sm:p-5 text-white flex items-center justify-between flex-shrink-0">
           <div className="flex items-center space-x-3">
@@ -463,6 +467,6 @@ export default function AffiliateStoreModal({ user, onClose }) {
           )}
         </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 }

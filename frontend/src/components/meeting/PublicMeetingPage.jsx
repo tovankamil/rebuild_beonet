@@ -113,7 +113,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
         .then(res => {
           if (res.data?.data) setActiveParticipants(res.data.data);
         })
-        .catch(() => {});
+        .catch(() => { });
     };
     fetchParticipants();
     const interval = setInterval(fetchParticipants, 3000);
@@ -316,14 +316,12 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
   // Sub-view: Host / Moderator Spotlight Tile
   const renderHostTile = (isSmall = false) => (
     <div
-      className={`bg-slate-900 rounded-3xl border border-indigo-500/30 relative overflow-hidden flex flex-col items-center justify-center shadow-xl ring-2 ring-indigo-500/20 transition-all duration-300 ${
-        isSmall ? 'w-full h-full' : 'w-full h-full min-h-[220px]'
-      }`}
+      className={`bg-slate-900 rounded-3xl border border-indigo-500/30 relative overflow-hidden flex flex-col items-center justify-center shadow-xl ring-2 ring-indigo-500/20 transition-all duration-300 ${isSmall ? 'w-full h-full' : 'w-full h-full min-h-[220px]'
+        }`}
     >
       <div
-        className={`rounded-full bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white font-black shadow-2xl relative ${
-          isSmall ? 'w-12 h-12 text-lg' : 'w-24 h-24 sm:w-28 sm:h-28 text-3xl sm:text-4xl'
-        }`}
+        className={`rounded-full bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white font-black shadow-2xl relative ${isSmall ? 'w-12 h-12 text-lg' : 'w-24 h-24 sm:w-28 sm:h-28 text-3xl sm:text-4xl'
+          }`}
       >
         <span>B</span>
         <span className="absolute -bottom-1 -right-1 p-1 bg-indigo-500 rounded-full border-2 border-slate-900 text-white">
@@ -358,9 +356,8 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
   // Sub-view: Local Guest Camera Tile
   const renderLocalTile = (isSmall = false) => (
     <div
-      className={`bg-slate-900 rounded-3xl border border-slate-800 relative overflow-hidden flex items-center justify-center shadow-2xl transition-all duration-300 ${
-        isSmall ? 'w-full h-full' : 'w-full h-full min-h-[220px]'
-      }`}
+      className={`bg-slate-900 rounded-3xl border border-slate-800 relative overflow-hidden flex items-center justify-center shadow-2xl transition-all duration-300 ${isSmall ? 'w-full h-full' : 'w-full h-full min-h-[220px]'
+        }`}
     >
       {isCameraOn && localStream ? (
         <LocalVideoStream
@@ -372,9 +369,8 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
       ) : (
         <div className="flex flex-col items-center space-y-2 p-2">
           <div
-            className={`rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-white font-black shadow-inner ${
-              isSmall ? 'w-10 h-10 text-sm' : 'w-20 h-20 text-2xl'
-            }`}
+            className={`rounded-full bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-white font-black shadow-inner ${isSmall ? 'w-10 h-10 text-sm' : 'w-20 h-20 text-2xl'
+              }`}
           >
             {registeredAttendee?.full_name?.charAt(0) || 'T'}
           </div>
@@ -810,18 +806,16 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
           <div className="flex items-center border-b border-slate-800 p-2 space-x-1">
             <button
               onClick={() => setActiveSidebarTab('chat')}
-              className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 ${
-                activeSidebarTab === 'chat' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
-              }`}
+              className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 ${activeSidebarTab === 'chat' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
+                }`}
             >
               <MessageSquare className="w-3.5 h-3.5" />
               <span>Chat ({meetingChat.length})</span>
             </button>
             <button
               onClick={() => setActiveSidebarTab('participants')}
-              className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 ${
-                activeSidebarTab === 'participants' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
-              }`}
+              className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 ${activeSidebarTab === 'participants' ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'
+                }`}
             >
               <Users className="w-3.5 h-3.5" />
               <span>Peserta (2)</span>
@@ -892,9 +886,8 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
               {activeParticipants.map(p => (
                 <div key={p.id || p.user_id} className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] text-white ${
-                      p.role === 'admin' ? 'bg-indigo-600' : 'bg-teal-600'
-                    }`}>
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-[11px] text-white ${p.role === 'admin' ? 'bg-indigo-600' : 'bg-teal-600'
+                      }`}>
                       {(p.full_name || p.username || 'M').charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -920,7 +913,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
         <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end animate-in fade-in duration-200">
           <div
             onClick={() => setMobileDrawer(null)}
-            className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs"
+            className="absolute inset-0 bg-slate-950/65 backdrop-blur-md"
           />
           <div className="relative z-10 bg-slate-900 border-t border-slate-700/80 rounded-t-3xl max-h-[75dvh] flex flex-col p-4 shadow-2xl animate-in slide-in-from-bottom duration-300">
             {/* Swipe handle */}
@@ -931,17 +924,15 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setMobileDrawer('chat')}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold transition ${
-                    mobileDrawer === 'chat' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
-                  }`}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold transition ${mobileDrawer === 'chat' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
                 >
                   Chat ({meetingChat.length})
                 </button>
                 <button
                   onClick={() => setMobileDrawer('participants')}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold transition ${
-                    mobileDrawer === 'participants' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
-                  }`}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold transition ${mobileDrawer === 'participants' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                    }`}
                 >
                   Peserta (2)
                 </button>
@@ -1025,14 +1016,12 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
         {/* 1. Mic */}
         <button
           onClick={toggleMic}
-          className={`flex flex-col items-center justify-center p-2 rounded-2xl transition active:scale-90 ${
-            isMicOn ? 'text-white' : 'text-red-400'
-          }`}
+          className={`flex flex-col items-center justify-center p-2 rounded-2xl transition active:scale-90 ${isMicOn ? 'text-white' : 'text-red-400'
+            }`}
         >
           <div
-            className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-md ${
-              isMicOn ? 'bg-slate-800 hover:bg-slate-700 border border-slate-700' : 'bg-red-600 text-white ring-2 ring-red-400'
-            }`}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-md ${isMicOn ? 'bg-slate-800 hover:bg-slate-700 border border-slate-700' : 'bg-red-600 text-white ring-2 ring-red-400'
+              }`}
           >
             {isMicOn ? <Mic className="w-5 h-5 text-emerald-400" /> : <MicOff className="w-5 h-5" />}
           </div>
@@ -1042,14 +1031,12 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
         {/* 2. Video */}
         <button
           onClick={toggleCamera}
-          className={`flex flex-col items-center justify-center p-2 rounded-2xl transition active:scale-90 ${
-            isCameraOn ? 'text-white' : 'text-red-400'
-          }`}
+          className={`flex flex-col items-center justify-center p-2 rounded-2xl transition active:scale-90 ${isCameraOn ? 'text-white' : 'text-red-400'
+            }`}
         >
           <div
-            className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-md ${
-              isCameraOn ? 'bg-slate-800 hover:bg-slate-700 border border-slate-700' : 'bg-red-600 text-white ring-2 ring-red-400'
-            }`}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-md ${isCameraOn ? 'bg-slate-800 hover:bg-slate-700 border border-slate-700' : 'bg-red-600 text-white ring-2 ring-red-400'
+              }`}
           >
             {isCameraOn ? <Video className="w-5 h-5 text-indigo-400" /> : <VideoOff className="w-5 h-5" />}
           </div>
@@ -1074,11 +1061,10 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
           className="flex flex-col items-center justify-center p-2 rounded-2xl text-slate-300 hover:text-white transition active:scale-90 relative"
         >
           <div
-            className={`w-10 h-10 rounded-2xl border flex items-center justify-center shadow-md ${
-              mobileDrawer === 'chat'
-                ? 'bg-indigo-600 border-indigo-500 text-white'
-                : 'bg-slate-800 border-slate-700 text-slate-300'
-            }`}
+            className={`w-10 h-10 rounded-2xl border flex items-center justify-center shadow-md ${mobileDrawer === 'chat'
+              ? 'bg-indigo-600 border-indigo-500 text-white'
+              : 'bg-slate-800 border-slate-700 text-slate-300'
+              }`}
           >
             <MessageSquare className="w-5 h-5" />
           </div>
@@ -1096,11 +1082,10 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
           className="flex flex-col items-center justify-center p-2 rounded-2xl text-slate-300 hover:text-white transition active:scale-90 relative"
         >
           <div
-            className={`w-10 h-10 rounded-2xl border flex items-center justify-center shadow-md ${
-              mobileDrawer === 'participants'
-                ? 'bg-indigo-600 border-indigo-500 text-white'
-                : 'bg-slate-800 border-slate-700 text-slate-300'
-            }`}
+            className={`w-10 h-10 rounded-2xl border flex items-center justify-center shadow-md ${mobileDrawer === 'participants'
+              ? 'bg-indigo-600 border-indigo-500 text-white'
+              : 'bg-slate-800 border-slate-700 text-slate-300'
+              }`}
           >
             <Users className="w-5 h-5" />
           </div>
@@ -1113,16 +1098,14 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
         {/* 6. Raise Hand */}
         <button
           onClick={() => setIsHandRaised((v) => !v)}
-          className={`flex flex-col items-center justify-center p-2 rounded-2xl transition active:scale-90 ${
-            isHandRaised ? 'text-amber-400' : 'text-slate-300'
-          }`}
+          className={`flex flex-col items-center justify-center p-2 rounded-2xl transition active:scale-90 ${isHandRaised ? 'text-amber-400' : 'text-slate-300'
+            }`}
         >
           <div
-            className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-md ${
-              isHandRaised
-                ? 'bg-amber-500 text-slate-950 font-black ring-2 ring-amber-300'
-                : 'bg-slate-800 border border-slate-700 text-slate-300'
-            }`}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-md ${isHandRaised
+              ? 'bg-amber-500 text-slate-950 font-black ring-2 ring-amber-300'
+              : 'bg-slate-800 border border-slate-700 text-slate-300'
+              }`}
           >
             <Hand className="w-5 h-5" />
           </div>

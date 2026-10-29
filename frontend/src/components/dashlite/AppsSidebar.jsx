@@ -36,6 +36,10 @@ import {
   Activity,
   Video,
   Target,
+  Calculator,
+  CreditCard,
+  Award,
+  Droplets,
 } from 'lucide-react';
 import DashAvatar from './DashAvatar';
 
@@ -144,6 +148,7 @@ function getRoleMenuModules(role) {
         submenus: [
           { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
           { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        { id: 'leads', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
         ],
       },
       {
@@ -242,6 +247,7 @@ function getRoleMenuModules(role) {
         submenus: [
           { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
           { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        { id: 'leads', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
         ],
       },
       {
@@ -284,6 +290,7 @@ function getRoleMenuModules(role) {
         submenus: [
           { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
           { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        { id: 'leads', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
         ],
       },
       {
@@ -349,6 +356,7 @@ function getRoleMenuModules(role) {
       badge: 'Live',
       submenus: [
         { id: 'overview', title: 'Ringkasan Utama & Sales', desc: 'KPI saldo, omset & bonus', icon: LayoutDashboard },
+        { id: 'prospect-calculator', title: 'Kalkulator Simulasi Prospek', desc: 'Simulasi bonus binary & presentasi', icon: Calculator, action: 'open_prospect_calculator' },
         { id: 'overview', title: 'Grafik Omset 7 Hari', desc: 'Pertumbuhan omset harian', icon: TrendingUp },
         { id: 'overview', title: 'Keseimbangan Kaki Binary', desc: 'Rasio matching pairing 1:1', icon: GitFork },
       ],
@@ -421,6 +429,8 @@ function getRoleMenuModules(role) {
       badge: 'Akun',
       submenus: [
         { id: 'profile', title: 'Data Profil & Identitas KYC', desc: 'Ubah nama, No. HP, KTP & NPWP', icon: User },
+        { id: 'digital-card', title: 'KTA Digital Resmi BPOM', desc: 'Kartu tanda anggota resmi ber-QR', icon: CreditCard, action: 'open_digital_card' },
+        { id: 'e-certificate', title: 'E-Sertifikat Kemitraan', desc: 'Sertifikat konsultan herbal resmi', icon: Award, action: 'open_certificate' },
         { id: 'profile-password', title: 'Ganti Kata Sandi', desc: 'Ubah kata sandi akun Anda', icon: KeyRound },
         { id: 'bank', title: 'Pengaturan Rekening Bank', desc: 'BCA, Mandiri, BRI, BNI, BSI', icon: Building2 },
       ],
@@ -442,6 +452,7 @@ function getRoleMenuModules(role) {
       submenus: [
         { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
         { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        { id: 'leads', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
       ],
     },
     {
@@ -462,16 +473,6 @@ function getRoleMenuModules(role) {
         { id: 'meetings', title: 'Webinar BOP & Konsultasi', desc: 'Presentasi bisnis live, KYC & konsultasi herbal', icon: Video },
       ],
     },
-    {
-      id: 'components',
-      title: 'Komponen DashLite',
-      icon: Palette,
-      badge: 'UI Kit',
-      submenus: [
-        { id: 'components', title: 'Galeri Komponen DashLite', desc: 'Badges, Avatars, Cards, Tables', icon: Palette },
-        { id: 'components', title: 'Dokumentasi Sistem Desain', desc: 'Panduan tipografi & token warna', icon: Layers },
-      ],
-    },
   ];
 }
 
@@ -486,6 +487,9 @@ export default function AppsSidebar({
   mobileOpen = false,
   setMobileOpen,
   onOpenProfile,
+  onOpenProspectCalculator,
+  onOpenDigitalCard,
+  onOpenCertificate,
 }) {
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [flyoutTop, setFlyoutTop] = useState(0);
@@ -594,6 +598,12 @@ export default function AppsSidebar({
       if (onOpenProfile) onOpenProfile('profile');
     } else if (sub.action === 'open_password' || sub.id === 'profile-password') {
       if (onOpenProfile) onOpenProfile('password');
+    } else if (sub.action === 'open_prospect_calculator' || sub.id === 'prospect-calculator') {
+      if (onOpenProspectCalculator) onOpenProspectCalculator();
+    } else if (sub.action === 'open_digital_card' || sub.id === 'digital-card') {
+      if (onOpenDigitalCard) onOpenDigitalCard();
+    } else if (sub.action === 'open_certificate' || sub.id === 'e-certificate') {
+      if (onOpenCertificate) onOpenCertificate();
     } else if (sub.id) {
       setActiveTab(sub.id);
     }
@@ -653,6 +663,12 @@ export default function AppsSidebar({
       if (onOpenProfile) onOpenProfile('profile');
     } else if (sub.action === 'open_password' || sub.id === 'profile-password') {
       if (onOpenProfile) onOpenProfile('password');
+    } else if (sub.action === 'open_prospect_calculator' || sub.id === 'prospect-calculator') {
+      if (onOpenProspectCalculator) onOpenProspectCalculator();
+    } else if (sub.action === 'open_digital_card' || sub.id === 'digital-card') {
+      if (onOpenDigitalCard) onOpenDigitalCard();
+    } else if (sub.action === 'open_certificate' || sub.id === 'e-certificate') {
+      if (onOpenCertificate) onOpenCertificate();
     } else if (sub.id) {
       setActiveTab(sub.id);
     }
@@ -674,7 +690,7 @@ export default function AppsSidebar({
               setHoveredMenu(null);
               if (setMobileOpen) setMobileOpen(false);
             }}
-            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-0 bg-slate-950/65 backdrop-blur-md z-40 lg:hidden"
             aria-hidden="true"
           />
         )}
@@ -720,6 +736,8 @@ export default function AppsSidebar({
                   >
                     <button
                       onClick={(e) => handleIconClick(item, e)}
+                      aria-label={item.title || item.id}
+                      title={item.title || item.id}
                       className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all duration-200 relative ${
                         isActive
                           ? 'bg-[#059669] text-white shadow-[0_4px_18px_rgba(16,185,129,0.5)]'

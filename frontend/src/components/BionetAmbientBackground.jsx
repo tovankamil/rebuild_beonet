@@ -95,11 +95,17 @@ export default function BionetAmbientBackground({ dimmed = false, activeMode = n
       mouseY = e.clientY;
     };
     window.addEventListener('mousemove', handleMouseMove);
+    const handleVisibility = () => {
+      if (!document.hidden && isPlaying) {
+        cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = requestAnimationFrame(render);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
     const render = () => {
       if (document.hidden || !isPlaying) {
-        animationFrameId.current = requestAnimationFrame(render);
-        return;
+        return; // Hentikan loop saat tersembunyi/paused (hemat CPU & baterai)
       }
 
       ctx.clearRect(0, 0, width, height);
@@ -161,6 +167,7 @@ export default function BionetAmbientBackground({ dimmed = false, activeMode = n
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('visibilitychange', handleVisibility);
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }

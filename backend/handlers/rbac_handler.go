@@ -158,9 +158,9 @@ func (h *RBACHandler) GetMyMenus(c *gin.Context) {
 			// Fallback default permissions
 			if role == "admin" && (m.Category == "Admin" || m.Category == "Core" || m.MenuKey == "chat") {
 				allowedMenus = append(allowedMenus, m)
-			} else if role == "keuangan" && (m.MenuKey == "admin-transactions" || m.MenuKey == "admin-withdrawals" || m.MenuKey == "admin-overview" || m.MenuKey == "overview" || m.MenuKey == "chat") {
+			} else if role == "keuangan" && (m.MenuKey == "admin-transactions" || m.MenuKey == "admin-withdrawals" || m.MenuKey == "admin-overview" || m.MenuKey == "admin-fraud" || m.MenuKey == "admin-monitoring" || m.MenuKey == "leads" || m.MenuKey == "meetings" || m.MenuKey == "overview" || m.MenuKey == "chat") {
 				allowedMenus = append(allowedMenus, m)
-			} else if role == "cs" && (m.MenuKey == "admin-users" || m.MenuKey == "chat" || m.MenuKey == "admin-overview" || m.MenuKey == "overview") {
+			} else if role == "cs" && (m.MenuKey == "admin-users" || m.MenuKey == "chat" || m.MenuKey == "admin-overview" || m.MenuKey == "leads" || m.MenuKey == "meetings" || m.MenuKey == "overview") {
 				allowedMenus = append(allowedMenus, m)
 			} else if role == "gudang" && (m.Category == "Logistik" || m.MenuKey == "products") {
 				allowedMenus = append(allowedMenus, m)

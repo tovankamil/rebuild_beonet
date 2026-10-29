@@ -17,8 +17,12 @@ import {
   Info,
   Clock,
   ExternalLink,
+  Volume2,
+  CreditCard,
+  Calculator,
 } from 'lucide-react';
 import api from '../services/api';
+import { playCoinChime } from '../utils/soundNotification';
 
 export default function Header({
   user,
@@ -28,8 +32,12 @@ export default function Header({
   onToggleMobileSidebar,
   onNavigate,
   onOpenProfile,
+  onOpenProspectCalculator,
+  onOpenDigitalCard,
+  onOpenCertificate,
 }) {
   const [copied, setCopied] = useState(false);
+  const [chimePlayed, setChimePlayed] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [notifFilter, setNotifFilter] = useState('all');
@@ -401,6 +409,51 @@ export default function Header({
             </span>
           )}
         </div>
+
+        {/* Module 4 Quick Trigger: Kalkulator Simulasi Prospek */}
+        {onOpenProspectCalculator && (
+          <button
+            type="button"
+            onClick={onOpenProspectCalculator}
+            title="Kalkulator Simulasi Bonus & Prospek Mitra"
+            className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100/80 text-teal-800 border border-teal-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
+          >
+            <Calculator size={13} className="text-teal-600" />
+            <span>Simulasi Bonus</span>
+          </button>
+        )}
+
+        {/* Module 5 Quick Trigger: KTA Digital */}
+        {onOpenDigitalCard && (
+          <button
+            type="button"
+            onClick={onOpenDigitalCard}
+            title="KTA Digital Resmi BPOM"
+            className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100/80 text-emerald-800 border border-emerald-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
+          >
+            <CreditCard size={13} className="text-emerald-600" />
+            <span>KTA Digital</span>
+          </button>
+        )}
+
+        {/* Module 7: Uji Suara Notifikasi Komisi */}
+        <button
+          type="button"
+          onClick={() => {
+            playCoinChime();
+            setChimePlayed(true);
+            setTimeout(() => setChimePlayed(false), 2000);
+          }}
+          title="Uji Suara Notifikasi Komisi (Web Audio API Synthesizer)"
+          className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all text-xs font-bold active:scale-95 shadow-xs ${
+            chimePlayed
+              ? 'bg-amber-100 text-amber-900 border-amber-300 scale-95'
+              : 'bg-amber-50 hover:bg-amber-100/80 text-amber-800 border-amber-200'
+          }`}
+        >
+          <Volume2 size={13} className={chimePlayed ? 'text-amber-600 animate-bounce' : 'text-amber-600'} />
+          <span className="hidden 2xl:inline">{chimePlayed ? 'Kring! Komisi!' : 'Uji Suara'}</span>
+        </button>
 
         {/* Refresh Button (Visible on sm+ screens to preserve mobile header space) */}
         <button

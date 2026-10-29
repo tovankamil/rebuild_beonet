@@ -28,6 +28,10 @@ import LeadsCRMTab from './components/crm/LeadsCRMTab';
 import AIMarketingStudioTab from './components/ai/AIMarketingStudioTab';
 import ProfileModal from './components/ProfileModal';
 import AIAssistantWidget from './components/AIAssistantWidget';
+import ProspectingCalculatorModal from './components/prospecting/ProspectingCalculatorModal';
+import DigitalMemberCardModal from './components/credentials/DigitalMemberCardModal';
+import ECertificateModal from './components/credentials/ECertificateModal';
+import PwaInstallBanner from './components/pwa/PwaInstallBanner';
 import LoginPage from './pages/LoginPage';
 import PublicStorefrontPage from './components/store/PublicStorefrontPage';
 import PublicMeetingPage from './components/meeting/PublicMeetingPage';
@@ -54,6 +58,9 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [profileModalTab, setProfileModalTab] = useState('profile');
+  const [prospectCalculatorOpen, setProspectCalculatorOpen] = useState(false);
+  const [digitalCardOpen, setDigitalCardOpen] = useState(false);
+  const [certificateOpen, setCertificateOpen] = useState(false);
 
   const handleOpenProfile = (tab = 'profile') => {
     setProfileModalTab(tab);
@@ -112,7 +119,7 @@ export default function App() {
     if (role === 'admin') return;
 
     if (role === 'keuangan') {
-      const allowed = ['admin-overview', 'admin-transactions', 'admin-withdrawals', 'admin-fraud', 'admin-monitoring', 'admin-guide', 'overview', 'chat', 'meetings', 'components'];
+      const allowed = ['admin-overview', 'admin-transactions', 'admin-withdrawals', 'admin-fraud', 'admin-monitoring', 'admin-guide', 'leads', 'overview', 'chat', 'meetings'];
       if (!allowed.includes(activeTab)) {
         setActiveTab(getInitialTab(role));
       }
@@ -120,7 +127,7 @@ export default function App() {
     }
 
     if (role === 'cs') {
-      const allowed = ['admin-overview', 'admin-users', 'admin-guide', 'chat', 'meetings', 'overview', 'components'];
+      const allowed = ['admin-overview', 'admin-users', 'admin-guide', 'leads', 'chat', 'meetings', 'overview'];
       if (!allowed.includes(activeTab)) {
         setActiveTab(getInitialTab(role));
       }
@@ -136,7 +143,7 @@ export default function App() {
     }
 
     // Member
-    if (activeTab.startsWith('admin-') || activeTab.startsWith('warehouse-') || activeTab === 'ai-marketing') {
+    if (activeTab.startsWith('admin-') || activeTab.startsWith('warehouse-') || activeTab === 'ai-marketing' || activeTab === 'components') {
       setActiveTab(getInitialTab(role));
     }
   }, [user?.role, activeTab]);
@@ -248,6 +255,9 @@ export default function App() {
         mobileOpen={mobileSidebarOpen}
         setMobileOpen={setMobileSidebarOpen}
         onOpenProfile={handleOpenProfile}
+        onOpenProspectCalculator={() => setProspectCalculatorOpen(true)}
+        onOpenDigitalCard={() => setDigitalCardOpen(true)}
+        onOpenCertificate={() => setCertificateOpen(true)}
       />
 
       {/* 2. Main Content Wrapper */}
@@ -260,10 +270,16 @@ export default function App() {
           onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
           onNavigate={setActiveTab}
           onOpenProfile={handleOpenProfile}
+          onOpenProspectCalculator={() => setProspectCalculatorOpen(true)}
+          onOpenDigitalCard={() => setDigitalCardOpen(true)}
+          onOpenCertificate={() => setCertificateOpen(true)}
         />
 
-        {/* 3. Fluid Page Content Area with Mobile Native Spacing & Ultrawide Balance */}
-        <main className="flex-1 px-3.5 sm:px-8 py-4 sm:py-6 safe-bottom w-full max-w-[1600px] mx-auto">
+        {/* 3. Fluid Full-Width Page Content Area with Seamless Edge-to-Edge Grid Alignment */}
+        <main className="flex-1 px-4 sm:px-8 py-4 sm:py-6 safe-bottom w-full">
+          {/* PWA Standalone Install Banner */}
+          <PwaInstallBanner />
+
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -313,6 +329,9 @@ export default function App() {
                   setActiveTab={setActiveTab}
                   currentUser={user}
                   onOpenProfile={handleOpenProfile}
+                  onOpenProspectCalculator={() => setProspectCalculatorOpen(true)}
+                  onOpenDigitalCard={() => setDigitalCardOpen(true)}
+                  onOpenCertificate={() => setCertificateOpen(true)}
                   onProfileUpdated={(updated) => {
                     setUser((prev) => ({ ...prev, ...updated }));
                     fetchStats();
@@ -360,7 +379,7 @@ export default function App() {
                 <MeetingTab user={user} setActiveTab={setActiveTab} />
               )}
 
-              {activeTab === 'components' && <ComponentsTab />}
+              {activeTab === 'components' && role === 'admin' && <ComponentsTab />}
             </motion.div>
           </AnimatePresence>
         </main>
@@ -389,6 +408,27 @@ export default function App() {
           setUser((prev) => ({ ...prev, ...updated }));
           fetchStats();
         }}
+      />
+
+      {/* Module 4: Kalkulator Simulasi Bonus & Prospek Mitra Modal */}
+      <ProspectingCalculatorModal
+        isOpen={prospectCalculatorOpen}
+        onClose={() => setProspectCalculatorOpen(false)}
+        currentUser={user}
+      />
+
+      {/* Module 5: KTA Digital Resmi BPOM Modal */}
+      <DigitalMemberCardModal
+        isOpen={digitalCardOpen}
+        onClose={() => setDigitalCardOpen(false)}
+        currentUser={user}
+      />
+
+      {/* Module 5: E-Sertifikat Kemitraan & Konsultan Herbal Modal */}
+      <ECertificateModal
+        isOpen={certificateOpen}
+        onClose={() => setCertificateOpen(false)}
+        currentUser={user}
       />
 
       {/* Floating AI Copilot Widget */}

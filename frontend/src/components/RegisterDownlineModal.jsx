@@ -183,7 +183,7 @@ export default function RegisterDownlineModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="register-downline-title"
-      className="fixed inset-0 z-[100] !m-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-[120] w-screen h-screen min-h-screen min-h-dvh !m-0 bg-slate-950/65 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div

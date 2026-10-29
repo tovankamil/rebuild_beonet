@@ -7,10 +7,12 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+const DefaultJWTSecret = "super_secret_bionet_key_2026"
+
 func GenerateToken(userID string, username string, role string) (string, error) {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "default_secret"
+		secret = DefaultJWTSecret
 	}
 
 	claims := jwt.MapClaims{

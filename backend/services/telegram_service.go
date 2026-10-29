@@ -243,6 +243,10 @@ func (s *TelegramService) handleIncomingMessage(msg *telegramMessage) {
 		_ = s.SendMessage(chatID, summary)
 
 	case strings.HasPrefix(text, "/pending"), strings.HasPrefix(text, "/pending_wd"), strings.HasPrefix(text, "/wd"):
+		if s.adminChatID != "" && fmt.Sprintf("%d", chatID) != s.adminChatID {
+			_ = s.SendMessage(chatID, "⛔ *Akses Ditolak:* Perintah ini bersifat rahasia dan hanya dapat diakses oleh Administrator Bionet resmi.")
+			return
+		}
 		var withdrawals []models.Withdrawal
 		config.DB.Preload("Bank").Where("status = ?", "pending").Order("created_at desc").Limit(5).Find(&withdrawals)
 		if len(withdrawals) == 0 {

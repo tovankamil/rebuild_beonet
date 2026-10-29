@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"bionet-backend/utils"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -34,7 +36,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		tokenString := parts[1]
 		secret := os.Getenv("JWT_SECRET")
 		if secret == "" {
-			secret = "super_secret_bionet_key_2026"
+			secret = utils.DefaultJWTSecret
 		}
 
 		token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {

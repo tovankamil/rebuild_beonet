@@ -514,7 +514,7 @@ export default function BinaryTreeTab() {
       {/* Selected Node Modal */}
       {selectedNode && createPortal(
         <div
-          className="fixed inset-0 z-[100] !m-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[120] w-screen h-screen min-h-screen min-h-dvh !m-0 bg-slate-950/65 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
           onClick={() => setSelectedNode(null)}
         >
           <div

@@ -47,6 +47,7 @@ import {
   Wifi,
 } from 'lucide-react';
 import api from '../services/api';
+import ModalPortal from './common/ModalPortal';
 import LocalVideoStream from './meeting/LocalVideoStream';
 import RemoteVideoStream from './meeting/RemoteVideoStream';
 
@@ -1981,7 +1982,7 @@ export default function MeetingTab({ user, setActiveTab }) {
 
       {/* CREATE MEETING MODAL */}
       {createModalOpen && (
-        <div className="fixed inset-0 z-[160] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <ModalPortal isOpen={createModalOpen} onClose={() => setCreateModalOpen(false)} ariaLabel="Buat Room Video Conference">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4 my-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
@@ -2075,12 +2076,12 @@ export default function MeetingTab({ user, setActiveTab }) {
               </div>
             </form>
           </div>
-        </div>
+        </ModalPortal>
       )}
 
       {/* EDIT MEETING MODAL (Admin & Host) */}
       {editModalOpen && editingMeeting && (
-        <div className="fixed inset-0 z-[160] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <ModalPortal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} ariaLabel="Edit Room Video Conference">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4 my-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
@@ -2187,7 +2188,7 @@ export default function MeetingTab({ user, setActiveTab }) {
               </div>
             </form>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

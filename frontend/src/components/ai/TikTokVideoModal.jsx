@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ModalPortal from '../common/ModalPortal';
 import {
   X,
   Play,
@@ -46,6 +47,7 @@ export default function TikTokVideoModal({
   const audioCtxRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
+  const currentTimeRef = useRef(0);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -649,7 +651,7 @@ export default function TikTokVideoModal({
     ctx.restore();
   };
 
-  // Preview Loop with requestAnimationFrame
+  // Preview Loop with requestAnimationFrame (tanpa re-registration 60 FPS)
   useEffect(() => {
     if (!isOpen) return;
     let animId;
@@ -660,27 +662,59 @@ export default function TikTokVideoModal({
       lastTime = now;
 
       if (isPlaying) {
-        setCurrentTime((prev) => {
-          const next = prev + dt;
-          if (next >= totalDuration) {
-            return 0; // loop
-          }
+        currentTimeRef.current += dt;
+        if (currentTimeRef.current >= totalDuration) {
+          currentTimeRef.current = 0; // loop
+        }
+        const t = currentTimeRef.current;
 
-          // Trigger audio beat every quarter beat
-          if (audioCtxRef.current && Math.floor(next * 4) !== Math.floor(prev * 4)) {
-            playSynthesizedBeat(next, audioCtxRef.current);
-          }
-          return next;
-        });
+        // Trigger audio beat every quarter beat
+        if (audioCtxRef.current && Math.floor(t * 4) !== Math.floor((t - dt) * 4)) {
+          playSynthesizedBeat(t, audioCtxRef.current);
+        }
+
+        renderFrame(t);
+        setCurrentTime(t);
+      } else {
+        renderFrame(currentTimeRef.current);
       }
 
-      renderFrame(currentTime);
       animId = requestAnimationFrame(loop);
     };
 
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
-  }, [isOpen, isPlaying, currentTime, totalDuration, theme, scenes, bgType, aiImageUrl]);
+  }, [isOpen, isPlaying, totalDuration, theme, scenes, bgType, aiImageUrl]);
+
+  // Lifecycle Cleanup: AudioContext, Object URL, dan keyboard listener ESC
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      if (audioCtxRef.current) {
+        try {
+          audioCtxRef.current.close();
+        } catch {
+          // ignore
+        }
+        audioCtxRef.current = null;
+      }
+      if (downloadUrl) {
+        try {
+          URL.revokeObjectURL(downloadUrl);
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, [isOpen, downloadUrl, onClose]);
 
   // Audio Context Initialization
   const handleTogglePlay = () => {
@@ -794,15 +828,15 @@ export default function TikTokVideoModal({
   if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.94 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.94 }}
-          transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-          className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.7)] text-white flex flex-col my-auto max-h-[94vh]"
-        >
+    <ModalPortal isOpen={isOpen} onClose={onClose} ariaLabel="TikTok & Reels Video Motion Studio">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.94 }}
+        transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+        className="bg-slate-900 border border-slate-800 rounded-3xl max-w-4xl w-full p-5 sm:p-7 shadow-[0_25px_70px_rgba(0,0,0,0.7)] text-white flex flex-col my-auto max-h-[94vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-slate-800">
             <div className="flex items-center space-x-3">
@@ -828,6 +862,7 @@ export default function TikTokVideoModal({
               onClick={onClose}
               className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
               title="Tutup Studio"
+              aria-label="Tutup Studio"
             >
               <X size={18} />
             </button>
@@ -880,6 +915,7 @@ export default function TikTokVideoModal({
                 {!isPlaying && !isRendering && (
                   <button
                     onClick={handleTogglePlay}
+                    aria-label="Putar Preview Video TikTok"
                     className="absolute inset-0 m-auto w-16 h-16 rounded-full bg-black/60 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:scale-110 active:scale-95 transition-transform shadow-2xl"
                   >
                     <Play size={28} className="ml-1 text-emerald-400" />
@@ -903,6 +939,7 @@ export default function TikTokVideoModal({
               <div className="flex items-center gap-3 mt-3 w-[280px] sm:w-[300px] justify-between">
                 <button
                   onClick={handleTogglePlay}
+                  aria-label={isPlaying ? "Jeda Video" : "Putar Video"}
                   className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5 transition"
                 >
                   {isPlaying ? <Pause size={14} /> : <Play size={14} />}
@@ -915,11 +952,13 @@ export default function TikTokVideoModal({
 
                 <button
                   onClick={() => {
+                    currentTimeRef.current = 0;
                     setCurrentTime(0);
                     renderFrame(0);
                   }}
                   className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
                   title="Ulangi dari Detik 0"
+                  aria-label="Ulangi dari Detik 0"
                 >
                   <RotateCcw size={14} />
                 </button>
@@ -1367,8 +1406,7 @@ export default function TikTokVideoModal({
             </div>
           )}
         </motion.div>
-      </div>
-    </AnimatePresence>
+    </ModalPortal>
   );
 }
 

@@ -816,6 +816,10 @@ func main() {
 		&models.MeetingAttendee{},
 		&models.MeetingParticipant{},
 		&models.Lead{},
+		&models.CustomerHealthRecord{},
+		&models.TestimonialItem{},
+		&models.Certificate{},
+		&models.PushSubscription{},
 	}
 	for _, m := range allModels {
 		if err := config.DB.AutoMigrate(m); err != nil {
@@ -857,6 +861,9 @@ func main() {
 	monitoringHandler := handlers.NewMonitoringHandler()
 	meetingHandler := handlers.NewMeetingHandler()
 	leadHandler := handlers.NewLeadHandler()
+	verificationHandler := handlers.NewVerificationHandler()
+	crmHandler := handlers.NewCRMHandler()
+	prospectingHandler := handlers.NewProspectingHandler()
 
 	// Initialize Google Gemini AI Service
 	if _, err := services.NewGeminiService(); err != nil {
@@ -903,6 +910,17 @@ func main() {
 		api.POST("/public/meetings/:room_id/register", meetingHandler.RegisterPublicAttendee)
 		api.GET("/public/meetings/:room_id/participants", meetingHandler.GetMeetingParticipants)
 		api.POST("/public/leads", leadHandler.PublicCaptureLead)
+		api.POST("/public/leads/webhook", crmHandler.PublicLeadWebhook)
+
+		// Public Verification (Module 5: Digital ID & Certificate Verification)
+		api.GET("/public/verify/member/:id", verificationHandler.VerifyMember)
+		api.GET("/public/verify/certificate/:cert_no", verificationHandler.VerifyCertificate)
+
+		// Public Prospecting Simulation (Module 4)
+		api.POST("/prospecting/simulate", prospectingHandler.Simulate)
+
+		// Public PWA Web Push Public Key (Module 7)
+		api.GET("/public/push/public-key", prospectingHandler.GetVapidPublicKey)
 
 		// Gemini AI Assistant Endpoint
 		api.POST("/ai/chat", func(c *gin.Context) {
@@ -1009,6 +1027,23 @@ func main() {
 			// AI Marketing & Sales Copywriting Studio (Poin 1 di Roadmap)
 			protected.POST("/ai/marketing/generate", middleware.RequireRole("admin"), leadHandler.GenerateMarketingCopyAI)
 
+			// Smart RO Reminder & Customer CRM (Module 6)
+			protected.GET("/crm/ro-reminders", crmHandler.GetROReminders)
+			protected.POST("/crm/ro-reminders/log", crmHandler.LogFollowUp)
+
+			// Expanded CRM: Health Tracker, AI Objection Handler, Kanban, Testimonials
+			protected.GET("/crm/health-records", crmHandler.GetHealthRecords)
+			protected.POST("/crm/health-records", crmHandler.SaveHealthRecord)
+			protected.PUT("/crm/health-records/:id/milestone", crmHandler.UpdateHealthMilestone)
+			protected.POST("/crm/ai/objection-handler", crmHandler.HandleObjectionAI)
+			protected.PUT("/crm/leads/:id/status", crmHandler.UpdateLeadStatus)
+			protected.GET("/crm/testimonials", crmHandler.GetTestimonials)
+
+			// PWA Web Push Notification (Module 7)
+			protected.POST("/notifications/push-subscribe", prospectingHandler.SubscribePush)
+			protected.GET("/notifications/push-public-key", prospectingHandler.GetVapidPublicKey)
+			protected.POST("/notifications/push-test", prospectingHandler.TestPushNotification)
+
 			// ==============================================
 			// RBAC: ADMIN & MANAGEMENT ROUTES (Admin, Keuangan, CS)
 			// ==============================================
@@ -1055,21 +1090,21 @@ func main() {
 				adminGroup.PATCH("/withdrawals/:id/status", middleware.RequireRole("admin", "keuangan"), adminHandler.UpdateWithdrawalStatus)
 
 				// Fraud Control & Risk Monitoring (Admin & Keuangan)
-				adminGroup.GET("/fraud/overview", fraudHandler.GetFraudOverview)
-				adminGroup.POST("/fraud/scan", fraudHandler.RunScan)
+				adminGroup.GET("/fraud/overview", middleware.RequireRole("admin", "keuangan"), fraudHandler.GetFraudOverview)
+				adminGroup.POST("/fraud/scan", middleware.RequireRole("admin", "keuangan"), fraudHandler.RunScan)
 				adminGroup.POST("/fraud/cases/:id/freeze", middleware.RequireRole("admin"), fraudHandler.FreezeUserCase)
 				adminGroup.POST("/fraud/cases/:id/resolve", middleware.RequireRole("admin", "keuangan"), fraudHandler.ResolveCase)
 
 				// Live Traffic, Bandwidth & Online Users Monitoring (Admin & Keuangan)
-				adminGroup.GET("/monitoring/overview", monitoringHandler.GetMonitoringOverview)
-				adminGroup.GET("/monitoring/online-users", monitoringHandler.GetOnlineUsers)
+				adminGroup.GET("/monitoring/overview", middleware.RequireRole("admin", "keuangan"), monitoringHandler.GetMonitoringOverview)
+				adminGroup.GET("/monitoring/online-users", middleware.RequireRole("admin", "keuangan"), monitoringHandler.GetOnlineUsers)
 				adminGroup.POST("/monitoring/force-disconnect/:id", middleware.RequireRole("admin"), monitoringHandler.ForceDisconnectUser)
 				adminGroup.POST("/monitoring/test-alert", middleware.RequireRole("admin"), monitoringHandler.TestTelegramAlert)
 
 				// WhatsApp Gateway & Automated Notifications (Admin & Keuangan)
-				adminGroup.GET("/whatsapp/status", monitoringHandler.GetWhatsAppStatus)
-				adminGroup.GET("/whatsapp/logs", monitoringHandler.GetWhatsAppLogs)
-				adminGroup.POST("/whatsapp/send-test", monitoringHandler.SendWhatsAppTest)
+				adminGroup.GET("/whatsapp/status", middleware.RequireRole("admin", "keuangan"), monitoringHandler.GetWhatsAppStatus)
+				adminGroup.GET("/whatsapp/logs", middleware.RequireRole("admin", "keuangan"), monitoringHandler.GetWhatsAppLogs)
+				adminGroup.POST("/whatsapp/send-test", middleware.RequireRole("admin"), monitoringHandler.SendWhatsAppTest)
 			}
 
 			// ==============================================

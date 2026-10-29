@@ -286,7 +286,8 @@ func (h *LeadHandler) DeleteLead(c *gin.Context) {
 // PublicCaptureLead captures a lead from a replicated storefront or referral landing page
 func (h *LeadHandler) PublicCaptureLead(c *gin.Context) {
 	var input struct {
-		StoreUsername   string  `json:"store_username" binding:"required"`
+		StoreUsername   string  `json:"store_username"`
+		SponsorUsername string  `json:"sponsor_username"`
 		Name            string  `json:"name" binding:"required"`
 		Phone           string  `json:"phone" binding:"required"`
 		Email           string  `json:"email"`
@@ -298,13 +299,22 @@ func (h *LeadHandler) PublicCaptureLead(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Store username, nama, dan no WhatsApp wajib diisi"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nama dan no WhatsApp wajib diisi"})
+		return
+	}
+
+	targetUsername := strings.TrimSpace(input.StoreUsername)
+	if targetUsername == "" {
+		targetUsername = strings.TrimSpace(input.SponsorUsername)
+	}
+	if targetUsername == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Store username atau sponsor username wajib disertakan"})
 		return
 	}
 
 	// Find the owning user
 	var owner models.User
-	if err := config.DB.Where("username = ?", input.StoreUsername).First(&owner).Error; err != nil {
+	if err := config.DB.Where("username = ?", targetUsername).First(&owner).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Toko mitra atau referral tidak ditemukan"})
 		return
 	}

@@ -62,9 +62,9 @@ func TestGenerateToken_DefaultSecret(t *testing.T) {
 		t.Fatalf("Expected no error when JWT_SECRET unset, got %v", err)
 	}
 
-	// Should verify with default secret "default_secret"
+	// Should verify with default secret
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte("default_secret"), nil
+		return []byte(DefaultJWTSecret), nil
 	})
 
 	if err != nil || !token.Valid {

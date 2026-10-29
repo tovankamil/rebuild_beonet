@@ -9,6 +9,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import StorefrontRenderer from './StorefrontRenderer';
+import ModalPortal from '../common/ModalPortal';
 
 export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
   const searchParams = new URLSearchParams(window.location.search);
@@ -148,8 +149,18 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
 
       {/* Customer Quick Order Modal */}
       {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4 my-auto">
+        <ModalPortal
+          isOpen={!!selectedProduct}
+          onClose={() => {
+            setSelectedProduct(null);
+            setOrderSuccess(false);
+          }}
+          ariaLabel="Formulir Pemesanan Produk"
+        >
+          <div
+            className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full p-6 space-y-4 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
                 <h3 className="font-extrabold text-slate-900 text-base">
@@ -258,7 +269,7 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
               </form>
             )}
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );

@@ -22,18 +22,33 @@ import {
   Edit3,
   RefreshCw,
   Store,
+  Calculator,
+  CreditCard,
 } from 'lucide-react';
 import DashPagination from './dashlite/DashPagination';
 import api from '../services/api';
 import AffiliateStoreModal from './store/AffiliateStoreModal';
+import SmartROReminderCard from './crm/SmartROReminderCard';
+import RecentJoinedMembersBar from './dashboard/RecentJoinedMembersBar';
+import RegisterDownlineModal from './RegisterDownlineModal';
 
-export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenProfile, onProfileUpdated }) {
+export default function OverviewTab({
+  stats,
+  setActiveTab,
+  currentUser,
+  onOpenProfile,
+  onProfileUpdated,
+  onOpenProspectCalculator,
+  onOpenDigitalCard,
+  onOpenCertificate,
+}) {
   const [chartHoverIndex, setChartHoverIndex] = useState(null);
   const [txPage, setTxPage] = useState(1);
   const [txPageSize, setTxPageSize] = useState(5);
   const [recentMembers, setRecentMembers] = useState([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [showStoreModal, setShowStoreModal] = useState(false);
+  const [registerModalOpen, setRegisterModalOpen] = useState(false);
 
   const fetchRecentMembers = async () => {
     setLoadingMembers(true);
@@ -101,7 +116,37 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenPr
             Selamat datang di panel kendali Bionet. Pantau omset, bonus pasangan, dan mutasi saldo secara real-time.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
+        <div className="grid grid-cols-1 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto flex-wrap">
+          {onOpenProspectCalculator && (
+            <button
+              onClick={onOpenProspectCalculator}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-colors shadow-xs w-full sm:w-auto"
+              title="Kalkulator Simulasi Bonus Duplikasi Binary & Presentasi Prospek"
+            >
+              <Calculator size={15} className="text-amber-700" />
+              <span>Simulasi Prospek</span>
+            </button>
+          )}
+          {onOpenDigitalCard && (
+            <button
+              onClick={onOpenDigitalCard}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 transition-colors shadow-xs w-full sm:w-auto"
+              title="Buka Kartu Tanda Anggota (KTA) Digital Resmi BPOM"
+            >
+              <CreditCard size={15} className="text-emerald-700" />
+              <span>KTA Digital</span>
+            </button>
+          )}
+          {onOpenCertificate && (
+            <button
+              onClick={onOpenCertificate}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors shadow-xs w-full sm:w-auto"
+              title="Lihat & Unduh E-Sertifikat Kemitraan Resmi"
+            >
+              <Award size={15} className="text-amber-600" />
+              <span>E-Sertifikat</span>
+            </button>
+          )}
           <button
             onClick={() => onOpenProfile && onOpenProfile('profile')}
             className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 transition-colors shadow-sm w-full sm:w-auto"
@@ -133,6 +178,18 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenPr
           </button>
         </div>
       </div>
+
+      {/* ======================================================== */}
+      {/* MITRA BARU BERGABUNG (SOFI-INSPIRED CIRCULAR AVATARS STRIP) */}
+      {/* Posisi strategis Above-The-Fold: langsung terlihat saat login */}
+      {/* ======================================================== */}
+      <RecentJoinedMembersBar
+        members={recentMembers}
+        loading={loadingMembers}
+        onRefresh={fetchRecentMembers}
+        onOpenRegister={() => setRegisterModalOpen(true)}
+        onNavigateTree={() => setActiveTab('genealogy')}
+      />
 
       {/* KPI Stat Cards Grid (DashLite Demo 3 Card Layout) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -447,137 +504,9 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenPr
       </div>
 
       {/* ======================================================== */}
-      {/* MITRA BARU BERGABUNG DI PLATFORM & JALUR DOWNLINE ANDA */}
+      {/* MODULE 6: SMART RO REMINDER & CRM RETENSI PELANGGAN      */}
       {/* ======================================================== */}
-      <div className="dash-card overflow-hidden">
-        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-gradient-to-r from-emerald-500/5 via-transparent to-transparent">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 shadow-xs">
-              <UserPlus size={20} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="font-heading font-extrabold text-base text-slate-800">
-                  Mitra yang Baru Bergabung di Platform
-                </h4>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  <Sparkles size={11} className="text-emerald-600" />
-                  Real-Time
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Pantau perkembangan member baru. Anggota yang terdaftar di jalur downline atau sponsor Anda ditandai secara khusus.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={fetchRecentMembers}
-            disabled={loadingMembers}
-            className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 transition-colors shadow-xs"
-          >
-            <RefreshCw size={13} className={loadingMembers ? 'animate-spin text-emerald-600' : ''} />
-            <span>Segarkan</span>
-          </button>
-        </div>
-
-        <div className="p-5">
-          {recentMembers.length === 0 ? (
-            <div className="py-8 text-center">
-              <UserPlus size={36} className="mx-auto text-slate-300 mb-2" />
-              <p className="text-xs text-slate-500 font-medium">Belum ada mitra baru terdaftar baru-baru ini.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentMembers.map((member) => {
-                const isDownline = member.is_downline;
-                return (
-                  <div
-                    key={member.id}
-                    className={`relative p-4 rounded-xl transition-all border ${
-                      isDownline
-                        ? 'bg-gradient-to-br from-emerald-50/90 via-white to-emerald-50/30 border-emerald-300 shadow-sm shadow-emerald-500/10 ring-1 ring-emerald-400/30'
-                        : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-xs'
-                    }`}
-                  >
-                    {/* Downline Highlight Ribbon / Badge */}
-                    <div className="flex items-start justify-between gap-2 mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          <img
-                            src={member.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${member.username}`}
-                            alt={member.username}
-                            className={`w-11 h-11 rounded-xl object-cover bg-slate-50 border p-0.5 ${
-                              isDownline ? 'border-emerald-400 ring-2 ring-emerald-400/20' : 'border-slate-200'
-                            }`}
-                          />
-                          {isDownline && (
-                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full flex items-center justify-center animate-pulse" />
-                          )}
-                        </div>
-                        <div>
-                          <div className="font-heading font-bold text-sm text-slate-800 line-clamp-1">
-                            {member.full_name}
-                          </div>
-                          <div className="text-[11px] font-mono text-slate-500">
-                            @{member.username}
-                          </div>
-                        </div>
-                      </div>
-
-                      <span className="text-[10px] font-semibold text-slate-400 whitespace-nowrap">
-                        {member.created_at
-                          ? new Date(member.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
-                          : '-'}
-                      </span>
-                    </div>
-
-                    {/* Badge Penanda Downline / Komunitas */}
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                      {isDownline ? (
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-600 text-white shadow-xs">
-                            <Sparkles size={11} className="text-emerald-200" />
-                            {member.downline_label}
-                          </span>
-                          {member.binary_side && (
-                            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200">
-                              Kaki {member.binary_side}
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                          <Users size={11} className="text-slate-400" />
-                          {member.downline_label}
-                        </span>
-                      )}
-
-                      <span className="text-[10px] font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-                        {member.package_name || 'Paket Gold'}
-                      </span>
-                    </div>
-
-                    {isDownline && (
-                      <div className="mt-2.5 pt-2 border-t border-emerald-200/60 flex items-center justify-between text-xs">
-                        <span className="text-[11px] font-medium text-emerald-700">
-                          Jaringan Anda
-                        </span>
-                        <button
-                          onClick={() => setActiveTab(member.downline_type === 'direct_referral' ? 'referrals' : 'genealogy')}
-                          className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
-                        >
-                          <span>Pohon Jaringan</span>
-                          <ArrowRight size={12} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
+      <SmartROReminderCard user={currentUser} />
 
       {/* Bottom: Recent Activity & Quick Ledger (DashLite nk-tb-list style) */}
       <div className="dash-card overflow-hidden">
@@ -685,6 +614,19 @@ export default function OverviewTab({ stats, setActiveTab, currentUser, onOpenPr
         <AffiliateStoreModal
           user={currentUser}
           onClose={() => setShowStoreModal(false)}
+        />
+      )}
+
+      {/* Modal Registrasi Mitra Baru Langsung dari Slot (+) Bar */}
+      {registerModalOpen && (
+        <RegisterDownlineModal
+          isOpen={registerModalOpen}
+          onClose={() => setRegisterModalOpen(false)}
+          upline={currentUser}
+          onSuccess={() => {
+            fetchRecentMembers();
+            if (onProfileUpdated) onProfileUpdated({});
+          }}
         />
       )}
     </div>

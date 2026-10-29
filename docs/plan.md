@@ -350,3 +350,64 @@ Berikut adalah rekapitulasi modul dan fitur Fase 1 yang telah selesai diimplemen
 
 
 
+
+### 3. Modul 4: Kalkulator Simulasi Bonus & Presentasi Prospek (Prospecting Tool)
+- **Engine Matematis Binary MLM (`prospecting_handler.go`)**:
+  - Endpoint `POST /api/prospecting/simulate` menerima parameter paket (`silver`, `gold`, `platinum`), duplikasi (2, 3, 4 mitra), dan durasi (3, 6, 12 bulan).
+  - Menghitung pertumbuhan eksponensial binary, alokasi kaki kiri vs kanan, bonus sponsor, bonus pasangan harian dengan flush-out caps, dan reward milestone tiers.
+- **Frontend Interaktif (`ProspectingCalculatorModal.jsx`)**:
+  - Slider interaktif real-time, SVG exponential growth chart dengan cubic spline dan node hover tooltips.
+  - Kartu pencapaian reward otomatis (Wisata, Motor, Mobil, Rumah Impian).
+  - Cetak Brosur Prospek ramah printer (`window.print()`) dan 1-klik share proyeksi ke WhatsApp dengan link referral mitra.
+
+### 4. Modul 5: Kartu Tanda Anggota Digital (KTA) & E-Sertifikat Kemitraan
+- **Public Verification API (`verification_handler.go`)**:
+  - `GET /api/public/verify/member/:id`: Verifikasi publik keabsahan profil distributor resmi BPOM (404 jika invalid).
+  - `GET /api/public/verify/certificate/:cert_no`: Verifikasi keaslian E-Sertifikat dengan enkripsi kode token resmi.
+- **Frontend Visual Credentials (`DigitalMemberCardModal.jsx` & `ECertificateModal.jsx`)**:
+  - KTA Digital bergaya Obsidian Gold & Emerald dengan holographic security seal, gold EMV chip, dan QR Code generator dinamis offline (`qrCodeGenerator.jsx`).
+  - E-Sertifikat Kemitraan berbingkai ornamen emas klasik guilloche dengan tanda tangan digital manajemen.
+  - Fitur ekspor langsung ke gambar HD PNG (1200x760px & 1600x1130px) via HTML5 Canvas dan cetak PDF.
+
+### 5. Modul 6: Smart RO Reminder & Customer CRM Hub
+- **Backend Lifecycle Tracker (`crm_handler.go`)**:
+  - Endpoint `GET /api/crm/ro-reminders` menghitung konsumsi 30-hari produk herbal. Klasifikasi urgensi: `urgent` (hari $\ge 25$), `warning` (hari 18-24), `good` (hari $< 18$).
+  - Deteksi otomatis downline pasif ($> 45$ hari tanpa RO) dengan status `dormant`.
+  - Endpoint `POST /api/crm/ro-reminders/log` mencatat riwayat interaksi WhatsApp ke tabel `leads` dan `audit_logs`.
+- **Frontend CRM Hub (`SmartROReminderCard.jsx`)**:
+  - Indikator meteran sisa cairan botol herbal, kartu status pelanggan, dan tombol 1-klik WhatsApp follow-up ber-template ramah.
+  - Tab re-engagement downline pasif terintegrasi di `OverviewTab.jsx` dan `LeadsCRMTab.jsx`.
+
+### 6. Modul 7: Progressive Web App (PWA) & Web Audio API Golden Coin Chime
+- **PWA Web App Manifest & Service Worker**:
+  - `manifest.webmanifest`: Standalone display mode, background color `#071e17`, icon luxury vector (`icon.svg`).
+  - `sw.js`: Caching app shell offline, stale-while-revalidate, dan Web Push event listener.
+  - VAPID push endpoints: `GET /api/public/push/public-key`, `POST /api/notifications/push-subscribe`, `POST /api/notifications/push-test`.
+- **In-App Web Audio Synthesizer (`soundNotification.js`)**:
+  - Menggunakan native HTML5 **Web Audio API** untuk menghasilkan suara koin komisi (*"Kring! Komisi Masuk!"*) frekuensi 987.77 Hz $\rightarrow$ 1318.51 Hz tanpa ketergantungan file MP3 eksternal (100% offline & instan).
+- **Frontend Install Banner (`PwaInstallBanner.jsx`)**:
+  - Banner responsif otomatis menangkap event `beforeinstallprompt` untuk Android/Desktop dan panduan Safari iOS, dilengkapi tombol pengujian suara komisi.
+
+### 7. Penguncian Menu Komponen DashLite (Admin Only)
+- Menu **Komponen DashLite** (`ComponentsTab`) telah dikunci secara eksklusif hanya untuk Administrator:
+  - Dihapus dari daftar menu sidebar default mitra (`AppsSidebar.jsx`).
+  - Dihapus dari daftar hak akses rute peran Keuangan, CS, dan Gudang.
+  - Dilindungi oleh Frontend Role Guard di `App.jsx` yang secara otomatis mengalihkan pengguna non-admin ke dashboard masing-masing jika mencoba mengakses URL tab `components`.
+
+### 8. Modul Expanded CRM Suite (Papan Kanban, Health Journey, AI Objection, Testimoni, & Webhook)
+- **Visual Kanban Drag & Drop Pipeline (`CrmKanbanBoard.jsx`)**:
+  - 5 Tahapan Pipeline: *Baru Masuk*, *Sudah Dihubungi*, *Konsultasi & Tertarik*, *Ikut Webinar BOP*, *Closing Order / Mitra*.
+  - Pemindahan kartu via HTML5 Drag and Drop dan tombol geser cepat, langsung mengupdate status ke database via `PUT /api/crm/leads/:id/status`.
+  - Counter jumlah prospek dan total nilai omset potensial di header kolom.
+  - Skor Suhu Prospek otomatis: 🔥 **HOT** (kontak $\le 3$ hari), ⚡ **WARM** (kontak $\le 7$ hari), ❄️ **COLD** (inaktif $> 14$ hari).
+- **Customer Health Journey Siklus 3-7-14-25 Hari (`CustomerHealthJourneyView.jsx` & `crm_health.go`)**:
+  - Model `CustomerHealthRecord` mencatat keluhan utama (Asam Urat, Diabetes, Kolesterol, dll.), dosis, tanggal mulai, dan catatan klinis.
+  - Milestone Stepper interaktif: Hari ke-3 (Detoks & Rasa), Hari ke-7 (Evaluasi Awal), Hari ke-14 (Testimoni Perubahan), Hari ke-25 (Kunci Re-order).
+  - 1-Klik tombol WhatsApp dengan draf pesan empati yang dipersonalisasi sesuai hari evaluasi.
+- **AI Sales & Objection Handling Assistant (`AIObjectionHandlerModal.jsx`)**:
+  - Penjawab keraguan konsumen instan untuk 5 keberatan klasik: *Harga Mahal*, *Takut Efek Samping / Ketergantungan*, *Boleh Diminum Bareng Obat Dokter*, *Izin Resmi BPOM & Halal*, serta *Kekhawatiran Bisnis MLM / Piramida*.
+  - Generator naskah balasan WhatsApp yang persuasif, patuh regulasi BPOM, dan mengadopsi framework closing teruji.
+- **Bank Testimoni & Bukti Sosial Resmi (`TestimonialVaultView.jsx` & `testimonial.go`)**:
+  - Koleksi testimoni klinis berizin BPOM yang dapat difilter berdasarkan penyakit, dilengkapi 1-klik salin format pesan rapi ke WhatsApp.
+- **Public Webhook Auto-Capture URL (`CrmWebhookView.jsx`)**:
+  - Endpoint publik `POST /api/public/leads/webhook?key=:username` untuk menangkap prospek dari Meta Ads, TikTok Lead Gen, dan Zapier/Google Form secara langsung ke database mitra.

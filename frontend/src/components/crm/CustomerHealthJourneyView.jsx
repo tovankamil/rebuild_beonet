@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   HeartHandshake,
   Activity,
-  Calendar,
   Clock,
   Phone,
   MessageCircle,
@@ -10,20 +9,11 @@ import {
   Search,
   Filter,
   CheckCircle2,
-  AlertCircle,
   Sparkles,
-  ShoppingBag,
-  ArrowRight,
-  ShieldCheck,
-  UserCheck,
-  ChevronRight,
   RefreshCw,
   X,
-  Send,
   Droplets,
-  Award,
   Smartphone,
-  Download,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';

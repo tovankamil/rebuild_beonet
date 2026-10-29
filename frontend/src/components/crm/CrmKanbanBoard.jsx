@@ -1,28 +1,21 @@
 import React, { useState } from 'react';
 import {
   Phone,
-  MessageSquare,
   Sparkles,
   Flame,
   Zap,
   Snowflake,
   ArrowLeft,
   ArrowRight,
-  MoreVertical,
   Plus,
-  Calendar,
   MapPin,
   ShoppingBag,
-  ExternalLink,
-  ChevronDown,
   CheckCircle2,
   Clock,
   TrendingUp,
-  User,
   Trash2,
   Edit3,
   Smartphone,
-  Download,
 } from 'lucide-react';
 import { downloadVCardContact } from '../../utils/vCardGenerator';
 

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   MessageSquare,
   Send,
-  Phone,
   Search,
   Check,
   CheckCheck,
@@ -10,10 +9,6 @@ import {
   Sparkles,
   RefreshCw,
   Plus,
-  Paperclip,
-  Smile,
-  Mic,
-  MoreVertical,
   Smartphone,
   Radio,
   QrCode,
@@ -21,20 +16,10 @@ import {
   Zap,
   Users,
   Download,
-  Flame,
-  Droplets,
-  HeartHandshake,
   CheckCircle2,
-  AlertCircle,
   ExternalLink,
-  ChevronRight,
   Filter,
-  Layers,
-  Settings,
   Trash2,
-  Sliders,
-  Copy,
-  Info,
   X,
 } from 'lucide-react';
 import api from '../../services/api';
@@ -1594,3 +1579,4 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
     </div>
   );
 }
+

@@ -7,7 +7,6 @@ import {
   Copy,
   Check,
   RefreshCw,
-  HelpCircle,
   ShieldCheck,
   Coins,
   HeartPulse,
@@ -17,9 +16,7 @@ import {
   MessageSquare,
   Lightbulb,
   CheckCircle2,
-  BookOpen,
   Smartphone,
-  Radio,
   AlertCircle,
 } from 'lucide-react';
 import api from '../../services/api';

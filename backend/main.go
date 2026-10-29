@@ -912,6 +912,7 @@ func main() {
 		api.POST("/public/leads", leadHandler.PublicCaptureLead)
 		api.POST("/public/leads/webhook", crmHandler.PublicLeadWebhook)
 		api.POST("/public/whatsapp/webhook", crmHandler.WhatsAppWebhookListener)
+		api.POST("/crm/whatsapp/webhook", crmHandler.WhatsAppWebhookListener)
 
 		// Public Verification (Module 5: Digital ID & Certificate Verification)
 		api.GET("/public/verify/member/:id", verificationHandler.VerifyMember)

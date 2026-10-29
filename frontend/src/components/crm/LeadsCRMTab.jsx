@@ -970,3 +970,4 @@ export default function LeadsCRMTab({ user }) {
     </div>
   );
 }
+

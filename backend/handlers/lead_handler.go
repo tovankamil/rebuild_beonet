@@ -534,3 +534,4 @@ Tuliskan materi promosi dalam Bahasa Indonesia yang sangat persuasif, legal, eti
 		"mitra_name":     mitraName,
 	})
 }
+

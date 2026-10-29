@@ -24,3 +24,4 @@ type Lead struct {
 	// Optional relations
 	User *User `gorm:"foreignKey:UserID" json:"user,omitempty"`
 }
+

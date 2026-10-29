@@ -1139,7 +1139,7 @@ export default function MeetingTab({ user, setActiveTab }) {
         {/* HTTPS Warning Banner if accessed on insecure mobile HTTP */}
         {!isSecureContext && (
           <div className="bg-amber-500/20 border-b border-amber-500/30 px-3 py-1.5 text-[11px] text-amber-200 flex items-center justify-between z-30 flex-shrink-0">
-            <div className="flex items-center space-x-1.5 truncate">
+            <div className="flex items-center space-x-1.5 truncate min-w-0">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
               <span className="truncate">
                 Kamera HP memerlukan HTTPS. Buka via <strong>https://{typeof window !== 'undefined' ? window.location.hostname : ''}:{typeof window !== 'undefined' ? (window.location.port || '5173') : '5173'}</strong>
@@ -1157,7 +1157,7 @@ export default function MeetingTab({ user, setActiveTab }) {
         {/* Camera Permission / Device Error Banner */}
         {cameraError && (
           <div className="bg-red-500/20 border-b border-red-500/30 px-3 py-1.5 text-[11px] text-red-200 flex items-center justify-between z-30 flex-shrink-0">
-            <div className="flex items-center space-x-1.5 truncate">
+            <div className="flex items-center space-x-1.5 truncate min-w-0">
               <AlertTriangle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
               <span className="truncate">{cameraError}</span>
             </div>

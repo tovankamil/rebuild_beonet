@@ -237,7 +237,7 @@ export default function App() {
   const role = user?.role || 'member';
 
   return (
-    <div className="min-h-screen bg-[#f5f6fa] flex text-slate-800 font-sans">
+    <div className="min-h-screen min-h-dvh bg-[#f5f6fa] flex text-slate-800 font-sans overflow-x-hidden">
       {/* 1. DashLite Demo 3 Slim Apps Sidebar */}
       <AppsSidebar
         activeTab={activeTab}
@@ -261,8 +261,8 @@ export default function App() {
           onOpenProfile={handleOpenProfile}
         />
 
-        {/* 3. Fluid Page Content Area with Mobile Native Spacing */}
-        <main className="flex-1 px-3.5 sm:px-8 py-4 sm:py-6 safe-bottom w-full max-w-none">
+        {/* 3. Fluid Page Content Area with Mobile Native Spacing & Ultrawide Balance */}
+        <main className="flex-1 px-3.5 sm:px-8 py-4 sm:py-6 safe-bottom w-full max-w-[1600px] mx-auto">
           {/* ==================== ADMIN ROLE VIEWS ==================== */}
           {activeTab === 'admin-overview' && (
             <AdminOverviewTab setActiveTab={setActiveTab} />

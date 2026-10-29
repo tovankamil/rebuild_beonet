@@ -133,7 +133,7 @@ export default function Header({
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-8 flex items-center justify-between shadow-xs">
+    <header className="min-h-16 pt-[env(safe-area-inset-top,0px)] bg-white border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-8 flex items-center justify-between shadow-xs">
       {/* Left: Hamburger Toggle (Mobile) + Section Header & Status */}
       <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
         {/* Mobile Hamburger Button */}
@@ -231,7 +231,7 @@ export default function Header({
 
           {/* Notifications Dropdown Panel */}
           {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-in fade-in-50 zoom-in-95 duration-150">
+            <div className="fixed sm:absolute right-3 sm:right-0 top-16 sm:top-full mt-2 w-[calc(100vw-1.5rem)] sm:w-96 max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden z-50 animate-in fade-in-50 zoom-in-95 duration-150">
               <div className="p-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Bell size={16} className="text-emerald-600" />

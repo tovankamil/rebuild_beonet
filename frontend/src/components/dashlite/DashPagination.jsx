@@ -78,10 +78,10 @@ export default function DashPagination({
           type="button"
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="p-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
           title="Halaman Pertama"
         >
-          <ChevronsLeft size={14} />
+          <ChevronsLeft size={15} />
         </button>
 
         {/* Previous Page */}
@@ -89,10 +89,10 @@ export default function DashPagination({
           type="button"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
           title="Halaman Sebelumnya"
         >
-          <ChevronLeft size={14} />
+          <ChevronLeft size={15} />
         </button>
 
         {/* Page Numbers */}
@@ -112,7 +112,7 @@ export default function DashPagination({
                 key={page}
                 type="button"
                 onClick={() => onPageChange(page)}
-                className={`min-w-[28px] h-7 px-2 rounded-md font-semibold text-xs transition-all ${
+                className={`min-w-[36px] h-9 sm:min-w-[32px] sm:h-8 px-2 sm:px-2.5 rounded-lg font-semibold text-xs transition-all active:scale-95 flex items-center justify-center ${
                   isActive
                     ? 'bg-emerald-600 text-white shadow-xs font-bold'
                     : 'border border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -129,10 +129,10 @@ export default function DashPagination({
           type="button"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages || totalPages === 0}
-          className="p-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
           title="Halaman Selanjutnya"
         >
-          <ChevronRight size={14} />
+          <ChevronRight size={15} />
         </button>
 
         {/* Jump to Last Page */}
@@ -140,10 +140,10 @@ export default function DashPagination({
           type="button"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages || totalPages === 0}
-          className="p-1.5 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
           title="Halaman Terakhir"
         >
-          <ChevronsRight size={14} />
+          <ChevronsRight size={15} />
         </button>
       </div>
     </div>

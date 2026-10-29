@@ -94,7 +94,7 @@ export default function LoginPage({ onLoginSuccess }) {
   };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-between p-3 sm:p-6 font-sans text-slate-100 overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+    <div className="relative min-h-screen min-h-dvh flex flex-col items-center justify-between p-3 sm:p-6 font-sans text-slate-100 overflow-x-hidden selection:bg-emerald-500 selection:text-white">
       {/* 1. Dynamic Ambient Background: Luxury Biotech Canvas */}
       <BionetAmbientBackground
         dimmed={false}
@@ -110,7 +110,7 @@ export default function LoginPage({ onLoginSuccess }) {
             {/* ==============================================================
                 LEFT COLUMN: Bespoke 3D Bio-Tech Visual & Holographic Badges
                 ============================================================== */}
-            <div className="lg:col-span-6 rounded-[26px] sm:rounded-[32px] relative overflow-hidden flex flex-col justify-between p-6 sm:p-8 min-h-[490px] lg:min-h-[610px] bg-gradient-to-b from-slate-900/90 via-slate-950/95 to-slate-950 border border-white/10 shadow-inner group">
+            <div className="lg:col-span-6 rounded-[26px] sm:rounded-[32px] relative overflow-hidden flex flex-col justify-between p-5 sm:p-8 min-h-[220px] sm:min-h-[380px] lg:min-h-[610px] bg-gradient-to-b from-slate-900/90 via-slate-950/95 to-slate-950 border border-white/10 shadow-inner group">
               
               {/* Background Bespoke 3D Planet Image with Slow Ambient Drift */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -294,7 +294,7 @@ export default function LoginPage({ onLoginSuccess }) {
                       <button
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1 rounded-md transition-colors focus:outline-none"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-2 sm:p-2.5 rounded-lg transition-colors focus:outline-none active:scale-95 touch-manipulation"
                         aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                       >
                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

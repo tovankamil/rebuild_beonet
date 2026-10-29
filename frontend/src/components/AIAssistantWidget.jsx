@@ -90,7 +90,7 @@ export default function AIAssistantWidget({ currentUser }) {
         <button
           type="button"
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white px-4 py-3 rounded-full shadow-[0_10px_25px_rgba(5,150,105,0.4)] flex items-center gap-2.5 hover:scale-105 active:scale-95 transition-all duration-200 border border-emerald-400/30 group"
+          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] right-4 sm:right-6 z-40 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white px-4 py-3 rounded-full shadow-[0_10px_25px_rgba(5,150,105,0.4)] flex items-center gap-2.5 hover:scale-105 active:scale-95 transition-all duration-200 border border-emerald-400/30 group"
           aria-label="Tanya Asisten AI Bionet"
         >
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
@@ -106,7 +106,7 @@ export default function AIAssistantWidget({ currentUser }) {
 
       {/* Floating Chat Panel */}
       {isOpen && (
-        <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50 w-[92vw] sm:w-[410px] h-[540px] max-h-[85vh] bg-white rounded-2xl shadow-[0_25px_60px_rgba(15,23,42,0.25)] border border-slate-200 ring-1 ring-slate-900/5 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[410px] h-[540px] max-h-[calc(100dvh-5rem)] bg-white rounded-2xl shadow-[0_25px_60px_rgba(15,23,42,0.25)] border border-slate-200 ring-1 ring-slate-900/5 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           {/* Header */}
           <div className="bg-gradient-to-r from-[#07241b] to-[#0d3f31] px-4 py-3.5 flex items-center justify-between text-white border-b border-emerald-800/40">
             <div className="flex items-center gap-2.5">
@@ -145,7 +145,7 @@ export default function AIAssistantWidget({ currentUser }) {
             rel="noopener noreferrer"
             className="bg-indigo-50/90 hover:bg-indigo-100/90 px-3.5 py-2 border-b border-indigo-100 flex items-center justify-between text-[11px] text-indigo-900 transition-colors"
           >
-            <div className="flex items-center gap-1.5 font-medium truncate">
+            <div className="flex items-center gap-1.5 font-medium truncate min-w-0">
               <span className="font-bold">📱 Bot Telegram:</span>
               <span className="truncate">Tersedia di @Tfn_assistant_bot</span>
             </div>

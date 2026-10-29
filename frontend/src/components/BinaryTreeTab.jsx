@@ -439,15 +439,15 @@ export default function BinaryTreeTab() {
             <p className="text-xs">Memuat struktur pohon kemitraan binary...</p>
           </div>
         ) : (
-          <div
-            style={{
-              transform: `scale(${zoomLevel})`,
-              transformOrigin: 'top center',
-              transition: 'transform 0.15s ease-out',
-            }}
-            className="overflow-x-auto py-4 sm:py-6 touch-pan-x touch-pan-y"
-          >
-            <div className="flex flex-col items-center">
+          <div className="overflow-x-auto py-4 sm:py-6 touch-pan-x touch-pan-y scrollbar-none">
+            <div
+              style={{
+                transform: `scale(${zoomLevel})`,
+                transformOrigin: 'top center',
+                transition: 'transform 0.15s ease-out',
+              }}
+              className="min-w-[820px] flex flex-col items-center mx-auto"
+            >
               {/* Level 1: Root */}
               <div className="flex flex-col items-center">
                 {renderNode(tree, 'Pusat', null, 'kiri', true)}

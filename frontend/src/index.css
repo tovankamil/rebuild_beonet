@@ -35,6 +35,7 @@
 html {
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -46,6 +47,41 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Firefox Scrollbar Standardization */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+/* Scrollbar None Cross-Browser Utility (IE/Edge, Firefox, Chrome/Safari/Samsung) */
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE & Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;            /* WebKit / Blink */
+}
+
+/* Momentum Touch Scrolling for iOS WebKit */
+.overflow-y-auto,
+.overflow-x-auto,
+.overflow-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent accidental text selection and callouts on interactive button controls */
+button,
+[role="button"],
+.tab,
+.chip,
+.badge,
+.drag-handle {
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* Custom Scrollbar - DashLite subtle style */
@@ -81,8 +117,14 @@ h1, h2, h3, h4, h5, h6 {
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .dash-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  @media (hover: hover) and (pointer: fine) {
+    .dash-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+  }
+
+  .dash-card:active {
+    transform: scale(0.995);
   }
 
   /* DashLite Overline Subheaders */
@@ -186,8 +228,10 @@ h1, h2, h3, h4, h5, h6 {
     transition: background-color 0.15s ease;
   }
 
-  .dash-table tr:hover {
-    background-color: #f8fafc;
+  @media (hover: hover) and (pointer: fine) {
+    .dash-table tr:hover {
+      background-color: #f8fafc;
+    }
   }
 
   /* Emil Kowalski Motion System & Polish */
@@ -204,9 +248,15 @@ h1, h2, h3, h4, h5, h6 {
     will-change: transform, box-shadow;
   }
 
-  .interactive-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px -4px rgba(5, 150, 105, 0.12);
+  @media (hover: hover) and (pointer: fine) {
+    .interactive-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px -4px rgba(5, 150, 105, 0.12);
+    }
+  }
+
+  .interactive-card:active {
+    transform: scale(0.985);
   }
 }
 
@@ -233,12 +283,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Mobile & Touch optimization (mobile-native & baseline-ui standards) */
-button, a, [role="button"], select, input, textarea {
-  touch-action: manipulation;
-}
-
-@media (max-width: 640px) {
-  /* Prevent iOS Safari 16px zoom penalty on input focus while keeping desktop typography */
+@media (max-width: 1024px), (pointer: coarse) {
+  /* Prevent iOS Safari 16px zoom penalty on input focus on all touch devices (phones, tablets, iPads) */
   input, select, textarea {
     font-size: 16px !important;
   }
@@ -248,12 +294,18 @@ button, a, [role="button"], select, input, textarea {
   }
 }
 
-/* Safe area insets for modern mobile devices (iPhone notch/pill, Android gesture bar) */
+/* Safe area insets for modern mobile devices (iPhone notch/Dynamic Island, Android gesture bar) */
 .safe-bottom {
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
 }
 .safe-top {
-  padding-top: max(0.75rem, env(safe-area-inset-top));
+  padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+}
+
+/* Stop modal & drawer scroll chaining */
+.overscroll-contain,
+[role="dialog"] {
+  overscroll-behavior: contain;
 }
 
 /* 3D Iridescent Orb & Glass Pocket (login.webp & login page.mp4 reference) */

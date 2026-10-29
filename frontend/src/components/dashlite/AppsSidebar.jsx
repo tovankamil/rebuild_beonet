@@ -519,6 +519,25 @@ export default function AppsSidebar({
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [flyoutTop, setFlyoutTop] = useState(0);
   const timeoutRef = useRef(null);
+  const sidebarRef = useRef(null);
+  const flyoutRef = useRef(null);
+
+  // Close flyout on outside pointerdown / touch
+  useEffect(() => {
+    if (!hoveredMenu) return;
+    const handleOutsideClick = (e) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(e.target) &&
+        flyoutRef.current &&
+        !flyoutRef.current.contains(e.target)
+      ) {
+        setHoveredMenu(null);
+      }
+    };
+    window.addEventListener('pointerdown', handleOutsideClick);
+    return () => window.removeEventListener('pointerdown', handleOutsideClick);
+  }, [hoveredMenu]);
 
   const userRole = user?.role || 'member';
   const [dynamicAllowedKeys, setDynamicAllowedKeys] = useState(null);
@@ -686,7 +705,8 @@ export default function AppsSidebar({
 
       {/* 1. Apps Sidebar / Mobile Responsive Drawer */}
       <aside
-        className={`w-72 sm:w-80 lg:w-[68px] bg-[#051812] border-r border-[#0d362a] fixed top-0 left-0 h-dvh z-40 shadow-2xl select-none transition-transform duration-300 ease-in-out ${
+        ref={sidebarRef}
+        className={`w-72 sm:w-80 lg:w-[68px] bg-[#051812] border-r border-[#0d362a] fixed top-0 left-0 h-screen h-dvh z-40 shadow-2xl select-none transition-transform duration-300 ease-in-out ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
@@ -778,7 +798,7 @@ export default function AppsSidebar({
         </div>
 
         {/* MOBILE VIEW (Full Drawer with Labels, User Chip & Fast Navigation) */}
-        <div className="flex lg:hidden flex-col justify-between h-full py-4 px-4 overflow-hidden">
+        <div className="flex lg:hidden flex-col justify-between h-full pt-[max(1rem,env(safe-area-inset-top,0px))] pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] px-4 overflow-hidden">
           {/* Mobile Drawer Header */}
           <div className="flex items-center justify-between pb-3 border-b border-emerald-900/60">
             <div className="flex items-center gap-2.5">
@@ -1010,6 +1030,7 @@ export default function AppsSidebar({
       {/* 2. Floating Flyout Submenu Panel (Desktop Only) */}
       {hoveredMenu && (
         <div
+          ref={flyoutRef}
           onMouseEnter={handleFlyoutMouseEnter}
           onMouseLeave={handleMouseLeave}
           style={{ top: `${flyoutTop}px` }}

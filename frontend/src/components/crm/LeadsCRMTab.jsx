@@ -454,13 +454,13 @@ export default function LeadsCRMTab({ user }) {
 
       {/* VIEW 1: KANBAN PIPELINE COLUMNS */}
       {viewMode === 'pipeline' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 overflow-x-auto pb-4">
+        <div className="flex xl:grid xl:grid-cols-5 gap-4 overflow-x-auto pb-4 snap-x snap-mandatory xl:snap-none -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none">
           {pipelineStages.map((stage) => {
             const stageLeads = leads.filter((l) => l.status === stage.key);
             return (
               <div
                 key={stage.key}
-                className={`bg-slate-100/70 rounded-2xl p-3 border-t-4 ${stage.color} border-slate-200 flex flex-col min-h-[450px]`}
+                className={`flex-shrink-0 w-[280px] sm:w-[300px] xl:w-auto snap-start bg-slate-100/70 rounded-2xl p-3 border-t-4 ${stage.color} border-slate-200 flex flex-col min-h-[450px]`}
               >
                 {/* Column Header */}
                 <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-200">

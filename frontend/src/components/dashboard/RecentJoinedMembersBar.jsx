@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  UserPlus,
+  Users,
   Sparkles,
   ChevronLeft,
   ChevronRight,
@@ -10,7 +10,9 @@ import {
   RefreshCw,
   Plus,
   CheckCircle2,
-  Users,
+  Package,
+  Calendar,
+  ShieldCheck,
 } from 'lucide-react';
 
 // Pool foto potret manusia beresolusi tinggi (Unsplash Human Portraits)
@@ -34,7 +36,6 @@ function getMemberAvatar(member, index) {
   if (member?.avatar && !member.avatar.includes('dicebear.com/7.x/bottts')) {
     return member.avatar;
   }
-  // Petakan deterministik berdasarkan string ID atau Username
   const key = member?.username || member?.id || String(index);
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
@@ -45,6 +46,20 @@ function getMemberAvatar(member, index) {
   return HUMAN_PORTRAITS[portraitIdx];
 }
 
+function formatJoinDate(dateStr) {
+  if (!dateStr) return 'Hari ini';
+  try {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffHours = Math.floor((now - d) / (1000 * 60 * 60));
+    if (diffHours < 1) return 'Baru saja';
+    if (diffHours < 24) return `${diffHours} jam lalu`;
+    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  } catch {
+    return 'Hari ini';
+  }
+}
+
 export default function RecentJoinedMembersBar({
   members = [],
   loading = false,
@@ -52,10 +67,11 @@ export default function RecentJoinedMembersBar({
   onOpenRegister,
   onNavigateTree,
 }) {
+  const containerRef = useRef(null);
   const scrollRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const [hoveredMember, setHoveredMember] = useState(null);
+  const [hoveredData, setHoveredData] = useState(null);
 
   const checkScroll = () => {
     if (!scrollRef.current) return;
@@ -71,6 +87,7 @@ export default function RecentJoinedMembersBar({
   }, [members]);
 
   const scroll = (direction) => {
+    setHoveredData(null);
     if (!scrollRef.current) return;
     const scrollAmount = 320;
     scrollRef.current.scrollBy({
@@ -80,13 +97,45 @@ export default function RecentJoinedMembersBar({
     setTimeout(checkScroll, 350);
   };
 
+  const handleAvatarEnter = (member, avatarUrl, e) => {
+    if (!containerRef.current) return;
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const targetRect = e.currentTarget.getBoundingClientRect();
+    setHoveredData({
+      member,
+      avatarUrl,
+      x: targetRect.left - containerRect.left + targetRect.width / 2,
+      y: targetRect.top - containerRect.top,
+      containerWidth: containerRect.width,
+    });
+  };
+
+  const handleAvatarLeave = () => {
+    setHoveredData(null);
+  };
+
+  // Tooltip geometry calculations
+  const tooltipHalfWidth = 115;
+  const padding = 12;
+  const minX = tooltipHalfWidth + padding;
+  const maxX = (hoveredData?.containerWidth || 500) - tooltipHalfWidth - padding;
+  const clampedX = Math.max(minX, Math.min(hoveredData?.x || 0, maxX));
+  const rawOffset = (hoveredData?.x || 0) - clampedX;
+  const maxArrowOffset = tooltipHalfWidth - 24;
+  const arrowOffset = Math.max(-maxArrowOffset, Math.min(rawOffset, maxArrowOffset));
+
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-4 sm:p-5 relative overflow-hidden transition-all duration-200">
-      {/* Background Ambient Aura */}
-      <div className="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+    <div
+      ref={containerRef}
+      className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-4 sm:p-5 relative transition-all duration-200"
+    >
+      {/* Background Ambient Aura (isolated in overflow-hidden layer so parent remains overflow-visible) */}
+      <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+      </div>
 
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 relative z-10">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
             <Users size={16} />
@@ -156,8 +205,99 @@ export default function RecentJoinedMembersBar({
         </div>
       </div>
 
+      {/* Floating Apple/SoFi Frosted Glass Tooltip (Positioned in unclipped outer card) */}
+      <AnimatePresence>
+        {hoveredData && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.96 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 380 }}
+            style={{
+              left: `${clampedX}px`,
+              top: `${hoveredData.y - 10}px`,
+            }}
+            className="absolute z-50 -translate-x-1/2 -translate-y-full pointer-events-none select-none"
+          >
+            <div className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-emerald-500/25 rounded-2xl shadow-xl shadow-emerald-950/15 p-3 min-w-[210px] max-w-[240px] text-slate-800 ring-1 ring-slate-900/5 dark:ring-white/10">
+              {/* Member Header: Mini Avatar, Name, Verified */}
+              <div className="flex items-center gap-2.5">
+                <div className="relative flex-shrink-0">
+                  <img
+                    src={hoveredData.avatarUrl}
+                    alt={hoveredData.member?.full_name || hoveredData.member?.username}
+                    className="w-8 h-8 rounded-full object-cover ring-2 ring-emerald-500/30 bg-slate-100"
+                  />
+                  {hoveredData.member?.is_downline && (
+                    <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-600 rounded-full flex items-center justify-center border border-white">
+                      <Sparkles size={7} className="text-white" />
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1">
+                    <span className="font-heading font-bold text-xs text-slate-900 dark:text-white truncate">
+                      {hoveredData.member?.full_name || hoveredData.member?.username}
+                    </span>
+                    {hoveredData.member?.is_downline ? (
+                      <CheckCircle2 size={12} className="text-emerald-600 flex-shrink-0" />
+                    ) : (
+                      <ShieldCheck size={12} className="text-slate-400 flex-shrink-0" />
+                    )}
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-mono block truncate">
+                    @{hoveredData.member?.username}
+                  </span>
+                </div>
+              </div>
+
+              {/* Package & Join Date Row */}
+              <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2 text-[10px]">
+                <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/60">
+                  <Package size={11} />
+                  <span className="truncate max-w-[90px]">
+                    {hoveredData.member?.package_name || 'Paket Silver'}
+                  </span>
+                </span>
+                <span className="inline-flex items-center gap-1 text-slate-400">
+                  <Calendar size={11} />
+                  <span>{formatJoinDate(hoveredData.member?.created_at)}</span>
+                </span>
+              </div>
+
+              {/* Downline Highlight Banner */}
+              {hoveredData.member?.is_downline && (
+                <div className="mt-2 py-1 px-2 rounded-lg bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/5 border border-emerald-500/25 flex items-center justify-between text-[10px]">
+                  <span className="flex items-center gap-1.5 font-bold text-emerald-700 dark:text-emerald-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    {hoveredData.member?.downline_label || 'Sponsor Langsung Anda'}
+                  </span>
+                  {hoveredData.member?.binary_side && (
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-white dark:bg-slate-800 border border-emerald-300/60 text-emerald-700 dark:text-emerald-300">
+                      Kaki {hoveredData.member?.binary_side === 'left' ? 'Kiri' : 'Kanan'}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Tree Navigation Hint */}
+              <div className="mt-2 text-[9px] text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1 text-center font-medium">
+                <span>Klik untuk lihat di Pohon Binary</span>
+                <ArrowRight size={9} />
+              </div>
+
+              {/* Caret Pointer Arrow (Anchored dynamically to avatar center) */}
+              <div
+                style={{ left: `calc(50% + ${arrowOffset}px)` }}
+                className="absolute -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-white dark:bg-slate-900 rotate-45 border-r border-b border-emerald-500/25"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Horizontal Carousel Track with Left-to-Right Animated Items */}
-      <div className="relative">
+      <div className="relative z-10">
         {/* Left Fade Gradient Mask */}
         <div
           className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none transition-opacity duration-200 ${
@@ -174,11 +314,14 @@ export default function RecentJoinedMembersBar({
 
         <div
           ref={scrollRef}
-          onScroll={checkScroll}
-          className="flex items-center gap-4 sm:gap-6 overflow-x-auto py-2 px-1 scrollbar-none scroll-smooth"
+          onScroll={() => {
+            checkScroll();
+            if (hoveredData) setHoveredData(null);
+          }}
+          className="flex items-center gap-4 sm:gap-6 overflow-x-auto py-2.5 px-1 scrollbar-none scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {/* 1. The (+) Add / Daftarkan Mitra Button (First in track, exactly like Image 1) */}
+          {/* 1. The (+) Add / Daftarkan Mitra Button */}
           <motion.div
             initial={{ opacity: 0, x: -24 }}
             animate={{ opacity: 1, x: 0 }}
@@ -202,7 +345,6 @@ export default function RecentJoinedMembersBar({
             const avatarUrl = getMemberAvatar(member, idx);
             const isDownline = member.is_downline;
             const firstName = member.full_name?.split(' ')[0] || member.username;
-            const isHovered = hoveredMember?.id === member.id;
 
             return (
               <motion.div
@@ -212,20 +354,20 @@ export default function RecentJoinedMembersBar({
                 transition={{
                   duration: 0.38,
                   ease: [0.16, 1, 0.3, 1],
-                  delay: (idx + 1) * 0.045, // Left-to-right cascade stagger
+                  delay: (idx + 1) * 0.045,
                 }}
-                onMouseEnter={() => setHoveredMember(member)}
-                onMouseLeave={() => setHoveredMember(null)}
-                className="flex flex-col items-center flex-shrink-0 cursor-pointer group relative select-none"
+                onMouseEnter={(e) => handleAvatarEnter(member, avatarUrl, e)}
+                onMouseLeave={handleAvatarLeave}
+                className="flex flex-col items-center flex-shrink-0 cursor-pointer group select-none"
                 onClick={onNavigateTree}
               >
                 {/* Avatar Circle Container */}
                 <div className="relative">
                   <div
-                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full p-0.5 transition-all duration-200 group-hover:scale-105 group-active:scale-95 ${
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full p-0.5 transition-all duration-300 group-hover:scale-110 group-active:scale-95 ${
                       isDownline
-                        ? 'bg-gradient-to-tr from-emerald-500 via-teal-400 to-emerald-300 ring-2 ring-emerald-400/30 shadow-md shadow-emerald-500/15'
-                        : 'bg-slate-100 hover:ring-2 hover:ring-slate-300'
+                        ? 'bg-gradient-to-tr from-emerald-500 via-teal-400 to-emerald-300 ring-2 ring-emerald-400/30 group-hover:ring-4 group-hover:ring-emerald-400/60 shadow-md shadow-emerald-500/15 group-hover:shadow-lg group-hover:shadow-emerald-500/30'
+                        : 'bg-slate-100 hover:ring-2 hover:ring-slate-300 group-hover:scale-105'
                     }`}
                   >
                     <img
@@ -234,7 +376,6 @@ export default function RecentJoinedMembersBar({
                       loading="lazy"
                       className="w-full h-full rounded-full object-cover bg-slate-200"
                       onError={(e) => {
-                        // Fallback jika foto gagal dimuat
                         e.target.src = `https://api.dicebear.com/7.x/initials/svg?seed=${member.username}`;
                       }}
                     />
@@ -244,7 +385,7 @@ export default function RecentJoinedMembersBar({
                   {isDownline && (
                     <span
                       title="Sponsor Langsung Anda"
-                      className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-600 text-white rounded-full flex items-center justify-center border-2 border-white shadow-xs"
+                      className="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-full flex items-center justify-center border-2 border-white shadow-xs"
                     >
                       <Sparkles size={10} className="text-emerald-100" />
                     </span>
@@ -256,9 +397,10 @@ export default function RecentJoinedMembersBar({
                   {firstName}
                 </span>
 
-                {/* Subtext Tag: Downline Status or Short Date */}
+                {/* Subtext Tag: Downline Status or Username */}
                 {isDownline ? (
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full mt-0.5 border border-emerald-200/60 leading-none">
+                  <span className="inline-flex items-center gap-1 text-[9.5px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mt-0.5 border border-emerald-200/70 leading-none">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                     Downline
                   </span>
                 ) : (
@@ -266,41 +408,6 @@ export default function RecentJoinedMembersBar({
                     @{member.username?.substring(0, 8)}
                   </span>
                 )}
-
-                {/* Rich Hover Floating Tooltip */}
-                <AnimatePresence>
-                  {isHovered && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 6, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 4, scale: 0.96 }}
-                      transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute -top-24 z-30 bg-slate-950 text-white text-[11px] p-2.5 rounded-xl shadow-2xl border border-slate-800 whitespace-nowrap pointer-events-none min-w-[160px]"
-                    >
-                      <div className="font-heading font-bold text-xs text-white">
-                        {member.full_name || member.username}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
-                        @{member.username}
-                      </div>
-                      <div className="mt-1.5 pt-1.5 border-t border-slate-800 flex items-center justify-between gap-2 text-[10px]">
-                        <span className="text-emerald-400 font-semibold">
-                          {member.package_name || 'Paket Silver'}
-                        </span>
-                        <span className="text-slate-400">
-                          {member.created_at
-                            ? new Date(member.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
-                            : 'Hari ini'}
-                        </span>
-                      </div>
-                      {isDownline && (
-                        <div className="mt-1 text-[9px] font-bold text-emerald-300">
-                          ✔ Sponsor Langsung Anda
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </motion.div>
             );
           })}

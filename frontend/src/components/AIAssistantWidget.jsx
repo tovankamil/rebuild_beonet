@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
   X,
@@ -86,27 +87,44 @@ export default function AIAssistantWidget({ currentUser }) {
   return (
     <>
       {/* Floating Action Button */}
-      {!isOpen && (
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] right-4 sm:right-6 z-40 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white px-4 py-3 rounded-full shadow-[0_10px_25px_rgba(5,150,105,0.4)] flex items-center gap-2.5 hover:scale-105 active:scale-95 transition-all duration-200 border border-emerald-400/30 group"
-          aria-label="Tanya Asisten AI Bionet"
-        >
-          <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-            <Sparkles size={16} className="text-emerald-200 group-hover:rotate-12 transition-transform" />
-          </div>
-          <div className="text-left hidden sm:block">
-            <div className="text-[11px] font-bold tracking-wide uppercase text-emerald-100">Bionet AI</div>
-            <div className="text-xs font-extrabold text-white">Tanya Asisten</div>
-          </div>
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse sm:hidden" />
-        </button>
-      )}
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.button
+            key="fab-ai"
+            type="button"
+            initial={{ scale: 0.7, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.7, opacity: 0 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            onClick={() => setIsOpen(true)}
+            className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] right-4 sm:right-6 z-40 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white px-4 py-3 rounded-full shadow-[0_10px_25px_rgba(5,150,105,0.4)] flex items-center gap-2.5 transition-colors border border-emerald-400/30 group"
+            aria-label="Tanya Asisten AI Bionet"
+          >
+            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+              <Sparkles size={16} className="text-emerald-200 group-hover:rotate-12 transition-transform" />
+            </div>
+            <div className="text-left hidden sm:block">
+              <div className="text-[11px] font-bold tracking-wide uppercase text-emerald-100">Bionet AI</div>
+              <div className="text-xs font-extrabold text-white">Tanya Asisten</div>
+            </div>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse sm:hidden" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Floating Chat Panel */}
-      {isOpen && (
-        <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[410px] h-[540px] max-h-[calc(100dvh-5rem)] bg-white rounded-2xl shadow-[0_25px_60px_rgba(15,23,42,0.25)] border border-slate-200 ring-1 ring-slate-900/5 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="chat-panel"
+            initial={{ opacity: 0, scale: 0.92, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: 16 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 27 }}
+            className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[410px] h-[540px] max-h-[calc(100dvh-5rem)] bg-white rounded-2xl shadow-[0_25px_60px_rgba(15,23,42,0.25)] border border-slate-200 ring-1 ring-slate-900/5 flex flex-col overflow-hidden"
+          >
           {/* Header */}
           <div className="bg-gradient-to-r from-[#07241b] to-[#0d3f31] px-4 py-3.5 flex items-center justify-between text-white border-b border-emerald-800/40">
             <div className="flex items-center gap-2.5">
@@ -245,8 +263,9 @@ export default function AIAssistantWidget({ currentUser }) {
               <Send size={15} />
             </button>
           </form>
-        </div>
+        </motion.div>
       )}
-    </>
-  );
+    </AnimatePresence>
+  </>
+);
 }

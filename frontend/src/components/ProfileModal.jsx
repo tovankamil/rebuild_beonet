@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   User,
@@ -165,8 +166,6 @@ export default function ProfileModal({
     }
   };
 
-  if (!isOpen) return null;
-
   // Handle Profile Update
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -248,8 +247,28 @@ export default function ProfileModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-[0_25px_60px_rgba(15,23,42,0.35)] border border-slate-200 ring-1 ring-slate-900/5 w-full max-w-lg overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200 ease-out">
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3.5 sm:p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-md"
+            onClick={onClose}
+          />
+
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            transition={{ type: 'spring', stiffness: 360, damping: 28 }}
+            className="bg-white rounded-2xl shadow-[0_25px_60px_rgba(15,23,42,0.35)] border border-slate-200 ring-1 ring-slate-900/5 w-full max-w-lg overflow-hidden flex flex-col max-h-[92vh] relative z-10"
+            onClick={(e) => e.stopPropagation()}
+          >
         
         {/* Modal Header */}
         <div className="px-5 sm:px-6 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
@@ -776,7 +795,9 @@ export default function ProfileModal({
             </div>
           </form>
         )}
+        </motion.div>
       </div>
-    </div>
+    )}
+  </AnimatePresence>
   );
 }

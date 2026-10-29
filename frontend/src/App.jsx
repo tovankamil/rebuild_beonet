@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import AppsSidebar from './components/dashlite/AppsSidebar';
 import Header from './components/Header';
 import OverviewTab from './components/OverviewTab';
@@ -263,95 +264,105 @@ export default function App() {
 
         {/* 3. Fluid Page Content Area with Mobile Native Spacing & Ultrawide Balance */}
         <main className="flex-1 px-3.5 sm:px-8 py-4 sm:py-6 safe-bottom w-full max-w-[1600px] mx-auto">
-          {/* ==================== ADMIN ROLE VIEWS ==================== */}
-          {activeTab === 'admin-overview' && (
-            <AdminOverviewTab setActiveTab={setActiveTab} />
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {/* ==================== ADMIN ROLE VIEWS ==================== */}
+              {activeTab === 'admin-overview' && (
+                <AdminOverviewTab setActiveTab={setActiveTab} />
+              )}
 
-          {activeTab === 'admin-users' && <AdminUsersTab />}
+              {activeTab === 'admin-users' && <AdminUsersTab />}
 
-          {activeTab === 'admin-transactions' && <AdminTransactionsTab />}
+              {activeTab === 'admin-transactions' && <AdminTransactionsTab />}
 
-          {activeTab === 'admin-points' && <AdminPointsTab />}
+              {activeTab === 'admin-points' && <AdminPointsTab />}
 
-          {activeTab === 'admin-pins' && <AdminPinsTab />}
+              {activeTab === 'admin-pins' && <AdminPinsTab />}
 
-          {activeTab === 'admin-orders' && <AdminOrdersTab />}
+              {activeTab === 'admin-orders' && <AdminOrdersTab />}
 
-          {activeTab === 'admin-withdrawals' && <AdminWithdrawalsTab />}
+              {activeTab === 'admin-withdrawals' && <AdminWithdrawalsTab />}
 
-          {activeTab === 'admin-fraud' && (
-            <AdminFraudTab onNavigateToAudit={() => setActiveTab('admin-users')} />
-          )}
+              {activeTab === 'admin-fraud' && (
+                <AdminFraudTab onNavigateToAudit={() => setActiveTab('admin-users')} />
+              )}
 
-          {activeTab === 'admin-monitoring' && (
-            <AdminMonitoringTab setActiveTab={setActiveTab} />
-          )}
+              {activeTab === 'admin-monitoring' && (
+                <AdminMonitoringTab setActiveTab={setActiveTab} />
+              )}
 
-          {activeTab === 'admin-guide' && (
-            <AdminSystemGuideTab setActiveTab={setActiveTab} />
-          )}
+              {activeTab === 'admin-guide' && (
+                <AdminSystemGuideTab setActiveTab={setActiveTab} />
+              )}
 
-          {/* ==================== WAREHOUSE ROLE VIEWS ==================== */}
-          {(activeTab === 'warehouse-overview' ||
-            activeTab === 'warehouse-inventory' ||
-            activeTab === 'warehouse-orders') && <WarehouseTab />}
+              {/* ==================== WAREHOUSE ROLE VIEWS ==================== */}
+              {(activeTab === 'warehouse-overview' ||
+                activeTab === 'warehouse-inventory' ||
+                activeTab === 'warehouse-orders') && <WarehouseTab />}
 
-          {/* ==================== MEMBER & SHARED VIEWS ==================== */}
-          {activeTab === 'overview' && (
-            <OverviewTab
-              stats={stats}
-              setActiveTab={setActiveTab}
-              currentUser={user}
-              onOpenProfile={handleOpenProfile}
-              onProfileUpdated={(updated) => {
-                setUser((prev) => ({ ...prev, ...updated }));
-                fetchStats();
-              }}
-            />
-          )}
+              {/* ==================== MEMBER & SHARED VIEWS ==================== */}
+              {activeTab === 'overview' && (
+                <OverviewTab
+                  stats={stats}
+                  setActiveTab={setActiveTab}
+                  currentUser={user}
+                  onOpenProfile={handleOpenProfile}
+                  onProfileUpdated={(updated) => {
+                    setUser((prev) => ({ ...prev, ...updated }));
+                    fetchStats();
+                  }}
+                />
+              )}
 
-          {activeTab === 'genealogy' && <BinaryTreeTab />}
+              {activeTab === 'genealogy' && <BinaryTreeTab />}
 
-          {activeTab === 'referrals' && <ReferralsTab />}
+              {activeTab === 'referrals' && <ReferralsTab />}
 
-          {activeTab === 'withdrawal' && (
-            <WithdrawalTab
-              walletBalance={stats?.wallet_balance}
-              bank={stats?.bank}
-              onWithdrawalSuccess={fetchStats}
-            />
-          )}
+              {activeTab === 'withdrawal' && (
+                <WithdrawalTab
+                  walletBalance={stats?.wallet_balance}
+                  bank={stats?.bank}
+                  onWithdrawalSuccess={fetchStats}
+                />
+              )}
 
-          {activeTab === 'transactions' && (
-            <TransactionsTab walletBalance={stats?.wallet_balance} />
-          )}
+              {activeTab === 'transactions' && (
+                <TransactionsTab walletBalance={stats?.wallet_balance} />
+              )}
 
-          {activeTab === 'pins' && <PinTab />}
+              {activeTab === 'pins' && <PinTab />}
 
-          {activeTab === 'products' && <ProductsTab />}
+              {activeTab === 'products' && <ProductsTab />}
 
-          {activeTab === 'bank' && (
-            <BankTab
-              onBankUpdated={(bank) => {
-                setStats((prev) => (prev ? { ...prev, bank } : prev));
-              }}
-            />
-          )}
+              {activeTab === 'bank' && (
+                <BankTab
+                  onBankUpdated={(bank) => {
+                    setStats((prev) => (prev ? { ...prev, bank } : prev));
+                  }}
+                />
+              )}
 
-          {activeTab === 'chat' && <ChatTab currentUser={user} />}
+              {activeTab === 'chat' && <ChatTab currentUser={user} />}
 
-          {activeTab === 'leads' && <LeadsCRMTab user={user} />}
+              {activeTab === 'leads' && <LeadsCRMTab user={user} />}
 
-          {activeTab === 'ai-marketing' && (
-            <AIMarketingStudioTab user={user} />
-          )}
+              {activeTab === 'ai-marketing' && (
+                <AIMarketingStudioTab user={user} />
+              )}
 
-          {activeTab === 'meetings' && (
-            <MeetingTab user={user} setActiveTab={setActiveTab} />
-          )}
+              {activeTab === 'meetings' && (
+                <MeetingTab user={user} setActiveTab={setActiveTab} />
+              )}
 
-          {activeTab === 'components' && <ComponentsTab />}
+              {activeTab === 'components' && <ComponentsTab />}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* DashLite Standard Footer */}

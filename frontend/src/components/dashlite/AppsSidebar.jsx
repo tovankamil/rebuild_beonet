@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import {
   LayoutDashboard,
@@ -692,16 +693,23 @@ export default function AppsSidebar({
   return (
     <>
       {/* Mobile Backdrop Overlay */}
-      {mobileOpen && (
-        <div
-          onClick={() => {
-            setHoveredMenu(null);
-            if (setMobileOpen) setMobileOpen(false);
-          }}
-          className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 animate-in fade-in"
-          aria-hidden="true"
-        />
-      )}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            key="mobile-sidebar-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => {
+              setHoveredMenu(null);
+              if (setMobileOpen) setMobileOpen(false);
+            }}
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 lg:hidden"
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
 
       {/* 1. Apps Sidebar / Mobile Responsive Drawer */}
       <aside
@@ -1028,14 +1036,20 @@ export default function AppsSidebar({
       </aside>
 
       {/* 2. Floating Flyout Submenu Panel (Desktop Only) */}
-      {hoveredMenu && (
-        <div
-          ref={flyoutRef}
-          onMouseEnter={handleFlyoutMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          style={{ top: `${flyoutTop}px` }}
-          className="hidden lg:block fixed left-[68px] z-40 w-72 bg-[#061d15] border border-[#0f4637] rounded-xl shadow-[0_10px_35px_rgba(0,0,0,0.5)] p-3.5 text-white animate-in fade-in slide-in-from-left-1 duration-150 before:absolute before:-left-3 before:top-0 before:bottom-0 before:w-3 before:content-['']"
-        >
+      <AnimatePresence>
+        {hoveredMenu && (
+          <motion.div
+            key={hoveredMenu.id}
+            ref={flyoutRef}
+            initial={{ opacity: 0, x: -8, scale: 0.98 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -6, scale: 0.98 }}
+            transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+            onMouseEnter={handleFlyoutMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            style={{ top: `${flyoutTop}px` }}
+            className="hidden lg:block fixed left-[68px] z-40 w-72 bg-[#061d15] border border-[#0f4637] rounded-xl shadow-[0_10px_35px_rgba(0,0,0,0.5)] p-3.5 text-white before:absolute before:-left-3 before:top-0 before:bottom-0 before:w-3 before:content-['']"
+          >
           {/* Subtle Left Connector Caret */}
           <div className="absolute -left-1.5 top-4 w-3 h-3 bg-[#061d15] border-l border-b border-[#0f4637] rotate-45 pointer-events-none" />
 
@@ -1109,8 +1123,9 @@ export default function AppsSidebar({
               );
             })}
           </div>
-        </div>
+        </motion.div>
       )}
-    </>
-  );
+    </AnimatePresence>
+  </>
+);
 }

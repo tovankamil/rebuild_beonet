@@ -393,6 +393,20 @@ h1, h2, h3, h4, h5, h6 {
    PRINT OPTIMIZATION ENGINE (Brosur Prospek & E-Sertifikat)
    ========================================================================== */
 @media print {
+  /* Force true-to-life full-color printing for gradients, backgrounds, borders & SVGs */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
   /* Hide all app chrome, sidebars, headers, floating widgets, background */
   html, body {
     background: #ffffff !important;
@@ -400,6 +414,8 @@ h1, h2, h3, h4, h5, h6 {
     height: auto !important;
     min-height: auto !important;
     overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   body * {
@@ -409,6 +425,8 @@ h1, h2, h3, h4, h5, h6 {
   .printable-area,
   .printable-area * {
     visibility: visible;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .printable-area {
@@ -418,12 +436,14 @@ h1, h2, h3, h4, h5, h6 {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 24px !important;
+    padding: 16px 20px !important;
     border: none !important;
     box-shadow: none !important;
     background: #ffffff !important;
     overflow: visible !important;
     max-height: none !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
 
   .no-print {

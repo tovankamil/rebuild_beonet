@@ -69,6 +69,7 @@ export default function RecentJoinedMembersBar({
 }) {
   const containerRef = useRef(null);
   const scrollRef = useRef(null);
+  const closeTimerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [hoveredData, setHoveredData] = useState(null);
@@ -80,13 +81,31 @@ export default function RecentJoinedMembersBar({
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
   };
 
+  const cancelClose = () => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+
+  const scheduleClose = (delay = 220) => {
+    cancelClose();
+    closeTimerRef.current = setTimeout(() => {
+      setHoveredData(null);
+    }, delay);
+  };
+
   useEffect(() => {
     checkScroll();
     window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
+    return () => {
+      window.removeEventListener('resize', checkScroll);
+      cancelClose();
+    };
   }, [members]);
 
   const scroll = (direction) => {
+    cancelClose();
     setHoveredData(null);
     if (!scrollRef.current) return;
     const scrollAmount = 320;
@@ -98,6 +117,7 @@ export default function RecentJoinedMembersBar({
   };
 
   const handleAvatarEnter = (member, avatarUrl, e) => {
+    cancelClose();
     if (!containerRef.current) return;
     const containerRect = containerRef.current.getBoundingClientRect();
     const targetRect = e.currentTarget.getBoundingClientRect();
@@ -110,12 +130,8 @@ export default function RecentJoinedMembersBar({
     });
   };
 
-  const handleAvatarLeave = () => {
-    setHoveredData(null);
-  };
-
   // Tooltip geometry calculations
-  const tooltipHalfWidth = 115;
+  const tooltipHalfWidth = 118;
   const padding = 12;
   const minX = tooltipHalfWidth + padding;
   const maxX = (hoveredData?.containerWidth || 500) - tooltipHalfWidth - padding;
@@ -208,18 +224,27 @@ export default function RecentJoinedMembersBar({
       {/* Floating Apple/SoFi Frosted Glass Tooltip (Positioned in unclipped outer card) */}
       <AnimatePresence>
         {hoveredData && (
-          <motion.div
-            initial={{ opacity: 0, y: 6, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.96 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 380 }}
+          <div
+            key="hovered-card-wrapper"
             style={{
+              position: 'absolute',
               left: `${clampedX}px`,
-              top: `${hoveredData.y - 10}px`,
+              top: `${hoveredData.y}px`,
+              transform: 'translate(-50%, -100%)',
+              zIndex: 50,
+              paddingBottom: '14px', // Invisible bridge to avoid dead zone when moving cursor between avatar and card
             }}
-            className="absolute z-50 -translate-x-1/2 -translate-y-full pointer-events-none select-none"
+            onMouseEnter={cancelClose}
+            onMouseLeave={() => scheduleClose(180)}
+            className="pointer-events-auto select-none"
           >
-            <div className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-emerald-500/25 rounded-2xl shadow-xl shadow-emerald-950/15 p-3 min-w-[210px] max-w-[240px] text-slate-800 ring-1 ring-slate-900/5 dark:ring-white/10">
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 6, scale: 0.96 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 380 }}
+              className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-emerald-500/25 rounded-2xl shadow-2xl shadow-emerald-950/20 p-3 min-w-[216px] max-w-[245px] text-slate-800 ring-1 ring-slate-900/5 dark:ring-white/10"
+            >
               {/* Member Header: Mini Avatar, Name, Verified */}
               <div className="flex items-center gap-2.5">
                 <div className="relative flex-shrink-0">
@@ -280,19 +305,28 @@ export default function RecentJoinedMembersBar({
                 </div>
               )}
 
-              {/* Tree Navigation Hint */}
-              <div className="mt-2 text-[9px] text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1 text-center font-medium">
-                <span>Klik untuk lihat di Pohon Binary</span>
-                <ArrowRight size={9} />
-              </div>
+              {/* Prominent Clickable Action Button (Navigates to Binary Tree) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setHoveredData(null);
+                  if (onNavigateTree) onNavigateTree();
+                }}
+                className="w-full mt-2.5 py-1.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm shadow-emerald-600/30 cursor-pointer group/btn"
+              >
+                <GitFork size={13} className="text-emerald-200" />
+                <span>Buka di Pohon Binary</span>
+                <ArrowRight size={12} className="group-hover/btn:translate-x-0.5 transition-transform" />
+              </button>
 
               {/* Caret Pointer Arrow (Anchored dynamically to avatar center) */}
               <div
                 style={{ left: `calc(50% + ${arrowOffset}px)` }}
                 className="absolute -bottom-1.5 -translate-x-1/2 w-3 h-3 bg-white dark:bg-slate-900 rotate-45 border-r border-b border-emerald-500/25"
               />
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -316,7 +350,10 @@ export default function RecentJoinedMembersBar({
           ref={scrollRef}
           onScroll={() => {
             checkScroll();
-            if (hoveredData) setHoveredData(null);
+            if (hoveredData) {
+              cancelClose();
+              setHoveredData(null);
+            }
           }}
           className="flex items-center gap-4 sm:gap-6 overflow-x-auto py-2.5 px-1 scrollbar-none scroll-smooth"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -357,7 +394,7 @@ export default function RecentJoinedMembersBar({
                   delay: (idx + 1) * 0.045,
                 }}
                 onMouseEnter={(e) => handleAvatarEnter(member, avatarUrl, e)}
-                onMouseLeave={handleAvatarLeave}
+                onMouseLeave={() => scheduleClose(240)}
                 className="flex flex-col items-center flex-shrink-0 cursor-pointer group select-none"
                 onClick={onNavigateTree}
               >

@@ -263,7 +263,7 @@ _Dibuat via Bionet Prospecting Engine_`;
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 12 }}
         transition={{ duration: 0.2 }}
-        className="printable-area relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]"
+        className="printable-area relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:overflow-visible print:border-none print:shadow-none print:rounded-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
@@ -295,26 +295,31 @@ _Dibuat via Bionet Prospecting Engine_`;
         </div>
 
         {/* Printable Official Header (Shown only during printing) */}
-        <div className="hidden print:block p-6 border-b border-slate-200 text-slate-900">
+        <div className="hidden print:block p-4 border-b-2 border-emerald-600 text-slate-900 mb-2">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-black text-emerald-800 tracking-tight">
-                BIONET INDONESIA
-              </h1>
-              <p className="text-xs text-slate-600 font-medium">
-                Proposal Simulasi Potensi Income &amp; Kemitraan Herbal Resmi
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                B
+              </div>
+              <div>
+                <h1 className="text-xl font-black text-emerald-800 tracking-tight">
+                  BIONET INDONESIA
+                </h1>
+                <p className="text-[11px] text-slate-600 font-semibold">
+                  Proposal Simulasi Potensi Income &amp; Kemitraan Herbal Resmi BPOM
+                </p>
+              </div>
             </div>
-            <div className="text-right text-xs text-slate-500">
-              <div>Konsultan: <strong>{currentUser?.full_name || currentUser?.username}</strong></div>
-              <div>ID Mitra: <strong>BIO-{currentUser?.id?.slice(0, 8)?.toUpperCase()}</strong></div>
+            <div className="text-right text-xs text-slate-600">
+              <div>Konsultan: <strong className="text-slate-900">{currentUser?.full_name || currentUser?.username}</strong></div>
+              <div>ID Mitra: <strong className="text-emerald-700">BIO-{currentUser?.id?.slice(0, 8)?.toUpperCase()}</strong></div>
               <div>Tanggal: {new Date().toLocaleDateString('id-ID', { dateStyle: 'long' })}</div>
             </div>
           </div>
         </div>
 
         {/* Scrollable Content Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 print:overflow-visible print:p-2 print:space-y-4 print:max-h-none">
           {/* Controls Bar: Sliders & Selectors */}
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-4 no-print">
             {/* Prospect Name input for personal touch */}

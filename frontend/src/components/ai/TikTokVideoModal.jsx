@@ -24,6 +24,10 @@ import {
   Loader2,
   ArrowRight,
   Flame,
+  RefreshCw,
+  Image as ImageIcon,
+  Layers,
+  Wand2,
 } from 'lucide-react';
 
 /**
@@ -80,6 +84,106 @@ export default function TikTokVideoModal({
     setVeoCopied(true);
     setTimeout(() => setVeoCopied(false), 2000);
   };
+
+  // AI Background Image Generator for In-App Motion Canvas
+  const [bgType, setBgType] = useState('ai_image'); // 'ai_image' | 'gradient'
+  const [aiImagePreset, setAiImagePreset] = useState('rainforest');
+  const [aiImagePrompt, setAiImagePrompt] = useState(
+    `Cinematic 4K vertical commercial photo of ${productName} luxury dropper bottle on wet mossy forest stone, tropical green leaves, morning dew droplets, soft golden volumetric sunbeams, photorealistic, 9:16 ratio`
+  );
+  const [aiImageSeed, setAiImageSeed] = useState(108);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [aiImageUrl, setAiImageUrl] = useState(null);
+  const [aiImageError, setAiImageError] = useState(null);
+  const aiImageElementRef = useRef(null);
+
+  const AI_IMAGE_PRESETS = [
+    {
+      id: 'rainforest',
+      name: '🌿 Rainforest Dew',
+      desc: 'Hutan tropis, batu berlumut & tetesan embun pagi',
+      getPrompt: (prod) =>
+        `Cinematic 4K vertical commercial photo of ${prod} luxury dropper bottle on wet mossy forest stone, tropical green leaves, morning dew droplets, soft golden volumetric sunbeams, photorealistic, 9:16 ratio`,
+    },
+    {
+      id: 'biotech',
+      name: '🔬 Lab Farmasi Canggih',
+      desc: 'Laboratorium modern, kaca bening & molekul botanis',
+      getPrompt: (prod) =>
+        `High-tech clean pharmaceutical laboratory commercial shot of ${prod} medicine bottle, glowing cyan botanical molecules, precision pipettes, crystal glass reflection, 4k ultra-detailed, photorealistic, 9:16 vertical`,
+    },
+    {
+      id: 'lifestyle',
+      name: '🏃 Gaya Hidup Bugar',
+      desc: 'Wanita Indonesia sehat tersenyum di dapur pagi cerah',
+      getPrompt: (prod) =>
+        `Authentic beautiful Indonesian woman smiling radiantly holding natural herbal health supplement ${prod}, bright sunny modern aesthetic kitchen, warm natural lighting, 4k photorealistic, 9:16 vertical`,
+    },
+    {
+      id: 'golden_drops',
+      name: '💧 Tetesan Ekstrak Emas',
+      desc: 'Tetesan cairan herbal keemasan dengan percikan jernih macro 4K',
+      getPrompt: (prod) =>
+        `Ultra high speed macro photography of golden herbal medicine droplet falling with perfect liquid crown splash, dark emerald bokeh background, studio product lighting, 4k ultra realistic, 9:16 vertical`,
+    },
+  ];
+
+  const handleGenerateAIImage = async (customPrompt, customSeed) => {
+    setIsGeneratingImage(true);
+    setAiImageError(null);
+    const promptToUse = customPrompt || aiImagePrompt;
+    const seedToUse = customSeed !== undefined ? customSeed : Math.floor(Math.random() * 999999);
+    setAiImageSeed(seedToUse);
+
+    const targetUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
+      promptToUse
+    )}?width=720&height=1280&model=flux&nologo=true&seed=${seedToUse}`;
+
+    try {
+      // Fetch as blob to guarantee 100% clean canvas capture without cross-origin tainting
+      const resp = await fetch(targetUrl);
+      if (!resp.ok) {
+        throw new Error(`HTTP ${resp.status}`);
+      }
+      const blob = await resp.blob();
+      const localBlobUrl = URL.createObjectURL(blob);
+
+      const img = new Image();
+      img.onload = () => {
+        aiImageElementRef.current = img;
+        setAiImageUrl(localBlobUrl);
+        setIsGeneratingImage(false);
+      };
+      img.onerror = () => {
+        setAiImageError('Gagal merender gambar ke buffer canvas.');
+        setIsGeneratingImage(false);
+      };
+      img.src = localBlobUrl;
+    } catch (err) {
+      console.warn('Direct blob fetch issue, using direct image element:', err);
+      const directImg = new Image();
+      directImg.crossOrigin = 'anonymous';
+      directImg.onload = () => {
+        aiImageElementRef.current = directImg;
+        setAiImageUrl(targetUrl);
+        setIsGeneratingImage(false);
+      };
+      directImg.onerror = () => {
+        setAiImageError('Gagal memuat gambar AI. Menggunakan latar gradient kinetik.');
+        setIsGeneratingImage(false);
+      };
+      directImg.src = targetUrl;
+    }
+  };
+
+  // Auto-generate initial AI image when modal opens if not generated yet
+  useEffect(() => {
+    if (isOpen && !aiImageUrl && !isGeneratingImage) {
+      const initialPrompt = AI_IMAGE_PRESETS[0].getPrompt(productName);
+      setAiImagePrompt(initialPrompt);
+      handleGenerateAIImage(initialPrompt, 108);
+    }
+  }, [isOpen]);
 
   // Extracted scenes from script or smart defaults
   const [scenes, setScenes] = useState([
@@ -263,35 +367,94 @@ export default function TikTokVideoModal({
     // 1. Background Canvas
     ctx.clearRect(0, 0, W, H);
 
-    // Dynamic gradient background based on theme
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-    if (theme === 'emerald') {
-      bgGrad.addColorStop(0, '#041610');
-      bgGrad.addColorStop(0.5, '#07241a');
-      bgGrad.addColorStop(1, '#020b08');
-    } else if (theme === 'luxury_gold') {
-      bgGrad.addColorStop(0, '#1c1503');
-      bgGrad.addColorStop(0.5, '#0d0d0c');
-      bgGrad.addColorStop(1, '#000000');
-    } else {
-      bgGrad.addColorStop(0, '#0f0c29');
-      bgGrad.addColorStop(0.5, '#1b1236');
-      bgGrad.addColorStop(1, '#080514');
-    }
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, W, H);
+    let hasDrawnAIImage = false;
+    if (bgType === 'ai_image' && aiImageElementRef.current) {
+      const img = aiImageElementRef.current;
+      if (img.complete && img.naturalWidth > 0) {
+        hasDrawnAIImage = true;
+        ctx.save();
+        // Cinematic Ken Burns gentle zoom (1.00 -> 1.09) and slight pan
+        const progressRatio = Math.min(1, Math.max(0, t / totalDuration));
+        const zoom = 1.0 + progressRatio * 0.09;
+        const panX = Math.sin(progressRatio * Math.PI) * (W * 0.015);
+        const panY = progressRatio * (H * 0.02);
 
-    // Ambient floating particles & glow
-    ctx.save();
-    const glowX = W / 2 + Math.sin(t * 1.5) * 60;
-    const glowY = H * 0.42 + Math.cos(t * 1.2) * 50;
-    const radGlow = ctx.createRadialGradient(glowX, glowY, 10, glowX, glowY, 320);
-    radGlow.addColorStop(0, `${scene.bgGlow}33`);
-    radGlow.addColorStop(0.7, `${scene.bgGlow}11`);
-    radGlow.addColorStop(1, 'transparent');
-    ctx.fillStyle = radGlow;
-    ctx.fillRect(0, 0, W, H);
-    ctx.restore();
+        const drawW = W * zoom;
+        const drawH = H * zoom;
+        const drawX = (W - drawW) / 2 + panX;
+        const drawY = (H - drawH) / 2 - panY;
+
+        ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+        // Vignette & High-Contrast Gradients for Crystal-Clear Text
+        // 1. Top dark fade (for Scene Tag & Header)
+        const topGrad = ctx.createLinearGradient(0, 0, 0, 310);
+        topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.88)');
+        topGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0.45)');
+        topGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = topGrad;
+        ctx.fillRect(0, 0, W, 310);
+
+        // 2. Center radial scrim
+        const midScrim = ctx.createRadialGradient(W / 2, H * 0.45, 60, W / 2, H * 0.45, 280);
+        midScrim.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
+        midScrim.addColorStop(1, 'transparent');
+        ctx.fillStyle = midScrim;
+        ctx.fillRect(0, 0, W, H);
+
+        // 3. Bottom heavy dark gradient (for Subtitles, CTA & Badges)
+        const btmGrad = ctx.createLinearGradient(0, H * 0.52, 0, H);
+        btmGrad.addColorStop(0, 'transparent');
+        btmGrad.addColorStop(0.22, 'rgba(0, 0, 0, 0.68)');
+        btmGrad.addColorStop(0.62, 'rgba(0, 0, 0, 0.88)');
+        btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.96)');
+        ctx.fillStyle = btmGrad;
+        ctx.fillRect(0, H * 0.52, W, H * 0.48);
+
+        // Ambient floating golden/emerald micro-particles on top of image
+        const glowX = W / 2 + Math.sin(t * 1.5) * 60;
+        const glowY = H * 0.42 + Math.cos(t * 1.2) * 50;
+        const radGlow = ctx.createRadialGradient(glowX, glowY, 10, glowX, glowY, 260);
+        radGlow.addColorStop(0, `${scene.bgGlow}25`);
+        radGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = radGlow;
+        ctx.fillRect(0, 0, W, H);
+
+        ctx.restore();
+      }
+    }
+
+    if (!hasDrawnAIImage) {
+      // Dynamic gradient background based on theme
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+      if (theme === 'emerald') {
+        bgGrad.addColorStop(0, '#041610');
+        bgGrad.addColorStop(0.5, '#07241a');
+        bgGrad.addColorStop(1, '#020b08');
+      } else if (theme === 'luxury_gold') {
+        bgGrad.addColorStop(0, '#1c1503');
+        bgGrad.addColorStop(0.5, '#0d0d0c');
+        bgGrad.addColorStop(1, '#000000');
+      } else {
+        bgGrad.addColorStop(0, '#0f0c29');
+        bgGrad.addColorStop(0.5, '#1b1236');
+        bgGrad.addColorStop(1, '#080514');
+      }
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Ambient floating particles & glow
+      ctx.save();
+      const glowX = W / 2 + Math.sin(t * 1.5) * 60;
+      const glowY = H * 0.42 + Math.cos(t * 1.2) * 50;
+      const radGlow = ctx.createRadialGradient(glowX, glowY, 10, glowX, glowY, 320);
+      radGlow.addColorStop(0, `${scene.bgGlow}33`);
+      radGlow.addColorStop(0.7, `${scene.bgGlow}11`);
+      radGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = radGlow;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+    }
 
     // 2. Scene Top Header Tag
     ctx.save();
@@ -330,17 +493,23 @@ export default function TikTokVideoModal({
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Glowing Disc Center
+    // Glowing Disc Center (Frosted Glass when AI Image is active)
     const discGrad = ctx.createRadialGradient(W / 2, centerY, 20, W / 2, centerY, 150);
-    discGrad.addColorStop(0, 'rgba(255, 255, 255, 0.12)');
-    discGrad.addColorStop(0.6, `${scene.tagColor}22`);
-    discGrad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+    if (hasDrawnAIImage) {
+      discGrad.addColorStop(0, 'rgba(255, 255, 255, 0.25)');
+      discGrad.addColorStop(0.5, `${scene.tagColor}30`);
+      discGrad.addColorStop(1, 'rgba(0, 0, 0, 0.45)');
+    } else {
+      discGrad.addColorStop(0, 'rgba(255, 255, 255, 0.12)');
+      discGrad.addColorStop(0.6, `${scene.tagColor}22`);
+      discGrad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
+    }
     ctx.fillStyle = discGrad;
     ctx.beginPath();
     ctx.arc(W / 2, centerY, 150, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = hasDrawnAIImage ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 2.5;
     ctx.stroke();
 
     // High-Tech Product Graphic Symbol inside disc
@@ -511,7 +680,7 @@ export default function TikTokVideoModal({
 
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
-  }, [isOpen, isPlaying, currentTime, totalDuration, theme, scenes]);
+  }, [isOpen, isPlaying, currentTime, totalDuration, theme, scenes, bgType, aiImageUrl]);
 
   // Audio Context Initialization
   const handleTogglePlay = () => {
@@ -798,6 +967,140 @@ export default function TikTokVideoModal({
                     );
                   })}
                 </div>
+              </div>
+
+              {/* AI Background Image Generator Panel */}
+              <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-3 shadow-inner">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                      <Sparkles size={14} />
+                    </div>
+                    <div>
+                      <div className="text-xs font-black text-white flex items-center gap-1.5">
+                        <span>Latar Belakang Gambar AI (Fotorealistik)</span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-rose-500/30 text-rose-200 border border-rose-400/30 font-bold">
+                          FLUX 9:16
+                        </span>
+                      </div>
+                      <div className="text-[10.5px] text-slate-400">
+                        Render otomatis gambar visual produk dengan efek gerak kamera Ken Burns
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Toggle AI Image vs Gradient */}
+                  <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setBgType('ai_image')}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition ${
+                        bgType === 'ai_image'
+                          ? 'bg-gradient-to-r from-rose-600 to-pink-600 text-white shadow-xs'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Gambar AI
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBgType('gradient')}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition ${
+                        bgType === 'gradient' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Gradient
+                    </button>
+                  </div>
+                </div>
+
+                {bgType === 'ai_image' && (
+                  <div className="space-y-2.5 pt-1">
+                    {/* Preset Pills */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                      {AI_IMAGE_PRESETS.map((p) => {
+                        const isSelected = aiImagePreset === p.id;
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              setAiImagePreset(p.id);
+                              const newPrompt = p.getPrompt(productName);
+                              setAiImagePrompt(newPrompt);
+                              handleGenerateAIImage(newPrompt);
+                            }}
+                            className={`p-2 rounded-xl text-left border transition text-xs ${
+                              isSelected
+                                ? 'bg-rose-950/40 border-rose-500/80 text-white font-bold ring-1 ring-rose-500/40'
+                                : 'bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700'
+                            }`}
+                          >
+                            <div className="truncate text-[11px] font-bold">{p.name}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Prompt Editor & Action Row */}
+                    <div className="flex flex-col sm:flex-row items-stretch gap-2">
+                      <input
+                        type="text"
+                        value={aiImagePrompt}
+                        onChange={(e) => setAiImagePrompt(e.target.value)}
+                        placeholder="Prompt gambar AI..."
+                        className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-[11px] text-white focus:outline-hidden focus:border-rose-500"
+                      />
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          disabled={isGeneratingImage}
+                          onClick={() => handleGenerateAIImage()}
+                          className="px-3 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-rose-950 disabled:opacity-50 active:scale-95"
+                        >
+                          {isGeneratingImage ? (
+                            <>
+                              <Loader2 size={13} className="animate-spin" />
+                              <span>Membuat...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles size={13} className="text-amber-300" />
+                              <span>Generate Gambar</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={isGeneratingImage}
+                          onClick={() =>
+                            handleGenerateAIImage(aiImagePrompt, Math.floor(Math.random() * 999999))
+                          }
+                          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition"
+                          title="Acak Variasi Visual (Seed Baru)"
+                        >
+                          <RefreshCw size={14} className={isGeneratingImage ? 'animate-spin' : ''} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Status & Preview info */}
+                    {aiImageUrl && (
+                      <div className="flex items-center justify-between text-[10.5px] px-2.5 py-1.5 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-emerald-300">
+                        <span className="flex items-center gap-1.5 truncate">
+                          <Check size={12} className="text-emerald-400 shrink-0" />
+                          <span className="truncate">Gambar AI aktif di Canvas (Gerak Kamera Ken Burns 9:16)</span>
+                        </span>
+                        <span className="font-mono text-[9px] text-slate-400 shrink-0">Seed: #{aiImageSeed}</span>
+                      </div>
+                    )}
+                    {aiImageError && (
+                      <div className="text-[10.5px] px-2.5 py-1.5 rounded-lg bg-amber-950/30 border border-amber-500/30 text-amber-300">
+                        {aiImageError}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Theme & Soundtrack Settings */}

@@ -72,6 +72,8 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const [logs, setLogs] = useState([]);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
   const [pairPhone, setPairPhone] = useState('+6281234567890');
+  const [pairingLoading, setPairingLoading] = useState(false);
+  const [pairSuccessMsg, setPairSuccessMsg] = useState('');
 
   // AI Assistant Drafting in Chat
   const [aiDrafting, setAiDrafting] = useState(false);
@@ -345,6 +347,46 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
       setBotTestResult(match.reply);
     } else {
       setBotTestResult('Bot tidak menemukan kata kunci yang cocok. (Pesan akan diteruskan ke CS atau Gemini AI)');
+    }
+  };
+
+  // Pair WhatsApp Device with User's Real Phone Number
+  const handlePairDevice = async (e) => {
+    e?.preventDefault();
+    if (!pairPhone.trim()) return;
+    setPairingLoading(true);
+    setPairSuccessMsg('');
+    try {
+      const res = await api.post('/crm/whatsapp/device/pair', {
+        phone_number: pairPhone.trim(),
+      });
+      if (res.data?.data) {
+        setDeviceSession(res.data.data);
+        setPairSuccessMsg(`Nomor ${res.data.data.phone_number} berhasil ditautkan sebagai Gateway WhatsApp Utama!`);
+        setTimeout(() => setPairSuccessMsg(''), 5000);
+      }
+    } catch (err) {
+      console.error('Failed to pair device:', err);
+      alert('Gagal menautkan nomor: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setPairingLoading(false);
+    }
+  };
+
+  // Disconnect Device
+  const handleDisconnectDevice = async () => {
+    if (!window.confirm('Putuskan sesi WhatsApp saat ini?')) return;
+    setPairingLoading(true);
+    setPairSuccessMsg('');
+    try {
+      const res = await api.post('/crm/whatsapp/device/disconnect');
+      if (res.data?.data) {
+        setDeviceSession(res.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to disconnect device:', err);
+    } finally {
+      setPairingLoading(false);
     }
   };
 
@@ -1355,71 +1397,167 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
       {/* SUB-VIEW 5: DEVICE & QR CODE LINK */}
       {/* ========================================================================= */}
       {activeTab === 'device' && (
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
-          <div className="md:col-span-6 bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm space-y-4 text-center">
-            <h3 className="font-extrabold text-slate-900 text-base">Tautkan Perangkat WhatsApp (QR Code)</h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Buka WhatsApp di ponsel Anda &gt; Setelan / Titik Tiga &gt; Perangkat Tertaut &gt; Tautkan Perangkat, lalu scan QR Code di bawah ini.
-            </p>
-
-            <div className="inline-block p-4 bg-white rounded-3xl border-2 border-emerald-500 shadow-md">
-              <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=BIONET-GATEWAY-OFFICIAL-SESSION"
-                alt="WhatsApp QR Code Pairing"
-                className="w-48 h-48 mx-auto"
-              />
+        <div className="space-y-5">
+          {/* Success Banner */}
+          {pairSuccessMsg && (
+            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold flex items-center space-x-2 shadow-xs">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <span>{pairSuccessMsg}</span>
             </div>
+          )}
 
-            <div className="text-[11px] font-bold text-slate-500 flex items-center justify-center space-x-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>QR Code diperbarui otomatis setiap 30 detik</span>
-            </div>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+            {/* Left Column: Form Tautkan Nomor & QR Code */}
+            <div className="md:col-span-6 bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm space-y-5">
+              <div>
+                <h3 className="font-extrabold text-slate-900 text-base">Tautkan Nomor WhatsApp Anda</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Masukkan nomor WhatsApp ponsel Anda yang ingin dijadikan pengirim resmi pesan konsumen, notifikasi, dan broadcast.
+                </p>
+              </div>
 
-          <div className="md:col-span-6 space-y-4">
-            <div className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm space-y-3">
-              <h3 className="font-extrabold text-slate-900 text-sm">Status Sesi Gateway Saat Ini</h3>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between py-2 border-b border-slate-100">
-                  <span className="text-slate-500">Status Server:</span>
-                  <span className="font-bold text-emerald-600 flex items-center space-x-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Terhubung (Online 99.98%)</span>
+              {/* Input Nomor Telepon Form */}
+              <form onSubmit={handlePairDevice} className="space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Nomor WhatsApp Anda:
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={pairPhone}
+                      onChange={(e) => setPairPhone(e.target.value)}
+                      placeholder="Contoh: 081234567890 atau +6281234567890"
+                      className="w-full px-4 py-2.5 text-xs rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono font-bold text-slate-900"
+                    />
+                  </div>
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    Format otomatis dinormalisasi ke standar internasional (+62).
                   </span>
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-100">
-                  <span className="text-slate-500">Nomor WhatsApp Gateway:</span>
-                  <span className="font-mono font-bold text-slate-900">{deviceSession?.phone_number || '+62812-3456-7890'}</span>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="submit"
+                    disabled={pairingLoading}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/30 transition disabled:opacity-50 flex items-center justify-center space-x-1.5"
+                  >
+                    {pairingLoading ? (
+                      <span>Menyinkronkan...</span>
+                    ) : (
+                      <>
+                        <Smartphone className="w-4 h-4" />
+                        <span>Tautkan Nomor WhatsApp Saya</span>
+                      </>
+                    )}
+                  </button>
+
+                  {deviceSession?.status === 'connected' && (
+                    <button
+                      type="button"
+                      onClick={handleDisconnectDevice}
+                      disabled={pairingLoading}
+                      className="py-2.5 px-3.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 text-xs font-bold transition"
+                      title="Putuskan sesi saat ini"
+                    >
+                      Putuskan Sesi
+                    </button>
+                  )}
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-100">
-                  <span className="text-slate-500">Perangkat Node:</span>
-                  <span className="font-semibold text-slate-800">{deviceSession?.device_name || 'Bionet Node v2.24'}</span>
+              </form>
+
+              <div className="pt-3 border-t border-slate-100 text-center space-y-3">
+                <div className="text-xs font-bold text-slate-700">Atau Pindai QR Code (WAHA / WhatsApp Web):</div>
+                <div className="inline-block p-3.5 bg-white rounded-3xl border-2 border-emerald-500 shadow-md">
+                  <img
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=BIONET-GATEWAY-OFFICIAL-SESSION"
+                    alt="WhatsApp QR Code Pairing"
+                    className="w-40 h-40 mx-auto"
+                  />
                 </div>
-                <div className="flex justify-between py-2 border-b border-slate-100">
-                  <span className="text-slate-500">Auto-Responder Bot:</span>
-                  <span className="font-bold text-emerald-600">Aktif (24/7)</span>
+                <div className="text-[11px] font-bold text-slate-400 flex items-center justify-center space-x-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Buka WhatsApp di HP &gt; Perangkat Tertaut &gt; Tautkan Perangkat</span>
                 </div>
               </div>
             </div>
 
-            {/* Webhook Listener URL */}
-            <div className="bg-slate-900 text-white p-5 rounded-3xl border border-slate-800 space-y-2">
-              <div className="text-xs font-bold text-emerald-400">Webhook URL Callback (Inbound Message &amp; Delivery):</div>
-              <div className="flex items-center space-x-2 bg-slate-800 p-2.5 rounded-xl border border-slate-700">
-                <span className="font-mono text-[10px] text-slate-300 truncate flex-1">
-                  http://localhost:8081/api/crm/whatsapp/webhook
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText('http://localhost:8081/api/crm/whatsapp/webhook');
-                    setCopiedWebhook(true);
-                    setTimeout(() => setCopiedWebhook(false), 2000);
-                  }}
-                  className="px-2 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold"
-                >
-                  {copiedWebhook ? 'Tersalin' : 'Salin'}
-                </button>
+            {/* Right Column: Status Sesi & Panduan Penggunaan Nomor */}
+            <div className="md:col-span-6 space-y-4">
+              <div className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm space-y-3">
+                <h3 className="font-extrabold text-slate-900 text-sm">Status Sesi Gateway Saat Ini</h3>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-500">Status Server:</span>
+                    <span className="font-bold text-emerald-600 flex items-center space-x-1">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{deviceSession?.status === 'connected' ? 'Terhubung (Online)' : 'Belum Terhubung'}</span>
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-500">Nomor WhatsApp Aktif:</span>
+                    <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      {deviceSession?.phone_number || pairPhone || '+62812-3456-7890'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-500">Perangkat Node:</span>
+                    <span className="font-semibold text-slate-800">{deviceSession?.device_name || 'Bionet Node v2.24'}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-500">Auto-Responder Bot:</span>
+                    <span className="font-bold text-emerald-600">Aktif (24/7)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Panduan 2 Metode Penggunaan Nomor Sendiri */}
+              <div className="bg-emerald-50/60 p-5 rounded-3xl border border-emerald-200/80 space-y-3 text-xs">
+                <h4 className="font-extrabold text-emerald-950 flex items-center space-x-1.5 text-sm">
+                  <Sparkles className="w-4 h-4 text-emerald-600" />
+                  <span>2 Cara Menggunakan Nomor WhatsApp Anda</span>
+                </h4>
+                
+                <div className="space-y-2.5 text-slate-700">
+                  <div className="p-3 bg-white rounded-2xl border border-emerald-100 shadow-xs">
+                    <div className="font-bold text-emerald-800 flex items-center space-x-1 mb-0.5">
+                      <span>1. Direct Link (100% Gratis via HP Anda)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Klik tombol WhatsApp di setiap chat atau kartu CRM. Aplikasi akan langsung membuka WhatsApp di HP Anda sendiri dengan naskah yang sudah otomatis terketik rapi siap kirim.
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-white rounded-2xl border border-emerald-100 shadow-xs">
+                    <div className="font-bold text-emerald-800 flex items-center space-x-1 mb-0.5">
+                      <span>2. Otomatis dari Server (Fonnte / WAHA Gateway)</span>
+                    </div>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Jika Anda ingin dashboard mengirim pesan secara otomatis 24 jam (misal balasan bot otomatis &amp; broadcast terjadwal), cukup hubungkan nomor Anda ke Fonnte/WAHA dan masukkan token API Anda.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Webhook Listener URL */}
+              <div className="bg-slate-900 text-white p-5 rounded-3xl border border-slate-800 space-y-2">
+                <div className="text-xs font-bold text-emerald-400">Webhook URL Callback (Inbound Message &amp; Delivery):</div>
+                <div className="flex items-center space-x-2 bg-slate-800 p-2.5 rounded-xl border border-slate-700">
+                  <span className="font-mono text-[10px] text-slate-300 truncate flex-1">
+                    http://localhost:8081/api/crm/whatsapp/webhook
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText('http://localhost:8081/api/crm/whatsapp/webhook');
+                      setCopiedWebhook(true);
+                      setTimeout(() => setCopiedWebhook(false), 2000);
+                    }}
+                    className="px-2 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-bold"
+                  >
+                    {copiedWebhook ? 'Tersalin' : 'Salin'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -23,6 +23,8 @@ import AdminSystemGuideTab from './components/admin/AdminSystemGuideTab';
 import WarehouseTab from './components/warehouse/WarehouseTab';
 import ChatTab from './components/ChatTab';
 import MeetingTab from './components/MeetingTab';
+import LeadsCRMTab from './components/crm/LeadsCRMTab';
+import AIMarketingStudioTab from './components/ai/AIMarketingStudioTab';
 import ProfileModal from './components/ProfileModal';
 import AIAssistantWidget from './components/AIAssistantWidget';
 import LoginPage from './pages/LoginPage';
@@ -338,6 +340,12 @@ export default function App() {
           )}
 
           {activeTab === 'chat' && <ChatTab currentUser={user} />}
+
+          {activeTab === 'leads' && <LeadsCRMTab user={user} />}
+
+          {activeTab === 'ai-marketing' && (
+            <AIMarketingStudioTab user={user} />
+          )}
 
           {activeTab === 'meetings' && (
             <MeetingTab user={user} setActiveTab={setActiveTab} />

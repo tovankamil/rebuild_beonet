@@ -34,6 +34,7 @@ import {
   BookOpen,
   Activity,
   Video,
+  Target,
 } from 'lucide-react';
 import DashAvatar from './DashAvatar';
 
@@ -135,6 +136,26 @@ function getRoleMenuModules(role) {
         ],
       },
       {
+        id: 'leads',
+        title: 'Prospek & Leads (CRM)',
+        icon: Target,
+        badge: 'CRM',
+        submenus: [
+          { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
+          { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        ],
+      },
+      {
+        id: 'ai-marketing',
+        title: 'Studio Konten AI',
+        icon: Sparkles,
+        badge: 'AI',
+        submenus: [
+          { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi siap kirim berizin BPOM', icon: Sparkles },
+          { id: 'ai-marketing', title: 'Naskah Video TikTok & Reels', desc: 'Script 30-45 detik hook & problem-solution', icon: Video },
+        ],
+      },
+      {
         id: 'chat',
         title: 'Live Chat Bantuan',
         icon: MessagesSquare,
@@ -213,6 +234,26 @@ function getRoleMenuModules(role) {
         ],
       },
       {
+        id: 'leads',
+        title: 'Prospek & Leads (CRM)',
+        icon: Target,
+        badge: 'CRM',
+        submenus: [
+          { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
+          { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        ],
+      },
+      {
+        id: 'ai-marketing',
+        title: 'Studio Konten AI',
+        icon: Sparkles,
+        badge: 'AI',
+        submenus: [
+          { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi siap kirim berizin BPOM', icon: Sparkles },
+          { id: 'ai-marketing', title: 'Naskah Video TikTok & Reels', desc: 'Script 30-45 detik hook & problem-solution', icon: Video },
+        ],
+      },
+      {
         id: 'chat',
         title: 'Live Chat Bantuan',
         icon: MessagesSquare,
@@ -242,6 +283,26 @@ function getRoleMenuModules(role) {
         badge: 'Mitra',
         submenus: [
           { id: 'admin-users', title: 'Data Anggota & Sponsor', desc: 'Audit profil & status akun mitra', icon: Users },
+        ],
+      },
+      {
+        id: 'leads',
+        title: 'Prospek & Leads (CRM)',
+        icon: Target,
+        badge: 'CRM',
+        submenus: [
+          { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
+          { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        ],
+      },
+      {
+        id: 'ai-marketing',
+        title: 'Studio Konten AI',
+        icon: Sparkles,
+        badge: 'AI',
+        submenus: [
+          { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi siap kirim berizin BPOM', icon: Sparkles },
+          { id: 'ai-marketing', title: 'Naskah Video TikTok & Reels', desc: 'Script 30-45 detik hook & problem-solution', icon: Video },
         ],
       },
       {
@@ -393,6 +454,26 @@ function getRoleMenuModules(role) {
       ],
     },
     {
+      id: 'leads',
+      title: 'Prospek & Leads (CRM)',
+      icon: Target,
+      badge: 'CRM',
+      submenus: [
+        { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
+        { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+      ],
+    },
+    {
+      id: 'ai-marketing',
+      title: 'Studio Konten AI',
+      icon: Sparkles,
+      badge: 'AI',
+      submenus: [
+        { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi siap kirim berizin BPOM', icon: Sparkles },
+        { id: 'ai-marketing', title: 'Naskah Video TikTok & Reels', desc: 'Script 30-45 detik hook & problem-solution', icon: Video },
+      ],
+    },
+    {
       id: 'chat',
       title: 'Live Chat Bantuan',
       icon: MessagesSquare,
@@ -465,7 +546,14 @@ export default function AppsSidebar({
   const menuModules = dynamicAllowedKeys
     ? baseModules.filter((m) => {
         if (userRole === 'admin') return true;
-        return dynamicAllowedKeys.includes(m.id) || m.id === 'meetings' || m.id === 'chat' || m.id === 'admin-guide';
+        return (
+          dynamicAllowedKeys.includes(m.id) ||
+          m.id === 'meetings' ||
+          m.id === 'chat' ||
+          m.id === 'admin-guide' ||
+          m.id === 'leads' ||
+          m.id === 'ai-marketing'
+        );
       })
     : baseModules;
 

@@ -544,6 +544,55 @@ func seedDefaultData() {
 			}
 		}
 
+		// Ensure leads CRM & AI Marketing menus exist
+		var leadsMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "leads").First(&leadsMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "leads",
+				Title:       "Prospek & Leads (CRM)",
+				Description: "Manajemen calon mitra, status follow-up & konversi",
+				Category:    "Bisnis",
+				IconName:    "UserCheck",
+				OrderIndex:  12,
+			})
+		}
+		for _, r := range []string{"admin", "member", "cs"} {
+			var p models.RoleMenuPermission
+			if err := config.DB.Where("role = ? AND menu_key = ?", r, "leads").First(&p).Error; err != nil {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID:        uuid.New().String(),
+					Role:      r,
+					MenuKey:   "leads",
+					IsEnabled: true,
+				})
+			}
+		}
+
+		var aiMarketingMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "ai-marketing").First(&aiMarketingMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "ai-marketing",
+				Title:       "Studio Konten AI",
+				Description: "Generator materi promosi WhatsApp, IG & TikTok otomatis",
+				Category:    "Bisnis",
+				IconName:    "Sparkles",
+				OrderIndex:  13,
+			})
+		}
+		for _, r := range []string{"admin", "member", "cs"} {
+			var p models.RoleMenuPermission
+			if err := config.DB.Where("role = ? AND menu_key = ?", r, "ai-marketing").First(&p).Error; err != nil {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID:        uuid.New().String(),
+					Role:      r,
+					MenuKey:   "ai-marketing",
+					IsEnabled: true,
+				})
+			}
+		}
+
 		// Ensure admin-monitoring menu & permissions exist
 		var monitoringMenu models.AppMenu
 		if err := config.DB.Where("menu_key = ?", "admin-monitoring").First(&monitoringMenu).Error; err != nil {
@@ -766,6 +815,7 @@ func main() {
 		&models.Meeting{},
 		&models.MeetingAttendee{},
 		&models.MeetingParticipant{},
+		&models.Lead{},
 	}
 	for _, m := range allModels {
 		if err := config.DB.AutoMigrate(m); err != nil {
@@ -806,6 +856,7 @@ func main() {
 	regionHandler := handlers.NewRegionHandler()
 	monitoringHandler := handlers.NewMonitoringHandler()
 	meetingHandler := handlers.NewMeetingHandler()
+	leadHandler := handlers.NewLeadHandler()
 
 	// Initialize Google Gemini AI Service
 	if _, err := services.NewGeminiService(); err != nil {
@@ -851,6 +902,7 @@ func main() {
 		api.GET("/public/meetings/:room_id", meetingHandler.GetPublicMeeting)
 		api.POST("/public/meetings/:room_id/register", meetingHandler.RegisterPublicAttendee)
 		api.GET("/public/meetings/:room_id/participants", meetingHandler.GetMeetingParticipants)
+		api.POST("/public/leads", leadHandler.PublicCaptureLead)
 
 		// Gemini AI Assistant Endpoint
 		api.POST("/ai/chat", func(c *gin.Context) {
@@ -946,6 +998,16 @@ func main() {
 			protected.POST("/meetings/:room_id/heartbeat", meetingHandler.HeartbeatMeeting)
 			protected.GET("/meetings/:room_id/participants", meetingHandler.GetMeetingParticipants)
 			protected.POST("/meetings/:room_id/recordings", meetingHandler.UploadRecording)
+
+			// CRM & Leads Pipeline (Poin 5 di Roadmap)
+			protected.GET("/leads", leadHandler.GetLeads)
+			protected.POST("/leads", leadHandler.CreateLead)
+			protected.PUT("/leads/:id", leadHandler.UpdateLead)
+			protected.DELETE("/leads/:id", leadHandler.DeleteLead)
+			protected.POST("/leads/:id/ai-followup", leadHandler.GenerateLeadFollowUpAI)
+
+			// AI Marketing & Sales Copywriting Studio (Poin 1 di Roadmap)
+			protected.POST("/ai/marketing/generate", leadHandler.GenerateMarketingCopyAI)
 
 			// ==============================================
 			// RBAC: ADMIN & MANAGEMENT ROUTES (Admin, Keuangan, CS)

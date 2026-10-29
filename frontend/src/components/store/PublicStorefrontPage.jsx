@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   ShieldCheck,
   Truck,
@@ -92,12 +93,26 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
     window.open(`https://wa.me/${cleanWa}?text=${text}`, '_blank');
   };
 
-  const handleSubmitOrder = (e) => {
+  const handleSubmitOrder = async (e) => {
     e.preventDefault();
     if (!selectedProduct) return;
 
     const price = getRetailPrice(selectedProduct.memberPrice || selectedProduct.basePrice || 150000);
     const cleanWa = whatsappNumber.replace(/[^0-9]/g, '');
+
+    // Auto-capture lead in CRM for the mitra
+    try {
+      axios.post('/api/public/leads', {
+        store_username: storeUsername || '',
+        name: customerName,
+        phone: customerPhone,
+        city: customerAddress,
+        product_interest: selectedProduct.name,
+        notes: `Pemesanan Toko Afiliasi online (Kurir: ${courier})`,
+        estimated_value: price,
+      }).catch((err) => console.log('Lead auto-capture silent log:', err));
+    } catch (_) {}
+
     const text = encodeURIComponent(
       `Halo kak, saya baru saja melakukan pemesanan via Toko Online Bionet:\n\n` +
       `📦 *Produk:* ${selectedProduct.name}\n` +

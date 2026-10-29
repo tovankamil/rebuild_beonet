@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Sparkles,
   Send,
@@ -36,6 +36,14 @@ export default function AIMarketingStudioTab({ user }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState('');
   const [copied, setCopied] = useState(false);
+  const outputBoxRef = useRef(null);
+
+  // Auto-scroll output container to top when new copy is generated or loaded
+  useEffect(() => {
+    if (result && outputBoxRef.current) {
+      outputBoxRef.current.scrollTop = 0;
+    }
+  }, [result]);
   const [history, setHistory] = useState([
     {
       id: 1,
@@ -427,7 +435,10 @@ export default function AIMarketingStudioTab({ user }) {
             {/* Body */}
             {result ? (
               <div className="flex-1 flex flex-col justify-between">
-                <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-sans text-xs text-slate-200 leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-[420px] select-text shadow-inner">
+                <div
+                  ref={outputBoxRef}
+                  className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 font-sans text-xs text-slate-200 leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-[420px] select-text shadow-inner"
+                >
                   {result}
                 </div>
 

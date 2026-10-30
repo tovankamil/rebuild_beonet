@@ -40,6 +40,7 @@ import {
   CreditCard,
   Award,
   Droplets,
+  Globe,
 } from 'lucide-react';
 import DashAvatar from './DashAvatar';
 
@@ -128,6 +129,16 @@ function getRoleMenuModules(role) {
         submenus: [
           { id: 'admin-fraud', title: 'Audit Risiko & Sybil Detection', desc: 'Deteksi duplikasi KTP, rekening & lonjakan WD', icon: ShieldAlert },
           { id: 'admin-users', title: 'Manajemen Pembekuan Akun', desc: 'Suspend akun mencurigakan & audit log', icon: Shield },
+        ],
+      },
+      {
+        id: 'admin-security',
+        title: 'Radar Keamanan & Geo-Traffic',
+        icon: ShieldAlert,
+        badge: 'DEFCON',
+        submenus: [
+          { id: 'admin-security', title: 'Radar Ancaman Cyber (DEFCON)', desc: 'Deteksi real-time DDoS, SQLi & blokir IP', icon: ShieldAlert },
+          { id: 'admin-geotraffic', title: 'Geo-Traffic Radar Nusantara', desc: 'Peta sebaran pengunjung & provinsi aktif', icon: Globe },
         ],
       },
       {

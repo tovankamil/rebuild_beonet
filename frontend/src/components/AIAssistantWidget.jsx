@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 
-export default function AIAssistantWidget({ currentUser }) {
+export default function AIAssistantWidget({ currentUser, hideFab = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -105,7 +105,7 @@ export default function AIAssistantWidget({ currentUser }) {
     <>
       {/* Floating Action Button */}
       <AnimatePresence>
-        {!isOpen && (
+        {!isOpen && !hideFab && (
           <motion.button
             key="fab-ai"
             type="button"

@@ -3,9 +3,11 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"bionet-backend/handlers"
@@ -19,6 +21,9 @@ import (
 type fullMockAuthService struct{}
 
 func (s *fullMockAuthService) Login(req models.LoginRequest) (*models.LoginResponse, error) {
+	if strings.HasPrefix(req.Password, "wrong") || req.Password == "invalid" {
+		return nil, errors.New("username atau password salah")
+	}
 	token, _ := utils.GenerateToken("user-test-uuid", req.Username, "member")
 	return &models.LoginResponse{
 		Token: token,
@@ -166,9 +171,12 @@ func setupTestServer() *gin.Engine {
 	bioLinkHandler := handlers.NewBioLinkHandler()
 	marketingHandler := handlers.NewMarketingHandler()
 	gamificationHandler := handlers.NewGamificationHandler()
+	aiHandler := handlers.NewAIHandler()
+	securityHandler := handlers.NewSecurityHandler()
 
 	r := gin.New()
 	r.Use(middleware.CORSMiddleware())
+	r.Use(middleware.SecurityGuardMiddleware())
 
 	api := r.Group("/api")
 	{
@@ -193,6 +201,16 @@ func setupTestServer() *gin.Engine {
 		api.GET("/marketing/webinars", marketingHandler.GetWebinars)
 		api.POST("/marketing/webinars/register", marketingHandler.RegisterWebinar)
 		api.GET("/gamification/leaderboard", gamificationHandler.GetLeaderboard)
+
+		// Bionet AI Suite (Public / Direct API)
+		api.POST("/ai/health-consult", aiHandler.HealthConsult)
+		api.POST("/ai/objection-handler", aiHandler.ObjectionHandler)
+		api.GET("/ai/binary-advisor", aiHandler.BinaryAdvisor)
+		api.POST("/ai/generate-copywriting", aiHandler.GenerateCopywriting)
+		api.GET("/ai/churn-radar", aiHandler.ChurnRadar)
+		api.POST("/ai/voice-note", aiHandler.VoiceNoteScript)
+		api.POST("/ai/fraud-scan", aiHandler.FraudScan)
+		api.GET("/ai/ro-retention", aiHandler.RORetention)
 
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware())
@@ -267,6 +285,20 @@ func setupTestServer() *gin.Engine {
 			protected.GET("/academy/modules", gamificationHandler.GetAcademyModules)
 			protected.POST("/academy/complete", gamificationHandler.CompleteAcademyModule)
 			protected.GET("/gamification/inactivity-alerts", gamificationHandler.GetInactivityAlerts)
+
+			// Admin Enterprise Security Routes (STRICT RequireRole("admin"))
+			adminGroup := protected.Group("/admin")
+			adminGroup.Use(middleware.RequireRole("admin"))
+			{
+				securityGroup := adminGroup.Group("/security")
+				{
+					securityGroup.GET("/threats", securityHandler.GetThreatLogs)
+					securityGroup.GET("/geo-traffic", securityHandler.GetGeoTraffic)
+					securityGroup.POST("/block-ip", securityHandler.BlockIP)
+					securityGroup.POST("/unblock-ip", securityHandler.UnblockIP)
+					securityGroup.POST("/test-alert", securityHandler.TestSecurityAlert)
+				}
+			}
 		}
 	}
 

@@ -27,6 +27,11 @@ import {
   Link2,
   Trophy,
   GraduationCap,
+  Stethoscope,
+  PenTool,
+  Mic,
+  ShieldCheck,
+  Activity,
 } from 'lucide-react';
 import DashPagination from './dashlite/DashPagination';
 import api from '../services/api';
@@ -263,6 +268,139 @@ export default function OverviewTab({
           </div>
           <ChevronRight size={16} className="text-slate-400 group-hover:translate-x-0.5 transition shrink-0" />
         </button>
+      </div>
+
+      {/* ======================================================== */}
+      {/* PUSAT FITUR AI CERDAS BIONET (LUXURY BIO-EMERALD SUITE) */}
+      {/* ======================================================== */}
+      <div className="rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 p-4 sm:p-5 border border-emerald-500/20 text-white shadow-lg space-y-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-500/15 pb-3">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-400 to-teal-300 text-slate-950 flex items-center justify-center font-bold shadow-md shadow-emerald-400/20">
+              <Sparkles size={16} />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="font-heading font-extrabold text-sm text-white">
+                  Bionet AI Intelligence Suite
+                </span>
+                <span className="text-[9px] uppercase font-bold tracking-widest text-emerald-300 bg-emerald-900/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  6 Modul Cerdas
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                Otomasi resep herbal, copywriting multi-platform, penasihat binary, dan radar retensi tim.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event('bionet:open-copilot'))}
+            className="self-start sm:self-center px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-md shadow-emerald-500/20 transition active:scale-[0.98]"
+          >
+            <Sparkles size={13} />
+            <span>Tanya Asisten AI</span>
+          </button>
+        </div>
+
+        {/* 6 Grid Modules */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'health' } }))}
+            className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/50 text-left transition group active:scale-[0.98]"
+          >
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+              <Stethoscope size={16} />
+            </div>
+            <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition">
+              Resep Herbal AI
+            </div>
+            <div className="text-[10px] text-slate-400 line-clamp-1">
+              Konsultasi &amp; Dosis BPOM
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'copywriting' } }))}
+            className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-400/50 text-left transition group active:scale-[0.98]"
+          >
+            <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+              <PenTool size={16} />
+            </div>
+            <div className="text-xs font-bold text-white group-hover:text-amber-300 transition">
+              Copywriting Viral
+            </div>
+            <div className="text-[10px] text-slate-400 line-clamp-1">
+              WA Status, IG &amp; TikTok
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'binary' } }))}
+            className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-teal-400/50 text-left transition group active:scale-[0.98]"
+          >
+            <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+              <GitFork size={16} />
+            </div>
+            <div className="text-xs font-bold text-white group-hover:text-teal-300 transition">
+              Penasihat Binary
+            </div>
+            <div className="text-[10px] text-slate-400 line-clamp-1">
+              Bonus Pairing Mengendap
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'churn' } }))}
+            className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-rose-400/50 text-left transition group active:scale-[0.98]"
+          >
+            <div className="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+              <Activity size={16} />
+            </div>
+            <div className="text-xs font-bold text-white group-hover:text-rose-300 transition">
+              Radar Retensi
+            </div>
+            <div className="text-[10px] text-slate-400 line-clamp-1">
+              Cegah Kejenuhan Tim
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'voicenote' } }))}
+            className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/50 text-left transition group active:scale-[0.98]"
+          >
+            <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+              <Mic size={16} />
+            </div>
+            <div className="text-xs font-bold text-white group-hover:text-cyan-300 transition">
+              Voice Note WA
+            </div>
+            <div className="text-[10px] text-slate-400 line-clamp-1">
+              Sapaan Audio Prospek
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'fraud' } }))}
+            className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-400/50 text-left transition group active:scale-[0.98]"
+          >
+            <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
+              <ShieldCheck size={16} />
+            </div>
+            <div className="text-xs font-bold text-white group-hover:text-blue-300 transition">
+              Audit Forensik
+            </div>
+            <div className="text-[10px] text-slate-400 line-clamp-1">
+              Verifikasi KTP &amp; Mutasi
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* MITRA BARU BERGABUNG (SOFI-INSPIRED CIRCULAR AVATARS STRIP) */}

@@ -21,6 +21,8 @@ import AdminWithdrawalsTab from './components/admin/AdminWithdrawalsTab';
 import AdminFraudTab from './components/admin/AdminFraudTab';
 import AdminMonitoringTab from './components/admin/AdminMonitoringTab';
 import AdminSystemGuideTab from './components/admin/AdminSystemGuideTab';
+import AdminSecurityThreatRadar from './components/admin/AdminSecurityThreatRadar';
+import AdminGeoTrafficMap from './components/admin/AdminGeoTrafficMap';
 import WarehouseTab from './components/warehouse/WarehouseTab';
 import ChatTab from './components/ChatTab';
 import MeetingTab from './components/MeetingTab';
@@ -28,6 +30,7 @@ import LeadsCRMTab from './components/crm/LeadsCRMTab';
 import AIMarketingStudioTab from './components/ai/AIMarketingStudioTab';
 import ProfileModal from './components/ProfileModal';
 import AIAssistantWidget from './components/AIAssistantWidget';
+import BionetAIFloatingHub from './components/ai/BionetAIFloatingHub';
 import ProspectingCalculatorModal from './components/prospecting/ProspectingCalculatorModal';
 import DigitalMemberCardModal from './components/credentials/DigitalMemberCardModal';
 import ECertificateModal from './components/credentials/ECertificateModal';
@@ -39,10 +42,24 @@ import PublicBioPage from './pages/PublicBioPage';
 import api from './services/api';
 
 export default function App() {
-  const [token, setToken] = useState(() => localStorage.getItem('bionet_token'));
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem('bionet_token');
+    } catch {
+      return null;
+    }
+  });
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('bionet_user');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('bionet_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      console.warn('Invalid bionet_user in localStorage, clearing:', e);
+      try {
+        localStorage.removeItem('bionet_user');
+      } catch {}
+      return null;
+    }
   });
 
   const getInitialTab = (role) => {
@@ -62,6 +79,20 @@ export default function App() {
   const [prospectCalculatorOpen, setProspectCalculatorOpen] = useState(false);
   const [digitalCardOpen, setDigitalCardOpen] = useState(false);
   const [certificateOpen, setCertificateOpen] = useState(false);
+  const [securityAlertAcknowledged, setSecurityAlertAcknowledged] = useState(() => {
+    try {
+      return sessionStorage.getItem('bionet_security_alert_ack') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleAcknowledgeAlert = () => {
+    setSecurityAlertAcknowledged(true);
+    try {
+      sessionStorage.setItem('bionet_security_alert_ack', 'true');
+    } catch {}
+  };
 
   const handleOpenProfile = (tab = 'profile') => {
     setProfileModalTab(tab);
@@ -290,6 +321,49 @@ export default function App() {
           {/* PWA Standalone Install Banner */}
           <PwaInstallBanner />
 
+          {/* Cyber Bio-Defense Floating Alert Banner for Super Admin */}
+          {role === 'admin' && !securityAlertAcknowledged && activeTab !== 'admin-security' && (
+            <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-rose-950 via-slate-950 to-red-950 border border-rose-500/60 shadow-[0_0_30px_rgba(244,63,94,0.25)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-400/50 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(244,63,94,0.4)]">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                  </span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-600 text-white tracking-wider">
+                      DEFCON WARNING
+                    </span>
+                    <h3 className="text-xs sm:text-sm font-bold text-white tracking-tight">
+                      Insiden Percobaan Intrusi Terdeteksi &amp; Berhasil Dimigasikannya
+                    </h3>
+                  </div>
+                  <p className="text-[11px] text-rose-200/80 mt-0.5">
+                    WAF Bionet telah memblokir 8 percobaan Distributed SYN Flooding &amp; injeksi SQL dari cluster IP asing.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+                <button
+                  onClick={() => setActiveTab('admin-security')}
+                  className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(225,29,72,0.4)] transition-all hover:scale-[1.02]"
+                >
+                  <span>Buka Radar Keamanan</span>
+                  <span className="text-xs">↗</span>
+                </button>
+                <button
+                  onClick={handleAcknowledgeAlert}
+                  className="px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white text-xs font-semibold transition-all"
+                  title="Acknowledge alert"
+                >
+                  Tutup / Acknowledge
+                </button>
+              </div>
+            </div>
+          )}
+
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -325,6 +399,15 @@ export default function App() {
 
               {activeTab === 'admin-guide' && (
                 <AdminSystemGuideTab setActiveTab={setActiveTab} />
+              )}
+
+              {/* ==================== ADMIN SECURITY & RADAR ROLE VIEWS ==================== */}
+              {activeTab === 'admin-security' && role === 'admin' && (
+                <AdminSecurityThreatRadar setActiveTab={setActiveTab} />
+              )}
+
+              {activeTab === 'admin-geotraffic' && role === 'admin' && (
+                <AdminGeoTrafficMap setActiveTab={setActiveTab} />
               )}
 
               {/* ==================== WAREHOUSE ROLE VIEWS ==================== */}
@@ -442,7 +525,16 @@ export default function App() {
       />
 
       {/* Floating AI Copilot Widget */}
-      <AIAssistantWidget currentUser={user} />
+      <AIAssistantWidget currentUser={user} hideFab={true} />
+
+      {/* Luxury Bionet AI Intelligence Suite Floating Hub */}
+      <BionetAIFloatingHub
+        currentUser={user}
+        stats={stats}
+        onOpenRegisterDownline={(slotData) => {
+          setActiveTab('genealogy');
+        }}
+      />
     </div>
   );
 }

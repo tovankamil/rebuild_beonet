@@ -823,6 +823,9 @@ func main() {
 		&models.BioPage{},
 		&models.AcademyCompletion{},
 		&models.WhatsAppSchedule{},
+		&models.SecurityThreatLog{},
+		&models.BlockedIP{},
+		&models.GeoAccessLog{},
 	}
 	for _, m := range allModels {
 		if err := config.DB.AutoMigrate(m); err != nil {
@@ -870,6 +873,8 @@ func main() {
 	bioLinkHandler := handlers.NewBioLinkHandler()
 	marketingHandler := handlers.NewMarketingHandler()
 	gamificationHandler := handlers.NewGamificationHandler()
+	aiHandler := handlers.NewAIHandler()
+	securityHandler := handlers.NewSecurityHandler()
 
 	// Initialize Google Gemini AI Service
 	if _, err := services.NewGeminiService(); err != nil {
@@ -888,6 +893,9 @@ func main() {
 
 	// Real-time Traffic & Bandwidth Monitoring Middleware
 	r.Use(middleware.TrafficMonitorMiddleware())
+
+	// Enterprise Security Shield Middleware (Flooding, SQLi, XSS, Path Traversal, Brute-Force & GeoIP Tracker)
+	r.Use(middleware.SecurityGuardMiddleware())
 
 	// Static files serving for chat attachments & avatars
 	r.Static("/uploads", "./uploads")
@@ -960,6 +968,18 @@ func main() {
 			}
 			c.JSON(200, gin.H{"status": "success", "reply": reply})
 		})
+
+		// ==============================================
+		// BIONET AI SUITE: 8 Core AI Capabilities
+		// ==============================================
+		api.POST("/ai/health-consult", aiHandler.HealthConsult)
+		api.POST("/ai/objection-handler", aiHandler.ObjectionHandler)
+		api.GET("/ai/binary-advisor", aiHandler.BinaryAdvisor)
+		api.POST("/ai/generate-copywriting", aiHandler.GenerateCopywriting)
+		api.GET("/ai/churn-radar", aiHandler.ChurnRadar)
+		api.POST("/ai/voice-note", aiHandler.VoiceNoteScript)
+		api.POST("/ai/fraud-scan", aiHandler.FraudScan)
+		api.GET("/ai/ro-retention", aiHandler.RORetention)
 
 		// Auth
 		api.POST("/auth/login", authHandler.Login)
@@ -1158,6 +1178,16 @@ func main() {
 				adminGroup.GET("/whatsapp/status", middleware.RequireRole("admin", "keuangan"), monitoringHandler.GetWhatsAppStatus)
 				adminGroup.GET("/whatsapp/logs", middleware.RequireRole("admin", "keuangan"), monitoringHandler.GetWhatsAppLogs)
 				adminGroup.POST("/whatsapp/send-test", middleware.RequireRole("admin"), monitoringHandler.SendWhatsAppTest)
+
+				// Enterprise Security Guard & Cyber Threat Defense (Admin STRICT ONLY)
+				securityGroup := adminGroup.Group("/security", middleware.RequireRole("admin"))
+				{
+					securityGroup.GET("/threats", securityHandler.GetThreatLogs)
+					securityGroup.GET("/geo-traffic", securityHandler.GetGeoTraffic)
+					securityGroup.POST("/block-ip", securityHandler.BlockIP)
+					securityGroup.POST("/unblock-ip", securityHandler.UnblockIP)
+					securityGroup.POST("/test-alert", securityHandler.TestSecurityAlert)
+				}
 			}
 
 			// ==============================================

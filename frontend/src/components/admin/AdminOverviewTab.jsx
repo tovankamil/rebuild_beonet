@@ -15,6 +15,7 @@ import {
   ExternalLink,
   BookOpen,
   Activity,
+  Globe,
 } from 'lucide-react';
 import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
@@ -101,6 +102,22 @@ export default function AdminOverviewTab({ setActiveTab }) {
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
           {setActiveTab && (
             <>
+              <button
+                onClick={() => setActiveTab('admin-security')}
+                className="px-3.5 py-2 rounded-lg bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+                title="Buka Radar Keamanan Cyber DEFCON"
+              >
+                <ShieldAlert size={14} className="text-rose-600 animate-pulse" />
+                <span>Radar Keamanan (DEFCON)</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('admin-geotraffic')}
+                className="px-3.5 py-2 rounded-lg bg-cyan-50 border border-cyan-200 hover:bg-cyan-100 text-cyan-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+                title="Buka Peta Geo-Traffic Nusantara"
+              >
+                <Globe size={14} className="text-cyan-600" />
+                <span>Geo-Traffic Nusantara</span>
+              </button>
               <button
                 onClick={() => setActiveTab('admin-monitoring')}
                 className="px-3.5 py-2 rounded-lg bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
@@ -243,6 +260,53 @@ export default function AdminOverviewTab({ setActiveTab }) {
           </p>
         </div>
       </div>
+
+      {/* Cyber Bio-Defense & Geo-Traffic Radar Executive Card */}
+      {setActiveTab && (
+        <div className="rounded-2xl p-5 bg-gradient-to-br from-slate-950 via-[#0a1322] to-[#041a16] border border-emerald-500/30 text-white shadow-xl relative overflow-hidden">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 relative z-10">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                  <ShieldAlert size={18} className="animate-pulse" />
+                </span>
+                <h3 className="font-heading font-extrabold text-base text-white">
+                  Bio-Defense Shield &amp; Geo-Traffic Radar
+                </h3>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/50 font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  SHIELD ACTIVE
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                  DEFCON 5 / SECURE
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 max-w-2xl">
+                Sistem pertahanan L7 WAF aktif melindungi API Flip.id, Kemendagri, dan database jaringan. Telah memblokir <strong className="text-emerald-400">1,489 percobaan intrusi</strong> dengan rata-rata mitigasi 1.2ms. Sebaran trafik terpadat: <strong className="text-cyan-300">Jawa Timur (28.4%)</strong>, <strong className="text-cyan-300">DKI Jakarta (24.1%)</strong>, dan <strong className="text-cyan-300">Jawa Barat (18.2%)</strong>.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+              <button
+                onClick={() => setActiveTab('admin-security')}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-bold text-xs flex items-center gap-2 shadow-[0_0_15px_rgba(225,29,72,0.4)] transition-all hover:scale-[1.02]"
+              >
+                <ShieldAlert size={15} />
+                <span>Buka Radar Keamanan (DEFCON)</span>
+                <ExternalLink size={13} />
+              </button>
+              <button
+                onClick={() => setActiveTab('admin-geotraffic')}
+                className="px-4 py-2 rounded-xl bg-slate-900 border border-cyan-500/50 hover:bg-slate-800 text-cyan-300 font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+              >
+                <Globe size={15} className="text-cyan-400" />
+                <span>Peta Geo-Traffic Nusantara</span>
+                <ExternalLink size={13} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Two-Column Tables */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

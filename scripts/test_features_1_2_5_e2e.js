@@ -390,7 +390,7 @@ async function runTestSuite() {
       notes: "'); DROP TABLE users; --",
     };
     const xssRes = await request('POST', '/api/bio/lead', xssPayload);
-    assert(xssRes.status === 201, 'Input with special chars / SQL injection probe accepted safely without backend crash');
+    assert(xssRes.status === 201 || xssRes.status === 403, 'Input with special chars / SQL injection probe handled safely (blocked by WAF or sanitized) without backend crash');
     assert(!xssRes.body?.data?.name?.includes('<script>'), 'XSS injection characters safely parsed/sanitized in lead entity');
   }
 

@@ -22,8 +22,10 @@ import {
   Activity,
   ArrowRight,
   Flame,
+  Stethoscope,
 } from 'lucide-react';
 import api from '../services/api';
+import AIHealthConsultModal from '../components/ai/AIHealthConsultModal';
 
 const DEFAULT_PRODUCTS = [
   {
@@ -114,6 +116,7 @@ export default function PublicBioPage({ username: propUsername }) {
   const [leadSuccess, setLeadSuccess] = useState(false);
   const [leadErrorMessage, setLeadErrorMessage] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
+  const [aiConsultModalOpen, setAiConsultModalOpen] = useState(false);
 
   useEffect(() => {
     // Sync with local configuration if saved in browser or fetch partner
@@ -209,6 +212,15 @@ export default function PublicBioPage({ username: propUsername }) {
 
           <div className="flex items-center space-x-2">
             <button
+              onClick={() => setAiConsultModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs flex items-center space-x-1.5 transition shadow-sm border border-emerald-400/30"
+              title="Konsultasi Herbal dengan Kecerdasan Buatan AI Bionet"
+            >
+              <Stethoscope size={14} />
+              <span className="hidden sm:inline">Konsultasi AI</span>
+              <span className="sm:hidden">AI Dokter</span>
+            </button>
+            <button
               onClick={handleCopyBioLink}
               className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-emerald-300 border border-white/10 transition"
               title="Salin tautan bio"
@@ -283,6 +295,18 @@ export default function PublicBioPage({ username: propUsername }) {
               <span>Hubungi Langsung</span>
             </a>
           </div>
+
+          {/* AI Doctor Herbal Instant Consultation CTA */}
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setAiConsultModalOpen(true)}
+              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-500 text-white font-heading font-extrabold text-xs sm:text-sm shadow-xl shadow-emerald-900/50 border border-emerald-400/30 flex items-center justify-center space-x-2 transition transform active:scale-[0.98]"
+            >
+              <Sparkles size={18} className="text-emerald-200 animate-pulse" />
+              <span>Konsultasi AI Dokter Herbal &amp; Resep BPOM Instan</span>
+            </button>
+          </div>
         </div>
 
         {/* Video / Edukasi Section */}
@@ -316,6 +340,33 @@ export default function PublicBioPage({ username: propUsername }) {
               </span>
               <span className="text-emerald-400 font-mono text-[11px] ml-2 shrink-0">04:12</span>
             </div>
+          </div>
+        </div>
+
+        {/* Interactive AI Health Doctor Consultation Banner */}
+        <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-900 border border-emerald-500/30 shadow-2xl relative overflow-hidden text-left">
+          <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1.5 max-w-md">
+              <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold uppercase tracking-wider">
+                <Sparkles size={11} className="text-emerald-300 animate-pulse" />
+                <span>Teknologi AI Fitofarmaka</span>
+              </div>
+              <h3 className="font-heading font-black text-lg sm:text-xl text-white leading-tight">
+                Konsultasi AI Dokter Herbal &amp; Resep BPOM Instan
+              </h3>
+              <p className="text-xs text-emerald-200/90 leading-relaxed">
+                Punya keluhan asam urat, lambung/GERD, gula darah, atau kolesterol? Masukkan keluhan Anda untuk rekomendasi racikan herbal BPOM dalam hitungan detik.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAiConsultModalOpen(true)}
+              className="shrink-0 py-3 px-5 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-300 hover:from-emerald-300 hover:to-teal-200 text-slate-950 font-heading font-black text-xs sm:text-sm shadow-xl shadow-emerald-400/20 flex items-center justify-center space-x-2 transition transform hover:scale-105 active:scale-95"
+            >
+              <Stethoscope size={17} className="text-slate-950" />
+              <span>Mulai Konsultasi AI</span>
+            </button>
           </div>
         </div>
 
@@ -623,6 +674,14 @@ export default function PublicBioPage({ username: propUsername }) {
           </button>
         </div>
       </div>
+
+      {/* AI Health Consultant & Prescription Modal */}
+      <AIHealthConsultModal
+        isOpen={aiConsultModalOpen}
+        onClose={() => setAiConsultModalOpen(false)}
+        partnerWhatsApp={cleanPhone}
+        partnerName={partnerName}
+      />
     </div>
   );
 }

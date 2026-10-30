@@ -24,6 +24,10 @@ backend/.env
 .env.local
 .env.*.local
 
+# WAHA session storage
+waha_sessions/
+.sessions/
+
 # Python cache
 __pycache__/
 *.py[cod]

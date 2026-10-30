@@ -91,6 +91,7 @@ type WhatsAppDeviceSession struct {
 type WhatsAppService struct {
 	apiKey    string
 	wahaURL   string
+	wahaKey   string
 	provider  string // 'fonnte', 'waha', 'simulated'
 	logs      []WhatsAppLog
 	logsLock  sync.RWMutex
@@ -128,6 +129,7 @@ func InitWhatsAppService() *WhatsAppService {
 	waOnce.Do(func() {
 		key := os.Getenv("FONNTE_API_KEY")
 		wahaURL := os.Getenv("WAHA_BASE_URL")
+		wahaKey := os.Getenv("WAHA_API_KEY")
 		provider := "simulated"
 		if key != "" {
 			provider = "fonnte"
@@ -140,6 +142,7 @@ func InitWhatsAppService() *WhatsAppService {
 		GlobalWhatsAppService = &WhatsAppService{
 			apiKey:    key,
 			wahaURL:   wahaURL,
+			wahaKey:   wahaKey,
 			provider:  provider,
 			logs:      make([]WhatsAppLog, 0, 100),
 			maxLogs:   100,
@@ -148,11 +151,11 @@ func InitWhatsAppService() *WhatsAppService {
 			deviceSession: WhatsAppDeviceSession{
 				Status:          "connected",
 				PhoneNumber:     "+62812-3456-7890",
-				DeviceName:      "Bionet WhatsApp Business Node (Chrome 128 / Android 14)",
+				DeviceName:      "Bionet WhatsApp Business Node (WAHA Docker Gateway)",
 				BatteryLevel:    96,
 				Provider:        provider,
 				QRCode:          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='200' height='200' fill='white'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23059669'>Bionet QR Gateway</text></svg>",
-				WebhookURL:      "https://api.bionet.id/api/crm/whatsapp/webhook",
+				WebhookURL:      "http://host.docker.internal:8081/api/crm/whatsapp/webhook",
 				AutoResponderOn: true,
 			},
 		}
@@ -583,13 +586,17 @@ func (s *WhatsAppService) SendCrmDirectMessage(phone, recipient, category, messa
 		go func() {
 			chatId := formattedPhone + "@c.us"
 			reqBody, _ := json.Marshal(map[string]interface{}{
-				"chatId": chatId,
-				"text":   message,
+				"session": "default",
+				"chatId":  chatId,
+				"text":    message,
 			})
 			targetURL := strings.TrimRight(s.wahaURL, "/") + "/api/sendText"
 			req, err := http.NewRequest("POST", targetURL, bytes.NewBuffer(reqBody))
 			if err == nil {
 				req.Header.Set("Content-Type", "application/json")
+				if s.wahaKey != "" {
+					req.Header.Set("X-Api-Key", s.wahaKey)
+				}
 				client := &http.Client{Timeout: 10 * time.Second}
 				resp, err := client.Do(req)
 				if err == nil && (resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated) {
@@ -715,6 +722,31 @@ func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string) 
 		Provider:  s.provider,
 		SentAt:    now,
 	})
+
+	// Also push via WAHA if connected
+	if s.provider == "waha" && s.wahaURL != "" {
+		go func(phone, msgText string) {
+			chatId := FormatPhone(phone) + "@c.us"
+			reqBody, _ := json.Marshal(map[string]interface{}{
+				"session": "default",
+				"chatId":  chatId,
+				"text":    msgText,
+			})
+			targetURL := strings.TrimRight(s.wahaURL, "/") + "/api/sendText"
+			req, err := http.NewRequest("POST", targetURL, bytes.NewBuffer(reqBody))
+			if err == nil {
+				req.Header.Set("Content-Type", "application/json")
+				if s.wahaKey != "" {
+					req.Header.Set("X-Api-Key", s.wahaKey)
+				}
+				client := &http.Client{Timeout: 10 * time.Second}
+				resp, err := client.Do(req)
+				if err == nil && resp != nil {
+					resp.Body.Close()
+				}
+			}
+		}(thread.Phone, text)
+	}
 
 	// Background lifecycle: update status to 'delivered' and 'read'
 	go func(tID, mID string, contactName, contactPhone, sentText string) {
@@ -974,8 +1006,68 @@ func (s *WhatsAppService) DeleteBotRule(id string) bool {
 // =========================================================================
 
 func (s *WhatsAppService) GetDeviceSession() WhatsAppDeviceSession {
-	s.deviceLock.RLock()
-	defer s.deviceLock.RUnlock()
+	s.deviceLock.Lock()
+	defer s.deviceLock.Unlock()
+
+	// If WAHA is active, query live session status from WAHA!
+	if s.wahaURL != "" {
+		client := &http.Client{Timeout: 3 * time.Second}
+		req, err := http.NewRequest("GET", strings.TrimRight(s.wahaURL, "/")+"/api/sessions/default", nil)
+		if err == nil {
+			if s.wahaKey != "" {
+				req.Header.Set("X-Api-Key", s.wahaKey)
+			}
+			resp, err := client.Do(req)
+			if err == nil && resp.StatusCode == http.StatusOK {
+				var wSession struct {
+					Name   string `json:"name"`
+					Status string `json:"status"` // "WORKING", "SCAN_QR_CODE", "STARTING", "STOPPED", "FAILED"
+					Me     *struct {
+						ID       string `json:"id"`
+						PushName string `json:"pushName"`
+					} `json:"me"`
+				}
+				if json.NewDecoder(resp.Body).Decode(&wSession) == nil {
+					resp.Body.Close()
+					s.deviceSession.Provider = "waha"
+					if wSession.Status == "WORKING" {
+						s.deviceSession.Status = "connected"
+						if wSession.Me != nil && wSession.Me.ID != "" {
+							phone := strings.Split(wSession.Me.ID, "@")[0]
+							s.deviceSession.PhoneNumber = "+" + phone
+							if wSession.Me.PushName != "" {
+								s.deviceSession.DeviceName = fmt.Sprintf("WAHA Gateway (%s)", wSession.Me.PushName)
+							} else {
+								s.deviceSession.DeviceName = "WAHA Gateway (WhatsApp Connected)"
+							}
+						}
+					} else if wSession.Status == "SCAN_QR_CODE" || wSession.Status == "STARTING" {
+						s.deviceSession.Status = "scanning_qr"
+						// Fetch QR Code base64
+						qrReq, qErr := http.NewRequest("GET", strings.TrimRight(s.wahaURL, "/")+"/api/default/auth/qr", nil)
+						if qErr == nil {
+							if s.wahaKey != "" {
+								qrReq.Header.Set("X-Api-Key", s.wahaKey)
+							}
+							qrReq.Header.Set("Accept", "application/json")
+							if qResp, qErr2 := client.Do(qrReq); qErr2 == nil && qResp.StatusCode == http.StatusOK {
+								var qrData struct {
+									Data string `json:"data"`
+								}
+								if json.NewDecoder(qResp.Body).Decode(&qrData) == nil && qrData.Data != "" {
+									s.deviceSession.QRCode = "data:image/png;base64," + qrData.Data
+								}
+								qResp.Body.Close()
+							}
+						}
+					}
+					return s.deviceSession
+				}
+				resp.Body.Close()
+			}
+		}
+	}
+
 	return s.deviceSession
 }
 
@@ -993,6 +1085,22 @@ func (s *WhatsAppService) DisconnectDevice() WhatsAppDeviceSession {
 	s.deviceLock.Lock()
 	defer s.deviceLock.Unlock()
 
+	if s.wahaURL != "" {
+		go func() {
+			client := &http.Client{Timeout: 5 * time.Second}
+			req, err := http.NewRequest("POST", strings.TrimRight(s.wahaURL, "/")+"/api/sessions/default/logout", nil)
+			if err == nil {
+				if s.wahaKey != "" {
+					req.Header.Set("X-Api-Key", s.wahaKey)
+				}
+				resp, err := client.Do(req)
+				if err == nil && resp != nil {
+					resp.Body.Close()
+				}
+			}
+		}()
+	}
+
 	s.deviceSession.Status = "disconnected"
 	s.deviceSession.PhoneNumber = ""
 	return s.deviceSession
@@ -1006,21 +1114,68 @@ func (s *WhatsAppService) ToggleAutoResponder() bool {
 	return s.deviceSession.AutoResponderOn
 }
 
-// Inbound webhook logger
+// Inbound webhook logger & thread sync
 func (s *WhatsAppService) RecordInboundMessage(fromPhone, senderName, message string) *WhatsAppLog {
+	formattedPhone := FormatPhone(fromPhone)
 	logID := fmt.Sprintf("wa-in-%d", time.Now().UnixNano())
+	now := time.Now()
 	logEntry := WhatsAppLog{
 		ID:        logID,
-		Phone:     "+" + FormatPhone(fromPhone),
+		Phone:     "+" + formattedPhone,
 		Recipient: senderName,
 		Category:  "inbound_reply",
 		Message:   message,
 		Status:    "read",
 		Direction: "inbound",
 		Provider:  s.provider,
-		SentAt:    time.Now(),
+		SentAt:    now,
 	}
 	s.addLog(logEntry)
+
+	// Append to active chat thread so Live Messenger updates in real-time
+	s.threadsLock.Lock()
+	foundThreadID := ""
+	for i := range s.threads {
+		if FormatPhone(s.threads[i].Phone) == formattedPhone {
+			s.threads[i].LastMessage = message
+			s.threads[i].LastMessageTime = now
+			s.threads[i].UnreadCount++
+			foundThreadID = s.threads[i].ID
+			break
+		}
+	}
+
+	if foundThreadID == "" {
+		// Create new thread for this consumer
+		newTID := fmt.Sprintf("thread-%s", formattedPhone)
+		s.threads = append([]WhatsAppChatThread{
+			{
+				ID:              newTID,
+				Phone:           "+" + formattedPhone,
+				ContactName:     senderName,
+				Avatar:          fmt.Sprintf("https://api.dicebear.com/7.x/initials/svg?seed=%s", senderName),
+				LeadStage:       "new",
+				Product:         "Bio-Propolis Trigona",
+				City:            "Online Lead",
+				LastMessage:     message,
+				LastMessageTime: now,
+				UnreadCount:     1,
+				IsOnline:        true,
+			},
+		}, s.threads...)
+		foundThreadID = newTID
+	}
+
+	s.messages[foundThreadID] = append(s.messages[foundThreadID], WhatsAppMessageItem{
+		ID:        logID,
+		ThreadID:  foundThreadID,
+		Sender:    "contact",
+		Text:      message,
+		Status:    "read",
+		SentAt:    now,
+	})
+	s.threadsLock.Unlock()
+
 	return &logEntry
 }
 

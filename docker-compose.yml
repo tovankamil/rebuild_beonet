@@ -1,0 +1,25 @@
+services:
+  waha:
+    image: devlikeapro/waha:latest
+    container_name: bionet-waha
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - WAHA_API_KEY=bionet_waha_key_2026
+      - WAHA_DASHBOARD_ENABLED=true
+      - WAHA_DASHBOARD_USERNAME=admin
+      - WAHA_DASHBOARD_PASSWORD=admin
+      - WHATSAPP_SWAGGER_USERNAME=admin
+      - WHATSAPP_SWAGGER_PASSWORD=admin
+      - WAHA_ZIP_LOGS=false
+      - WAHA_PRINT_QR=true
+      - WHATSAPP_DEFAULT_ENGINE=NOWEB
+      - WHATSAPP_START_SESSION=default
+      - WHATSAPP_RESTART_ALL_SESSIONS=true
+      - WHATSAPP_HOOK_URL=http://host.docker.internal:8081/api/crm/whatsapp/webhook
+      - WHATSAPP_HOOK_EVENTS=message,message.any,state.change,message.ack
+    volumes:
+      - ./waha_sessions:/app/.sessions
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

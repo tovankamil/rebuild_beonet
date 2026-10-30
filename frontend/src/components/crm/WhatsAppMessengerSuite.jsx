@@ -1467,17 +1467,49 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
               </form>
 
               <div className="pt-3 border-t border-slate-100 text-center space-y-3">
-                <div className="text-xs font-bold text-slate-700">Atau Pindai QR Code (WAHA / WhatsApp Web):</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-bold text-slate-800 flex items-center space-x-1.5">
+                    <QrCode className="w-4 h-4 text-emerald-600" />
+                    <span>Pindai QR Code WAHA (WhatsApp Live)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={fetchAuxiliaryData}
+                    className="inline-flex items-center space-x-1 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-lg transition"
+                    title="Segarkan QR Code"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    <span>Perbarui QR</span>
+                  </button>
+                </div>
+
                 <div className="inline-block p-3.5 bg-white rounded-3xl border-2 border-emerald-500 shadow-md">
                   <img
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=BIONET-GATEWAY-OFFICIAL-SESSION"
+                    src={deviceSession?.qr_code || "http://localhost:3000/api/default/auth/qr"}
                     alt="WhatsApp QR Code Pairing"
-                    className="w-40 h-40 mx-auto"
+                    className="w-48 h-48 mx-auto object-contain rounded-xl"
                   />
                 </div>
-                <div className="text-[11px] font-bold text-slate-400 flex items-center justify-center space-x-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Buka WhatsApp di HP &gt; Perangkat Tertaut &gt; Tautkan Perangkat</span>
+
+                <div className="text-[11px] font-bold text-slate-500 flex items-center justify-center space-x-1.5">
+                  <span className={`w-2 h-2 rounded-full ${deviceSession?.status === 'connected' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
+                  <span>
+                    {deviceSession?.status === 'connected' 
+                      ? '✓ Perangkat Terhubung & Siap Kirim Pesan' 
+                      : 'Buka WhatsApp di HP > Perangkat Tertaut > Tautkan Perangkat'}
+                  </span>
+                </div>
+
+                <div className="pt-1">
+                  <a
+                    href="http://localhost:3000/dashboard"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-600 hover:text-emerald-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition"
+                  >
+                    <span>Buka WAHA Docker Dashboard (Port 3000)</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
                 </div>
               </div>
             </div>

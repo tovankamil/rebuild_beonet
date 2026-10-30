@@ -1385,14 +1385,82 @@ func (h *CRMHandler) WhatsAppWebhookListener(c *gin.Context) {
 
 	waService := services.InitWhatsAppService()
 
-	// 1. Cek apakah ada update status delivery
+	// 1. Cek format event WAHA (WhatsApp HTTP API)
+	if event, ok := body["event"].(string); ok {
+		payload, _ := body["payload"].(map[string]interface{})
+
+		if event == "message" || event == "message.any" {
+			if payload != nil {
+				fromMe, _ := payload["fromMe"].(bool)
+				if !fromMe {
+					from, _ := payload["from"].(string)
+					// Strip @c.us or @s.whatsapp.net
+					from = strings.Split(from, "@")[0]
+					text, _ := payload["body"].(string)
+					senderName := "Pelanggan WhatsApp"
+					if dataObj, ok := payload["_data"].(map[string]interface{}); ok {
+						if n, ok := dataObj["notifyName"].(string); ok && n != "" {
+							senderName = n
+						}
+					}
+					if pName, ok := payload["pushName"].(string); ok && pName != "" {
+						senderName = pName
+					}
+
+					if from != "" && text != "" {
+						waService.RecordInboundMessage(from, senderName, text)
+						// Check auto responder bot
+						if waService.GetDeviceSession().AutoResponderOn {
+							rules := waService.GetBotRules()
+							lowerText := strings.ToLower(text)
+							for _, r := range rules {
+								if r.IsActive && strings.Contains(lowerText, strings.ToLower(r.Keyword)) {
+									// Send auto reply via WAHA
+									go waService.SendCustomMessage(from, senderName, r.Reply)
+									break
+								}
+							}
+						}
+					}
+				}
+			}
+			c.JSON(http.StatusOK, gin.H{"status": "success", "event": event})
+			return
+		}
+
+		if event == "message.ack" {
+			if payload != nil {
+				msgID, _ := payload["id"].(string)
+				ack, _ := payload["ack"].(float64)
+				status := "sent"
+				if ack >= 3 {
+					status = "read"
+				} else if ack >= 2 {
+					status = "delivered"
+				}
+				if msgID != "" {
+					waService.UpdateStatus(msgID, status)
+				}
+			}
+			c.JSON(http.StatusOK, gin.H{"status": "success", "event": event})
+			return
+		}
+
+		if event == "state.change" || event == "session.status" {
+			// Trigger fresh device session fetch
+			go waService.GetDeviceSession()
+			c.JSON(http.StatusOK, gin.H{"status": "success", "event": event})
+			return
+		}
+	}
+
+	// 2. Format standar Fonnte / Webhook Generic
 	if msgID, ok := body["id"].(string); ok {
 		if status, ok := body["status"].(string); ok {
 			waService.UpdateStatus(msgID, status)
 		}
 	}
 
-	// 2. Cek apakah ada chat balasan masuk (Inbound Message)
 	from, _ := body["from"].(string)
 	if from == "" {
 		from, _ = body["sender"].(string)

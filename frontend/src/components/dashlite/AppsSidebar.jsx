@@ -157,9 +157,9 @@ function getRoleMenuModules(role) {
         icon: Target,
         badge: 'CRM',
         submenus: [
-          { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
-          { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
-        { id: 'leads', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
+          { id: 'leads', subView: 'kanban', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
+          { id: 'leads', subView: 'whatsapp-suite', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        { id: 'leads', subView: 'ro-reminders', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
         ],
       },
       {
@@ -256,9 +256,9 @@ function getRoleMenuModules(role) {
         icon: Target,
         badge: 'CRM',
         submenus: [
-          { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
-          { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
-        { id: 'leads', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
+          { id: 'leads', subView: 'kanban', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
+          { id: 'leads', subView: 'whatsapp-suite', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        { id: 'leads', subView: 'ro-reminders', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
         ],
       },
       {
@@ -299,9 +299,9 @@ function getRoleMenuModules(role) {
         icon: Target,
         badge: 'CRM',
         submenus: [
-          { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
-          { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
-        { id: 'leads', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
+          { id: 'leads', subView: 'kanban', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
+          { id: 'leads', subView: 'whatsapp-suite', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        { id: 'leads', subView: 'ro-reminders', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
         ],
       },
       {
@@ -461,9 +461,9 @@ function getRoleMenuModules(role) {
       icon: Target,
       badge: 'CRM',
       submenus: [
-        { id: 'leads', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
-        { id: 'leads', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
-        { id: 'leads', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
+        { id: 'leads', subView: 'kanban', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
+        { id: 'leads', subView: 'whatsapp-suite', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
+        { id: 'leads', subView: 'ro-reminders', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
       ],
     },
     {
@@ -617,6 +617,12 @@ export default function AppsSidebar({
       if (onOpenCertificate) onOpenCertificate();
     } else if (sub.id) {
       setActiveTab(sub.id);
+      if (sub.subView) {
+        try { localStorage.setItem('bionet_crm_view', sub.subView); } catch {}
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('bionet:crm-view', { detail: { view: sub.subView } }));
+        }, 50);
+      }
     }
     setHoveredMenu(null);
     if (setMobileOpen) setMobileOpen(false);
@@ -682,6 +688,12 @@ export default function AppsSidebar({
       if (onOpenCertificate) onOpenCertificate();
     } else if (sub.id) {
       setActiveTab(sub.id);
+      if (sub.subView) {
+        try { localStorage.setItem('bionet_crm_view', sub.subView); } catch {}
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('bionet:crm-view', { detail: { view: sub.subView } }));
+        }, 50);
+      }
     }
     if (setMobileOpen) setMobileOpen(false);
   };

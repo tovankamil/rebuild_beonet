@@ -192,18 +192,28 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
     }
   };
 
-  // Polling updates every 6 seconds
+  // Track current activeThreadId in ref to avoid stale closure during real-time polling
+  const activeThreadIdRef = useRef(activeThreadId);
+  useEffect(() => {
+    activeThreadIdRef.current = activeThreadId;
+  }, [activeThreadId]);
+
+  // Real-time polling updates every 2.5 seconds
   useEffect(() => {
     fetchThreads();
     fetchAuxiliaryData();
     const interval = setInterval(() => {
+      fetchThreads();
       fetchAuxiliaryData();
-      if (activeThreadId) {
-        api.get(`/crm/whatsapp/threads/${activeThreadId}/messages`).then((res) => {
-          if (res.data?.data) setMessages(res.data.data);
-        });
+      const currentId = activeThreadIdRef.current;
+      if (currentId) {
+        api.get(`/crm/whatsapp/threads/${currentId}/messages`).then((res) => {
+          if (res.data?.data) {
+            setMessages(res.data.data);
+          }
+        }).catch(() => {});
       }
-    }, 6000);
+    }, 2500);
     return () => clearInterval(interval);
   }, []);
 
@@ -244,14 +254,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
           )
         );
 
-        // Simulate customer typing indicator after 2.5s
-        setTimeout(() => {
-          setIsTypingSimulated(true);
-          setTimeout(() => {
-            setIsTypingSimulated(false);
-            fetchMessages(activeThreadId);
-          }, 3500);
-        }, 2200);
+// Direct real-time updates via live polling
       }
     } catch (err) {
       alert('Gagal mengirim pesan: ' + (err.response?.data?.message || err.message));
@@ -384,6 +387,40 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   // Quick reply snippet clicked
   const handleQuickReply = (snippet) => {
     setInputText((prev) => (prev ? prev + ' ' + snippet : snippet));
+  };
+
+  // Hapus obrolan spesifik
+  const handleDeleteThread = async (tId, contactName) => {
+    if (!tId) return;
+    if (!window.confirm(`Hapus percakapan dengan "${contactName || 'Kontak'}"? Riwayat obrolan ini akan dihapus.`)) {
+      return;
+    }
+    try {
+      await api.delete(`/crm/whatsapp/threads/${tId}`);
+      setThreads((prev) => prev.filter((t) => (t.ID || t.id) !== tId));
+      if (activeThreadId === tId) {
+        setActiveThreadId(null);
+        setMessages([]);
+      }
+    } catch (err) {
+      alert('Gagal menghapus obrolan: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  // Bersihkan semua kontak demo dummy & data yang tidak terpakai
+  const handleClearDemoThreads = async () => {
+    if (!window.confirm('Bersihkan semua kontak demo contoh dan percakapan tidak terpakai? Hanya kontak WhatsApp asli Anda yang akan dipertahankan.')) {
+      return;
+    }
+    try {
+      const res = await api.post('/crm/whatsapp/threads/clear-demo');
+      alert(res.data?.message || 'Kontak demo berhasil dibersihkan');
+      fetchThreads();
+      setActiveThreadId(null);
+      setMessages([]);
+    } catch (err) {
+      alert('Gagal membersihkan data: ' + (err.response?.data?.message || err.message));
+    }
   };
 
   // Create new thread
@@ -767,6 +804,14 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                 >
                   Siklus RO
                 </button>
+                <button
+                  onClick={handleClearDemoThreads}
+                  className="px-2 py-1 rounded-lg font-bold transition text-rose-600 hover:bg-rose-100 flex items-center space-x-1 ml-auto text-[11px]"
+                  title="Hapus semua kontak demo bawaan dan percakapan tidak terpakai"
+                >
+                  <Trash2 className="w-3 h-3 text-rose-500" />
+                  <span>Bersihkan Demo</span>
+                </button>
               </div>
             </div>
 
@@ -834,11 +879,23 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                             <span className="truncate">{thread.last_message || 'Belum ada pesan...'}</span>
                           </div>
 
-                          {thread.unread_count > 0 && (
-                            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white flex-shrink-0 animate-pulse">
-                              {thread.unread_count}
-                            </span>
-                          )}
+                          <div className="flex items-center space-x-1.5 flex-shrink-0">
+                            {thread.unread_count > 0 && (
+                              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white animate-pulse">
+                                {thread.unread_count}
+                              </span>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteThread(tId, thread.contact_name);
+                              }}
+                              className="p-1 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition"
+                              title="Hapus obrolan ini"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -920,6 +977,15 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>
+
+                    {/* Delete Thread Button */}
+                    <button
+                      onClick={() => handleDeleteThread(activeThread.id || activeThread.ID, activeThread.contact_name)}
+                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
+                      title="Hapus Obrolan Ini"
+                    >
+                      <Trash2 className="w-4 h-4 text-rose-500" />
+                    </button>
                   </div>
                 </div>
 

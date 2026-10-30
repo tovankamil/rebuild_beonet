@@ -1085,6 +1085,8 @@ func main() {
 			protected.GET("/crm/whatsapp/threads/:id/messages", crmHandler.GetWhatsAppThreadMessages)
 			protected.POST("/crm/whatsapp/threads/:id/messages", crmHandler.SendWhatsAppThreadMessage)
 			protected.POST("/crm/whatsapp/threads", crmHandler.CreateWhatsAppThread)
+			protected.DELETE("/crm/whatsapp/threads/:id", crmHandler.DeleteWhatsAppThread)
+			protected.POST("/crm/whatsapp/threads/clear-demo", crmHandler.ClearDemoWhatsAppThreads)
 			protected.GET("/crm/whatsapp/broadcasts", crmHandler.GetWhatsAppBroadcasts)
 			protected.POST("/crm/whatsapp/broadcasts", crmHandler.CreateWhatsAppBroadcast)
 			protected.GET("/crm/whatsapp/bot-rules", crmHandler.GetWhatsAppBotRules)

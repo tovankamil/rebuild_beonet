@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"bionet-backend/models"
+	"github.com/joho/godotenv"
 )
 
 // WhatsAppLog represents outbound/inbound delivery telemetry
@@ -133,14 +135,20 @@ func init() {
 
 func InitWhatsAppService() *WhatsAppService {
 	waOnce.Do(func() {
+		_ = godotenv.Load()
+		_ = godotenv.Load("../.env")
 		key := os.Getenv("FONNTE_API_KEY")
 		wahaURL := os.Getenv("WAHA_BASE_URL")
+		if wahaURL == "" {
+			wahaURL = "http://localhost:3000"
+		}
 		wahaKey := os.Getenv("WAHA_API_KEY")
-		provider := "simulated"
+		if wahaKey == "" {
+			wahaKey = "bionet_waha_key_2026"
+		}
+		provider := "waha"
 		if key != "" {
 			provider = "fonnte"
-		} else if wahaURL != "" {
-			provider = "waha"
 		}
 
 		now := time.Now()
@@ -571,6 +579,61 @@ func FormatPhone(p string) string {
 	return cleaned
 }
 
+// ResolveWhatsAppPhone resolves real phone number from LID or JID
+func ResolveWhatsAppPhone(from string, payload map[string]interface{}) string {
+	clean := strings.Split(from, "@")[0]
+	clean = strings.TrimSpace(clean)
+
+	// 1. Check payload key / participant / remoteJid first
+	if payload != nil {
+		if chatId, ok := payload["chatId"].(string); ok && (strings.Contains(chatId, "@c.us") || strings.Contains(chatId, "@s.whatsapp.net")) {
+			cand := strings.Split(chatId, "@")[0]
+			if len(cand) >= 10 && len(cand) <= 15 && strings.HasPrefix(cand, "62") {
+				return cand
+			}
+		}
+		if dataObj, ok := payload["_data"].(map[string]interface{}); ok {
+			if keyObj, ok := dataObj["key"].(map[string]interface{}); ok {
+				if rJid, ok := keyObj["remoteJid"].(string); ok && (strings.Contains(rJid, "@c.us") || strings.Contains(rJid, "@s.whatsapp.net")) {
+					cand := strings.Split(rJid, "@")[0]
+					if len(cand) >= 10 && len(cand) <= 15 && strings.HasPrefix(cand, "62") {
+						return cand
+					}
+				}
+				if part, ok := keyObj["participant"].(string); ok && (strings.Contains(part, "@c.us") || strings.Contains(part, "@s.whatsapp.net")) {
+					cand := strings.Split(part, "@")[0]
+					if len(cand) >= 10 && len(cand) <= 15 && strings.HasPrefix(cand, "62") {
+						return cand
+					}
+				}
+			}
+		}
+	}
+
+	// 2. Reverse mapping from WAHA session file: lid-mapping-<clean>_reverse.json
+	mappingPaths := []string{
+		fmt.Sprintf("waha_sessions/noweb/default/lid-mapping-%s_reverse.json", clean),
+		fmt.Sprintf("../waha_sessions/noweb/default/lid-mapping-%s_reverse.json", clean),
+		fmt.Sprintf("backend/waha_sessions/noweb/default/lid-mapping-%s_reverse.json", clean),
+	}
+	for _, p := range mappingPaths {
+		if data, err := os.ReadFile(p); err == nil {
+			var realPhone string
+			if err := json.Unmarshal(data, &realPhone); err == nil && realPhone != "" {
+				log.Printf("[ResolveWhatsAppPhone] Mapped LID %s -> Phone %s from %s", clean, realPhone, p)
+				return realPhone
+			}
+			raw := strings.Trim(string(data), "\" \r\n")
+			if raw != "" {
+				log.Printf("[ResolveWhatsAppPhone] Mapped LID %s -> Phone %s from %s (raw)", clean, raw, p)
+				return raw
+			}
+		}
+	}
+
+	return clean
+}
+
 // SendCrmDirectMessage sends a WhatsApp message directly via Gateway
 func (s *WhatsAppService) SendCrmDirectMessage(phone, recipient, category, message string) (*WhatsAppLog, error) {
 	if s == nil {
@@ -617,35 +680,16 @@ func (s *WhatsAppService) SendCrmDirectMessage(phone, recipient, category, messa
 			log.Printf("[WhatsApp Gateway Fonnte Error] %v", err)
 			s.UpdateStatus(logID, "sent")
 		}()
-	} else if s.provider == "waha" && s.wahaURL != "" {
+	} else if s.wahaURL != "" || s.provider == "waha" {
 		// 2. Opsi B: WAHA (WhatsApp HTTP API) Docker
 		go func() {
-			chatId := formattedPhone + "@c.us"
-			reqBody, _ := json.Marshal(map[string]interface{}{
-				"session": "default",
-				"chatId":  chatId,
-				"text":    message,
-			})
-			targetURL := strings.TrimRight(s.wahaURL, "/") + "/api/sendText"
-			req, err := http.NewRequest("POST", targetURL, bytes.NewBuffer(reqBody))
+			err := s.SendWAHAText(formattedPhone, message)
 			if err == nil {
-				req.Header.Set("Content-Type", "application/json")
-				if s.wahaKey != "" {
-					req.Header.Set("X-Api-Key", s.wahaKey)
-				}
-				client := &http.Client{Timeout: 10 * time.Second}
-				resp, err := client.Do(req)
-				if err == nil && (resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated) {
-					s.UpdateStatus(logID, "sent")
-					resp.Body.Close()
-					return
-				}
-				if resp != nil {
-					resp.Body.Close()
-				}
+				s.UpdateStatus(logID, "sent")
+			} else {
+				log.Printf("[WhatsApp Gateway WAHA Error] %v", err)
+				s.UpdateStatus(logID, "sent")
 			}
-			log.Printf("[WhatsApp Gateway WAHA Error] %v", err)
-			s.UpdateStatus(logID, "sent")
 		}()
 	} else {
 		// 3. Realistic Delivery Progression Simulation:
@@ -759,28 +803,10 @@ func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string) 
 		SentAt:    now,
 	})
 
-	// Also push via WAHA if connected
-	if s.provider == "waha" && s.wahaURL != "" {
+	// Also push via WAHA if connected or configured
+	if s.wahaURL != "" || s.provider == "waha" {
 		go func(phone, msgText string) {
-			chatId := FormatPhone(phone) + "@c.us"
-			reqBody, _ := json.Marshal(map[string]interface{}{
-				"session": "default",
-				"chatId":  chatId,
-				"text":    msgText,
-			})
-			targetURL := strings.TrimRight(s.wahaURL, "/") + "/api/sendText"
-			req, err := http.NewRequest("POST", targetURL, bytes.NewBuffer(reqBody))
-			if err == nil {
-				req.Header.Set("Content-Type", "application/json")
-				if s.wahaKey != "" {
-					req.Header.Set("X-Api-Key", s.wahaKey)
-				}
-				client := &http.Client{Timeout: 10 * time.Second}
-				resp, err := client.Do(req)
-				if err == nil && resp != nil {
-					resp.Body.Close()
-				}
-			}
+			_ = s.SendWAHAText(phone, msgText)
 		}(thread.Phone, text)
 	}
 
@@ -792,11 +818,61 @@ func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string) 
 		time.Sleep(1400 * time.Millisecond)
 		s.updateThreadMessageStatus(tID, mID, "read")
 
-		// Check Auto-Responder & Realistic Simulation Reply
-		s.handleSmartIncomingReply(tID, contactName, contactPhone, sentText)
+		// Only run mock simulation if no real WhatsApp gateway is configured
+		if s.deviceSession.Status != "connected" && s.wahaURL == "" {
+			s.handleSmartIncomingReply(tID, contactName, contactPhone, sentText)
+		}
 	}(threadID, msgID, thread.ContactName, thread.Phone, text)
 
 	return &newMsg, nil
+}
+
+// SendWAHAText sends an outbound text message through WAHA HTTP API
+func (s *WhatsAppService) SendWAHAText(phone, text string) error {
+	wahaURL := s.wahaURL
+	if wahaURL == "" {
+		wahaURL = "http://localhost:3000"
+	}
+	wahaKey := s.wahaKey
+	if wahaKey == "" {
+		wahaKey = "bionet_waha_key_2026"
+	}
+
+	cleanPhone := FormatPhone(phone)
+	chatId := cleanPhone + "@c.us"
+
+	reqBody, err := json.Marshal(map[string]interface{}{
+		"session": "default",
+		"chatId":  chatId,
+		"text":    text,
+	})
+	if err != nil {
+		log.Printf("[WAHA Outbound Error] JSON marshal: %v", err)
+		return err
+	}
+
+	targetURL := strings.TrimRight(wahaURL, "/") + "/api/sendText"
+	req, err := http.NewRequest("POST", targetURL, bytes.NewBuffer(reqBody))
+	if err != nil {
+		log.Printf("[WAHA Outbound Error] NewRequest: %v", err)
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if wahaKey != "" {
+		req.Header.Set("X-Api-Key", wahaKey)
+	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("[WAHA Outbound Error] POST %s failed: %v", targetURL, err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	bodyBytes, _ := io.ReadAll(resp.Body)
+	log.Printf("[WAHA Outbound -> %s] Status: %d, Response: %s", chatId, resp.StatusCode, string(bodyBytes))
+	return nil
 }
 
 func (s *WhatsAppService) updateThreadMessageStatus(threadID, msgID, status string) {
@@ -829,6 +905,23 @@ func (s *WhatsAppService) handleSmartIncomingReply(threadID, contactName, contac
 		}
 	}
 	s.botRulesLock.RUnlock()
+
+	// When connected to a real WhatsApp device via WAHA, do not simulate fake consumer chat replies
+	s.deviceLock.RLock()
+	isRealConnected := s.deviceSession.Status == "connected"
+	autoResponderOn := s.deviceSession.AutoResponderOn
+	s.deviceLock.RUnlock()
+
+	if isRealConnected {
+		if !autoResponderOn || botReply == "" {
+			return
+		}
+		// If auto-responder bot rule matched, send automated reply via WAHA
+		go func(phoneTo, replyMsg string) {
+			time.Sleep(1 * time.Second)
+			_ = s.SendWAHAText(phoneTo, replyMsg)
+		}(contactPhone, botReply)
+	}
 
 	var replyText string
 	if botReply != "" {
@@ -877,7 +970,6 @@ func (s *WhatsAppService) handleSmartIncomingReply(threadID, contactName, contac
 // CreateNewThread adds a new chat conversation for a lead or contact
 func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, leadStage string) *WhatsAppChatThread {
 	s.threadsLock.Lock()
-	defer s.threadsLock.Unlock()
 
 	formatted := FormatPhone(phone)
 	threadID := fmt.Sprintf("thread-%d", time.Now().UnixNano())
@@ -885,7 +977,9 @@ func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, lea
 	// Check if already exists
 	for i := range s.threads {
 		if s.threads[i].Phone == "+"+formatted || s.threads[i].Phone == formatted {
-			return &s.threads[i]
+			existing := &s.threads[i]
+			s.threadsLock.Unlock()
+			return existing
 		}
 	}
 
@@ -893,7 +987,7 @@ func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, lea
 		ID:              threadID,
 		Phone:           "+" + formatted,
 		ContactName:     contactName,
-		Avatar:          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
+		Avatar:          fmt.Sprintf("https://api.dicebear.com/7.x/initials/svg?seed=%s", contactName),
 		LeadStage:       leadStage,
 		Product:         product,
 		City:            city,
@@ -903,20 +997,91 @@ func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, lea
 		IsOnline:        true,
 	}
 
+	initText := fmt.Sprintf("Halo %s! Salam hangat dari Bionet Official. Ada yang bisa kami bantu seputar %s?", contactName, product)
+	msgID := fmt.Sprintf("msg-init-%d", time.Now().UnixNano())
+
 	s.threads = append([]WhatsAppChatThread{newThread}, s.threads...)
 	s.messages[threadID] = []WhatsAppMessageItem{
 		{
-			ID:        fmt.Sprintf("msg-init-%d", time.Now().UnixNano()),
+			ID:        msgID,
 			ThreadID:  threadID,
 			Sender:    "me",
-			Text:      fmt.Sprintf("Halo %s! Salam hangat dari Bionet Official. Ada yang bisa kami bantu seputar %s?", contactName, product),
+			Text:      initText,
 			MediaType: "text",
-			Status:    "read",
+			Status:    "sent",
 			SentAt:    time.Now(),
 		},
 	}
+	s.threadsLock.Unlock()
+
+	// Dispatch outbound initial greeting via WAHA and record log
+	go func(targetPhone, cName, messageText, mID string) {
+		if s.wahaURL != "" || s.provider == "waha" {
+			_ = s.SendWAHAText(targetPhone, messageText)
+		}
+		s.addLog(WhatsAppLog{
+			ID:        mID,
+			Phone:     "+" + FormatPhone(targetPhone),
+			Recipient: cName,
+			Category:  "new_thread_greeting",
+			Message:   messageText,
+			Status:    "sent",
+			Direction: "outbound",
+			Provider:  s.provider,
+			SentAt:    time.Now(),
+		})
+	}(newThread.Phone, contactName, initText, msgID)
 
 	return &newThread
+}
+
+// DeleteThread removes a conversation thread and its messages
+func (s *WhatsAppService) DeleteThread(threadID string) bool {
+	s.threadsLock.Lock()
+	defer s.threadsLock.Unlock()
+
+	found := false
+	newThreads := make([]WhatsAppChatThread, 0, len(s.threads))
+	for _, t := range s.threads {
+		if t.ID == threadID {
+			found = true
+			continue
+		}
+		newThreads = append(newThreads, t)
+	}
+	if found {
+		s.threads = newThreads
+		delete(s.messages, threadID)
+	}
+	return found
+}
+
+// ClearDemoThreads removes dummy demo threads and temporary LID/Pelanggan WhatsApp threads
+func (s *WhatsAppService) ClearDemoThreads() int {
+	s.threadsLock.Lock()
+	defer s.threadsLock.Unlock()
+
+	demoIDs := map[string]bool{
+		"thread-bambang": true,
+		"thread-siti":    true,
+		"thread-ahmad":   true,
+		"thread-dewi":    true,
+		"thread-budi":    true,
+	}
+
+	count := 0
+	newThreads := make([]WhatsAppChatThread, 0, len(s.threads))
+	for _, t := range s.threads {
+		// Remove demo seeds or unidentified LID threads
+		if demoIDs[t.ID] || strings.Contains(t.Phone, "629991399") || t.ContactName == "Pelanggan WhatsApp" {
+			delete(s.messages, t.ID)
+			count++
+			continue
+		}
+		newThreads = append(newThreads, t)
+	}
+	s.threads = newThreads
+	return count
 }
 
 // =========================================================================
@@ -1096,6 +1261,18 @@ func (s *WhatsAppService) GetDeviceSession() WhatsAppDeviceSession {
 								qResp.Body.Close()
 							}
 						}
+					} else if wSession.Status == "FAILED" || wSession.Status == "STOPPED" {
+						s.deviceSession.Status = "scanning_qr"
+						// Auto-restart session in WAHA to immediately trigger a fresh QR Code
+						go func() {
+							restartReq, rErr := http.NewRequest("POST", strings.TrimRight(s.wahaURL, "/")+"/api/sessions/default/restart", nil)
+							if rErr == nil {
+								if s.wahaKey != "" {
+									restartReq.Header.Set("X-Api-Key", s.wahaKey)
+								}
+								client.Do(restartReq)
+							}
+						}()
 					}
 					return s.deviceSession
 				}
@@ -1177,6 +1354,10 @@ func (s *WhatsAppService) RecordInboundMessage(fromPhone, senderName, message st
 			s.threads[i].LastMessageTime = now
 			s.threads[i].UnreadCount++
 			foundThreadID = s.threads[i].ID
+			// Preserve real contact name if already set (e.g. 'rully')
+			if s.threads[i].ContactName != "" && s.threads[i].ContactName != "Pelanggan WhatsApp" {
+				senderName = s.threads[i].ContactName
+			}
 			break
 		}
 	}
@@ -1210,6 +1391,7 @@ func (s *WhatsAppService) RecordInboundMessage(fromPhone, senderName, message st
 		Status:    "read",
 		SentAt:    now,
 	})
+	log.Printf("[RecordInboundMessage] Added inbound message to threadID '%s' (phone: %s): %s", foundThreadID, formattedPhone, message)
 	s.threadsLock.Unlock()
 
 	return &logEntry

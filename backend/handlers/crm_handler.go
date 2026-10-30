@@ -3,8 +3,10 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"bionet-backend/config"
@@ -1375,6 +1377,11 @@ func (h *CRMHandler) GetWhatsAppGatewayStatus(c *gin.Context) {
 	})
 }
 
+var (
+	recentWebhookMsgIDs = make(map[string]time.Time)
+	recentWebhookLock   sync.Mutex
+)
+
 // WhatsAppWebhookListener menerima webhook callback status (delivered/read) & chat masuk dari Fonnte/WAHA
 func (h *CRMHandler) WhatsAppWebhookListener(c *gin.Context) {
 	var body map[string]interface{}
@@ -1388,15 +1395,51 @@ func (h *CRMHandler) WhatsAppWebhookListener(c *gin.Context) {
 	// 1. Cek format event WAHA (WhatsApp HTTP API)
 	if event, ok := body["event"].(string); ok {
 		payload, _ := body["payload"].(map[string]interface{})
+		log.Printf("[WAHA Webhook Event] event=%s, has_payload=%v", event, payload != nil)
 
 		if event == "message" || event == "message.any" {
 			if payload != nil {
-				fromMe, _ := payload["fromMe"].(bool)
+				fromMe, hasFromMe := payload["fromMe"].(bool)
+				if !hasFromMe {
+					if dataObj, ok := payload["_data"].(map[string]interface{}); ok {
+						if keyObj, ok := dataObj["key"].(map[string]interface{}); ok {
+							fromMe, _ = keyObj["fromMe"].(bool)
+						}
+					}
+				}
+
 				if !fromMe {
-					from, _ := payload["from"].(string)
-					// Strip @c.us or @s.whatsapp.net
-					from = strings.Split(from, "@")[0]
+					// Deduplicate by payload.id (since WAHA fires both 'message' and 'message.any')
+					if msgID, ok := payload["id"].(string); ok && msgID != "" {
+						recentWebhookLock.Lock()
+						if lastSeen, exists := recentWebhookMsgIDs[msgID]; exists && time.Since(lastSeen) < 30*time.Second {
+							recentWebhookLock.Unlock()
+							c.JSON(http.StatusOK, gin.H{"status": "ignored_duplicate", "id": msgID})
+							return
+						}
+						recentWebhookMsgIDs[msgID] = time.Now()
+						if len(recentWebhookMsgIDs) > 500 {
+							cutoff := time.Now().Add(-1 * time.Minute)
+							for k, v := range recentWebhookMsgIDs {
+								if v.Before(cutoff) {
+									delete(recentWebhookMsgIDs, k)
+								}
+							}
+						}
+						recentWebhookLock.Unlock()
+					}
+
+					rawFrom, _ := payload["from"].(string)
+					from := services.ResolveWhatsAppPhone(rawFrom, payload)
+
 					text, _ := payload["body"].(string)
+					if text == "" {
+						text, _ = payload["text"].(string)
+					}
+					if text == "" {
+						text, _ = payload["caption"].(string)
+					}
+
 					senderName := "Pelanggan WhatsApp"
 					if dataObj, ok := payload["_data"].(map[string]interface{}); ok {
 						if n, ok := dataObj["notifyName"].(string); ok && n != "" {
@@ -1406,6 +1449,8 @@ func (h *CRMHandler) WhatsAppWebhookListener(c *gin.Context) {
 					if pName, ok := payload["pushName"].(string); ok && pName != "" {
 						senderName = pName
 					}
+
+					log.Printf("[WAHA Inbound Message] From: %s (%s) Text: %s", from, senderName, text)
 
 					if from != "" && text != "" {
 						waService.RecordInboundMessage(from, senderName, text)
@@ -1566,6 +1611,29 @@ func (h *CRMHandler) CreateWhatsAppThread(c *gin.Context) {
 		"status":  "success",
 		"message": "Percakapan WhatsApp baru berhasil dibuat",
 		"data":    thread,
+	})
+}
+
+// DeleteWhatsAppThread menghapus sebuah obrolan chat
+func (h *CRMHandler) DeleteWhatsAppThread(c *gin.Context) {
+	threadID := c.Param("id")
+	waService := services.InitWhatsAppService()
+	deleted := waService.DeleteThread(threadID)
+	if !deleted {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Obrolan tidak ditemukan"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "success", "message": "Obrolan berhasil dihapus"})
+}
+
+// ClearDemoWhatsAppThreads membersihkan data kontak demo bawaan dan temporary
+func (h *CRMHandler) ClearDemoWhatsAppThreads(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	count := waService.ClearDemoThreads()
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": fmt.Sprintf("%d obrolan demo berhasil dibersihkan", count),
+		"count":   count,
 	})
 }
 

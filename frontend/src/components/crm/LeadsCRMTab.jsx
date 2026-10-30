@@ -50,7 +50,23 @@ export default function LeadsCRMTab({ user }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
-  const [viewMode, setViewMode] = useState('kanban'); // 'kanban' | 'table' | 'health-journey' | 'testimonials' | 'webhook' | 'ro-reminders'
+  const [viewMode, setViewMode] = useState(() => {
+    try {
+      return localStorage.getItem('bionet_crm_view') || 'kanban';
+    } catch {
+      return 'kanban';
+    }
+  });
+
+  useEffect(() => {
+    const handleCrmView = (e) => {
+      if (e.detail?.view) {
+        setViewMode(e.detail.view);
+      }
+    };
+    window.addEventListener('bionet:crm-view', handleCrmView);
+    return () => window.removeEventListener('bionet:crm-view', handleCrmView);
+  }, []);
 
   // Modals state
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -506,7 +522,7 @@ export default function LeadsCRMTab({ user }) {
               <button
                 key={tab.key}
                 type="button"
-                onClick={() => setViewMode(tab.key)}
+                onClick={() => { setViewMode(tab.key); try { localStorage.setItem('bionet_crm_view', tab.key); } catch {} }}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${isActive
                   ? 'bg-gradient-to-r from-indigo-600 to-indigo-700 text-white shadow-md shadow-indigo-950/20'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'

@@ -9,9 +9,9 @@ services:
       - WAHA_API_KEY=bionet_waha_key_2026
       - WAHA_DASHBOARD_ENABLED=true
       - WAHA_DASHBOARD_USERNAME=admin
-      - WAHA_DASHBOARD_PASSWORD=admin
+      - WAHA_DASHBOARD_PASSWORD=bionet_waha_2026
       - WHATSAPP_SWAGGER_USERNAME=admin
-      - WHATSAPP_SWAGGER_PASSWORD=admin
+      - WHATSAPP_SWAGGER_PASSWORD=bionet_waha_2026
       - WAHA_ZIP_LOGS=false
       - WAHA_PRINT_QR=true
       - WHATSAPP_DEFAULT_ENGINE=NOWEB

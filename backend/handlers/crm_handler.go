@@ -1709,3 +1709,208 @@ func (h *CRMHandler) ToggleWhatsAppAutoResponder(c *gin.Context) {
 		"auto_responder_on": state,
 	})
 }
+
+// SendWhatsAppMediaRequest payload for sending audio/voice notes and documents/PDFs
+type SendWhatsAppMediaRequest struct {
+	Phone     string `json:"phone" binding:"required"`
+	Recipient string `json:"recipient"`
+	MediaType string `json:"media_type" binding:"required"` // 'audio', 'voice', 'document', 'pdf', 'image'
+	MediaURL  string `json:"media_url" binding:"required"`
+	Caption   string `json:"caption"`
+	Category  string `json:"category"`
+	LeadID    string `json:"lead_id"`
+}
+
+// SendWhatsAppMedia mengirimkan dokumen PDF atau voice note audio via WAHA Gateway
+func (h *CRMHandler) SendWhatsAppMedia(c *gin.Context) {
+	var req SendWhatsAppMediaRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Parameter tidak lengkap: phone, media_type, dan media_url wajib diisi",
+		})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	if waService == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"status":  "error",
+			"message": "Layanan WhatsApp Gateway sedang tidak tersedia",
+		})
+		return
+	}
+
+	recipientName := strings.TrimSpace(req.Recipient)
+	if recipientName == "" {
+		recipientName = "Konsumen Bionet"
+	}
+	category := strings.TrimSpace(req.Category)
+	if category == "" {
+		category = "crm_media"
+	}
+
+	logEntry, err := waService.SendMediaMessage(req.Phone, recipientName, category, req.MediaType, req.MediaURL, req.Caption)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Gagal mengirim file media WhatsApp: " + err.Error(),
+		})
+		return
+	}
+
+	// Update CRM Follow-up activity log jika ada lead_id
+	if req.LeadID != "" {
+		db := config.DB
+		if db != nil {
+			var lead models.Lead
+			if err := db.Where("id = ?", req.LeadID).First(&lead).Error; err == nil {
+				now := time.Now()
+				lead.LastContactedAt = &now
+				lead.Notes = fmt.Sprintf("WhatsApp Media (%s): %s [%s]\n%s", req.MediaType, req.Caption, req.MediaURL, lead.Notes)
+				if lead.Status == "new" {
+					lead.Status = "contacted"
+				}
+				db.Save(&lead)
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "File media WhatsApp berhasil dikirim via Gateway",
+		"data":    logEntry,
+	})
+}
+
+// GetWhatsAppSchedules mengembalikan daftar jadwal auto follow-up WhatsApp
+func (h *CRMHandler) GetWhatsAppSchedules(c *gin.Context) {
+	userID := c.GetString("user_id")
+	db := config.DB
+
+	if db != nil {
+		var list []models.WhatsAppSchedule
+		q := db.Order("scheduled_at ASC")
+		if userID != "" {
+			q = q.Where("user_id = ?", userID)
+		}
+		if err := q.Find(&list).Error; err == nil && len(list) > 0 {
+			c.JSON(http.StatusOK, gin.H{
+				"status": "success",
+				"data":   list,
+			})
+			return
+		}
+	}
+
+	// Fallback ke in-memory schedule list di services
+	waService := services.InitWhatsAppService()
+	schedules := waService.GetSchedules(userID)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   schedules,
+	})
+}
+
+// CreateWhatsAppScheduleRequest payload pembuatan jadwal follow-up
+type CreateWhatsAppScheduleRequest struct {
+	LeadID      string `json:"lead_id"`
+	Recipient   string `json:"recipient" binding:"required"`
+	Phone       string `json:"phone" binding:"required"`
+	Message     string `json:"message" binding:"required"`
+	Category    string `json:"category"`
+	DelayHours  int    `json:"delay_hours"`
+	DelayDays   int    `json:"delay_days"`
+	ScheduledAt string `json:"scheduled_at"`
+}
+
+// CreateWhatsAppSchedule menjadwalkan pesan follow-up otomatis
+func (h *CRMHandler) CreateWhatsAppSchedule(c *gin.Context) {
+	var req CreateWhatsAppScheduleRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Parameter tidak lengkap: recipient, phone, dan message wajib diisi",
+		})
+		return
+	}
+
+	userID := c.GetString("user_id")
+	if userID == "" {
+		userID = "mitra-default-id"
+	}
+
+	now := time.Now()
+	schedTime := now.Add(24 * time.Hour) // default follow-up H+1
+
+	if req.ScheduledAt != "" {
+		if parsed, err := time.Parse(time.RFC3339, req.ScheduledAt); err == nil {
+			schedTime = parsed
+		} else if parsed, err := time.Parse("2006-01-02 15:04:05", req.ScheduledAt); err == nil {
+			schedTime = parsed
+		}
+	} else if req.DelayHours > 0 || req.DelayDays > 0 {
+		schedTime = now.Add(time.Duration(req.DelayHours)*time.Hour + time.Duration(req.DelayDays)*24*time.Hour)
+	}
+
+	category := req.Category
+	if category == "" {
+		category = "crm_followup"
+	}
+
+	schedule := models.WhatsAppSchedule{
+		ID:          fmt.Sprintf("sched-%d", time.Now().UnixNano()),
+		UserID:      userID,
+		LeadID:      req.LeadID,
+		Recipient:   req.Recipient,
+		Phone:       services.FormatPhone(req.Phone),
+		Message:     req.Message,
+		Category:    category,
+		ScheduledAt: schedTime,
+		Status:      "scheduled",
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}
+
+	db := config.DB
+	if db != nil {
+		db.Create(&schedule)
+	}
+
+	// Always sync to service memory
+	waService := services.InitWhatsAppService()
+	created := waService.CreateSchedule(schedule)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  "success",
+		"message": "Jadwal follow-up WhatsApp berhasil disimpan",
+		"data":    created,
+	})
+}
+
+// DeleteWhatsAppSchedule menghapus jadwal follow-up otomatis
+func (h *CRMHandler) DeleteWhatsAppSchedule(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "ID jadwal follow-up wajib diisi",
+		})
+		return
+	}
+
+	userID := c.GetString("user_id")
+	db := config.DB
+	if db != nil {
+		db.Where("id = ?", id).Delete(&models.WhatsAppSchedule{})
+	}
+
+	waService := services.InitWhatsAppService()
+	waService.DeleteSchedule(id, userID)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Jadwal follow-up WhatsApp berhasil dihapus",
+	})
+}

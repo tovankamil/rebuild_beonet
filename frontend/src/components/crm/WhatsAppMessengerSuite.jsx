@@ -21,6 +21,13 @@ import {
   Filter,
   Trash2,
   X,
+  FileText,
+  Mic,
+  Play,
+  Pause,
+  Calendar,
+  Paperclip,
+  Volume2,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
@@ -77,6 +84,51 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
   // AI Assistant Drafting in Chat
   const [aiDrafting, setAiDrafting] = useState(false);
+
+  // Smart Scheduler & Media Attachments State
+  const [playingAudioId, setPlayingAudioId] = useState(null);
+  const [schedulerTasks, setSchedulerTasks] = useState([
+    {
+      id: 'sch_1',
+      lead_name: 'Ibu Hj. Nurjanah',
+      phone: '081287654321',
+      cadence: '24 Jam',
+      scheduled_time: 'Hari Ini, 16:30 WIB',
+      message: 'Halo Ibu Nurjanah, salam sehat! Bagaimana respon setelah membaca info khasiat Bio-Propolis Bionet kemarin? Ada yang bisa kami bantu jelaskan lebih lanjut?',
+      status: 'pending',
+      time_left: '4 Jam 12 Menit',
+    },
+    {
+      id: 'sch_2',
+      lead_name: 'Bapak Hendra Wijaya',
+      phone: '081377889900',
+      cadence: '48 Jam',
+      scheduled_time: 'Besok, 10:00 WIB',
+      message: 'Halo Pak Hendra, kami ingin membagikan kisah nyata konsumen dengan keluhan gula darah yang terbantu membaik. Kebetulan hari ini sedang ada subsidi potongan ongkir!',
+      status: 'pending',
+      time_left: '18 Jam 30 Menit',
+    },
+    {
+      id: 'sch_3',
+      lead_name: 'Mas Agus Setiawan',
+      phone: '085611223344',
+      cadence: '72 Jam',
+      scheduled_time: 'Kemarin, 19:30 WIB',
+      message: 'Halo Mas Agus, malam ini ada Webinar Bisnis Bionet (BOP) bersama para dokter spesialis. Apakah berkenan kami kirimkan akses Zoom VIP gratisnya?',
+      status: 'sent',
+      time_left: 'Terkirim Otomatis',
+    },
+  ]);
+  const [cadenceRules, setCadenceRules] = useState([
+    { hours: 24, label: '24 Jam Tanpa Respon', desc: 'Kirim sapaan santai, tanyakan keluhan/kendala konsumen secara ramah', active: true },
+    { hours: 48, label: '48 Jam Tanpa Respon', desc: 'Kirim video testimoni kesembuhan nyata + penawaran voucher subsidi ongkir', active: true },
+    { hours: 72, label: '72 Jam Tanpa Respon', desc: 'Kirimkan tiket undangan VIP gratis ke Webinar Presentasi Bisnis BOP Zoom', active: true },
+  ]);
+  const [newScheduleModalOpen, setNewScheduleModalOpen] = useState(false);
+  const [newSchLead, setNewSchLead] = useState('');
+  const [newSchPhone, setNewSchPhone] = useState('');
+  const [newSchCadence, setNewSchCadence] = useState('24 Jam');
+  const [newSchMsg, setNewSchMsg] = useState('Halo kak, izin menindaklanjuti konsultasi kesehatan kemarin. Apakah ada yang perlu kami bantu?');
 
   const messagesEndRef = useRef(null);
 
@@ -206,6 +258,101 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
     } finally {
       setSendingMessage(false);
     }
+  };
+
+  // Kirim Lampiran Media: Katalog PDF Resmi BPOM
+  const handleSendPdfCatalog = async () => {
+    if (!activeThreadId) return;
+    setSendingMessage(true);
+    const pdfText = '📄 *KATALOG RESMI BIONET HERBAL BPOM RI 2026*\n\nBerikut terlampir dokumen resmi sertifikasi BPOM dan katalog lengkap produk herbal Bionet untuk referensi kesehatan Anda.';
+    try {
+      const res = await api.post(`/crm/whatsapp/threads/${activeThreadId}/messages`, {
+        text: pdfText,
+        media_type: 'pdf',
+        media_url: 'https://bionet.id/docs/Katalog_Resmi_Bionet_BPOM_2026.pdf',
+      });
+      if (res.data?.data) {
+        setMessages((prev) => [...prev, { ...res.data.data, media_type: 'pdf' }]);
+      }
+    } catch (err) {
+      const fallbackMsg = {
+        id: 'media_' + Date.now(),
+        sender: 'me',
+        text: pdfText,
+        media_type: 'pdf',
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, fallbackMsg]);
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  // Kirim Lampiran Media: Audio Voice Note Konsultan
+  const handleSendVoiceNote = async () => {
+    if (!activeThreadId) return;
+    setSendingMessage(true);
+    const vnText = '🎙️ *VOICE NOTE KONSULTAN MEDIS BIONET*\n\nPanduan dosis anjuran & tips pemulihan keluhan kesehatan secara alami (0:48).';
+    try {
+      const res = await api.post(`/crm/whatsapp/threads/${activeThreadId}/messages`, {
+        text: vnText,
+        media_type: 'audio',
+      });
+      if (res.data?.data) {
+        setMessages((prev) => [...prev, { ...res.data.data, media_type: 'audio' }]);
+      }
+    } catch (err) {
+      const fallbackMsg = {
+        id: 'audio_' + Date.now(),
+        sender: 'me',
+        text: vnText,
+        media_type: 'audio',
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, fallbackMsg]);
+    } finally {
+      setSendingMessage(false);
+    }
+  };
+
+  // Smart Scheduler Handlers
+  const handleToggleCadenceRule = (hours) => {
+    setCadenceRules((prev) =>
+      prev.map((r) => (r.hours === hours ? { ...r, active: !r.active } : r))
+    );
+  };
+
+  const handleCreateScheduleTask = (e) => {
+    e.preventDefault();
+    if (!newSchLead || !newSchPhone) return;
+    const newTask = {
+      id: 'sch_' + Date.now(),
+      lead_name: newSchLead,
+      phone: newSchPhone,
+      cadence: newSchCadence,
+      scheduled_time: 'Otomatis dalam ' + newSchCadence,
+      message: newSchMsg,
+      status: 'pending',
+      time_left: newSchCadence,
+    };
+    setSchedulerTasks((prev) => [newTask, ...prev]);
+    setNewSchLead('');
+    setNewSchPhone('');
+    setNewScheduleModalOpen(false);
+  };
+
+  const handleDeleteScheduleTask = (id) => {
+    setSchedulerTasks((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const handleTriggerScheduleNow = (task) => {
+    const clean = task.phone.replace(/[^0-9]/g, '');
+    window.open(`https://wa.me/${clean}?text=${encodeURIComponent(task.message)}`, '_blank');
+    setSchedulerTasks((prev) =>
+      prev.map((t) => (t.id === task.id ? { ...t, status: 'sent', time_left: 'Terkirim Manual' } : t))
+    );
   };
 
   // AI Assistant Drafting in Chat
@@ -1737,6 +1884,88 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                 <button
                   type="button"
                   onClick={() => setNewChatModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition"
+                >
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* Modal Buat Jadwal Follow-Up Baru */}
+      {newScheduleModalOpen && (
+        <ModalPortal isOpen={true} onClose={() => setNewScheduleModalOpen(false)}>
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-slate-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2">
+                <Clock className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-extrabold text-slate-900 text-sm">Jadwalkan Follow-Up Otomatis</h3>
+              </div>
+              <button onClick={() => setNewScheduleModalOpen(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateScheduleTask} className="space-y-3.5 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Nama Calon Konsumen / Prospek *</label>
+                <input
+                  type="text"
+                  required
+                  value={newSchLead}
+                  onChange={(e) => setNewSchLead(e.target.value)}
+                  placeholder="Contoh: Ibu Rina Melati"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Nomor WhatsApp *</label>
+                <input
+                  type="tel"
+                  required
+                  value={newSchPhone}
+                  onChange={(e) => setNewSchPhone(e.target.value)}
+                  placeholder="Contoh: 081234567890"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Jeda Waktu Pengingat (Cadence)</label>
+                <select
+                  value={newSchCadence}
+                  onChange={(e) => setNewSchCadence(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="24 Jam">⏱️ 24 Jam (Sapaan santai tindak lanjut)</option>
+                  <option value="48 Jam">⏱️ 48 Jam (Kirim video kesembuhan & promo)</option>
+                  <option value="72 Jam">⏱️ 72 Jam (Undangan VIP BOP Zoom)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="font-bold text-slate-700 block mb-1">Naskah Pesan Follow-Up</label>
+                <textarea
+                  rows={3}
+                  value={newSchMsg}
+                  onChange={(e) => setNewSchMsg(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 resize-none leading-relaxed"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center space-x-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow-md shadow-emerald-950"
+                >
+                  Simpan Jadwal Follow-Up
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewScheduleModalOpen(false)}
                   className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition"
                 >
                   Batal

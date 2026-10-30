@@ -163,6 +163,9 @@ func setupTestServer() *gin.Engine {
 	verificationHandler := handlers.NewVerificationHandler()
 	crmHandler := handlers.NewCRMHandler()
 	prospectingHandler := handlers.NewProspectingHandler()
+	bioLinkHandler := handlers.NewBioLinkHandler()
+	marketingHandler := handlers.NewMarketingHandler()
+	gamificationHandler := handlers.NewGamificationHandler()
 
 	r := gin.New()
 	r.Use(middleware.CORSMiddleware())
@@ -182,6 +185,14 @@ func setupTestServer() *gin.Engine {
 		api.GET("/public/push/public-key", prospectingHandler.GetVapidPublicKey)
 		api.POST("/public/leads/webhook", crmHandler.PublicLeadWebhook)
 		api.POST("/crm/whatsapp/webhook", crmHandler.WhatsAppWebhookListener)
+
+		// Pilar 1 & 2: Public
+		api.GET("/bio/:username", bioLinkHandler.GetPublicBioPage)
+		api.POST("/bio/lead", bioLinkHandler.SubmitBioLead)
+		api.GET("/marketing/kits", marketingHandler.GetMarketingKits)
+		api.GET("/marketing/webinars", marketingHandler.GetWebinars)
+		api.POST("/marketing/webinars/register", marketingHandler.RegisterWebinar)
+		api.GET("/gamification/leaderboard", gamificationHandler.GetLeaderboard)
 
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware())
@@ -240,6 +251,22 @@ func setupTestServer() *gin.Engine {
 			protected.POST("/crm/whatsapp/device/pair", crmHandler.PairWhatsAppDevice)
 			protected.POST("/crm/whatsapp/device/disconnect", crmHandler.DisconnectWhatsAppDevice)
 			protected.POST("/crm/whatsapp/device/toggle-bot", crmHandler.ToggleWhatsAppAutoResponder)
+
+			// Pilar 3: WhatsApp CRM Lanjutan
+			protected.POST("/crm/whatsapp/send-media", crmHandler.SendWhatsAppMedia)
+			protected.GET("/crm/whatsapp/schedules", crmHandler.GetWhatsAppSchedules)
+			protected.POST("/crm/whatsapp/schedules", crmHandler.CreateWhatsAppSchedule)
+			protected.DELETE("/crm/whatsapp/schedules/:id", crmHandler.DeleteWhatsAppSchedule)
+
+			// Pilar 1: Bio-Link Protected
+			protected.GET("/bio/my-page", bioLinkHandler.GetMyBioPage)
+			protected.PUT("/bio/my-page", bioLinkHandler.UpdateMyBioPage)
+
+			// Pilar 2: Gamifikasi Protected
+			protected.GET("/gamification/reward-progress", gamificationHandler.GetRewardProgress)
+			protected.GET("/academy/modules", gamificationHandler.GetAcademyModules)
+			protected.POST("/academy/complete", gamificationHandler.CompleteAcademyModule)
+			protected.GET("/gamification/inactivity-alerts", gamificationHandler.GetInactivityAlerts)
 		}
 	}
 

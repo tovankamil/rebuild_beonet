@@ -35,6 +35,7 @@ import PwaInstallBanner from './components/pwa/PwaInstallBanner';
 import LoginPage from './pages/LoginPage';
 import PublicStorefrontPage from './components/store/PublicStorefrontPage';
 import PublicMeetingPage from './components/meeting/PublicMeetingPage';
+import PublicBioPage from './pages/PublicBioPage';
 import api from './services/api';
 
 export default function App() {
@@ -212,7 +213,16 @@ export default function App() {
   };
 
   // 0. Public Handlers (Bisa diakses publik tanpa login)
+  const pathname = window.location.pathname;
+  const bioMatch = pathname.match(/^\/bio\/([^/?#]+)/i);
   const searchParams = new URLSearchParams(window.location.search);
+  const bioParam = searchParams.get('bio');
+
+  if (bioMatch || bioParam) {
+    const bioUsername = bioMatch ? decodeURIComponent(bioMatch[1]) : bioParam;
+    return <PublicBioPage username={bioUsername} />;
+  }
+
   const storeParam = searchParams.get('store');
   const meetingParam = searchParams.get('meeting');
 

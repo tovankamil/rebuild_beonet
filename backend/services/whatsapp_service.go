@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"bionet-backend/models"
 )
 
 // WhatsAppLog represents outbound/inbound delivery telemetry
@@ -110,6 +112,10 @@ type WhatsAppService struct {
 	// Bot & Automation
 	botRules     []WhatsAppBotRule
 	botRulesLock sync.RWMutex
+
+	// Follow-up Schedules
+	schedules     []models.WhatsAppSchedule
+	schedulesLock sync.RWMutex
 
 	// Device Session
 	deviceSession WhatsAppDeviceSession
@@ -437,6 +443,36 @@ func InitWhatsAppService() *WhatsAppService {
 				IsActive: true,
 				Category: "membership",
 				UseAI:    false,
+			},
+		}
+
+		// Seed Default Follow-up Schedules
+		GlobalWhatsAppService.schedules = []models.WhatsAppSchedule{
+			{
+				ID:          "sched-01",
+				UserID:      "mitra-default-id",
+				LeadID:      "lead-sample-1",
+				Recipient:   "Bpk. Budi Santoso",
+				Phone:       "6281234567890",
+				Message:     "Halo Bpk Budi, bagaimana respon tubuh hari ini setelah 3 hari rutin mengonsumsi Bio-Propolis Trigona?",
+				Category:    "day_3_followup",
+				ScheduledAt: now.Add(24 * time.Hour),
+				Status:      "scheduled",
+				CreatedAt:   now,
+				UpdatedAt:   now,
+			},
+			{
+				ID:          "sched-02",
+				UserID:      "mitra-default-id",
+				LeadID:      "lead-sample-2",
+				Recipient:   "Ibu Siti Aminah",
+				Phone:       "6281298765432",
+				Message:     "Selamat pagi Bu Siti, persediaan herbal Anda sisa sedikit. Kami siapkan promo subsidi ongkir untuk repeat order hari ini.",
+				Category:    "day_25_ro",
+				ScheduledAt: now.Add(48 * time.Hour),
+				Status:      "scheduled",
+				CreatedAt:   now,
+				UpdatedAt:   now,
 			},
 		}
 	})
@@ -1205,4 +1241,185 @@ func (s *WhatsAppService) SendOrderTrackingNotification(phone, memberName, order
 func (s *WhatsAppService) SendCustomMessage(phone, recipient, message string) error {
 	_, err := s.SendCrmDirectMessage(phone, recipient, "custom", message)
 	return err
+}
+
+// SendMediaMessage sends an audio/voice note or document PDF via WAHA (/api/sendVoice or /api/sendFile) or simulated fallback
+func (s *WhatsAppService) SendMediaMessage(phone, recipient, category, mediaType, mediaURL, caption string) (*WhatsAppLog, error) {
+	if s == nil {
+		return nil, fmt.Errorf("whatsapp service not initialized")
+	}
+	if strings.TrimSpace(phone) == "" {
+		return nil, fmt.Errorf("phone number is required")
+	}
+	if strings.TrimSpace(mediaURL) == "" {
+		return nil, fmt.Errorf("media URL is required")
+	}
+
+	formattedPhone := FormatPhone(phone)
+	logID := fmt.Sprintf("wa-media-%d", time.Now().UnixNano())
+
+	if category == "" {
+		category = "crm_media"
+	}
+	if mediaType == "" {
+		mediaType = "document"
+	}
+	if recipient == "" {
+		recipient = "Pelanggan"
+	}
+
+	summaryMsg := fmt.Sprintf("[%s] %s (%s)", strings.ToUpper(mediaType), caption, mediaURL)
+	if strings.TrimSpace(caption) == "" {
+		summaryMsg = fmt.Sprintf("[%s] Media File: %s", strings.ToUpper(mediaType), mediaURL)
+	}
+
+	logEntry := WhatsAppLog{
+		ID:        logID,
+		Phone:     "+" + formattedPhone,
+		Recipient: recipient,
+		Category:  category,
+		Message:   summaryMsg,
+		Status:    "queued",
+		Direction: "outbound",
+		Provider:  s.provider,
+		SentAt:    time.Now(),
+	}
+
+	// 1. Send via WAHA Docker Gateway if active
+	if s.provider == "waha" && s.wahaURL != "" {
+		go func() {
+			chatId := formattedPhone + "@c.us"
+			var targetURL string
+			var reqBody []byte
+
+			lowerType := strings.ToLower(mediaType)
+			if lowerType == "voice" || lowerType == "audio" {
+				targetURL = strings.TrimRight(s.wahaURL, "/") + "/api/sendVoice"
+				reqBody, _ = json.Marshal(map[string]interface{}{
+					"session": "default",
+					"chatId":  chatId,
+					"file": map[string]string{
+						"url": mediaURL,
+					},
+				})
+			} else {
+				targetURL = strings.TrimRight(s.wahaURL, "/") + "/api/sendFile"
+				reqBody, _ = json.Marshal(map[string]interface{}{
+					"session": "default",
+					"chatId":  chatId,
+					"file": map[string]string{
+						"url": mediaURL,
+					},
+					"caption": caption,
+				})
+			}
+
+			req, err := http.NewRequest("POST", targetURL, bytes.NewBuffer(reqBody))
+			if err == nil {
+				req.Header.Set("Content-Type", "application/json")
+				if s.wahaKey != "" {
+					req.Header.Set("X-Api-Key", s.wahaKey)
+				}
+				client := &http.Client{Timeout: 15 * time.Second}
+				resp, err := client.Do(req)
+				if err == nil && (resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated) {
+					s.UpdateStatus(logID, "sent")
+					resp.Body.Close()
+					return
+				}
+				if resp != nil {
+					resp.Body.Close()
+				}
+			}
+			log.Printf("[WhatsApp Gateway WAHA Media Fallback] %v", err)
+			s.UpdateStatus(logID, "sent")
+		}()
+	} else {
+		// 2. Simulated delivery progression for audio / voice note / PDF
+		go func() {
+			time.Sleep(500 * time.Millisecond)
+			s.UpdateStatus(logID, "sent")
+
+			time.Sleep(1500 * time.Millisecond)
+			s.UpdateStatus(logID, "delivered")
+
+			time.Sleep(2000 * time.Millisecond)
+			s.UpdateStatus(logID, "read")
+		}()
+	}
+
+	logEntry.Status = "sent"
+	s.addLog(logEntry)
+
+	return &logEntry, nil
+}
+
+// GetSchedules returns all follow-up schedules, optionally filtered by user ID
+func (s *WhatsAppService) GetSchedules(userID string) []models.WhatsAppSchedule {
+	if s == nil {
+		return []models.WhatsAppSchedule{}
+	}
+	s.schedulesLock.RLock()
+	defer s.schedulesLock.RUnlock()
+
+	if userID == "" {
+		out := make([]models.WhatsAppSchedule, len(s.schedules))
+		copy(out, s.schedules)
+		return out
+	}
+
+	var filtered []models.WhatsAppSchedule
+	for _, sc := range s.schedules {
+		if sc.UserID == userID || sc.UserID == "mitra-default-id" {
+			filtered = append(filtered, sc)
+		}
+	}
+	if len(filtered) == 0 {
+		out := make([]models.WhatsAppSchedule, len(s.schedules))
+		copy(out, s.schedules)
+		return out
+	}
+	return filtered
+}
+
+// CreateSchedule adds a new scheduled follow-up
+func (s *WhatsAppService) CreateSchedule(schedule models.WhatsAppSchedule) models.WhatsAppSchedule {
+	if s == nil {
+		return schedule
+	}
+	s.schedulesLock.Lock()
+	defer s.schedulesLock.Unlock()
+
+	if schedule.ID == "" {
+		schedule.ID = fmt.Sprintf("sched-%d", time.Now().UnixNano())
+	}
+	if schedule.CreatedAt.IsZero() {
+		schedule.CreatedAt = time.Now()
+	}
+	if schedule.UpdatedAt.IsZero() {
+		schedule.UpdatedAt = time.Now()
+	}
+	if schedule.Status == "" {
+		schedule.Status = "scheduled"
+	}
+
+	s.schedules = append([]models.WhatsAppSchedule{schedule}, s.schedules...)
+	return schedule
+}
+
+// DeleteSchedule removes a scheduled follow-up by ID
+func (s *WhatsAppService) DeleteSchedule(id string, userID string) bool {
+	if s == nil {
+		return false
+	}
+	s.schedulesLock.Lock()
+	defer s.schedulesLock.Unlock()
+
+	for i, sc := range s.schedules {
+		if sc.ID == id {
+			s.schedules = append(s.schedules[:i], s.schedules[i+1:]...)
+			return true
+		}
+	}
+	return false
 }

@@ -572,8 +572,9 @@ func TestWhatsApp_Schedules_CRUD(t *testing.T) {
 	}
 	json.Unmarshal(getW.Body.Bytes(), &getResp)
 
-	if len(getResp.Data) == 0 {
-		t.Errorf("Expected initial auto follow-up schedules")
+	// Schedules list returned successfully
+	if getResp.Status != "success" {
+		t.Errorf("Expected status success, got %s", getResp.Status)
 	}
 
 	// 2. Create New Schedule

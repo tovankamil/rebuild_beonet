@@ -858,32 +858,19 @@ func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, lea
 		LeadStage:       leadStage,
 		Product:         product,
 		City:            city,
-		LastMessage:     "Percakapan baru dimulai",
+		LastMessage:     "Percakapan baru",
 		LastMessageTime: time.Now(),
 		UnreadCount:     0,
 		IsOnline:        true,
 	}
 
-	initText := fmt.Sprintf("Halo %s! Salam hangat dari Bionet Official. Ada yang bisa kami bantu seputar %s?", contactName, product)
-	msgID := fmt.Sprintf("msg-init-%d", time.Now().UnixNano())
-
 	s.threads = append([]WhatsAppChatThread{newThread}, s.threads...)
-	s.messages[threadID] = []WhatsAppMessageItem{
-		{
-			ID:        msgID,
-			ThreadID:  threadID,
-			Sender:    "me",
-			Text:      initText,
-			MediaType: "text",
-			Status:    "sent",
-			SentAt:    time.Now(),
-		},
-	}
+	s.messages[threadID] = []WhatsAppMessageItem{}
 	s.threadsLock.Unlock()
 
-	// Persist new thread & greeting to MySQL
+	// Persist new thread to MySQL without sending any unsolicited messages
 	if config.DB != nil {
-		go func(t WhatsAppChatThread, mID, greeting string) {
+		go func(t WhatsAppChatThread) {
 			mThread := models.WhatsAppThreadModel{
 				ID:              t.ID,
 				Phone:           t.Phone,
@@ -892,45 +879,16 @@ func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, lea
 				LeadStage:       t.LeadStage,
 				Product:         t.Product,
 				City:            t.City,
-				LastMessage:     greeting,
+				LastMessage:     "Percakapan baru",
 				LastMessageTime: t.LastMessageTime,
 				UnreadCount:     0,
 				IsOnline:        true,
-				AIScore:         70,
-				AIIntent:        "warm_consult",
+				AIScore:         50,
+				AIIntent:        "lead",
 			}
 			_ = config.DB.Create(&mThread).Error
-
-			mMsg := models.WhatsAppMessageModel{
-				ID:        mID,
-				ThreadID:  t.ID,
-				Sender:    "me",
-				Text:      greeting,
-				MediaType: "text",
-				Status:    "sent",
-				SentAt:    time.Now(),
-			}
-			_ = config.DB.Create(&mMsg).Error
-		}(newThread, msgID, initText)
+		}(newThread)
 	}
-
-	// Dispatch outbound initial greeting via WAHA and record log
-	go func(targetPhone, cName, messageText, mID string) {
-		if s.wahaURL != "" || s.provider == "waha" {
-			_ = s.SendWAHAText(targetPhone, messageText)
-		}
-		s.addLog(WhatsAppLog{
-			ID:        mID,
-			Phone:     "+" + FormatPhone(targetPhone),
-			Recipient: cName,
-			Category:  "new_thread_greeting",
-			Message:   messageText,
-			Status:    "sent",
-			Direction: "outbound",
-			Provider:  s.provider,
-			SentAt:    time.Now(),
-		})
-	}(newThread.Phone, contactName, initText, msgID)
 
 	return &newThread
 }
@@ -1701,27 +1659,8 @@ func (s *WhatsAppService) SyncNewMemberContact(phone, fullName, username, packag
 		}
 	}
 
-	// Create or find thread
-	th := s.CreateNewThread(cleanPhone, fullName, "Kemitraan "+packageName, "Indonesia", "closing")
-
-	// Compose official welcoming WhatsApp message
-	welcomeMsg := fmt.Sprintf(
-		"🌿 *SELAMAT BERGABUNG DI KELUARGA BESAR BIONET INDONESIA!* 🌿\n\n"+
-			"Halo Kak %s! Selamat, akun kemitraan resmi Bionet Anda telah berhasil diaktifkan.\n\n"+
-			"📋 *Detail Akun Kemitraan:*\n"+
-			"• Nama Lengkap: %s\n"+
-			"• Username: %s\n"+
-			"• Paket Kemitraan: %s\n"+
-			"• Status Lisensi: Aktif & Terverifikasi (Hak Usaha Binary Siap)\n\n"+
-			"Simpan nomor WhatsApp resmi ini untuk panduan akselerasi bisnis, informasi produk herbal BPOM, serta notifikasi pencairan bonus harian Anda.\n\n"+
-			"Salam Sehat & Sukses Sejahtera Bersama Bionet! 🚀",
-		fullName, fullName, username, packageName,
-	)
-
-	// Send welcoming message in thread
-	if th != nil {
-		_, _ = s.SendMessageInThread(th.ID, welcomeMsg, "text")
-	}
+	// Create or find thread (strictly no auto-blast: messages only sent upon explicit user action)
+	_ = s.CreateNewThread(cleanPhone, fullName, "Kemitraan "+packageName, "Indonesia", "closing")
 
 	return nil
 }

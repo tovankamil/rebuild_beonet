@@ -52,13 +52,12 @@ func TestWhatsAppService_FormatPhone(t *testing.T) {
 
 func TestWhatsAppService_ThreadsAndMessages(t *testing.T) {
 	wa := services.InitWhatsAppService()
-	threads := wa.GetChatThreads()
-	if len(threads) == 0 {
-		t.Fatal("Expected pre-seeded chat threads, got 0")
+	th := wa.CreateNewThread("081298765432", "Unit Test Contact", "Bio-Propolis Trigona", "Jakarta", "new")
+	if th == nil {
+		t.Fatal("Expected thread to be created")
 	}
 
-	firstThread := threads[0]
-	tID := firstThread.ID
+	tID := th.ID
 	msgs := wa.GetThreadMessages(tID)
 
 	// Send new message in thread
@@ -190,7 +189,10 @@ func TestAPI_WhatsApp_Status_And_Threads(t *testing.T) {
 		t.Errorf("Expected status success, got %v", resStatus["status"])
 	}
 
-	// 2. GET /threads
+	// 2. GET /threads (ensure a thread exists for testing)
+	waSvc := services.InitWhatsAppService()
+	waSvc.CreateNewThread("08123456789", "User Test", "Bio-Propolis Trigona", "Jakarta", "new")
+
 	req2, _ := http.NewRequest("GET", "/api/crm/whatsapp/threads", nil)
 	req2.Header.Set("Authorization", "Bearer "+token)
 	w2 := httptest.NewRecorder()
@@ -213,12 +215,14 @@ func TestAPI_WhatsApp_Status_And_Threads(t *testing.T) {
 
 func TestAPI_WhatsApp_SendThreadMessage(t *testing.T) {
 	router, token := setupWhatsAppTestRouter()
+	wa := services.InitWhatsAppService()
+	th := wa.CreateNewThread("081298765432", "Unit Test Contact", "Bio-Propolis Trigona", "Jakarta", "new")
 
 	body, _ := json.Marshal(map[string]interface{}{
 		"text":       "Pesan API test kirim ke obrolan!",
 		"media_type": "text",
 	})
-	req, _ := http.NewRequest("POST", "/api/crm/whatsapp/threads/thread-bambang/messages", bytes.NewBuffer(body))
+	req, _ := http.NewRequest("POST", "/api/crm/whatsapp/threads/"+th.ID+"/messages", bytes.NewBuffer(body))
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()

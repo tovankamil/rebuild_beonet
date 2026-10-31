@@ -104,7 +104,7 @@ export default function PublicBioPage({ username: propUsername }) {
   const storageKey = `bionet_biolink_${username}`;
   const [partnerName, setPartnerName] = useState('Konsultan Herbal Bionet');
   const [tagline, setTagline] = useState('Mitra Resmi Terverifikasi BPOM RI & PT Bionet Herbal Indonesia');
-  const [waNumber, setWaNumber] = useState('6281234567890');
+  const [waNumber, setWaNumber] = useState('');
   const [theme, setTheme] = useState('emerald');
 
   // Consultation Form State

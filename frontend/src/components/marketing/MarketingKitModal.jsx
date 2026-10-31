@@ -121,8 +121,8 @@ Kode Promo: {{referral_code}}-HEMAT`,
 
 export default function MarketingKitModal({ user, onClose }) {
   const partnerName = user?.full_name || 'Mitra Bionet Juara';
-  const partnerPhone = user?.phone || '6281234567890';
-  const referralCode = user?.username || 'mitra01';
+  const partnerPhone = user?.phone || '';
+  const referralCode = user?.username || 'bionet';
   const cleanPhone = partnerPhone.replace(/[^0-9]/g, '');
 
   const [selectedFlyerId, setSelectedFlyerId] = useState(PROMO_FLYERS[0].id);

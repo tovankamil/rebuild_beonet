@@ -97,7 +97,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const [deviceSession, setDeviceSession] = useState(null);
   const [logs, setLogs] = useState([]);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
-  const [pairPhone, setPairPhone] = useState('+6281234567890');
+  const [pairPhone, setPairPhone] = useState('');
   const [pairingLoading, setPairingLoading] = useState(false);
   const [pairSuccessMsg, setPairSuccessMsg] = useState('');
 
@@ -829,7 +829,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
               <Smartphone className="w-4 h-4 text-emerald-400" />
               <div>
                 <div className="text-[10px] text-emerald-200/70 font-semibold">Device Linked</div>
-                <div className="font-bold text-white font-mono">{deviceSession?.phone_number || '+62812-3456-7890'}</div>
+                <div className="font-bold text-white font-mono">{deviceSession?.phone_number || (deviceSession?.status === 'connected' ? 'Connected' : 'Belum Terhubung')}</div>
               </div>
             </div>
 
@@ -2020,7 +2020,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-500">Nomor WhatsApp Aktif:</span>
                     <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      {deviceSession?.phone_number || pairPhone || '+62812-3456-7890'}
+                      {deviceSession?.phone_number || pairPhone || '-'}
                     </span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-slate-100">

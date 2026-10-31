@@ -181,7 +181,7 @@ const COPY_DATABASE = {
 export default function AICopywritingStudioModal({
   isOpen,
   onClose,
-  partnerWhatsApp = '6281234567890',
+  partnerWhatsApp = '',
   partnerName = 'Mitra Resmi Bionet',
 }) {
   const [activePlatform, setActivePlatform] = useState('wa_story');

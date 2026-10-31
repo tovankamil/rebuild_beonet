@@ -236,14 +236,14 @@ export default function BionetAIFloatingHub({ currentUser, stats, onOpenRegister
       <AIHealthConsultModal
         isOpen={activeModal === 'health'}
         onClose={() => setActiveModal(null)}
-        partnerWhatsApp={currentUser?.phone || '6281234567890'}
+        partnerWhatsApp={currentUser?.phone || ''}
         partnerName={currentUser?.full_name || 'Konsultan Herbal Bionet'}
       />
 
       <AICopywritingStudioModal
         isOpen={activeModal === 'copywriting'}
         onClose={() => setActiveModal(null)}
-        partnerWhatsApp={currentUser?.phone || '6281234567890'}
+        partnerWhatsApp={currentUser?.phone || ''}
         partnerName={currentUser?.full_name || 'Mitra Resmi Bionet'}
       />
 

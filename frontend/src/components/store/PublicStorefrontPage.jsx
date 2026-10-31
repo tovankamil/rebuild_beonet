@@ -16,7 +16,7 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
   const urlTpl = searchParams.get('tpl');
 
   const [shopName, setShopName] = useState('Toko Herbal Resmi Bionet');
-  const [whatsappNumber, setWhatsappNumber] = useState('6281234567890');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [customMarkup, setCustomMarkup] = useState(50000);
   const [activeTemplate, setActiveTemplate] = useState(() => urlTpl || localStorage.getItem('bionet_shop_template') || 'emerald');
   const [selectedProduct, setSelectedProduct] = useState(null);

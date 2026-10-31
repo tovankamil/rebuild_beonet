@@ -180,7 +180,7 @@ const COMPLAINT_PRESETS = [
 export default function AIHealthConsultModal({
   isOpen,
   onClose,
-  partnerWhatsApp = '6281234567890',
+  partnerWhatsApp = '',
   partnerName = 'Konsultan Herbal Bionet',
 }) {
   const [step, setStep] = useState('input'); // 'input' | 'analyzing' | 'result'

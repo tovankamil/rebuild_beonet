@@ -554,7 +554,7 @@ func (s *SecurityService) SendWhatsAppThreatAlert(threat models.SecurityThreatLo
 		adminPhone = os.Getenv("ADMIN_PHONE")
 	}
 	if adminPhone == "" {
-		adminPhone = "+6281234567890"
+		return
 	}
 
 	waktuStr := threat.CreatedAt.Format("02 Jan 2006 15:04:05 WIB")

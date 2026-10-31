@@ -132,7 +132,7 @@ export default function BioLinkBuilderModal({ user, onClose }) {
   });
 
   const [waNumber, setWaNumber] = useState(() => {
-    return localStorage.getItem(`${storageKey}_wa`) || user?.phone || '6281234567890';
+    return localStorage.getItem(`${storageKey}_wa`) || user?.phone || '';
   });
 
   const [instagram, setInstagram] = useState(() => {

@@ -104,73 +104,7 @@ export default function CustomerHealthJourneyView({ user }) {
       }
     } catch (err) {
       console.warn('Backend health records fallback:', err.message);
-      // Fallback data jika backend belum ada records
-      setRecords([
-        {
-          id: 'hr-01',
-          customer_name: 'Ibu Hj. Siti Nurhasanah',
-          phone: '6281234567890',
-          age: 54,
-          city: 'Bandung',
-          chief_complaint: 'Asam Urat',
-          dosage_instructions: '3 x 5 tetes dilarutkan ke 150ml air hangat',
-          product: 'Bio-Propolis Trigona 30ml',
-          start_date: new Date(Date.now() - 4 * 86400000).toISOString(),
-          days_elapsed: 4,
-          current_milestone: 'day_7',
-          health_notes:
-            'Kaki sering kaku di pagi hari, asam urat lab 8.9 mg/dL. Mulai membaik pasca hari ke-3 detoks.',
-          status: 'active',
-        },
-        {
-          id: 'hr-02',
-          customer_name: 'Bpk. Bambang Sujiwo',
-          phone: '6281398765432',
-          age: 48,
-          city: 'Surabaya',
-          chief_complaint: 'Diabetes',
-          dosage_instructions: '2 x 7 tetes dicampur air mineral pagi & malam',
-          product: 'Bio-Herbal Drops',
-          start_date: new Date(Date.now() - 12 * 86400000).toISOString(),
-          days_elapsed: 12,
-          current_milestone: 'day_14',
-          health_notes:
-            'Badan cepat lemas, sering haus. Hari ke-10 stamina jauh lebih segar dan tidak ngantukan.',
-          status: 'active',
-        },
-        {
-          id: 'hr-03',
-          customer_name: 'Ibu Ratna Dewi',
-          phone: '6282112344321',
-          age: 42,
-          city: 'Jakarta Selatan',
-          chief_complaint: 'Lambung / Maag',
-          dosage_instructions: '3 x 3 tetes dicampur madu hangat sebelum sarapan',
-          product: 'Bio-Propolis Trigona 30ml',
-          start_date: new Date(Date.now() - 26 * 86400000).toISOString(),
-          days_elapsed: 26,
-          current_milestone: 'day_25',
-          health_notes:
-            'GERD dan heartburn sudah reda total. Stok botol tinggal sedikit, siap repeat order.',
-          status: 'active',
-        },
-        {
-          id: 'hr-04',
-          customer_name: 'Bpk. H. Ahmad Fauzi',
-          phone: '6285712348899',
-          age: 60,
-          city: 'Yogyakarta',
-          chief_complaint: 'Kolesterol',
-          dosage_instructions: '3 x 5 tetes rutin sebelum tidur malam',
-          product: 'Bio-Propolis Trigona 30ml',
-          start_date: new Date(Date.now() - 2 * 86400000).toISOString(),
-          days_elapsed: 2,
-          current_milestone: 'day_3',
-          health_notes:
-            'Tengkuk kaku dan berat pasca makan daging. Baru mulai 2 hari.',
-          status: 'active',
-        },
-      ]);
+      setRecords([]);
     } finally {
       setLoading(false);
     }

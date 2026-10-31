@@ -28,7 +28,7 @@ func NewCRMHandler() *CRMHandler {
 type LogFollowUpRequest struct {
 	TargetID string `json:"target_id" binding:"required"`
 	Type     string `json:"type" binding:"required"` // "customer" atau "downline"
-	Method   string `json:"method"`                 // "whatsapp", "phone", "meeting"
+	Method   string `json:"method"`                  // "whatsapp", "phone", "meeting"
 	Notes    string `json:"notes"`
 }
 
@@ -51,55 +51,8 @@ func (h *CRMHandler) GetROReminders(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "success",
 			"data": gin.H{
-				"customers": []gin.H{
-					{
-						"id":                       "demo-cust-1",
-						"name":                     "Budi Santoso",
-						"phone":                    "081234567890",
-						"city":                     "Surabaya",
-						"product_interest":         "Bio-Propolis Trigona",
-						"days_since_contact":       27,
-						"estimated_remaining_days": 3,
-						"urgency":                  "urgent",
-						"urgency_label":            "Stok Kritis Segera Follow-Up",
-						"status":                   "interested",
-					},
-					{
-						"id":                       "demo-cust-2",
-						"name":                     "Siti Aminah",
-						"phone":                    "081298765432",
-						"city":                     "Jakarta",
-						"product_interest":         "Bio-Herbal Drops",
-						"days_since_contact":       20,
-						"estimated_remaining_days": 10,
-						"urgency":                  "warning",
-						"urgency_label":            "Stok Menipis (25-40%)",
-						"status":                   "contacted",
-					},
-					{
-						"id":                       "demo-cust-3",
-						"name":                     "Ahmad Dani",
-						"phone":                    "081345678901",
-						"city":                     "Bandung",
-						"product_interest":         "Bio-Propolis Trigona",
-						"days_since_contact":       5,
-						"estimated_remaining_days": 25,
-						"urgency":                  "good",
-						"urgency_label":            "Stok Masih Aman",
-						"status":                   "new",
-					},
-				},
-				"dormant_downlines": []gin.H{
-					{
-						"id":                 "downline-dormant-1",
-						"username":           "mitra_pasif01",
-						"full_name":          "Doni Pratama",
-						"phone":              "081234567899",
-						"days_inactive":      55,
-						"status":             "dormant",
-						"recommended_action": "Kirim pesan WA re-aktivasi & info promo produk terbaru",
-					},
-				},
+				"customers":         []gin.H{},
+				"dormant_downlines": []gin.H{},
 			},
 		})
 		return
@@ -353,70 +306,10 @@ func (h *CRMHandler) GetHealthRecords(c *gin.Context) {
 	role := c.GetString("role")
 	db := config.DB
 
-	now := time.Now()
-	sampleRecords := []models.CustomerHealthRecord{
-		{
-			ID:                 "sample-health-1",
-			UserID:             userID,
-			CustomerName:       "Bpk. Hendro Subagio",
-			Phone:              "6281234567891",
-			ChiefComplaint:     "Asam Urat",
-			DosageInstructions: "3 x 5 tetes/hari sesudah makan",
-			StartDate:          now.AddDate(0, 0, -7),
-			CurrentMilestone:   "day_7",
-			HealthNotes:        "Hari ke-3: Ada sensasi hangat di persendian. Hari ke-7: Bengkak jempol kaki kempis signifikan dan bisa sholat tanpa nyeri.",
-			Status:             "improved",
-			CreatedAt:          now.AddDate(0, 0, -7),
-			UpdatedAt:          now,
-		},
-		{
-			ID:                 "sample-health-2",
-			UserID:             userID,
-			CustomerName:       "Ibu Warsito Ningsih",
-			Phone:              "6281298765432",
-			ChiefComplaint:     "Diabetes",
-			DosageInstructions: "3 x 7 tetes/hari",
-			StartDate:          now.AddDate(0, 0, -14),
-			CurrentMilestone:   "day_14",
-			HealthNotes:        "Hari ke-7: Bangun tidur lebih segar. Hari ke-14: Gula darah puasa turun dari 240 mg/dL ke 165 mg/dL.",
-			Status:             "active",
-			CreatedAt:          now.AddDate(0, 0, -14),
-			UpdatedAt:          now,
-		},
-		{
-			ID:                 "sample-health-3",
-			UserID:             userID,
-			CustomerName:       "Bpk. Bambang Sutrisno",
-			Phone:              "6281345678903",
-			ChiefComplaint:     "Lambung / Maag",
-			DosageInstructions: "3 x 5 tetes/hari campur air hangat sesudah makan",
-			StartDate:          now.AddDate(0, 0, -3),
-			CurrentMilestone:   "day_3",
-			HealthNotes:        "Hari ke-3: Perut perih dan begah kembung mulai berkurang setelah minum air hangat campur herbal.",
-			Status:             "active",
-			CreatedAt:          now.AddDate(0, 0, -3),
-			UpdatedAt:          now,
-		},
-		{
-			ID:                 "sample-health-4",
-			UserID:             userID,
-			CustomerName:       "Hj. Siti Aminah",
-			Phone:              "6281122334455",
-			ChiefComplaint:     "Kolesterol",
-			DosageInstructions: "3 x 5 tetes/hari",
-			StartDate:          now.AddDate(0, 0, -25),
-			CurrentMilestone:   "day_25",
-			HealthNotes:        "Hari ke-14: Tengkuk enteng tidak kaku lagi. Hari ke-25: Tes lab kolesterol total turun dari 265 ke 188. Siap repeat order.",
-			Status:             "recovered",
-			CreatedAt:          now.AddDate(0, 0, -25),
-			UpdatedAt:          now,
-		},
-	}
-
 	if db == nil {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "success",
-			"data":   sampleRecords,
+			"data":   []models.CustomerHealthRecord{},
 		})
 		return
 	}
@@ -435,14 +328,8 @@ func (h *CRMHandler) GetHealthRecords(c *gin.Context) {
 		return
 	}
 
-	// Otomatis isi sampel awal jika data masih kosong agar UI dapat langsung mendemokan siklus 3-7-14-25 hari
-	if len(records) == 0 {
-		for i := range sampleRecords {
-			sampleRecords[i].ID = uuid.New().String()
-			sampleRecords[i].UserID = userID
-			_ = db.Create(&sampleRecords[i]).Error
-		}
-		records = sampleRecords
+	if records == nil {
+		records = make([]models.CustomerHealthRecord, 0)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -513,7 +400,7 @@ func (h *CRMHandler) SaveHealthRecord(c *gin.Context) {
 		}
 		mockRec := models.CustomerHealthRecord{
 			ID:                 recID,
-		LeadID:             req.LeadID,
+			LeadID:             req.LeadID,
 			UserID:             userID,
 			CustomerName:       strings.TrimSpace(req.CustomerName),
 			Phone:              cleanPhone,
@@ -790,27 +677,27 @@ func (h *CRMHandler) HandleObjectionAI(c *gin.Context) {
 		"mahal": {
 			Framework: "Feel - Felt - Found & Value Per Day Breakdown",
 			Tip:       "Pecah nominal harga menjadi investasi harian (hanya Rp 8.000-an/hari) dan bandingkan dengan biaya rawat jalan atau kehilangan produktivitas saat sakit.",
-			Template: fmt.Sprintf("Halo %s, saya sangat memahami pertimbangan mengenai biaya. Banyak pelanggan kami sebelumnya juga sempat merasa demikian di awal.\n\nNamun setelah mereka mencoba dan merasakan khasiat %s, mereka menyadari bahwa 1 botol ini bisa untuk konsumsi 3-4 minggu. Jika dihitung, investasinya hanya sekitar Rp 8.000-an per hariâ€”jauh lebih terjangkau daripada biaya obat kimia atau rumah sakit saat sakit kambuh.\n\nSelain itu, produk ini sudah berizin resmi BPOM dan Halal MUI, jadi setiap rupiah yang %s keluarkan memberikan kepastian mutu dan keamanan nyata. Apakah berkenan kami kirimkan paket promo hemat hari ini ke alamat %s?", custName, prodName, custName, custName),
+			Template:  fmt.Sprintf("Halo %s, saya sangat memahami pertimbangan mengenai biaya. Banyak pelanggan kami sebelumnya juga sempat merasa demikian di awal.\n\nNamun setelah mereka mencoba dan merasakan khasiat %s, mereka menyadari bahwa 1 botol ini bisa untuk konsumsi 3-4 minggu. Jika dihitung, investasinya hanya sekitar Rp 8.000-an per hariâ€”jauh lebih terjangkau daripada biaya obat kimia atau rumah sakit saat sakit kambuh.\n\nSelain itu, produk ini sudah berizin resmi BPOM dan Halal MUI, jadi setiap rupiah yang %s keluarkan memberikan kepastian mutu dan keamanan nyata. Apakah berkenan kami kirimkan paket promo hemat hari ini ke alamat %s?", custName, prodName, custName, custName),
 		},
 		"efek_samping": {
 			Framework: "BPOM Safety & Natural Detoksifikasi Education",
 			Tip:       "Edukasi perbedaan antara efek samping kimia berbahaya dengan proses alami penyesuaian tubuh (detoksifikasi / cleansing reaction).",
-			Template: fmt.Sprintf("Halo %s, pertanyaan yang sangat bijak dan penting!\n\n%s diformulasikan dari 100%% bahan aktif ekstrak alami murni terstandar BPOM, tanpa BKO (Bahan Kimia Obat), sehingga aman untuk ginjal dan hati walau dikonsumsi rutin.\n\nDi beberapa hari pertama, sebagian orang mungkin merasakan proses adaptasi alami (cleansing reaction) seperti buang air kecil lebih lancar atau rasa hangat di tubuhâ€”ini justru pertanda sirkulasi darah mulai lancar dan toksin mulai dikeluarkan. Cukup imbangi dengan minum air putih hangat 2 liter per hari.\n\nKami juga akan memandu dosis bertahap (mulai 3 tetes) agar tubuh %s beradaptasi dengan sangat nyaman. Apakah %s ingin mencoba mulai dengan dosis awal yang ringan?", custName, prodName, custName, custName),
+			Template:  fmt.Sprintf("Halo %s, pertanyaan yang sangat bijak dan penting!\n\n%s diformulasikan dari 100%% bahan aktif ekstrak alami murni terstandar BPOM, tanpa BKO (Bahan Kimia Obat), sehingga aman untuk ginjal dan hati walau dikonsumsi rutin.\n\nDi beberapa hari pertama, sebagian orang mungkin merasakan proses adaptasi alami (cleansing reaction) seperti buang air kecil lebih lancar atau rasa hangat di tubuhâ€”ini justru pertanda sirkulasi darah mulai lancar dan toksin mulai dikeluarkan. Cukup imbangi dengan minum air putih hangat 2 liter per hari.\n\nKami juga akan memandu dosis bertahap (mulai 3 tetes) agar tubuh %s beradaptasi dengan sangat nyaman. Apakah %s ingin mencoba mulai dengan dosis awal yang ringan?", custName, prodName, custName, custName),
 		},
 		"obat_dokter": {
 			Framework: "Complementary Health Integration (Jeda Waktu 1-2 Jam)",
 			Tip:       "Jangan menyuruh pelanggan menghentikan obat resep. Tampilkan herbal sebagai pendamping komplementer sinergis dengan jeda waktu.",
-			Template: fmt.Sprintf("Halo %s, kami sangat menghormati pengobatan dari dokter %s.\n\nKabar baiknya, %s bersifat komplementer (pendamping alami) yang aman dikonsumsi beriringan dengan obat resep, cukup beri jeda waktu 1 hingga 2 jam antara obat dokter dan herbal kami.\n\nObat dokter bekerja meredakan keluhan secara cepat, sedangkan herbal Bionet bekerja meregenerasi sel dan memperbaiki metabolisme organ dari akarnya. Banyak pelanggan kami yang setelah beberapa minggu rutin, kondisi tubuhnya membaik sehingga dosis obat kimia mereka bisa diturunkan secara bertahap oleh dokter yang merawat. Boleh tahu obat resep apa yang sedang rutin dikonsumsi %s saat ini?", custName, custName, prodName, custName),
+			Template:  fmt.Sprintf("Halo %s, kami sangat menghormati pengobatan dari dokter %s.\n\nKabar baiknya, %s bersifat komplementer (pendamping alami) yang aman dikonsumsi beriringan dengan obat resep, cukup beri jeda waktu 1 hingga 2 jam antara obat dokter dan herbal kami.\n\nObat dokter bekerja meredakan keluhan secara cepat, sedangkan herbal Bionet bekerja meregenerasi sel dan memperbaiki metabolisme organ dari akarnya. Banyak pelanggan kami yang setelah beberapa minggu rutin, kondisi tubuhnya membaik sehingga dosis obat kimia mereka bisa diturunkan secara bertahap oleh dokter yang merawat. Boleh tahu obat resep apa yang sedang rutin dikonsumsi %s saat ini?", custName, custName, prodName, custName),
 		},
 		"ragu_khasiat": {
 			Framework: "Evidence-Based Social Proof & Lab Verification",
 			Tip:       "Tunjukkan nomor registrasi BPOM yang dapat diverifikasi di aplikasi BPOM Mobile beserta bukti hasil uji lab klinis nyata.",
-			Template: fmt.Sprintf("Halo %s, wajar sekali bila ada keraguan sebelum membuktikannya sendiri.\n\n%s telah teruji klinis serta memiliki nomor izin edar resmi BPOM RI dan sertifikasi Halal MUI yang bisa langsung dicek keasliannya melalui aplikasi BPOM Mobile.\n\nSelain legalitas resmi, kami memiliki ratusan testimoni laboratorium klinis pelanggan yang membuktikan penurunan angka asam urat, gula darah, dan kolesterol dalam 7 hingga 14 hari konsumsi konsisten. Ditambah lagi, kami akan mendampingi perjalanan kesehatan %s pada siklus evaluasi hari ke-3, ke-7, dan ke-14. Apakah %s ingin melihat foto bukti hasil tes lab pelanggan kami yang memiliki keluhan serupa?", custName, prodName, custName, custName),
+			Template:  fmt.Sprintf("Halo %s, wajar sekali bila ada keraguan sebelum membuktikannya sendiri.\n\n%s telah teruji klinis serta memiliki nomor izin edar resmi BPOM RI dan sertifikasi Halal MUI yang bisa langsung dicek keasliannya melalui aplikasi BPOM Mobile.\n\nSelain legalitas resmi, kami memiliki ratusan testimoni laboratorium klinis pelanggan yang membuktikan penurunan angka asam urat, gula darah, dan kolesterol dalam 7 hingga 14 hari konsumsi konsisten. Ditambah lagi, kami akan mendampingi perjalanan kesehatan %s pada siklus evaluasi hari ke-3, ke-7, dan ke-14. Apakah %s ingin melihat foto bukti hasil tes lab pelanggan kami yang memiliki keluhan serupa?", custName, prodName, custName, custName),
 		},
 		"bukan_mlm": {
 			Framework: "Direct Consumer Value & Freedom of Choice",
 			Tip:       "Tegaskan bahwa konsumen tidak memiliki kewajiban merekrut atau berbisnis; fokus sepenuhnya pada ikhtiar kesembuhan mereka.",
-			Template: fmt.Sprintf("Halo %s, terima kasih atas keterbukaannya. %s tidak perlu khawatir sama sekali!\n\nDi Bionet, fokus utama kami adalah mutu khasiat produk untuk kesembuhan konsumen. %s murni membeli sebagai pelanggan tercinta, tanpa kewajiban jualan, rekrut member, atau target apapun. %s berhak mendapatkan produk asli bergaransi dengan harga resmi terbaik langsung dari mitra resmi kami.\n\nKesehatan dan kenyamanan %s adalah prioritas kami. Boleh kami tahu keluhan apa yang saat ini paling ingin %s pulihkan?", custName, custName, custName, custName, custName, custName),
+			Template:  fmt.Sprintf("Halo %s, terima kasih atas keterbukaannya. %s tidak perlu khawatir sama sekali!\n\nDi Bionet, fokus utama kami adalah mutu khasiat produk untuk kesembuhan konsumen. %s murni membeli sebagai pelanggan tercinta, tanpa kewajiban jualan, rekrut member, atau target apapun. %s berhak mendapatkan produk asli bergaransi dengan harga resmi terbaik langsung dari mitra resmi kami.\n\nKesehatan dan kenyamanan %s adalah prioritas kami. Boleh kami tahu keluhan apa yang saat ini paling ingin %s pulihkan?", custName, custName, custName, custName, custName, custName),
 		},
 	}
 
@@ -1277,8 +1164,6 @@ func (h *CRMHandler) PublicLeadWebhook(c *gin.Context) {
 		"data":    lead,
 	})
 }
-
-
 
 // ============================================================================
 // WHATSAPP GATEWAY DIRECT DISPATCH & LIVE MONITORING TELEMETRY HANDLERS

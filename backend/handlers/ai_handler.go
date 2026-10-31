@@ -217,14 +217,16 @@ Berikan analisis medis ringkas 3 paragraf tanpa format markdown tebal berlebihan
 		custName, req.Age, req.Complaint, strings.Join(prodNames, " & "))
 
 	phoneTarget := req.Phone
-	if phoneTarget == "" {
-		phoneTarget = "6281234567890" // Default official consultation desk
-	}
 	cleanPhone := strings.ReplaceAll(strings.ReplaceAll(phoneTarget, "+", ""), "-", "")
 	if strings.HasPrefix(cleanPhone, "08") {
 		cleanPhone = "628" + strings.TrimPrefix(cleanPhone, "08")
 	}
-	waURL := fmt.Sprintf("https://wa.me/%s?text=%s", cleanPhone, url.QueryEscape(waOrderText))
+	var waURL string
+	if cleanPhone != "" {
+		waURL = fmt.Sprintf("https://wa.me/%s?text=%s", cleanPhone, url.QueryEscape(waOrderText))
+	} else {
+		waURL = fmt.Sprintf("https://wa.me/?text=%s", url.QueryEscape(waOrderText))
+	}
 
 	resp := models.HealthConsultResponse{
 		Status:            "success",
@@ -556,7 +558,13 @@ func (h *AIHandler) GenerateCopywriting(c *gin.Context) {
 	}
 	waNum := strings.TrimSpace(req.WhatsAppNumber)
 	if waNum == "" {
-		waNum = "6281234567890"
+		userID := c.GetString("user_id")
+		if userID != "" && config.DB != nil {
+			var u models.User
+			if err := config.DB.Where("id = ?", userID).First(&u).Error; err == nil && u.Phone != nil {
+				waNum = *u.Phone
+			}
+		}
 	}
 	cleanWA := strings.ReplaceAll(strings.ReplaceAll(waNum, "+", ""), "-", "")
 	if strings.HasPrefix(cleanWA, "08") {
@@ -830,49 +838,9 @@ func (h *AIHandler) ChurnRadar(c *gin.Context) {
 		}
 	}
 
-	// 2. Fallback sample data if no downlines or DB offline
-	if len(downlines) == 0 {
-		downlines = []models.DownlineChurnItem{
-			{
-				UserID:            "dl-001",
-				FullName:          "Siti Rahmawati",
-				Username:          "sitirahma",
-				PhoneNumber:       "081388776655",
-				LastOrderDate:     time.Now().AddDate(0, 0, -28).Format("2006-01-02"),
-				DaysInactive:      28,
-				TotalOrdersPast:   5,
-				ChurnRiskScore:    85,
-				RiskLevel:         "Critical",
-				MotivationDraft:   "Assalamu'alaikum Kak Siti, salam hangat dari tim Bionet! Semoga selalu sehat sekeluarga. Teringat semangat Kak Siti waktu tembus omset perdana kemarin luar biasa sekali. Kebetulan minggu ini kami ada promo pendampingan RO dan strategi percepatan bonus pairing. Yuk sempatkan ngobrol 10 menit via WA ya Kak!",
-				WhatsAppDirectURL: "https://wa.me/6281388776655?text=" + url.QueryEscape("Assalamu'alaikum Kak Siti, salam hangat dari tim Bionet! Semoga selalu sehat sekeluarga."),
-			},
-			{
-				UserID:            "dl-002",
-				FullName:          "Hendra Setiawan",
-				Username:          "hendra_bionet",
-				PhoneNumber:       "081299334411",
-				LastOrderDate:     time.Now().AddDate(0, 0, -19).Format("2006-01-02"),
-				DaysInactive:      19,
-				TotalOrdersPast:   3,
-				ChurnRiskScore:    65,
-				RiskLevel:         "High",
-				MotivationDraft:   "Halo Bro Hendra! Gimana kabar herbal Bionet-nya? Konsumen di kotamu masih banyak yang tanya testimoni asam urat nggak? Ada modul prospecting baru dari Bionet Academy nih, siap kita gas bareng lagi!",
-				WhatsAppDirectURL: "https://wa.me/6281299334411?text=" + url.QueryEscape("Halo Bro Hendra! Ada modul prospecting baru dari Bionet Academy nih!"),
-			},
-			{
-				UserID:            "dl-003",
-				FullName:          "Dewi Kartika",
-				Username:          "dewikartika",
-				PhoneNumber:       "081577229900",
-				LastOrderDate:     time.Now().AddDate(0, 0, -15).Format("2006-01-02"),
-				DaysInactive:      15,
-				TotalOrdersPast:   2,
-				ChurnRiskScore:    45,
-				RiskLevel:         "Medium",
-				MotivationDraft:   "Selamat pagi Bu Dewi! Semoga aktivitasnya lancar berkah. Mengingat persediaan produk mungkin sudah menipis, tim kami ada free sample brosur edukasi untuk prospek baru Bu Dewi. Mau kami kirimkan hari ini?",
-				WhatsAppDirectURL: "https://wa.me/6281577229900?text=" + url.QueryEscape("Selamat pagi Bu Dewi! Ada free sample brosur edukasi untuk prospek baru Bu Dewi."),
-			},
-		}
+	// 2. Return clean empty slice if no downlines
+	if downlines == nil {
+		downlines = make([]models.DownlineChurnItem, 0)
 	}
 
 	summary := fmt.Sprintf("Radar AI mendeteksi %d mitra jaringan dalam kategori risiko inaktivitas (tidak ada RO > 14 hari). Intervensi personal melalui pesan WhatsApp terbukti mampu mengaktifkan kembali hingga 42 persen mitra yang pasif.", len(downlines))
@@ -1251,47 +1219,8 @@ func (h *AIHandler) RORetention(c *gin.Context) {
 		}
 	}
 
-	// 2. Standalone Fallback Data
-	if len(customers) == 0 {
-		now := time.Now()
-		customers = []models.ROCustomerItem{
-			{
-				CustomerID:             "ro-cust-01",
-				CustomerName:           "Ibu Ratna Kumalasari",
-				PhoneNumber:            "081234567890",
-				ProductPurchased:       "Bionet Propolis Premium Pure",
-				OrderDate:              now.AddDate(0, 0, -25).Format("2006-01-02"),
-				DaysElapsed:            25,
-				EstimatedDepletionDays: 25,
-				Status:                 "due_for_ro",
-				PersonalizedMessage:    "Halo Ibu Ratna Kumalasari, salam hangat dari Bionet! Mengingat konsumsi Bio-Propolis sudah memasuki hari ke-25, persediaan botol kemungkinan tinggal tersisa 3-5 hari ke depan. Untuk menjaga kontinuitas terapi agar manfaatnya maksimal tanpa jeda, kami ada promo subsidi ongkir repeat order minggu ini. Boleh kami bantu siapkan pengirimannya hari ini Bu?",
-				WhatsAppURL:            "https://wa.me/6281234567890?text=" + url.QueryEscape("Halo Ibu Ratna Kumalasari, salam hangat dari Bionet! Persediaan Bio-Propolis memasuki hari ke-25."),
-			},
-			{
-				CustomerID:             "ro-cust-02",
-				CustomerName:           "Pak Bambang Sudiro",
-				PhoneNumber:            "081399887766",
-				ProductPurchased:       "Bionet Bio-Herbal Drops 30ml",
-				OrderDate:              now.AddDate(0, 0, -26).Format("2006-01-02"),
-				DaysElapsed:            26,
-				EstimatedDepletionDays: 25,
-				Status:                 "due_for_ro",
-				PersonalizedMessage:    "Assalamu'alaikum Pak Bambang Sudiro, semoga kesehatan Bapak semakin membaik. Pemakaian Bio-Herbal Drops sudah memasuki hari ke-26. Agar kadar purin asam urat tetap stabil terkendali, ada baiknya botol kedua sudah siap sebelum botol pertama habis. Kami siap kirimkan hari ini ya Pak!",
-				WhatsAppURL:            "https://wa.me/6281399887766?text=" + url.QueryEscape("Assalamu'alaikum Pak Bambang Sudiro, semoga kesehatan semakin membaik."),
-			},
-			{
-				CustomerID:             "ro-cust-03",
-				CustomerName:           "Ibu Nurul Hidayah",
-				PhoneNumber:            "081822334455",
-				ProductPurchased:       "Bionet Propolis Premium Pure",
-				OrderDate:              now.AddDate(0, 0, -21).Format("2006-01-02"),
-				DaysElapsed:            21,
-				EstimatedDepletionDays: 25,
-				Status:                 "approaching_depletion",
-				PersonalizedMessage:    "Selamat siang Ibu Nurul Hidayah! Bagaimana pemakaian Propolis Bionet di hari ke-21 ini? Lambung sudah terasa jauh lebih nyaman kah? Kami ingatkan persediaan tersisa sekitar 4-7 hari lagi ya Bu. Sehat selalu sekeluarga!",
-				WhatsAppURL:            "https://wa.me/6281822334455?text=" + url.QueryEscape("Selamat siang Ibu Nurul Hidayah! Bagaimana pemakaian Propolis Bionet di hari ke-21?"),
-			},
-		}
+	if customers == nil {
+		customers = make([]models.ROCustomerItem, 0)
 	}
 
 	strategyNote := fmt.Sprintf("AI Retention Engine mendeteksi %d konsumen yang memasuki siklus kritis habisnya produk (hari ke 20-26). Melakukan follow-up tepat waktu pada hari ke-25 meningkatkan rasio repeat order (RO) hingga 3.8 kali lipat.", len(customers))

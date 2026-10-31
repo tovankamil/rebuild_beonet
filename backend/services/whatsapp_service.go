@@ -171,51 +171,19 @@ func InitWhatsAppService() *WhatsAppService {
 			isEnabled: true,
 			messages:  make(map[string][]WhatsAppMessageItem),
 			deviceSession: WhatsAppDeviceSession{
-				Status:          "connected",
-				PhoneNumber:     "+62812-3456-7890",
+				Status:          "disconnected",
+				PhoneNumber:     "",
 				DeviceName:      "Bionet WhatsApp Business Node (WAHA Docker Gateway)",
-				BatteryLevel:    96,
+				BatteryLevel:    100,
 				Provider:        provider,
-				QRCode:          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><rect width='200' height='200' fill='white'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23059669'>Bionet QR Gateway</text></svg>",
+				QRCode:          "",
 				WebhookURL:      "http://host.docker.internal:8081/api/crm/whatsapp/webhook",
 				AutoResponderOn: true,
 			},
 		}
 
-		// Seed initial delivery logs
-		GlobalWhatsAppService.addLog(WhatsAppLog{
-			ID:        "wa-init-01",
-			Phone:     "+6281298765432",
-			Recipient: "Bambang Sudirman",
-			Category:  "crm_followup",
-			Message:   "Halo Pak Bambang, terima kasih atas ketertarikan Anda pada Bio-Propolis Trigona Bionet...",
-			Status:    "read",
-			Direction: "outbound",
-			Provider:  provider,
-			SentAt:    now.Add(-12 * time.Minute),
-		})
-		GlobalWhatsAppService.addLog(WhatsAppLog{
-			ID:        "wa-init-02",
-			Phone:     "+6281312345678",
-			Recipient: "Siti Rahmawati",
-			Category:  "bonus",
-			Message:   "🎉 Selamat Bu Siti! Bonus Pasangan Binary Rp 250.000 telah masuk ke saldo dompet Bionet Anda.",
-			Status:    "delivered",
-			Direction: "outbound",
-			Provider:  provider,
-			SentAt:    now.Add(-35 * time.Minute),
-		})
-		GlobalWhatsAppService.addLog(WhatsAppLog{
-			ID:        "wa-init-03",
-			Phone:     "+6281987654321",
-			Recipient: "Ahmad Fauzi",
-			Category:  "shipping",
-			Message:   "🚚 Update Resi Bionet: Paket pesanan herbal Anda telah dikirim via J&T Express No Resi: JT9982310892.",
-			Status:    "read",
-			Direction: "outbound",
-			Provider:  provider,
-			SentAt:    now.Add(-2 * time.Hour),
-		})
+		// Clean initial delivery logs
+		GlobalWhatsAppService.logs = make([]WhatsAppLog, 0, 100)
 
 		// Clean initial threads
 		GlobalWhatsAppService.threads = make([]WhatsAppChatThread, 0)
@@ -282,35 +250,8 @@ func InitWhatsAppService() *WhatsAppService {
 			},
 		}
 
-		// Seed Default Follow-up Schedules
-		GlobalWhatsAppService.schedules = []models.WhatsAppSchedule{
-			{
-				ID:          "sched-01",
-				UserID:      "mitra-default-id",
-				LeadID:      "lead-sample-1",
-				Recipient:   "Bpk. Budi Santoso",
-				Phone:       "6281234567890",
-				Message:     "Halo Bpk Budi, bagaimana respon tubuh hari ini setelah 3 hari rutin mengonsumsi Bio-Propolis Trigona?",
-				Category:    "day_3_followup",
-				ScheduledAt: now.Add(24 * time.Hour),
-				Status:      "scheduled",
-				CreatedAt:   now,
-				UpdatedAt:   now,
-			},
-			{
-				ID:          "sched-02",
-				UserID:      "mitra-default-id",
-				LeadID:      "lead-sample-2",
-				Recipient:   "Ibu Siti Aminah",
-				Phone:       "6281298765432",
-				Message:     "Selamat pagi Bu Siti, persediaan herbal Anda sisa sedikit. Kami siapkan promo subsidi ongkir untuk repeat order hari ini.",
-				Category:    "day_25_ro",
-				ScheduledAt: now.Add(48 * time.Hour),
-				Status:      "scheduled",
-				CreatedAt:   now,
-				UpdatedAt:   now,
-			},
-		}
+		// Clean initial follow-up schedules
+		GlobalWhatsAppService.schedules = make([]models.WhatsAppSchedule, 0)
 	})
 	return GlobalWhatsAppService
 }

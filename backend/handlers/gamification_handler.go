@@ -499,56 +499,48 @@ func (h *GamificationHandler) CompleteAcademyModule(c *gin.Context) {
 // GetInactivityAlerts detects downlines inactive for 14+ days with WhatsApp coaching scripts
 // Protected GET /api/gamification/inactivity-alerts
 func (h *GamificationHandler) GetInactivityAlerts(c *gin.Context) {
-	alerts := []models.InactivityAlert{
-		{
-			DownlineID:   "down-001",
-			Username:     "bambang_cirebon",
-			FullName:     "Bambang Sudarsono",
-			Phone:        "6281233445566",
-			City:         "Cirebon",
-			DaysInactive: 18,
-			LegPosition:  "left",
-			LastActivity: "Order terakhir 18 hari lalu (Paket Starter Bio-Propolis)",
-			SuggestedWhatsAppText: `Halo Mas Bambang, apa kabar? Semoga sehat sekeluarga ya. 
+	userID := c.GetString("user_id")
+	alerts := make([]models.InactivityAlert, 0)
 
-Saya perhatikan Mas Bambang belum sempat aktif di grup Bionet minggu ini. Ada kendala saat edukasi konsumen Bio-Propolis di Cirebon? 
+	if config.DB != nil && userID != "" {
+		var sponsors []models.Sponsor
+		if err := config.DB.Where("sponsor_id = ?", userID).Preload("User").Find(&sponsors).Error; err == nil {
+			now := time.Now()
+			for _, sp := range sponsors {
+				if sp.User == nil {
+					continue
+				}
+				lastActivity := sp.User.CreatedAt
+				var lastOrder models.Order
+				if err := config.DB.Where("user_id = ?", sp.UserID).Order("created_at DESC").First(&lastOrder).Error; err == nil {
+					lastActivity = lastOrder.CreatedAt
+				}
+				daysInactive := int(now.Sub(lastActivity).Hours() / 24)
+				if daysInactive >= 14 {
+					ph := ""
+					if sp.User.Phone != nil {
+						ph = *sp.User.Phone
+					}
+					pos := "left"
+					var netPos models.NetworkPosition
+					if err := config.DB.Where("user_id = ?", sp.UserID).First(&netPos).Error; err == nil && netPos.Position != "" {
+						pos = netPos.Position
+					}
 
-Kebetulan malam ini jam 19.30 ada Webinar BOP Nasional bareng dr. Rahmat. Mas Bambang bisa undang 2-3 kenalan, nanti biar dokter & mentor yang bantu jelaskan khasiatnya. 
-
-Saya siap bantu dampingi ya Mas. Semangat selalu! 🙏`,
-		},
-		{
-			DownlineID:   "down-002",
-			Username:     "siti_sukabumi",
-			FullName:     "Siti Nurjanah",
-			Phone:        "6281987654321",
-			City:         "Sukabumi",
-			DaysInactive: 24,
-			LegPosition:  "right",
-			LastActivity: "Login portal 24 hari lalu",
-			SuggestedWhatsAppText: `Assalamu'alaikum Bu Siti, salam silaturahmi. 
-
-Bagaimana kabar di Sukabumi Bu? Semoga rezeki dan kesehatan selalu dilancarkan Allah SWT. 
-
-Sekadar menyapa, saat ini di Bionet ada modul baru 'Digital Prospecting & Bio-Link Builder' yang bisa bantu dapat prospek otomatis dari WhatsApp & TikTok tanpa perlu door-to-door. 
-
-Kalau Bu Siti ada waktu luang 15 menit, yuk kita ngobrol santai atau zoom berdua, biar saya bantu settingkan halaman Bio-Link gratis untuk Ibu. Ditunggu ya Bu! 😊`,
-		},
-		{
-			DownlineID:   "down-003",
-			Username:     "hendra_kediri",
-			FullName:     "Hendra Pratama",
-			Phone:        "6285211223344",
-			City:         "Kediri",
-			DaysInactive: 15,
-			LegPosition:  "left",
-			LastActivity: "Input prospek terakhir 15 hari lalu",
-			SuggestedWhatsAppText: `Halo Bro Hendra, apa kabar Kediri? 
-
-Keren kemarin sempat closing beberapa botol Bio-Propolis. Sayang banget nih tinggal sedikit lagi bro bisa capai akumulasi PV buat kualifikasi Reward Smartwatch Sport Bionet. 
-
-Kalau butuh materi copywriting promosi terbaru atau bahan testimoni asam urat/diabetes yang lagi viral, kabari ya, langsung saya kirimkan via WhatsApp. Sukses terus Bro Hendra! 🚀`,
-		},
+					alerts = append(alerts, models.InactivityAlert{
+						DownlineID:   sp.UserID,
+						Username:     sp.User.Username,
+						FullName:     sp.User.FullName,
+						Phone:        ph,
+						City:         "Indonesia",
+						DaysInactive: daysInactive,
+						LegPosition:  pos,
+						LastActivity: fmt.Sprintf("Aktivitas terakhir %d hari lalu", daysInactive),
+						SuggestedWhatsAppText: fmt.Sprintf("Halo %s, apa kabar? Semoga selalu sehat dan berkah. Yuk sempatkan ngobrol santai mengenai strategi pengembangan kemitraan Bionet minggu ini. Semangat selalu! 🙏", sp.User.FullName),
+					})
+				}
+			}
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{

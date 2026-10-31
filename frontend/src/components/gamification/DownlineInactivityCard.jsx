@@ -14,41 +14,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-const DORMANT_DOWNLINES = [
-  {
-    id: 'dl_1',
-    name: 'Wahyu Hidayat',
-    username: 'wahyu_herbal',
-    phone: '6281398765432',
-    side: 'Tim Kiri (A)',
-    inactiveDays: 16,
-    lastActivity: 'Repeat Order Terakhir: 16 hari lalu',
-    joinedDate: '12 Sep 2026',
-    package: 'Silver',
-  },
-  {
-    id: 'dl_2',
-    name: 'Siti Rahmawati',
-    username: 'rahma_propolis',
-    phone: '6281234987650',
-    side: 'Tim Kanan (B)',
-    inactiveDays: 24,
-    lastActivity: 'Belum sponsori mitra baru: 24 hari',
-    joinedDate: '02 Sep 2026',
-    package: 'Gold',
-  },
-  {
-    id: 'dl_3',
-    name: 'Heri Gunawan',
-    username: 'heri_bio',
-    phone: '6285712345678',
-    side: 'Tim Kiri (A)',
-    inactiveDays: 31,
-    lastActivity: 'Belum aktivasi PIN kedua: 31 hari',
-    joinedDate: '18 Agu 2026',
-    package: 'Silver',
-  },
-];
+const DORMANT_DOWNLINES = [];
 
 export default function DownlineInactivityCard({ user, onNavigateTree }) {
   const [filterDays, setFilterDays] = useState('all'); // 'all' | '14' | '30'

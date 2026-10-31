@@ -89,7 +89,7 @@ export default function AIVoiceNoteModal({ isOpen, onClose, currentUser }) {
   const [selectedPersona, setSelectedPersona] = useState('dr_farhan');
   const [selectedTemplateId, setSelectedTemplateId] = useState('prospek_biolink');
   const [prospectName, setProspectName] = useState('Ibu Maryam');
-  const [prospectPhone, setProspectPhone] = useState('6281234567890');
+  const [prospectPhone, setProspectPhone] = useState('');
   const [customScript, setCustomScript] = useState('');
 
   // Audio Playback State
@@ -304,7 +304,7 @@ export default function AIVoiceNoteModal({ isOpen, onClose, currentUser }) {
                 type="text"
                 value={prospectPhone}
                 onChange={(e) => setProspectPhone(e.target.value)}
-                placeholder="6281234567890"
+                placeholder="Nomor WhatsApp prospek (contoh: 628...)"
                 className="w-full text-xs sm:text-sm px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 outline-none font-mono"
               />
             </div>

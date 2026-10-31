@@ -122,7 +122,7 @@ export default function WhatsAppGatewayMonitorView({ user }) {
             <span className="capitalize">{status?.provider || 'WAHA / Fonnte'}</span>
           </div>
           <div className="text-xs text-slate-500 mt-1 font-mono">
-            {status?.connected_number || '+62812-3456-7890'}
+            {status?.connected_number || '-'}
           </div>
         </div>
 

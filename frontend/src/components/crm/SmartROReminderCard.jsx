@@ -27,84 +27,9 @@ export default function SmartROReminderCard({ user }) {
   const [loading, setLoading] = useState(true);
   const [statuses, setStatuses] = useState({}); // local status overrides: { [id]: 'pending' | 'contacted' | 'closed' }
 
-  // Fallback demo data if backend /api/crm/ro-reminders endpoint is empty or offline
-  const fallbackReminders = [
-    {
-      id: 'ro-01',
-      customer_name: 'Ibu Ratna Suminar',
-      phone: '6281234567890',
-      product_name: 'Bio-Propolis Trigona 30ml',
-      order_date: '2026-10-02',
-      bottle_cycle_days: 30,
-      days_elapsed: 27, // Day 27/30 -> Critical!
-      bottle_usage_pct: 90,
-      bottles_remaining_est: '3-4 hari pemakaian',
-      city: 'Bandung',
-      status: 'pending',
-    },
-    {
-      id: 'ro-02',
-      customer_name: 'Bpk. Hendro Wicaksono',
-      phone: '6281398765432',
-      product_name: 'Paket Kebugaran Sendi & Tulang',
-      order_date: '2026-10-07',
-      bottle_cycle_days: 30,
-      days_elapsed: 22, // Day 22/30 -> Stok Menipis
-      bottle_usage_pct: 73,
-      bottles_remaining_est: '7-8 hari pemakaian',
-      city: 'Surabaya',
-      status: 'pending',
-    },
-    {
-      id: 'ro-03',
-      customer_name: 'Ibu Siti Aminah',
-      phone: '6282112344321',
-      product_name: 'Bio-Herbal Tetes Lambung',
-      order_date: '2026-10-18',
-      bottle_cycle_days: 30,
-      days_elapsed: 11, // Day 11/30 -> Stok Aman
-      bottle_usage_pct: 36,
-      bottles_remaining_est: '19 hari pemakaian',
-      city: 'Jakarta Selatan',
-      status: 'pending',
-    },
-    {
-      id: 'ro-04',
-      customer_name: 'Bpk. Agus Priyanto',
-      phone: '6285712398711',
-      product_name: 'Bio-Madu Herbal Alami Anak',
-      order_date: '2026-09-30',
-      bottle_cycle_days: 30,
-      days_elapsed: 29, // Day 29/30 -> Critical!
-      bottle_usage_pct: 96,
-      bottles_remaining_est: '1-2 hari pemakaian',
-      city: 'Yogyakarta',
-      status: 'pending',
-    },
-  ];
-
-  const fallbackPassiveDownlines = [
-    {
-      id: 'down-01',
-      name: 'Rian Pratama',
-      username: 'rian_bionet',
-      phone: '6281987654321',
-      position: 'Kaki Kiri',
-      inactive_days: 48,
-      last_activity: '11 September 2026',
-      total_team: 4,
-    },
-    {
-      id: 'down-02',
-      name: 'Dewi Lestari',
-      username: 'dewi_bio',
-      phone: '6281233445566',
-      position: 'Kaki Kanan',
-      inactive_days: 62,
-      last_activity: '28 Agustus 2026',
-      total_team: 2,
-    },
-  ];
+  // Clean fallback data
+  const fallbackReminders = [];
+  const fallbackPassiveDownlines = [];
 
   const fetchReminders = async () => {
     setLoading(true);

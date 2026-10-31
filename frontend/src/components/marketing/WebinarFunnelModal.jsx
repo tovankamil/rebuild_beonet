@@ -23,8 +23,8 @@ import api from '../../services/api';
 
 export default function WebinarFunnelModal({ user, onClose }) {
   const partnerName = user?.full_name || 'Mitra Bionet Juara';
-  const partnerPhone = user?.phone || '6281234567890';
-  const referralCode = user?.username || 'mitra01';
+  const partnerPhone = user?.phone || '';
+  const referralCode = user?.username || 'bionet';
   const cleanPhone = partnerPhone.replace(/[^0-9]/g, '');
 
   // Form State

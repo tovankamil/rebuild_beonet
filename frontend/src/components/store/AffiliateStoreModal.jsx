@@ -32,7 +32,7 @@ export default function AffiliateStoreModal({ user, onClose }) {
     () => localStorage.getItem('bionet_shop_name') || `Toko Herbal Berkah ${user?.full_name || user?.username}`
   );
   const [whatsappNumber, setWhatsappNumber] = useState(
-    () => localStorage.getItem('bionet_shop_wa') || user?.phone || '6281234567890'
+    () => localStorage.getItem('bionet_shop_wa') || user?.phone || ''
   );
   const [customMarkup, setCustomMarkup] = useState(
     () => Number(localStorage.getItem('bionet_shop_markup')) || 50000

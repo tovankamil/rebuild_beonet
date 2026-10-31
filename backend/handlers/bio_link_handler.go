@@ -24,23 +24,14 @@ type BioLinkHandler struct {
 
 // NewBioLinkHandler initializes the bio link handler
 func NewBioLinkHandler() *BioLinkHandler {
-	h := &BioLinkHandler{
+	return &BioLinkHandler{
 		mockPages: make(map[string]*models.BioPage),
 	}
-	// Seed sample demo bio pages for offline/test environments
-	demoPage1 := defaultSeedBioPage("user-test-uuid", "mitra01", "Ahmad Fauzi", "6281234567890")
-	demoPage2 := defaultSeedBioPage("mitra-demo-id", "bionet_official", "Bionet Official", "6281122334455")
-	h.mockPages["mitra01"] = &demoPage1
-	h.mockPages["bionet_official"] = &demoPage2
-	return h
 }
 
 func defaultSeedBioPage(userID, username, fullName, phone string) models.BioPage {
 	now := time.Now()
-	cleanPhone := phone
-	if cleanPhone == "" {
-		cleanPhone = "6281234567890"
-	}
+	cleanPhone := strings.TrimSpace(phone)
 	title := "Distributor Resmi Bionet Herbal - " + fullName
 	if fullName == "" {
 		title = "Official Store & Distributor Bionet"
@@ -174,7 +165,7 @@ func (h *BioLinkHandler) GetPublicBioPage(c *gin.Context) {
 	}
 
 	// Create and seed dynamically if not exists in memory
-	newPage := defaultSeedBioPage("user-"+username, username, strings.Title(username), "6281234567890")
+	newPage := defaultSeedBioPage("user-"+username, username, strings.Title(username), "")
 	newPage.TotalViews = 1
 	h.mockPages[username] = &newPage
 
@@ -211,7 +202,7 @@ func (h *BioLinkHandler) GetMyBioPage(c *gin.Context) {
 		// Auto-seed for this user
 		var user models.User
 		fullName := username
-		phone := "6281234567890"
+		phone := ""
 		if err := db.Where("id = ? OR username = ?", userID, username).First(&user).Error; err == nil {
 			fullName = user.FullName
 			if user.Phone != nil && *user.Phone != "" {
@@ -243,7 +234,7 @@ func (h *BioLinkHandler) GetMyBioPage(c *gin.Context) {
 		return
 	}
 
-	newPage := defaultSeedBioPage(userID, key, "Mitra Bionet", "6281234567890")
+	newPage := defaultSeedBioPage(userID, key, "Mitra Bionet", "")
 	h.mockPages[key] = &newPage
 
 	c.JSON(http.StatusOK, gin.H{

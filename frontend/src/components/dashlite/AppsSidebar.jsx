@@ -41,8 +41,10 @@ import {
   Award,
   Droplets,
   Globe,
+  Gift,
 } from 'lucide-react';
 import DashAvatar from './DashAvatar';
+import { useBranding } from '../../context/BrandingContext';
 
 /**
  * Dynamic Role-Based Menu Modules Generator
@@ -191,6 +193,15 @@ function getRoleMenuModules(role) {
         ],
       },
       {
+        id: 'admin-branding',
+        title: 'Tampilan & Tema Warna',
+        icon: Palette,
+        badge: 'Tema',
+        submenus: [
+          { id: 'admin-branding', title: 'Logo & Tema Warna Dashboard', desc: 'Ubah logo aplikasi, warna primary dan secondary', icon: Palette },
+        ],
+      },
+      {
         id: 'admin-guide',
         title: 'Panduan Fitur & Menu',
         icon: BookOpen,
@@ -198,6 +209,22 @@ function getRoleMenuModules(role) {
         submenus: [
           { id: 'admin-guide', title: 'Direktori & Panduan Lengkap', desc: 'Penjelasan semua fitur & menu aplikasi', icon: BookOpen },
           { id: 'components', title: 'Galeri Komponen DashLite', desc: 'Desain token & elemen UI', icon: Palette },
+        ],
+      },
+      {
+        id: 'lucky-wheel',
+        title: 'Intermezo: Roda Berkah',
+        icon: Gift,
+        badge: 'Game 25-60',
+        action: 'open_lucky_wheel',
+        submenus: [
+          {
+            id: 'lucky-wheel',
+            title: '🎡 Roda Berkah Keberuntungan',
+            desc: 'Putar roda santai harian & menangkan voucher belanja herbal!',
+            icon: Gift,
+            action: 'open_lucky_wheel',
+          },
         ],
       },
     ];
@@ -373,6 +400,22 @@ function getRoleMenuModules(role) {
       ],
     },
     {
+      id: 'lucky-wheel',
+      title: 'Intermezo: Roda Berkah',
+      icon: Gift,
+      badge: 'Game 25-60',
+      action: 'open_lucky_wheel',
+      submenus: [
+        {
+          id: 'lucky-wheel',
+          title: '🎡 Roda Berkah Keberuntungan',
+          desc: 'Putar roda santai harian & menangkan voucher belanja herbal!',
+          icon: Gift,
+          action: 'open_lucky_wheel',
+        },
+      ],
+    },
+    {
       id: 'genealogy',
       title: 'Jaringan & Pohon Binary',
       icon: GitFork,
@@ -502,6 +545,7 @@ export default function AppsSidebar({
   onOpenDigitalCard,
   onOpenCertificate,
 }) {
+  const { branding } = useBranding();
   const [hoveredMenu, setHoveredMenu] = useState(null);
   const [flyoutTop, setFlyoutTop] = useState(0);
   const timeoutRef = useRef(null);
@@ -582,6 +626,10 @@ export default function AppsSidebar({
   };
 
   const handleIconClick = (item, event) => {
+    if (item.action === 'open_lucky_wheel' || item.id === 'lucky-wheel') {
+      window.dispatchEvent(new Event('bionet:open-wheel'));
+      return;
+    }
     if (item.id === 'profile') {
       if (onOpenProfile) onOpenProfile('profile');
       return;
@@ -615,6 +663,8 @@ export default function AppsSidebar({
       if (onOpenDigitalCard) onOpenDigitalCard();
     } else if (sub.action === 'open_certificate' || sub.id === 'e-certificate') {
       if (onOpenCertificate) onOpenCertificate();
+    } else if (sub.action === 'open_lucky_wheel' || sub.id === 'lucky-wheel') {
+      window.dispatchEvent(new Event('bionet:open-wheel'));
     } else if (sub.id) {
       setActiveTab(sub.id);
       if (sub.subView) {
@@ -686,6 +736,8 @@ export default function AppsSidebar({
       if (onOpenDigitalCard) onOpenDigitalCard();
     } else if (sub.action === 'open_certificate' || sub.id === 'e-certificate') {
       if (onOpenCertificate) onOpenCertificate();
+    } else if (sub.action === 'open_lucky_wheel' || sub.id === 'lucky-wheel') {
+      window.dispatchEvent(new Event('bionet:open-wheel'));
     } else if (sub.id) {
       setActiveTab(sub.id);
       if (sub.subView) {
@@ -735,10 +787,23 @@ export default function AppsSidebar({
                 const defaultTab = userRole === 'admin' ? 'admin-overview' : userRole === 'gudang' ? 'warehouse-overview' : 'overview';
                 setActiveTab(defaultTab);
               }}
-              className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 flex items-center justify-center cursor-pointer shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 transition-transform"
-              title="Bionet Hub"
+              className="w-11 h-11 rounded-2xl flex items-center justify-center cursor-pointer shadow-lg hover:scale-105 active:scale-95 transition-transform overflow-hidden p-1.5"
+              style={{
+                background: branding?.logo_url
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : `linear-gradient(135deg, ${branding?.primary_color || '#10b981'} 0%, ${branding?.secondary_color || '#06b6d4'} 100%)`,
+              }}
+              title={branding?.app_name || 'Bionet Hub'}
             >
-              <Layers size={22} className="text-white" strokeWidth={2} />
+              {branding?.logo_url ? (
+                <img
+                  src={branding.logo_url}
+                  alt={branding.app_name || 'Logo'}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <Layers size={22} className="text-white" strokeWidth={2} />
+              )}
             </div>
 
             <div className="w-7 h-[1px] bg-emerald-900/60 my-1" />
@@ -820,12 +885,27 @@ export default function AppsSidebar({
           {/* Mobile Drawer Header */}
           <div className="flex items-center justify-between pb-3 border-b border-emerald-900/60">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 via-emerald-500 to-teal-600 flex items-center justify-center shadow-[0_0_14px_rgba(16,185,129,0.4)]">
-                <Layers size={18} className="text-white" strokeWidth={2} />
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md overflow-hidden p-1 flex-shrink-0"
+                style={{
+                  background: branding?.logo_url
+                    ? 'rgba(255, 255, 255, 0.1)'
+                    : `linear-gradient(135deg, ${branding?.primary_color || '#10b981'} 0%, ${branding?.secondary_color || '#06b6d4'} 100%)`,
+                }}
+              >
+                {branding?.logo_url ? (
+                  <img
+                    src={branding.logo_url}
+                    alt={branding.app_name || 'Logo'}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <Layers size={18} className="text-white" strokeWidth={2} />
+                )}
               </div>
               <div>
                 <h3 className="font-heading font-extrabold text-sm text-white leading-tight">
-                  Bionet Mitra Hub
+                  {branding?.app_name || 'Bionet'} {userRole === 'admin' ? 'Admin Hub' : 'Mitra Hub'}
                 </h3>
                 <p className="text-[10px] text-emerald-400/80 font-medium">
                   {roleLabel}

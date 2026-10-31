@@ -186,6 +186,18 @@ export default function Header({
 
       {/* Right: Actions, Notifications, Chat, & User Meta */}
       <div className="flex items-center gap-2 sm:gap-2.5">
+        {/* Mini Game Intermezo Button (Usia 25-60) */}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event('bionet:open-wheel'))}
+          title="Putar Roda Keberuntungan Berkah (Intermezo Usia 25-60 Tahun)"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-teal-500/15 border border-amber-400/40 hover:border-amber-500 text-amber-900 hover:text-emerald-950 transition-all text-xs font-bold shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+        >
+          <span className="text-base leading-none">🎡</span>
+          <span className="hidden sm:inline">Roda Berkah</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+        </button>
+
         {/* Referral Link Fast Share (Member Only) */}
         {user?.role === 'member' && (
           <button

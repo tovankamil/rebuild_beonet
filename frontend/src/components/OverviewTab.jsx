@@ -65,6 +65,18 @@ export default function OverviewTab({
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [showBioLinkModal, setShowBioLinkModal] = useState(false);
   const [showMarketingKitModal, setShowMarketingKitModal] = useState(false);
+  const [marketingKitInitialFlyer, setMarketingKitInitialFlyer] = useState(null);
+
+  useEffect(() => {
+    const handleOpenMarketing = (e) => {
+      if (e.detail?.customFlyer) {
+        setMarketingKitInitialFlyer(e.detail.customFlyer);
+      }
+      setShowMarketingKitModal(true);
+    };
+    window.addEventListener('bionet:open-marketing-kit', handleOpenMarketing);
+    return () => window.removeEventListener('bionet:open-marketing-kit', handleOpenMarketing);
+  }, []);
   const [showWebinarModal, setShowWebinarModal] = useState(false);
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
   const [showAcademyModal, setShowAcademyModal] = useState(false);
@@ -505,7 +517,7 @@ export default function OverviewTab({
               <span className="overline-title text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                 Total Jaringan
               </span>
-              <p className="text-xs text-slate-500 font-normal mt-0.5">Closure Table Node</p>
+              <p className="text-xs text-slate-500 font-normal mt-0.5">Mitra Aktif Jaringan</p>
             </div>
             <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
               <GitFork size={20} />
@@ -526,6 +538,33 @@ export default function OverviewTab({
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Intermezo Mini Game Banner (Usia 25-60 Tahun) */}
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border border-amber-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center space-x-3.5">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-2xl shrink-0">
+            🎡
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <h4 className="text-xs sm:text-sm font-bold text-slate-900">Intermezo Santai: Roda Keberuntungan Harian</h4>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                1x Putar Gratis
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+              Putar roda santai setiap hari, menangkan diskon herbal, poin reward, dan tips bugar keluarga.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event('bionet:open-wheel'))}
+          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-emerald-600 to-teal-600 hover:from-amber-600 hover:to-teal-700 text-white font-bold text-xs shadow-md transition self-start sm:self-auto flex items-center space-x-1.5 shrink-0 cursor-pointer active:scale-95"
+        >
+          <span>🎡 Putar Roda Berkah</span>
+        </button>
       </div>
 
       {/* Discovery Banner: Toko Online Afiliasi Mandiri */}
@@ -856,7 +895,11 @@ export default function OverviewTab({
       {showMarketingKitModal && (
         <MarketingKitModal
           user={currentUser}
-          onClose={() => setShowMarketingKitModal(false)}
+          initialCustomFlyer={marketingKitInitialFlyer}
+          onClose={() => {
+            setShowMarketingKitModal(false);
+            setMarketingKitInitialFlyer(null);
+          }}
         />
       )}
       {showWebinarModal && (

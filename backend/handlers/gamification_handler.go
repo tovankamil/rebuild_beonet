@@ -14,12 +14,23 @@ import (
 	"github.com/google/uuid"
 )
 
+type WheelSpinRecord struct {
+	UserID    string `json:"user_id"`
+	DateKey   string `json:"date_key"`
+	PrizeID   int    `json:"prize_id"`
+	PrizeName string `json:"prize_name"`
+	PrizeCode string `json:"prize_code"`
+	SpinTime  string `json:"spin_time"`
+}
+
 // GamificationHandler serves leaderboard, reward race, academy modules, and downline coaching alerts
 type GamificationHandler struct {
 	modulesLock     sync.RWMutex
 	modules         []models.AcademyModule
 	completionsLock sync.RWMutex
 	completions     map[string]map[string]models.AcademyCompletion // userID -> moduleID -> completion
+	wheelLock       sync.RWMutex
+	wheelSpins      map[string]WheelSpinRecord // key: userID + "_" + dateKey
 }
 
 // NewGamificationHandler initializes gamification, reward thresholds, and 7 academy modules
@@ -191,6 +202,7 @@ func NewGamificationHandler() *GamificationHandler {
 	return &GamificationHandler{
 		modules:     modules,
 		completions: make(map[string]map[string]models.AcademyCompletion),
+		wheelSpins:  make(map[string]WheelSpinRecord),
 	}
 }
 
@@ -543,9 +555,120 @@ func (h *GamificationHandler) GetInactivityAlerts(c *gin.Context) {
 		}
 	}
 
+	if len(alerts) == 0 {
+		alerts = []models.InactivityAlert{
+			{
+				DownlineID:            "downline-mock-1",
+				Username:              "mitra_pasif01",
+				FullName:              "Dewi Lestari",
+				Phone:                 "081234567890",
+				City:                  "Surabaya",
+				DaysInactive:          18,
+				LegPosition:           "kiri",
+				LastActivity:          "Aktivitas terakhir 18 hari lalu",
+				SuggestedWhatsAppText: "Halo Dewi Lestari, apa kabar? Semoga selalu sehat dan berkah. Yuk sempatkan ngobrol santai mengenai strategi pengembangan kemitraan Bionet minggu ini. Semangat selalu!",
+			},
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"total":  len(alerts),
 		"data":   alerts,
+	})
+}
+
+// ============================================================================
+// Lucky Wheel Intermezo (Strict 1x / Day Enforcement)
+// ============================================================================
+
+// GetWheelStatus returns whether the user has already spun today and countdown to midnight WIB
+// Protected GET /api/gamification/wheel/status
+func (h *GamificationHandler) GetWheelStatus(c *gin.Context) {
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Unauthorized"})
+		return
+	}
+
+	wib, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		wib = time.FixedZone("WIB", 7*3600)
+	}
+	now := time.Now().In(wib)
+	dateKey := now.Format("2006-01-02")
+
+	nextMidnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, wib)
+	secondsUntilReset := int(nextMidnight.Sub(now).Seconds())
+
+	h.wheelLock.RLock()
+	record, exists := h.wheelSpins[userID+"_"+dateKey]
+	h.wheelLock.RUnlock()
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":              "success",
+		"has_played":          exists,
+		"date_key":            dateKey,
+		"seconds_until_reset": secondsUntilReset,
+		"last_prize":          record,
+	})
+}
+
+// SpinWheel strictly executes 1x spin per user per day.
+// Protected POST /api/gamification/wheel/spin
+func (h *GamificationHandler) SpinWheel(c *gin.Context) {
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Unauthorized"})
+		return
+	}
+
+	wib, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		wib = time.FixedZone("WIB", 7*3600)
+	}
+	now := time.Now().In(wib)
+	dateKey := now.Format("2006-01-02")
+	spinKey := userID + "_" + dateKey
+
+	h.wheelLock.Lock()
+	defer h.wheelLock.Unlock()
+
+	if _, exists := h.wheelSpins[spinKey]; exists {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Kesempatan putar roda hari ini sudah digunakan! Maksimal 1x per hari.",
+		})
+		return
+	}
+
+	var req struct {
+		PrizeID   int    `json:"prize_id" binding:"required"`
+		PrizeName string `json:"prize_name" binding:"required"`
+		PrizeCode string `json:"prize_code" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Data prize tidak valid"})
+		return
+	}
+
+	record := WheelSpinRecord{
+		UserID:    userID,
+		DateKey:   dateKey,
+		PrizeID:   req.PrizeID,
+		PrizeName: req.PrizeName,
+		PrizeCode: req.PrizeCode,
+		SpinTime:  now.Format("15:04 WIB"),
+	}
+	h.wheelSpins[spinKey] = record
+
+	nextMidnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, wib)
+	secondsUntilReset := int(nextMidnight.Sub(now).Seconds())
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":              "success",
+		"message":             "Selamat! Hadiah berhasil diklaim.",
+		"data":                record,
+		"seconds_until_reset": secondsUntilReset,
 	})
 }

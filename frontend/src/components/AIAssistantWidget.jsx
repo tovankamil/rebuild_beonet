@@ -269,7 +269,12 @@ export default function AIAssistantWidget({ currentUser, hideFab = false }) {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Tanya apa saja seputar Bionet..."
               disabled={loading}
-              className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-800 placeholder-slate-400"
+              className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs"
+              style={{
+                backgroundColor: '#ffffff',
+                color: '#0f172a',
+                colorScheme: 'light',
+              }}
             />
             <button
               type="submit"

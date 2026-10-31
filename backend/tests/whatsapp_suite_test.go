@@ -3,11 +3,13 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"bionet-backend/models"
 	"bionet-backend/services"
 	"bionet-backend/utils"
 
@@ -191,7 +193,7 @@ func TestAPI_WhatsApp_Status_And_Threads(t *testing.T) {
 
 	// 2. GET /threads (ensure a thread exists for testing)
 	waSvc := services.InitWhatsAppService()
-	waSvc.CreateNewThread("08123456789", "User Test", "Bio-Propolis Trigona", "Jakarta", "new")
+	waSvc.CreateNewThread("08123456789", "User Test", "Bio-Propolis Trigona", "Jakarta", "new", "user-test-uuid")
 
 	req2, _ := http.NewRequest("GET", "/api/crm/whatsapp/threads", nil)
 	req2.Header.Set("Authorization", "Bearer "+token)
@@ -316,5 +318,179 @@ func TestAPI_WhatsApp_WebhookListener(t *testing.T) {
 
 	if w.Code != http.StatusOK {
 		t.Fatalf("Expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+}
+
+func TestAPI_WhatsApp_MitraIsolation_And_AdminAll(t *testing.T) {
+	router := setupTestServer()
+	tokenMitra1, _ := utils.GenerateToken("mitra-user-1", "mitra1", "member")
+	tokenMitra2, _ := utils.GenerateToken("mitra-user-2", "mitra2", "member")
+	tokenAdmin, _ := utils.GenerateToken("admin-user", "admin", "admin")
+
+	// 1. Mitra 1 creates a contact
+	bodyContact, _ := json.Marshal(map[string]interface{}{
+		"phone":    "081211112222",
+		"name":     "Kontak Khusus Mitra 1",
+		"city":     "Bandung",
+		"category": "lead",
+	})
+	reqC1, _ := http.NewRequest("POST", "/api/crm/whatsapp/contacts", bytes.NewBuffer(bodyContact))
+	reqC1.Header.Set("Authorization", "Bearer "+tokenMitra1)
+	reqC1.Header.Set("Content-Type", "application/json")
+	wC1 := httptest.NewRecorder()
+	router.ServeHTTP(wC1, reqC1)
+	if wC1.Code != http.StatusCreated {
+		t.Fatalf("Mitra 1 failed to create contact: %d %s", wC1.Code, wC1.Body.String())
+	}
+
+	// 2. Mitra 2 gets contacts -> MUST NOT see Mitra 1's contact!
+	reqC2, _ := http.NewRequest("GET", "/api/crm/whatsapp/contacts", nil)
+	reqC2.Header.Set("Authorization", "Bearer "+tokenMitra2)
+	wC2 := httptest.NewRecorder()
+	router.ServeHTTP(wC2, reqC2)
+	if wC2.Code != http.StatusOK {
+		t.Fatalf("Mitra 2 failed to get contacts: %d", wC2.Code)
+	}
+	var resC2 struct {
+		Data []models.WhatsAppContactModel `json:"data"`
+	}
+	json.Unmarshal(wC2.Body.Bytes(), &resC2)
+	for _, c := range resC2.Data {
+		if c.Phone == "6281211112222" || c.Name == "Kontak Khusus Mitra 1" {
+			t.Errorf("Security Violation: Mitra 2 saw Mitra 1's contact!")
+		}
+	}
+
+	// 3. Admin gets contacts -> MUST see Mitra 1's contact!
+	reqCAdmin, _ := http.NewRequest("GET", "/api/crm/whatsapp/contacts", nil)
+	reqCAdmin.Header.Set("Authorization", "Bearer "+tokenAdmin)
+	wCAdmin := httptest.NewRecorder()
+	router.ServeHTTP(wCAdmin, reqCAdmin)
+	var resCAdmin struct {
+		Data []models.WhatsAppContactModel `json:"data"`
+	}
+	json.Unmarshal(wCAdmin.Body.Bytes(), &resCAdmin)
+	foundAdmin := false
+	for _, c := range resCAdmin.Data {
+		if c.Phone == "6281211112222" {
+			foundAdmin = true
+			break
+		}
+	}
+	if !foundAdmin {
+		t.Errorf("Expected Admin to see all contacts including Mitra 1's contact")
+	}
+
+	// 4. Mitra 1 creates a thread
+	bodyThread, _ := json.Marshal(map[string]interface{}{
+		"phone":        "081233334444",
+		"contact_name": "Prospek Rahasia Mitra 1",
+		"product":      "Bio-Propolis Trigona 30ml",
+		"city":         "Surabaya",
+	})
+	reqT1, _ := http.NewRequest("POST", "/api/crm/whatsapp/threads", bytes.NewBuffer(bodyThread))
+	reqT1.Header.Set("Authorization", "Bearer "+tokenMitra1)
+	reqT1.Header.Set("Content-Type", "application/json")
+	wT1 := httptest.NewRecorder()
+	router.ServeHTTP(wT1, reqT1)
+	var resT1 struct {
+		Data services.WhatsAppChatThread `json:"data"`
+	}
+	json.Unmarshal(wT1.Body.Bytes(), &resT1)
+	thread1ID := resT1.Data.ID
+
+	// 5. Mitra 2 gets threads -> MUST NOT see Mitra 1's thread!
+	reqT2, _ := http.NewRequest("GET", "/api/crm/whatsapp/threads", nil)
+	reqT2.Header.Set("Authorization", "Bearer "+tokenMitra2)
+	wT2 := httptest.NewRecorder()
+	router.ServeHTTP(wT2, reqT2)
+	var resT2 struct {
+		Data []services.WhatsAppChatThread `json:"data"`
+	}
+	json.Unmarshal(wT2.Body.Bytes(), &resT2)
+	for _, th := range resT2.Data {
+		if th.ID == thread1ID || th.ContactName == "Prospek Rahasia Mitra 1" {
+			t.Errorf("Security Violation: Mitra 2 saw Mitra 1's thread!")
+		}
+	}
+
+	// 6. Mitra 2 attempts to view messages in Mitra 1's thread -> MUST return 403 Forbidden!
+	reqMsgT2, _ := http.NewRequest("GET", "/api/crm/whatsapp/threads/"+thread1ID+"/messages", nil)
+	reqMsgT2.Header.Set("Authorization", "Bearer "+tokenMitra2)
+	wMsgT2 := httptest.NewRecorder()
+	router.ServeHTTP(wMsgT2, reqMsgT2)
+	if wMsgT2.Code != http.StatusForbidden {
+		t.Errorf("Expected status 403 Forbidden when Mitra 2 accesses Mitra 1's thread, got %d", wMsgT2.Code)
+	}
+
+	// 7. Admin views messages in Mitra 1's thread -> MUST succeed (200 OK)
+	reqMsgAdmin, _ := http.NewRequest("GET", "/api/crm/whatsapp/threads/"+thread1ID+"/messages", nil)
+	reqMsgAdmin.Header.Set("Authorization", "Bearer "+tokenAdmin)
+	wMsgAdmin := httptest.NewRecorder()
+	router.ServeHTTP(wMsgAdmin, reqMsgAdmin)
+	if wMsgAdmin.Code != http.StatusOK {
+		t.Errorf("Expected Admin to view any thread messages (200 OK), got %d", wMsgAdmin.Code)
+	}
+}
+
+func TestAPI_WhatsApp_UploadAndSendMedia(t *testing.T) {
+	router, token := setupWhatsAppTestRouter()
+
+	// 1. Upload attachment
+	bodyBuf := &bytes.Buffer{}
+	writer := multipart.NewWriter(bodyBuf)
+	part, _ := writer.CreateFormFile("file", "katalog_bioherbal.pdf")
+	part.Write([]byte("%PDF-1.4 dummy pdf content for testing"))
+	writer.Close()
+
+	reqUpload, _ := http.NewRequest("POST", "/api/crm/whatsapp/upload", bodyBuf)
+	reqUpload.Header.Set("Authorization", "Bearer "+token)
+	reqUpload.Header.Set("Content-Type", writer.FormDataContentType())
+	wUpload := httptest.NewRecorder()
+	router.ServeHTTP(wUpload, reqUpload)
+
+	if wUpload.Code != http.StatusOK {
+		t.Fatalf("Upload failed with status %d: %s", wUpload.Code, wUpload.Body.String())
+	}
+	var resUpload struct {
+		Status string `json:"status"`
+		Data   struct {
+			URL  string `json:"url"`
+			Name string `json:"name"`
+			Type string `json:"type"`
+		} `json:"data"`
+	}
+	json.Unmarshal(wUpload.Body.Bytes(), &resUpload)
+	if resUpload.Data.URL == "" {
+		t.Fatalf("Expected uploaded file URL, got empty")
+	}
+
+	// 2. Create thread and send media message
+	wa := services.InitWhatsAppService()
+	th := wa.CreateNewThread("081299991111", "Customer Lampiran", "Bio-Propolis Trigona", "Semarang", "new", "user-test-uuid")
+
+	bodyMsg, _ := json.Marshal(map[string]interface{}{
+		"text":       "Silakan cek katalog produk Bionet terlampir ya!",
+		"media_type": "document",
+		"media_url":  resUpload.Data.URL,
+		"file_name":  "katalog_bioherbal.pdf",
+	})
+	reqMsg, _ := http.NewRequest("POST", "/api/crm/whatsapp/threads/"+th.ID+"/messages", bytes.NewBuffer(bodyMsg))
+	reqMsg.Header.Set("Authorization", "Bearer "+token)
+	reqMsg.Header.Set("Content-Type", "application/json")
+	wMsg := httptest.NewRecorder()
+	router.ServeHTTP(wMsg, reqMsg)
+
+	if wMsg.Code != http.StatusOK {
+		t.Fatalf("Send media message failed: %d: %s", wMsg.Code, wMsg.Body.String())
+	}
+
+	var resMsg struct {
+		Status string                       `json:"status"`
+		Data   services.WhatsAppMessageItem `json:"data"`
+	}
+	json.Unmarshal(wMsg.Body.Bytes(), &resMsg)
+	if resMsg.Data.MediaURL != resUpload.Data.URL {
+		t.Errorf("Expected MediaURL to match %s, got %s", resUpload.Data.URL, resMsg.Data.MediaURL)
 	}
 }

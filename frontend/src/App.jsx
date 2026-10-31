@@ -23,6 +23,7 @@ import AdminMonitoringTab from './components/admin/AdminMonitoringTab';
 import AdminSystemGuideTab from './components/admin/AdminSystemGuideTab';
 import AdminSecurityThreatRadar from './components/admin/AdminSecurityThreatRadar';
 import AdminGeoTrafficMap from './components/admin/AdminGeoTrafficMap';
+import AdminBrandingTab from './components/admin/AdminBrandingTab';
 import WarehouseTab from './components/warehouse/WarehouseTab';
 import ChatTab from './components/ChatTab';
 import MeetingTab from './components/MeetingTab';
@@ -34,6 +35,7 @@ import BionetAIFloatingHub from './components/ai/BionetAIFloatingHub';
 import ProspectingCalculatorModal from './components/prospecting/ProspectingCalculatorModal';
 import DigitalMemberCardModal from './components/credentials/DigitalMemberCardModal';
 import ECertificateModal from './components/credentials/ECertificateModal';
+import BionetLuckyWheelModal from './components/gamification/BionetLuckyWheelModal';
 import PwaInstallBanner from './components/pwa/PwaInstallBanner';
 import LoginPage from './pages/LoginPage';
 import PublicStorefrontPage from './components/store/PublicStorefrontPage';
@@ -79,6 +81,20 @@ export default function App() {
   const [prospectCalculatorOpen, setProspectCalculatorOpen] = useState(false);
   const [digitalCardOpen, setDigitalCardOpen] = useState(false);
   const [certificateOpen, setCertificateOpen] = useState(false);
+  const [luckyWheelOpen, setLuckyWheelOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenWheel = () => setLuckyWheelOpen(true);
+    window.addEventListener('bionet:open-wheel', handleOpenWheel);
+    return () => window.removeEventListener('bionet:open-wheel', handleOpenWheel);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'lucky-wheel') {
+      setLuckyWheelOpen(true);
+      setActiveTab('overview');
+    }
+  }, [activeTab]);
   const [securityAlertAcknowledged, setSecurityAlertAcknowledged] = useState(() => {
     try {
       return sessionStorage.getItem('bionet_security_alert_ack') === 'true';
@@ -410,6 +426,10 @@ export default function App() {
                 <AdminGeoTrafficMap setActiveTab={setActiveTab} />
               )}
 
+              {activeTab === 'admin-branding' && (role === 'admin' || role === 'keuangan') && (
+                <AdminBrandingTab />
+              )}
+
               {/* ==================== WAREHOUSE ROLE VIEWS ==================== */}
               {(activeTab === 'warehouse-overview' ||
                 activeTab === 'warehouse-inventory' ||
@@ -521,6 +541,13 @@ export default function App() {
       <ECertificateModal
         isOpen={certificateOpen}
         onClose={() => setCertificateOpen(false)}
+        currentUser={user}
+      />
+
+      {/* Module 6: Intermezo Roda Berkah Keberuntungan Modal */}
+      <BionetLuckyWheelModal
+        isOpen={luckyWheelOpen}
+        onClose={() => setLuckyWheelOpen(false)}
         currentUser={user}
       />
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useBranding } from '../context/BrandingContext';
 import {
   LayoutDashboard,
   GitFork,
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab, user, onLogout, isOpen = true }) {
+  const { branding } = useBranding();
   const primaryMenuItems = [
     { id: 'overview', label: 'Overview & Sales', icon: LayoutDashboard, badge: 'Live' },
     { id: 'genealogy', label: 'Pohon Binary MLM', icon: GitFork },
@@ -90,20 +92,31 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, isOpe
     >
       {/* Brand Header - DashLite Demo 3 style */}
       <div className="h-16 px-5 flex items-center gap-3 border-b border-[#0d362a] bg-[#051812]">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-md shadow-emerald-900/40">
-          <Layers size={18} className="text-white" />
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md shadow-emerald-900/40 p-1 overflow-hidden"
+          style={{
+            background: branding?.logo_url
+              ? 'rgba(255, 255, 255, 0.1)'
+              : `linear-gradient(135deg, ${branding?.primary_color || '#059669'} 0%, ${branding?.secondary_color || '#06b6d4'} 100%)`,
+          }}
+        >
+          {branding?.logo_url ? (
+            <img src={branding.logo_url} alt={branding.app_name || 'Logo'} className="w-full h-full object-contain" />
+          ) : (
+            <Layers size={18} className="text-white" />
+          )}
         </div>
         <div>
           <div className="flex items-center gap-1.5">
             <h1 className="font-heading font-extrabold text-sm tracking-tight text-white leading-none">
-              BIONET
+              {branding?.app_name || 'BIONET'}
             </h1>
             <span className="text-[8px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded">
               v6
             </span>
           </div>
           <p className="text-[10px] text-emerald-400/70 font-medium tracking-wide">
-            Mitra Enterprise Hub
+            {branding?.app_tagline || 'Mitra Enterprise Hub'}
           </p>
         </div>
       </div>

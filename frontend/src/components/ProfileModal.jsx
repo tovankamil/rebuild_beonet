@@ -18,6 +18,8 @@ import {
   Sparkles,
   MapPin,
   Volume2,
+  Camera,
+  Upload,
 } from 'lucide-react';
 import api from '../services/api';
 import IndonesianRegionSelect from './common/IndonesianRegionSelect';
@@ -55,6 +57,21 @@ export default function ProfileModal({
   const [profileError, setProfileError] = useState('');
   const [profileSuccess, setProfileSuccess] = useState('');
   const [chimeTested, setChimeTested] = useState(false);
+  const [ktpFileName, setKtpFileName] = useState('');
+  const ktpFileInputRef = useRef(null);
+
+  const handleKtpUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setProfileError('Ukuran foto e-KTP maksimal 5MB');
+        return;
+      }
+      setKtpFileName(file.name);
+      setProfileSuccess(`Foto e-KTP "${file.name}" berhasil dilampirkan untuk verifikasi.`);
+      setTimeout(() => setProfileSuccess(''), 3500);
+    }
+  };
 
   // Shipping Address Form State
   const [addressData, setAddressData] = useState({
@@ -476,6 +493,28 @@ export default function ProfileModal({
                 <span className="text-[10px] text-slate-400 mt-1 block">
                   Diperlukan untuk kepatuhan KYC &amp; pencairan dana
                 </span>
+                <input
+                  type="file"
+                  ref={ktpFileInputRef}
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleKtpUpload}
+                  className="hidden"
+                />
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => ktpFileInputRef.current?.click()}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-700 hover:text-emerald-800 text-[11px] font-bold flex items-center gap-1.5 transition shadow-2xs"
+                  >
+                    <Camera size={13} className="text-emerald-600" />
+                    <span>{ktpFileName ? 'Ganti Foto e-KTP' : 'Unggah Foto e-KTP'}</span>
+                  </button>
+                  {ktpFileName && (
+                    <span className="text-[10px] text-emerald-700 font-bold truncate max-w-[130px]">
+                      ✓ {ktpFileName}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div>

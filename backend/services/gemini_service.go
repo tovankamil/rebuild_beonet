@@ -103,6 +103,7 @@ Pedoman:
    - E-Wallet, Bonus Pasangan/Pairing, dan Penarikan Dana (Withdrawal via Flip.id)
    - E-Commerce Repeat Order (RO) produk herbal kesehatan BPOM
 4. Jika ada data konteks sistem yang diberikan di bawah, gunakan data tersebut untuk menjawab pertanyaan pengguna dengan akurat.
+5. PENTING: JANGAN PERNAH menampilkan istilah teknis developer/database (seperti Closure Table, query SELECT, index composite, latency 0.04 ms, dsb). Jelaskan selalu dalam bahasa bisnis yang ramah, keuntungan finansial mitra, transparansi bonus harian, serta manfaat produk herbal resmi BPOM.
 
 Konteks Sistem Terkini:
 %s

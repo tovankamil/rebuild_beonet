@@ -39,6 +39,8 @@ type WhatsAppMessageItem struct {
 	Text      string    `json:"text"`
 	MediaURL  string    `json:"media_url,omitempty"`
 	MediaType string    `json:"media_type,omitempty"` // "text", "image", "audio", "document"
+	FileName  string    `json:"file_name,omitempty"`
+	FileSize  int64     `json:"file_size,omitempty"`
 	Status    string    `json:"status"`               // "sent", "delivered", "read"
 	SentAt    time.Time `json:"sent_at"`
 }
@@ -46,6 +48,7 @@ type WhatsAppMessageItem struct {
 // WhatsAppChatThread represents a customer conversation thread
 type WhatsAppChatThread struct {
 	ID              string                `json:"id"`
+	UserID          string                `json:"user_id,omitempty"`
 	Phone           string                `json:"phone"`
 	ContactName     string                `json:"contact_name"`
 	Avatar          string                `json:"avatar"`
@@ -122,6 +125,10 @@ type WhatsAppService struct {
 	// Follow-up Schedules
 	schedules     []models.WhatsAppSchedule
 	schedulesLock sync.RWMutex
+
+	// Contacts Hub
+	contacts     []models.WhatsAppContactModel
+	contactsLock sync.RWMutex
 
 	// Device Session
 	deviceSession WhatsAppDeviceSession
@@ -250,8 +257,9 @@ func InitWhatsAppService() *WhatsAppService {
 			},
 		}
 
-		// Clean initial follow-up schedules
+		// Clean initial follow-up schedules & contacts
 		GlobalWhatsAppService.schedules = make([]models.WhatsAppSchedule, 0)
+		GlobalWhatsAppService.contacts = make([]models.WhatsAppContactModel, 0)
 	})
 	return GlobalWhatsAppService
 }
@@ -283,12 +291,46 @@ func (s *WhatsAppService) UpdateStatus(id string, status string) bool {
 	return false
 }
 
-func (s *WhatsAppService) GetLogs() []WhatsAppLog {
+func (s *WhatsAppService) GetLogs(userContext ...string) []WhatsAppLog {
 	s.logsLock.RLock()
 	defer s.logsLock.RUnlock()
-	out := make([]WhatsAppLog, len(s.logs))
-	copy(out, s.logs)
-	return out
+
+	isAdmin := true
+	var userID string
+	if len(userContext) >= 2 {
+		userID = userContext[0]
+		role := userContext[1]
+		isAdmin = (role == "admin" || role == "superadmin" || role == "keuangan")
+	}
+
+	if isAdmin || userID == "" {
+		out := make([]WhatsAppLog, len(s.logs))
+		copy(out, s.logs)
+		return out
+	}
+
+	// Filter logs by phone numbers belonging to user's threads
+	s.threadsLock.RLock()
+	userPhones := make(map[string]bool)
+	for _, t := range s.threads {
+		if t.UserID == userID {
+			userPhones[t.Phone] = true
+			userPhones[FormatPhone(t.Phone)] = true
+			userPhones["+"+FormatPhone(t.Phone)] = true
+		}
+	}
+	s.threadsLock.RUnlock()
+
+	var filtered []WhatsAppLog
+	for _, l := range s.logs {
+		if userPhones[l.Phone] || userPhones[FormatPhone(l.Phone)] || userPhones["+"+FormatPhone(l.Phone)] {
+			filtered = append(filtered, l)
+		}
+	}
+	if filtered == nil {
+		filtered = []WhatsAppLog{}
+	}
+	return filtered
 }
 
 func (s *WhatsAppService) GetStatus() map[string]interface{} {
@@ -525,6 +567,7 @@ func (s *WhatsAppService) LoadFromDB() {
 	for _, dt := range dbThreads {
 		loadedThreads = append(loadedThreads, WhatsAppChatThread{
 			ID:              dt.ID,
+			UserID:          dt.UserID,
 			Phone:           dt.Phone,
 			ContactName:     dt.ContactName,
 			Avatar:          dt.Avatar,
@@ -551,6 +594,8 @@ func (s *WhatsAppService) LoadFromDB() {
 					Text:      dm.Text,
 					MediaURL:  dm.MediaURL,
 					MediaType: dm.MediaType,
+					FileName:  dm.FileName,
+					FileSize:  dm.FileSize,
 					Status:    dm.Status,
 					SentAt:    dm.SentAt,
 				})
@@ -562,22 +607,75 @@ func (s *WhatsAppService) LoadFromDB() {
 	log.Printf("[WhatsApp DB] Successfully loaded %d threads and message histories from MySQL", len(loadedThreads))
 }
 
-// GetChatThreads returns all customer chat conversations
-func (s *WhatsAppService) GetChatThreads() []WhatsAppChatThread {
+// GetChatThreads returns customer chat conversations, isolated by user unless admin
+func (s *WhatsAppService) GetChatThreads(userContext ...string) []WhatsAppChatThread {
 	s.ensureDBLoaded()
 	s.threadsLock.RLock()
 	defer s.threadsLock.RUnlock()
 
-	out := make([]WhatsAppChatThread, len(s.threads))
-	copy(out, s.threads)
-	return out
+	isAdmin := true
+	var userID string
+	if len(userContext) >= 2 {
+		userID = userContext[0]
+		role := userContext[1]
+		isAdmin = (role == "admin" || role == "superadmin" || role == "keuangan")
+	} else if len(userContext) == 1 && userContext[0] != "" {
+		userID = userContext[0]
+		isAdmin = false
+	}
+
+	if isAdmin {
+		out := make([]WhatsAppChatThread, len(s.threads))
+		copy(out, s.threads)
+		return out
+	}
+
+	// Regular Mitra / Member only sees their own threads
+	var filtered []WhatsAppChatThread
+	for _, t := range s.threads {
+		if t.UserID == userID {
+			filtered = append(filtered, t)
+		}
+	}
+	if filtered == nil {
+		filtered = []WhatsAppChatThread{}
+	}
+	return filtered
+}
+
+// GetThread returns a single conversation thread by ID
+func (s *WhatsAppService) GetThread(threadID string) *WhatsAppChatThread {
+	s.ensureDBLoaded()
+	s.threadsLock.RLock()
+	defer s.threadsLock.RUnlock()
+
+	for i := range s.threads {
+		if s.threads[i].ID == threadID {
+			th := s.threads[i]
+			return &th
+		}
+	}
+	return nil
 }
 
 // GetThreadMessages returns all messages for a specific conversation thread
-func (s *WhatsAppService) GetThreadMessages(threadID string) []WhatsAppMessageItem {
+func (s *WhatsAppService) GetThreadMessages(threadID string, userContext ...string) []WhatsAppMessageItem {
 	s.ensureDBLoaded()
 	s.threadsLock.RLock()
 	defer s.threadsLock.RUnlock()
+
+	if len(userContext) >= 2 {
+		userID := userContext[0]
+		role := userContext[1]
+		isAdmin := (role == "admin" || role == "superadmin" || role == "keuangan")
+		if !isAdmin && userID != "" {
+			for _, t := range s.threads {
+				if t.ID == threadID && t.UserID != "" && t.UserID != userID {
+					return []WhatsAppMessageItem{}
+				}
+			}
+		}
+	}
 
 	msgs, ok := s.messages[threadID]
 	if !ok {
@@ -601,10 +699,24 @@ func (s *WhatsAppService) GetThreadMessages(threadID string) []WhatsAppMessageIt
 	return out
 }
 
+// WhatsAppSendOptions holds optional media and user context for sending a message
+type WhatsAppSendOptions struct {
+	MediaURL string
+	FileName string
+	FileSize int64
+	UserID   string
+	Role     string
+}
+
 // SendMessageInThread sends a message in the active chat conversation
-func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string) (*WhatsAppMessageItem, error) {
-	if text == "" && mediaType == "" {
-		return nil, fmt.Errorf("message text cannot be empty")
+func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string, extraOptions ...WhatsAppSendOptions) (*WhatsAppMessageItem, error) {
+	var opts WhatsAppSendOptions
+	if len(extraOptions) > 0 {
+		opts = extraOptions[0]
+	}
+
+	if text == "" && mediaType == "" && opts.MediaURL == "" {
+		return nil, fmt.Errorf("pesan atau lampiran berkas tidak boleh kosong")
 	}
 
 	s.threadsLock.Lock()
@@ -621,20 +733,45 @@ func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string) 
 		return nil, fmt.Errorf("thread not found: %s", threadID)
 	}
 
+	// Verify ownership if user context passed
+	isAdmin := (opts.Role == "admin" || opts.Role == "superadmin" || opts.Role == "keuangan")
+	if opts.UserID != "" && !isAdmin && thread.UserID != "" && thread.UserID != opts.UserID {
+		s.threadsLock.Unlock()
+		return nil, fmt.Errorf("akses ditolak: Anda tidak memiliki akses ke percakapan ini")
+	}
+
 	now := time.Now()
 	msgID := fmt.Sprintf("msg-%d", now.UnixNano())
+	if mediaType == "" {
+		if opts.MediaURL != "" {
+			mediaType = "image"
+		} else {
+			mediaType = "text"
+		}
+	}
+
+	lastDisplay := text
+	if lastDisplay == "" && opts.FileName != "" {
+		lastDisplay = "[" + opts.FileName + "]"
+	} else if lastDisplay == "" && opts.MediaURL != "" {
+		lastDisplay = "[Lampiran Berkas]"
+	}
+
 	newMsg := WhatsAppMessageItem{
 		ID:        msgID,
 		ThreadID:  threadID,
 		Sender:    "me",
 		Text:      text,
+		MediaURL:  opts.MediaURL,
 		MediaType: mediaType,
+		FileName:  opts.FileName,
+		FileSize:  opts.FileSize,
 		Status:    "sent",
 		SentAt:    now,
 	}
 
 	s.messages[threadID] = append(s.messages[threadID], newMsg)
-	thread.LastMessage = text
+	thread.LastMessage = lastDisplay
 	thread.LastMessageTime = now
 	s.threadsLock.Unlock()
 
@@ -651,10 +788,13 @@ func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string) 
 			ThreadID:  newMsg.ThreadID,
 			Sender:    newMsg.Sender,
 			Text:      newMsg.Text,
+			MediaURL:  newMsg.MediaURL,
 			MediaType: newMsg.MediaType,
+			FileName:  newMsg.FileName,
+			FileSize:  newMsg.FileSize,
 			Status:    newMsg.Status,
 			SentAt:    newMsg.SentAt,
-		}, threadID, text, now)
+		}, threadID, lastDisplay, now)
 	}
 
 	// Also record in WhatsApp Gateway Logs
@@ -663,7 +803,7 @@ func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string) 
 		Phone:     thread.Phone,
 		Recipient: thread.ContactName,
 		Category:  "chat_conversation",
-		Message:   text,
+		Message:   lastDisplay,
 		Status:    "sent",
 		Direction: "outbound",
 		Provider:  s.provider,
@@ -672,9 +812,34 @@ func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string) 
 
 	// Also push via WAHA if connected or configured
 	if s.wahaURL != "" || s.provider == "waha" {
-		go func(phone, msgText string) {
-			_ = s.SendWAHAText(phone, msgText)
-		}(thread.Phone, text)
+		go func(phone, msgText, mURL, mType string) {
+			if mURL != "" {
+				chatId := FormatPhone(phone) + "@c.us"
+				targetURL := strings.TrimRight(s.wahaURL, "/") + "/api/sendFile"
+				reqBody, _ := json.Marshal(map[string]interface{}{
+					"session": "default",
+					"chatId":  chatId,
+					"file": map[string]string{
+						"url": mURL,
+					},
+					"caption": msgText,
+				})
+				req, err := http.NewRequest("POST", targetURL, bytes.NewBuffer(reqBody))
+				if err == nil {
+					req.Header.Set("Content-Type", "application/json")
+					if s.wahaKey != "" {
+						req.Header.Set("X-Api-Key", s.wahaKey)
+					}
+					client := &http.Client{Timeout: 15 * time.Second}
+					resp, err := client.Do(req)
+					if err == nil {
+						resp.Body.Close()
+					}
+				}
+			} else {
+				_ = s.SendWAHAText(phone, msgText)
+			}
+		}(thread.Phone, text, opts.MediaURL, mediaType)
 	}
 
 	// Background lifecycle: update status to 'delivered' and 'read'
@@ -835,15 +1000,20 @@ func (s *WhatsAppService) handleSmartIncomingReply(threadID, contactName, contac
 }
 
 // CreateNewThread adds a new chat conversation for a lead or contact
-func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, leadStage string) *WhatsAppChatThread {
+func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, leadStage string, userID ...string) *WhatsAppChatThread {
 	s.threadsLock.Lock()
+
+	uID := ""
+	if len(userID) > 0 {
+		uID = userID[0]
+	}
 
 	formatted := FormatPhone(phone)
 	threadID := fmt.Sprintf("thread-%d", time.Now().UnixNano())
 
-	// Check if already exists
+	// Check if already exists for this user
 	for i := range s.threads {
-		if s.threads[i].Phone == "+"+formatted || s.threads[i].Phone == formatted {
+		if (s.threads[i].Phone == "+"+formatted || s.threads[i].Phone == formatted) && (uID == "" || s.threads[i].UserID == uID) {
 			existing := &s.threads[i]
 			s.threadsLock.Unlock()
 			return existing
@@ -852,6 +1022,7 @@ func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, lea
 
 	newThread := WhatsAppChatThread{
 		ID:              threadID,
+		UserID:          uID,
 		Phone:           "+" + formatted,
 		ContactName:     contactName,
 		Avatar:          fmt.Sprintf("https://api.dicebear.com/7.x/initials/svg?seed=%s", contactName),
@@ -873,6 +1044,7 @@ func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, lea
 		go func(t WhatsAppChatThread) {
 			mThread := models.WhatsAppThreadModel{
 				ID:              t.ID,
+				UserID:          t.UserID,
 				Phone:           t.Phone,
 				ContactName:     t.ContactName,
 				Avatar:          t.Avatar,
@@ -894,9 +1066,22 @@ func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, lea
 }
 
 // DeleteThread removes a conversation thread and its messages
-func (s *WhatsAppService) DeleteThread(threadID string) bool {
+func (s *WhatsAppService) DeleteThread(threadID string, userContext ...string) bool {
 	s.threadsLock.Lock()
 	defer s.threadsLock.Unlock()
+
+	if len(userContext) >= 2 {
+		userID := userContext[0]
+		role := userContext[1]
+		isAdmin := (role == "admin" || role == "superadmin" || role == "keuangan")
+		if !isAdmin && userID != "" {
+			for _, t := range s.threads {
+				if t.ID == threadID && t.UserID != "" && t.UserID != userID {
+					return false
+				}
+			}
+		}
+	}
 
 	found := false
 	newThreads := make([]WhatsAppChatThread, 0, len(s.threads))
@@ -1543,35 +1728,110 @@ type WhatsAppContactImportItem struct {
 	Notes    string `json:"notes"`
 }
 
-// GetContacts returns all stored WhatsApp CRM contacts
-func (s *WhatsAppService) GetContacts() []models.WhatsAppContactModel {
+// GetContacts returns stored WhatsApp CRM contacts (isolated by user unless admin)
+func (s *WhatsAppService) GetContacts(userContext ...string) []models.WhatsAppContactModel {
 	s.ensureDBLoaded()
-	if config.DB == nil {
-		return []models.WhatsAppContactModel{}
+
+	isAdmin := true
+	var userID string
+	if len(userContext) >= 2 {
+		userID = userContext[0]
+		role := userContext[1]
+		isAdmin = (role == "admin" || role == "superadmin" || role == "keuangan")
+	} else if len(userContext) == 1 && userContext[0] != "" {
+		userID = userContext[0]
+		isAdmin = false
 	}
-	var contacts []models.WhatsAppContactModel
-	if err := config.DB.Order("created_at desc").Find(&contacts).Error; err != nil {
-		log.Printf("[GetContacts Error] %v", err)
-		return []models.WhatsAppContactModel{}
+
+	if config.DB != nil {
+		var contacts []models.WhatsAppContactModel
+		query := config.DB.Order("created_at desc")
+		if !isAdmin {
+			query = query.Where("user_id = ?", userID)
+		} else if userID != "" {
+			query = query.Where("user_id = ?", userID)
+		}
+		if err := query.Find(&contacts).Error; err != nil {
+			log.Printf("[GetContacts Error] %v", err)
+			return []models.WhatsAppContactModel{}
+		}
+		return contacts
 	}
-	return contacts
+
+	// In-memory fallback if DB not connected (e.g. test environment)
+	s.contactsLock.RLock()
+	defer s.contactsLock.RUnlock()
+	if isAdmin {
+		out := make([]models.WhatsAppContactModel, len(s.contacts))
+		copy(out, s.contacts)
+		return out
+	}
+
+	var filtered []models.WhatsAppContactModel
+	for _, c := range s.contacts {
+		if c.UserID == userID {
+			filtered = append(filtered, c)
+		}
+	}
+	if filtered == nil {
+		filtered = []models.WhatsAppContactModel{}
+	}
+	return filtered
 }
 
 // SaveContact creates or updates an individual contact
-func (s *WhatsAppService) SaveContact(c models.WhatsAppContactModel) (*models.WhatsAppContactModel, error) {
+func (s *WhatsAppService) SaveContact(c models.WhatsAppContactModel, userContext ...string) (*models.WhatsAppContactModel, error) {
 	s.ensureDBLoaded()
 	c.Phone = FormatPhone(c.Phone)
 	if c.Phone == "" || c.Name == "" {
 		return nil, fmt.Errorf("nama dan nomor HP wajib diisi")
 	}
+
+	ownerID := c.UserID
+	if len(userContext) >= 1 && userContext[0] != "" {
+		ownerID = userContext[0]
+		c.UserID = ownerID
+	}
+	if c.ID == "" {
+		c.ID = fmt.Sprintf("c-%d", time.Now().UnixNano())
+	}
+
+	// In-memory cache sync
+	s.contactsLock.Lock()
+	existingIdx := -1
+	for i, ct := range s.contacts {
+		if ct.Phone == c.Phone && (ownerID == "" || ct.UserID == ownerID) {
+			existingIdx = i
+			break
+		}
+	}
+	if existingIdx >= 0 {
+		s.contacts[existingIdx].Name = c.Name
+		s.contacts[existingIdx].City = c.City
+		s.contacts[existingIdx].Category = c.Category
+		s.contacts[existingIdx].Tags = c.Tags
+		s.contacts[existingIdx].Notes = c.Notes
+	} else {
+		s.contacts = append([]models.WhatsAppContactModel{c}, s.contacts...)
+	}
+	s.contactsLock.Unlock()
+
 	if config.DB != nil {
 		var existing models.WhatsAppContactModel
-		if err := config.DB.Where("phone = ?", c.Phone).First(&existing).Error; err == nil {
+		findQuery := config.DB.Where("phone = ?", c.Phone)
+		if ownerID != "" {
+			findQuery = config.DB.Where("phone = ? AND user_id = ?", c.Phone, ownerID)
+		}
+
+		if err := findQuery.First(&existing).Error; err == nil {
 			existing.Name = c.Name
 			existing.City = c.City
 			existing.Category = c.Category
 			existing.Tags = c.Tags
 			existing.Notes = c.Notes
+			if ownerID != "" {
+				existing.UserID = ownerID
+			}
 			config.DB.Save(&existing)
 			return &existing, nil
 		}
@@ -1582,19 +1842,45 @@ func (s *WhatsAppService) SaveContact(c models.WhatsAppContactModel) (*models.Wh
 	return &c, nil
 }
 
-// DeleteContact removes a contact by ID
-func (s *WhatsAppService) DeleteContact(id string) error {
-	if config.DB == nil {
-		return fmt.Errorf("database not connected")
+// DeleteContact removes a contact by ID (scoped to owner unless admin)
+func (s *WhatsAppService) DeleteContact(id string, userContext ...string) error {
+	isAdmin := true
+	var userID string
+	if len(userContext) >= 2 {
+		userID = userContext[0]
+		role := userContext[1]
+		isAdmin = (role == "admin" || role == "superadmin" || role == "keuangan")
 	}
-	return config.DB.Where("id = ?", id).Delete(&models.WhatsAppContactModel{}).Error
+
+	s.contactsLock.Lock()
+	for i, ct := range s.contacts {
+		if ct.ID == id && (isAdmin || ct.UserID == userID) {
+			s.contacts = append(s.contacts[:i], s.contacts[i+1:]...)
+			break
+		}
+	}
+	s.contactsLock.Unlock()
+
+	if config.DB != nil {
+		query := config.DB.Where("id = ?", id)
+		if !isAdmin && userID != "" {
+			query = query.Where("user_id = ?", userID)
+		}
+		return query.Delete(&models.WhatsAppContactModel{}).Error
+	}
+	return nil
 }
 
 // ImportContacts parses and persists bulk contacts with phone standardization
-func (s *WhatsAppService) ImportContacts(items []WhatsAppContactImportItem) (int, error) {
+func (s *WhatsAppService) ImportContacts(items []WhatsAppContactImportItem, userContext ...string) (int, error) {
 	s.ensureDBLoaded()
 	if len(items) == 0 {
 		return 0, fmt.Errorf("daftar kontak kosong")
+	}
+
+	ownerID := ""
+	if len(userContext) >= 1 {
+		ownerID = userContext[0]
 	}
 
 	importedCount := 0
@@ -1613,28 +1899,45 @@ func (s *WhatsAppService) ImportContacts(items []WhatsAppContactImportItem) (int
 			city = "Indonesia"
 		}
 
+		newContact := models.WhatsAppContactModel{
+			ID:       fmt.Sprintf("c-imp-%d-%d", time.Now().UnixNano(), importedCount),
+			UserID:   ownerID,
+			Phone:    cleanPhone,
+			Name:     it.Name,
+			City:     city,
+			Category: cat,
+			Tags:     it.Tags,
+			Notes:    it.Notes,
+		}
+
+		s.contactsLock.Lock()
+		s.contacts = append([]models.WhatsAppContactModel{newContact}, s.contacts...)
+		s.contactsLock.Unlock()
+
 		if config.DB != nil {
 			var existing models.WhatsAppContactModel
-			if err := config.DB.Where("phone = ?", cleanPhone).First(&existing).Error; err == nil {
+			findQuery := config.DB.Where("phone = ?", cleanPhone)
+			if ownerID != "" {
+				findQuery = config.DB.Where("phone = ? AND user_id = ?", cleanPhone, ownerID)
+			}
+
+			if err := findQuery.First(&existing).Error; err == nil {
 				existing.Name = it.Name
 				existing.City = city
 				existing.Category = cat
 				existing.Tags = it.Tags
 				existing.Notes = it.Notes
+				if ownerID != "" {
+					existing.UserID = ownerID
+				}
 				config.DB.Save(&existing)
 			} else {
-				newContact := models.WhatsAppContactModel{
-					Phone:    cleanPhone,
-					Name:     it.Name,
-					City:     city,
-					Category: cat,
-					Tags:     it.Tags,
-					Notes:    it.Notes,
-				}
 				config.DB.Create(&newContact)
 			}
 		}
 
+		// Ensure thread exists for this contact
+		s.CreateNewThread(cleanPhone, it.Name, "Bio-Propolis Trigona 30ml", city, "new", ownerID)
 		importedCount++
 	}
 
@@ -1666,6 +1969,143 @@ func (s *WhatsAppService) SyncNewMemberContact(phone, fullName, username, packag
 
 	// Create or find thread (strictly no auto-blast: messages only sent upon explicit user action)
 	_ = s.CreateNewThread(cleanPhone, fullName, "Kemitraan "+packageName, "Indonesia", "closing")
+
+	return nil
+}
+
+// SendRegistrationWelcomeMessages dispatches automated WhatsApp welcome greeting to the new mitra
+// and a sponsoring celebration notification to the sponsor.
+func (s *WhatsAppService) SendRegistrationWelcomeMessages(sponsor models.User, newMember models.User, packageName string, position string, uplineUsername string, sponsorBonus float64) error {
+	s.ensureDBLoaded()
+
+	memberPhone := ""
+	if newMember.Phone != nil {
+		memberPhone = *newMember.Phone
+	}
+	cleanMemberPhone := FormatPhone(memberPhone)
+
+	sponsorPhone := ""
+	if sponsor.Phone != nil {
+		sponsorPhone = *sponsor.Phone
+	}
+	cleanSponsorPhone := FormatPhone(sponsorPhone)
+
+	// 1. Sync contact into Sponsor's WhatsApp Contact book with UserID isolation
+	if cleanMemberPhone != "" {
+		if config.DB != nil {
+			var contact models.WhatsAppContactModel
+			query := config.DB.Where("phone = ?", cleanMemberPhone)
+			if sponsor.ID != "" {
+				query = query.Where("user_id = ?", sponsor.ID)
+			}
+			if err := query.First(&contact).Error; err != nil {
+				contact = models.WhatsAppContactModel{
+					UserID:   sponsor.ID,
+					Phone:    cleanMemberPhone,
+					Name:     newMember.FullName,
+					City:     "Mitra Bionet",
+					Category: "member",
+					Tags:     "Mitra Baru, Paket " + packageName,
+					Notes:    fmt.Sprintf("Username: @%s | Sponsor: @%s | Posisi: Kaki %s", newMember.Username, sponsor.Username, strings.Title(position)),
+				}
+				config.DB.Create(&contact)
+			}
+		}
+
+		// Also register thread under sponsor's user_id
+		newThread := s.CreateNewThread(cleanMemberPhone, newMember.FullName, "Kemitraan "+packageName, "Indonesia", "closing")
+		if newThread != nil && sponsor.ID != "" {
+			s.threadsLock.Lock()
+			newThread.UserID = sponsor.ID
+			s.threadsLock.Unlock()
+			if config.DB != nil {
+				config.DB.Model(&models.WhatsAppThreadModel{}).Where("id = ?", newThread.ID).Update("user_id", sponsor.ID)
+			}
+		}
+
+		// 2. Format & Send Welcome WhatsApp Message to the New Member
+		welcomeMsg := fmt.Sprintf(`🌿 *SELAMAT DATANG DI KELUARGA BESAR BIONET INDONESIA!* 🌿
+
+Halo *%s*,
+Selamat bergabung! Akun kemitraan bisnis Bionet Anda telah resmi diaktifkan.
+
+Berikut rincian akun kemitraan Anda:
+━━━━━━━━━━━━━━━━━━━━━━━
+👤 *Nama Lengkap* : %s
+🆔 *Username* : @%s
+📦 *Paket Aktivasi* : %s
+🤝 *Sponsor Langsung* : %s (@%s)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 *Langkah Awal Sukses Anda:*
+1. Akses Portal Dashboard Resmi Kemitraan:
+   🔗 https://bionet.id/login
+2. Masuk menggunakan username *@%s* dan kata sandi yang telah didaftarkan.
+3. Hubungi sponsor Anda (@%s) untuk bimbingan awal, strategi pemasaran, serta akses grup edukasi komunitas.
+
+_“Perjalanan ribuan mil selalu dimulai dari satu langkah berani. Selamat berjuang dan meraih kebebasan finansial bersama Bionet!”_
+
+Salam Sukses Luar Biasa,
+*Manajemen Bionet Indonesia*`,
+			newMember.FullName,
+			newMember.FullName,
+			newMember.Username,
+			packageName,
+			sponsor.FullName,
+			sponsor.Username,
+			newMember.Username,
+			sponsor.Username,
+		)
+
+		_, _ = s.SendCrmDirectMessage(cleanMemberPhone, newMember.FullName, "registration", welcomeMsg)
+
+		// Record outbound chat bubble in thread if thread exists
+		if newThread != nil {
+			_, _ = s.SendMessageInThread(newThread.ID, welcomeMsg, "text")
+		}
+	}
+
+	// 3. Format & Send Notification WhatsApp Message to the Sponsor
+	if cleanSponsorPhone != "" {
+		encodedName := strings.ReplaceAll(newMember.FullName, " ", "%20")
+		sponsorMsg := fmt.Sprintf(`🎉 *SELAMAT! ANDA MENDAPATKAN MITRA BARU DI BIONET* 🎉
+
+Halo *%s* (@%s),
+Kabar gembira! Anda baru saja berhasil mendaftarkan dan mensponsori mitra baru ke dalam jaringan bisnis Anda.
+
+Berikut rincian data mitra baru Anda:
+━━━━━━━━━━━━━━━━━━━━━━━
+👤 *Nama Mitra* : %s
+🆔 *Username* : @%s
+📦 *Paket Lisensi* : %s
+📱 *Nomor WhatsApp* : +%s
+📍 *Posisi Struktur* : Kaki %s (Upline @%s)
+💰 *Bonus Sponsor* : Rp %.0f (Kredit Instan)
+━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 *Langkah Rekomendasi Sponsor:*
+Segera hubungi dan berikan sambutan hangat kepada mitra baru Anda, serta undang ke grup pembinaan tim:
+📲 Chat WhatsApp Mitra: https://wa.me/%s?text=Halo%%20%s,%%20selamat%%20datang%%20di%%20keluarga%%20besar%%20Bionet!%%20Saya%%20siap%%20membimbing%%20Anda.
+
+Mari bangun jaringan yang solid dan raih impian sukses bersama Bionet!
+
+Salam Hangat,
+*Sistem Kemitraan Bionet*`,
+			sponsor.FullName,
+			sponsor.Username,
+			newMember.FullName,
+			newMember.Username,
+			packageName,
+			cleanMemberPhone,
+			strings.Title(position),
+			uplineUsername,
+			sponsorBonus,
+			cleanMemberPhone,
+			encodedName,
+		)
+
+		_, _ = s.SendCrmDirectMessage(cleanSponsorPhone, sponsor.FullName, "registration", sponsorMsg)
+	}
 
 	return nil
 }

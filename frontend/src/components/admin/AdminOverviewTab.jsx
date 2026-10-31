@@ -16,6 +16,7 @@ import {
   BookOpen,
   Activity,
   Globe,
+  Palette,
 } from 'lucide-react';
 import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
@@ -102,6 +103,14 @@ export default function AdminOverviewTab({ setActiveTab }) {
         <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
           {setActiveTab && (
             <>
+              <button
+                onClick={() => setActiveTab('admin-branding')}
+                className="px-3.5 py-2 rounded-lg bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+                title="Kustomisasi logo aplikasi dan tema warna dashboard"
+              >
+                <Palette size={14} className="text-emerald-600" />
+                <span>Branding &amp; Tema Warna</span>
+              </button>
               <button
                 onClick={() => setActiveTab('admin-security')}
                 className="px-3.5 py-2 rounded-lg bg-rose-50 border border-rose-200 hover:bg-rose-100 text-rose-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"

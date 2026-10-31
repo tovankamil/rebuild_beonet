@@ -18,10 +18,12 @@ import {
   Activity,
 } from 'lucide-react';
 import api from '../services/api';
+import { useBranding } from '../context/BrandingContext';
 import BionetAmbientBackground from '../components/BionetAmbientBackground';
 import ModalPortal from '../components/common/ModalPortal';
 
 export default function LoginPage({ onLoginSuccess }) {
+  const { branding } = useBranding();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -43,8 +45,8 @@ export default function LoginPage({ onLoginSuccess }) {
       desc: 'Setiap bonus sponsor dan pairing otomatis terkirim langsung ke rekening bank atau e-wallet Anda.',
     },
     {
-      title: 'Algoritma Binary Tree Anti-Sybil',
-      desc: 'Penyimpanan pohon jaringan dengan Closure Table berkinerja tinggi, menjamin integritas 100% data kemitraan.',
+      title: 'Kemitraan Terpercaya & Berkelanjutan',
+      desc: 'Sistem kemitraan adil, transparan, dan terpercaya untuk seluruh keluarga besar mitra Bionet Indonesia.',
     },
   ];
 
@@ -107,12 +109,12 @@ export default function LoginPage({ onLoginSuccess }) {
       <main className="relative z-10 w-full max-w-[1100px] my-auto py-5 transition-all duration-500">
         <div className="w-full bg-slate-950/80 sm:bg-slate-950/75 backdrop-blur-3xl rounded-[32px] sm:rounded-[38px] border border-emerald-500/20 shadow-[0_30px_100px_-15px_rgba(0,0,0,0.85),0_0_50px_rgba(16,185,129,0.12)] p-3 sm:p-5 transition-all duration-500">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch">
-            
+
             {/* ==============================================================
                 LEFT COLUMN: Bespoke 3D Bio-Tech Visual & Holographic Badges
                 ============================================================== */}
             <div className="lg:col-span-6 rounded-[26px] sm:rounded-[32px] relative overflow-hidden flex flex-col justify-between p-5 sm:p-8 min-h-[220px] sm:min-h-[380px] lg:min-h-[610px] bg-gradient-to-b from-slate-900/90 via-slate-950/95 to-slate-950 border border-white/10 shadow-inner group">
-              
+
               {/* Background Bespoke 3D Planet Image with Slow Ambient Drift */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <img
@@ -207,9 +209,22 @@ export default function LoginPage({ onLoginSuccess }) {
               <div>
                 {/* Brand Logo Badge with Glowing Gradient Ring */}
                 <div className="flex items-center justify-between">
-                  <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-emerald-400 p-0.5 shadow-lg shadow-emerald-500/25">
-                    <div className="w-full h-full rounded-[14px] bg-slate-950 flex items-center justify-center">
-                      <Layers size={22} className="text-emerald-400" />
+                  <div
+                    className="w-13 h-13 rounded-2xl p-0.5 shadow-lg shadow-emerald-500/25"
+                    style={{
+                      background: `linear-gradient(135deg, ${branding?.primary_color || '#10b981'} 0%, ${branding?.secondary_color || '#06b6d4'} 100%)`,
+                    }}
+                  >
+                    <div className="w-full h-full rounded-[14px] bg-slate-950 flex items-center justify-center p-1.5 overflow-hidden">
+                      {branding?.logo_url ? (
+                        <img
+                          src={branding.logo_url}
+                          alt={branding.app_name || 'Logo'}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <Layers size={22} className="text-emerald-400" />
+                      )}
                     </div>
                   </div>
 
@@ -222,7 +237,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 {/* Heading & Subtitle */}
                 <div className="mt-5 mb-6">
                   <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-emerald-300 bg-clip-text text-transparent">
-                    Portal Mitra Juara
+                    Portal Mitra {branding?.app_name || 'Bionet'}
                   </h1>
                   <p className="text-xs text-slate-400 mt-1">
                     Masuk untuk memantau omset tim, struktur jaringan, dan bonus harian Anda

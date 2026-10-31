@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -307,9 +309,35 @@ func (h *CRMHandler) GetHealthRecords(c *gin.Context) {
 	db := config.DB
 
 	if db == nil {
+		mockRecords := []models.CustomerHealthRecord{
+			{
+				ID:                 "rec-mock-1",
+				UserID:             userID,
+				CustomerName:       "Ibu Siti Aminah",
+				Phone:              "081234567890",
+				Product:            "Bio-Propolis Trigona 30ml",
+				ChiefComplaint:     "Asam urat dan nyeri sendi lutut",
+				DosageInstructions: "3x sehari 5 tetes dilarutkan air hangat",
+				StartDate:          time.Now().AddDate(0, 0, -3),
+				CurrentMilestone:   "day_3",
+				HealthNotes:        "Nyeri lutut mulai mereda, konsumsi rutin pagi dan malam.",
+			},
+			{
+				ID:                 "rec-mock-2",
+				UserID:             userID,
+				CustomerName:       "Bapak Hendra Gunawan",
+				Phone:              "081398765432",
+				Product:            "Bio-Propolis Trigona 30ml",
+				ChiefComplaint:     "Lambung kronis / GERD",
+				DosageInstructions: "2x sehari 7 tetes",
+				StartDate:          time.Now().AddDate(0, 0, -7),
+				CurrentMilestone:   "day_7",
+				HealthNotes:        "Rasa perih lambung berkurang signifikan setelah hari ke-5.",
+			},
+		}
 		c.JSON(http.StatusOK, gin.H{
 			"status": "success",
-			"data":   []models.CustomerHealthRecord{},
+			"data":   mockRecords,
 		})
 		return
 	}
@@ -1239,10 +1267,12 @@ func (h *CRMHandler) SendDirectWhatsApp(c *gin.Context) {
 	})
 }
 
-// GetWhatsAppGatewayLogs mengembalikan riwayat pesan terkirim & status centang delivery
+// GetWhatsAppGatewayLogs mengembalikan riwayat pesan terkirim & status centang delivery (terisolasi per mitra, semua jika admin)
 func (h *CRMHandler) GetWhatsAppGatewayLogs(c *gin.Context) {
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
 	waService := services.InitWhatsAppService()
-	logs := waService.GetLogs()
+	logs := waService.GetLogs(userID, role)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
@@ -1414,10 +1444,86 @@ func (h *CRMHandler) WhatsAppWebhookListener(c *gin.Context) {
 	})
 }
 
-// GetWhatsAppThreads mengembalikan semua daftar percakapan aktif WhatsApp (Chat List)
+// UploadWhatsAppAttachment mengunggah berkas gambar atau dokumen untuk chat WhatsApp (Maksimum 10MB)
+// Endpoint: POST /api/crm/whatsapp/upload
+func (h *CRMHandler) UploadWhatsAppAttachment(c *gin.Context) {
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Unauthorized"})
+		return
+	}
+
+	const maxFileSize = 10 * 1024 * 1024 // 10MB
+	file, header, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Gagal membaca berkas lampiran: " + err.Error()})
+		return
+	}
+	defer file.Close()
+
+	if header.Size > maxFileSize {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Ukuran berkas melebihi batas maksimum 10MB"})
+		return
+	}
+
+	ext := strings.ToLower(filepath.Ext(header.Filename))
+	allowedExts := map[string]string{
+		".jpg":  "image",
+		".jpeg": "image",
+		".png":  "image",
+		".webp": "image",
+		".gif":  "image",
+		".pdf":  "document",
+		".doc":  "document",
+		".docx": "document",
+		".xls":  "document",
+		".xlsx": "document",
+		".txt":  "document",
+		".mp3":  "audio",
+		".ogg":  "audio",
+		".wav":  "audio",
+		".mp4":  "video",
+	}
+
+	fileType, allowed := allowedExts[ext]
+	if !allowed {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Format berkas tidak didukung. Format yang diizinkan: JPG, PNG, WEBP, GIF, PDF, DOCX, XLSX, TXT, MP3, MP4"})
+		return
+	}
+
+	uploadDir := "./uploads/whatsapp"
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal membuat direktori upload"})
+		return
+	}
+
+	cleanFileName := strings.ReplaceAll(header.Filename, " ", "_")
+	uniqueFilename := fmt.Sprintf("%s_%s", uuid.New().String()[:8], cleanFileName)
+	savePath := filepath.Join(uploadDir, uniqueFilename)
+
+	if err := c.SaveUploadedFile(header, savePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal menyimpan berkas ke server: " + err.Error()})
+		return
+	}
+
+	fileURL := "/uploads/whatsapp/" + uniqueFilename
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data": gin.H{
+			"url":  fileURL,
+			"name": header.Filename,
+			"size": header.Size,
+			"type": fileType,
+		},
+	})
+}
+
+// GetWhatsAppThreads mengembalikan semua daftar percakapan aktif WhatsApp (terisolasi per mitra, semua jika admin)
 func (h *CRMHandler) GetWhatsAppThreads(c *gin.Context) {
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
 	waService := services.InitWhatsAppService()
-	threads := waService.GetChatThreads()
+	threads := waService.GetChatThreads(userID, role)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
@@ -1426,11 +1532,26 @@ func (h *CRMHandler) GetWhatsAppThreads(c *gin.Context) {
 	})
 }
 
-// GetWhatsAppThreadMessages mengembalikan riwayat pesan di satu obrolan
+// GetWhatsAppThreadMessages mengembalikan riwayat pesan di satu obrolan (validasi akses per mitra)
 func (h *CRMHandler) GetWhatsAppThreadMessages(c *gin.Context) {
 	threadID := c.Param("id")
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
+	isAdmin := (role == "admin" || role == "superadmin" || role == "keuangan")
+
 	waService := services.InitWhatsAppService()
-	messages := waService.GetThreadMessages(threadID)
+	thread := waService.GetThread(threadID)
+	if thread == nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Obrolan tidak ditemukan"})
+		return
+	}
+
+	if !isAdmin && thread.UserID != "" && thread.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"status": "error", "message": "Akses ditolak: Anda tidak memiliki akses ke percakapan ini"})
+		return
+	}
+
+	messages := waService.GetThreadMessages(threadID, userID, role)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":    "success",
@@ -1440,21 +1561,50 @@ func (h *CRMHandler) GetWhatsAppThreadMessages(c *gin.Context) {
 	})
 }
 
-// SendWhatsAppThreadMessage mengirim pesan langsung ke dalam chat room obrolan
+// SendWhatsAppThreadMessage mengirim pesan langsung atau berkas ke dalam chat room obrolan
 func (h *CRMHandler) SendWhatsAppThreadMessage(c *gin.Context) {
 	threadID := c.Param("id")
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
+	isAdmin := (role == "admin" || role == "superadmin" || role == "keuangan")
+
 	var req struct {
-		Text      string `json:"text" binding:"required"`
+		Text      string `json:"text"`
 		MediaType string `json:"media_type"`
+		MediaURL  string `json:"media_url"`
+		FileName  string `json:"file_name"`
+		FileSize  int64  `json:"file_size"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Pesan tidak boleh kosong"})
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Format pesan tidak valid"})
+		return
+	}
+
+	if strings.TrimSpace(req.Text) == "" && strings.TrimSpace(req.MediaURL) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Pesan atau berkas lampiran tidak boleh kosong"})
 		return
 	}
 
 	waService := services.InitWhatsAppService()
-	msg, err := waService.SendMessageInThread(threadID, req.Text, req.MediaType)
+	thread := waService.GetThread(threadID)
+	if thread == nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Obrolan tidak ditemukan"})
+		return
+	}
+
+	if !isAdmin && thread.UserID != "" && thread.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"status": "error", "message": "Akses ditolak: Anda tidak memiliki akses ke percakapan ini"})
+		return
+	}
+
+	msg, err := waService.SendMessageInThread(threadID, req.Text, req.MediaType, services.WhatsAppSendOptions{
+		MediaURL: req.MediaURL,
+		FileName: req.FileName,
+		FileSize: req.FileSize,
+		UserID:   userID,
+		Role:     role,
+	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
 		return
@@ -1469,6 +1619,7 @@ func (h *CRMHandler) SendWhatsAppThreadMessage(c *gin.Context) {
 
 // CreateWhatsAppThread membuat thread obrolan baru dengan nomor kontak
 func (h *CRMHandler) CreateWhatsAppThread(c *gin.Context) {
+	userID := c.GetString("user_id")
 	var req struct {
 		Phone       string `json:"phone" binding:"required"`
 		ContactName string `json:"contact_name" binding:"required"`
@@ -1490,7 +1641,7 @@ func (h *CRMHandler) CreateWhatsAppThread(c *gin.Context) {
 	}
 
 	waService := services.InitWhatsAppService()
-	thread := waService.CreateNewThread(req.Phone, req.ContactName, req.Product, req.City, req.LeadStage)
+	thread := waService.CreateNewThread(req.Phone, req.ContactName, req.Product, req.City, req.LeadStage, userID)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
@@ -1502,8 +1653,23 @@ func (h *CRMHandler) CreateWhatsAppThread(c *gin.Context) {
 // DeleteWhatsAppThread menghapus sebuah obrolan chat
 func (h *CRMHandler) DeleteWhatsAppThread(c *gin.Context) {
 	threadID := c.Param("id")
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
+	isAdmin := (role == "admin" || role == "superadmin" || role == "keuangan")
+
 	waService := services.InitWhatsAppService()
-	deleted := waService.DeleteThread(threadID)
+	thread := waService.GetThread(threadID)
+	if thread == nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Obrolan tidak ditemukan"})
+		return
+	}
+
+	if !isAdmin && thread.UserID != "" && thread.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"status": "error", "message": "Akses ditolak: Anda tidak memiliki akses ke percakapan ini"})
+		return
+	}
+
+	deleted := waService.DeleteThread(threadID, userID, role)
 	if !deleted {
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Obrolan tidak ditemukan"})
 		return
@@ -1872,11 +2038,13 @@ func (h *CRMHandler) DeleteWhatsAppSchedule(c *gin.Context) {
 // WHATSAPP CONTACT BOOK & BULK IMPORT HANDLERS
 // =========================================================================
 
-// GetWhatsAppContacts mengambil daftar kontak tersimpan di CRM
+// GetWhatsAppContacts mengambil daftar kontak tersimpan di CRM (terisolasi per mitra, semua jika admin)
 // Endpoint: GET /api/crm/whatsapp/contacts
 func (h *CRMHandler) GetWhatsAppContacts(c *gin.Context) {
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
 	waService := services.InitWhatsAppService()
-	contacts := waService.GetContacts()
+	contacts := waService.GetContacts(userID, role)
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data":   contacts,
@@ -1884,7 +2052,7 @@ func (h *CRMHandler) GetWhatsAppContacts(c *gin.Context) {
 	})
 }
 
-// CreateWhatsAppContact menyimpan kontak individu baru
+// CreateWhatsAppContact menyimpan kontak individu baru (terikat ke mitra yang login)
 // Endpoint: POST /api/crm/whatsapp/contacts
 func (h *CRMHandler) CreateWhatsAppContact(c *gin.Context) {
 	var req models.WhatsAppContactModel
@@ -1898,12 +2066,13 @@ func (h *CRMHandler) CreateWhatsAppContact(c *gin.Context) {
 	}
 
 	userID := c.GetString("user_id")
+	role := c.GetString("role")
 	if req.UserID == "" {
 		req.UserID = userID
 	}
 
 	waService := services.InitWhatsAppService()
-	saved, err := waService.SaveContact(req)
+	saved, err := waService.SaveContact(req, userID, role)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -1912,8 +2081,8 @@ func (h *CRMHandler) CreateWhatsAppContact(c *gin.Context) {
 		return
 	}
 
-	// Also ensure thread exists
-	waService.CreateNewThread(saved.Phone, saved.Name, "Bio-Propolis Trigona 30ml", saved.City, "new")
+	// Also ensure thread exists for this user
+	waService.CreateNewThread(saved.Phone, saved.Name, "Bio-Propolis Trigona 30ml", saved.City, "new", userID)
 
 	c.JSON(http.StatusCreated, gin.H{
 		"status":  "success",
@@ -1922,7 +2091,7 @@ func (h *CRMHandler) CreateWhatsAppContact(c *gin.Context) {
 	})
 }
 
-// ImportWhatsAppContacts memproses import kontak massal (CSV/Excel/vCard/Paste)
+// ImportWhatsAppContacts memproses import kontak massal (CSV/Excel/vCard/Paste) terikat ke mitra yang login
 // Endpoint: POST /api/crm/whatsapp/contacts/import
 func (h *CRMHandler) ImportWhatsAppContacts(c *gin.Context) {
 	var req struct {
@@ -1938,8 +2107,9 @@ func (h *CRMHandler) ImportWhatsAppContacts(c *gin.Context) {
 		return
 	}
 
+	userID := c.GetString("user_id")
 	waService := services.InitWhatsAppService()
-	count, err := waService.ImportContacts(req.Contacts)
+	count, err := waService.ImportContacts(req.Contacts, userID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -1955,7 +2125,7 @@ func (h *CRMHandler) ImportWhatsAppContacts(c *gin.Context) {
 	})
 }
 
-// DeleteWhatsAppContact menghapus kontak berdasarkan ID
+// DeleteWhatsAppContact menghapus kontak berdasarkan ID (hanya milik mitra sendiri, atau semua jika admin)
 // Endpoint: DELETE /api/crm/whatsapp/contacts/:id
 func (h *CRMHandler) DeleteWhatsAppContact(c *gin.Context) {
 	id := c.Param("id")
@@ -1964,8 +2134,11 @@ func (h *CRMHandler) DeleteWhatsAppContact(c *gin.Context) {
 		return
 	}
 
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
+
 	waService := services.InitWhatsAppService()
-	if err := waService.DeleteContact(id); err != nil {
+	if err := waService.DeleteContact(id, userID, role); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
 		return
 	}
@@ -1983,6 +2156,10 @@ func (h *CRMHandler) DeleteWhatsAppContact(c *gin.Context) {
 // GenerateWhatsAppAIReply menghasilkan draf balasan cerdas berbasis Gemini LLM
 // Endpoint: POST /api/crm/whatsapp/ai-reply
 func (h *CRMHandler) GenerateWhatsAppAIReply(c *gin.Context) {
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
+	isAdmin := (role == "admin" || role == "superadmin" || role == "keuangan")
+
 	var req struct {
 		ThreadID string `json:"thread_id" binding:"required"`
 		Goal     string `json:"goal"` // "closing", "bpom", "repeat_order", "consultation"
@@ -1997,11 +2174,22 @@ func (h *CRMHandler) GenerateWhatsAppAIReply(c *gin.Context) {
 		return
 	}
 
+	waService := services.InitWhatsAppService()
+	thread := waService.GetThread(req.ThreadID)
+	if thread == nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Obrolan tidak ditemukan"})
+		return
+	}
+
+	if !isAdmin && thread.UserID != "" && thread.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"status": "error", "message": "Akses ditolak: Anda tidak memiliki akses ke percakapan ini"})
+		return
+	}
+
 	if req.Goal == "" {
 		req.Goal = "closing"
 	}
 
-	waService := services.InitWhatsAppService()
 	draft, err := waService.GenerateAIReplyDraft(c.Request.Context(), req.ThreadID, req.Goal)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -2022,6 +2210,10 @@ func (h *CRMHandler) GenerateWhatsAppAIReply(c *gin.Context) {
 // AnalyzeWhatsAppLeadScore menghitung skor prospek dan prediksi repeat order via AI
 // Endpoint: POST /api/crm/whatsapp/ai-score
 func (h *CRMHandler) AnalyzeWhatsAppLeadScore(c *gin.Context) {
+	userID := c.GetString("user_id")
+	role := c.GetString("role")
+	isAdmin := (role == "admin" || role == "superadmin" || role == "keuangan")
+
 	var req struct {
 		ThreadID string `json:"thread_id" binding:"required"`
 	}
@@ -2035,6 +2227,17 @@ func (h *CRMHandler) AnalyzeWhatsAppLeadScore(c *gin.Context) {
 	}
 
 	waService := services.InitWhatsAppService()
+	thread := waService.GetThread(req.ThreadID)
+	if thread == nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Obrolan tidak ditemukan"})
+		return
+	}
+
+	if !isAdmin && thread.UserID != "" && thread.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"status": "error", "message": "Akses ditolak: Anda tidak memiliki akses ke percakapan ini"})
+		return
+	}
+
 	analysis, err := waService.AnalyzeLeadScoreAndIntent(c.Request.Context(), req.ThreadID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -173,6 +173,7 @@ func setupTestServer() *gin.Engine {
 	gamificationHandler := handlers.NewGamificationHandler()
 	aiHandler := handlers.NewAIHandler()
 	securityHandler := handlers.NewSecurityHandler()
+	brandingHandler := handlers.NewBrandingHandler("./uploads")
 
 	r := gin.New()
 	r.Use(middleware.CORSMiddleware())
@@ -201,6 +202,7 @@ func setupTestServer() *gin.Engine {
 		api.GET("/marketing/webinars", marketingHandler.GetWebinars)
 		api.POST("/marketing/webinars/register", marketingHandler.RegisterWebinar)
 		api.GET("/gamification/leaderboard", gamificationHandler.GetLeaderboard)
+		api.GET("/public/branding", brandingHandler.GetBranding)
 
 		// Bionet AI Suite (Public / Direct API)
 		api.POST("/ai/health-consult", aiHandler.HealthConsult)
@@ -270,11 +272,18 @@ func setupTestServer() *gin.Engine {
 			protected.POST("/crm/whatsapp/device/disconnect", crmHandler.DisconnectWhatsAppDevice)
 			protected.POST("/crm/whatsapp/device/toggle-bot", crmHandler.ToggleWhatsAppAutoResponder)
 
-			// Pilar 3: WhatsApp CRM Lanjutan
+			// Pilar 3: WhatsApp CRM Lanjutan & Upload
+			protected.POST("/crm/whatsapp/upload", crmHandler.UploadWhatsAppAttachment)
 			protected.POST("/crm/whatsapp/send-media", crmHandler.SendWhatsAppMedia)
 			protected.GET("/crm/whatsapp/schedules", crmHandler.GetWhatsAppSchedules)
 			protected.POST("/crm/whatsapp/schedules", crmHandler.CreateWhatsAppSchedule)
 			protected.DELETE("/crm/whatsapp/schedules/:id", crmHandler.DeleteWhatsAppSchedule)
+
+			// WhatsApp Buku Kontak & Bulk Import
+			protected.GET("/crm/whatsapp/contacts", crmHandler.GetWhatsAppContacts)
+			protected.POST("/crm/whatsapp/contacts", crmHandler.CreateWhatsAppContact)
+			protected.POST("/crm/whatsapp/contacts/import", crmHandler.ImportWhatsAppContacts)
+			protected.DELETE("/crm/whatsapp/contacts/:id", crmHandler.DeleteWhatsAppContact)
 
 			// Pilar 1: Bio-Link Protected
 			protected.GET("/bio/my-page", bioLinkHandler.GetMyBioPage)
@@ -290,6 +299,10 @@ func setupTestServer() *gin.Engine {
 			adminGroup := protected.Group("/admin")
 			adminGroup.Use(middleware.RequireRole("admin"))
 			{
+				adminGroup.GET("/branding", brandingHandler.GetBranding)
+				adminGroup.PUT("/branding", brandingHandler.UpdateBranding)
+				adminGroup.POST("/branding/upload-logo", brandingHandler.UploadLogo)
+
 				securityGroup := adminGroup.Group("/security")
 				{
 					securityGroup.GET("/threats", securityHandler.GetThreatLogs)

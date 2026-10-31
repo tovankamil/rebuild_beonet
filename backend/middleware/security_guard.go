@@ -81,12 +81,18 @@ func SecurityGuardMiddleware() gin.HandlerFunc {
 		// Bypass testing route agar admin bisa menguji coba simulator alert dengan payload contoh
 		isAdminTestRoute := strings.HasPrefix(path, "/api/admin/security/test-alert")
 		if !isAdminTestRoute {
+			bodyToScan := string(bodyBytes)
+			// Jangan scan raw binary multipart upload body agar boundary marker '--' tidak terpicu sebagai SQLi
+			if strings.HasPrefix(c.GetHeader("Content-Type"), "multipart/form-data") {
+				bodyToScan = ""
+			}
+
 			threat, detected := securityService.CheckAttackPayload(
 				clientIP,
 				c.Request.Method,
 				path,
 				c.Request.URL.RawQuery,
-				string(bodyBytes),
+				bodyToScan,
 				c.Request.UserAgent(),
 			)
 

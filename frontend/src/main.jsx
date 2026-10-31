@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
+import { BrandingProvider } from './context/BrandingContext';
 import './index.css';
 
 // 1. Service Worker Lifecycle Management
@@ -148,7 +149,9 @@ class GlobalErrorBoundary extends React.Component {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <GlobalErrorBoundary>
-      <App />
+      <BrandingProvider>
+        <App />
+      </BrandingProvider>
     </GlobalErrorBoundary>
   </React.StrictMode>
 );

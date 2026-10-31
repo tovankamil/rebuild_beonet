@@ -139,6 +139,10 @@ export default function RegisterDownlineModal({
       setErrorMsg('Kata sandi pendaftaran minimal 6 karakter.');
       return;
     }
+    if (!phone || phone.trim().length < 8) {
+      setErrorMsg('Nomor WhatsApp calon mitra wajib diisi (minimal 8 digit).');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -260,6 +264,33 @@ export default function RegisterDownlineModal({
                   <span className="font-mono font-bold text-slate-700">
                     {successData.pin?.serial_code || successData.pin?.id}
                   </span>
+                </div>
+              </div>
+
+              {/* WhatsApp Automated Delivery Status */}
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200/80 text-left flex items-start gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Phone size={14} />
+                </div>
+                <div className="text-[11px] leading-relaxed text-emerald-950 flex-1">
+                  <span className="font-bold block text-emerald-800">
+                    Pesan Otomatis WhatsApp Terkirim
+                  </span>
+                  <span>
+                    Pesan sambutan resmi telah dikirim ke nomor WhatsApp mitra baru{' '}
+                    <strong>({phone})</strong> dan pesan notifikasi registrasi ke sponsor Anda.
+                  </span>
+                  {phone && (
+                    <a
+                      href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Halo ${fullName}, selamat bergabung di keluarga besar Bionet!`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow-2xs transition-colors"
+                    >
+                      <Phone size={11} />
+                      <span>Buka Chat WhatsApp Mitra</span>
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -519,17 +550,19 @@ export default function RegisterDownlineModal({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      No. WhatsApp / HP
+                    <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                      <span>No. WhatsApp Calon Mitra <span className="text-rose-500">*</span></span>
+                      <span className="text-[10px] text-emerald-600 font-medium">Otomatis kirim sambutan</span>
                     </label>
                     <div className="relative group">
                       <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600 transition-colors" />
                       <input
                         type="tel"
-                        placeholder="08xxxxxxxxxx"
+                        placeholder="Contoh: 08123456789 atau 628123456789"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => setPhone(e.target.value.replace(/[^0-9+]/g, ''))}
                         className="dash-input pl-9 text-xs font-mono"
+                        required
                       />
                     </div>
                   </div>

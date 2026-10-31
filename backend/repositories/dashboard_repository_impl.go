@@ -431,6 +431,14 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 		return nil, errors.New("kata sandi minimal 6 karakter")
 	}
 
+	phone := strings.TrimSpace(req.Phone)
+	if phone == "" {
+		return nil, errors.New("nomor WhatsApp wajib diisi")
+	}
+	if len(phone) < 8 {
+		return nil, errors.New("nomor WhatsApp minimal 8 karakter")
+	}
+
 	var response *models.RegisterDownlineResponse
 
 	err := r.db.Transaction(func(tx *gorm.DB) error {

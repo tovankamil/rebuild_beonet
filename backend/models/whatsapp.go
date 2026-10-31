@@ -42,9 +42,11 @@ type WhatsAppMessageModel struct {
 	ID        string    `gorm:"type:varchar(80);primaryKey" json:"id"`
 	ThreadID  string    `gorm:"type:varchar(64);index;not null" json:"thread_id"`
 	Sender    string    `gorm:"type:varchar(20);not null" json:"sender"` // "me" | "contact"
-	Text      string    `gorm:"type:text;not null" json:"text"`
+	Text      string    `gorm:"type:text" json:"text"`
 	MediaURL  string    `gorm:"type:varchar(500)" json:"media_url,omitempty"`
 	MediaType string    `gorm:"type:varchar(50);default:'text'" json:"media_type"`
+	FileName  string    `gorm:"type:varchar(255)" json:"file_name,omitempty"`
+	FileSize  int64     `json:"file_size,omitempty"`
 	Status    string    `gorm:"type:varchar(30);default:'sent'" json:"status"` // "sent", "delivered", "read"
 	SentAt    time.Time `gorm:"index;not null" json:"sent_at"`
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`

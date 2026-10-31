@@ -455,21 +455,29 @@ func (h *DashboardHandler) RegisterDownline(c *gin.Context) {
 		)
 	}
 
-	// 4. Otomatis Sinkronisasi Kontak WhatsApp CRM & Kirim Sambutan Hangat Resmi
-	memberPhone := req.Phone
-	if memberPhone == "" && resp.User.Phone != nil {
-		memberPhone = *resp.User.Phone
+	// 4. Otomatis Sinkronisasi Kontak WhatsApp CRM & Kirim Sambutan Hangat Resmi & Notifikasi Sponsor
+	pkgName := "Kemitraan Bionet"
+	if resp.Pin.Package != nil && resp.Pin.Package.Name != "" {
+		pkgName = resp.Pin.Package.Name
 	}
-	if memberPhone != "" {
-		pkgName := "Kemitraan Bionet"
-		if resp.Pin.Package != nil && resp.Pin.Package.Name != "" {
-			pkgName = resp.Pin.Package.Name
+
+	var sponsor models.User
+	if config.DB != nil {
+		_ = config.DB.Where("id = ?", userID).First(&sponsor).Error
+	}
+	if sponsor.ID == "" {
+		sponsor.ID = userID
+		sponsor.Username = c.GetString("username")
+		if sponsor.Username == "" {
+			sponsor.Username = "sponsor"
 		}
-		go func(phone, fullName, username, packageName string) {
-			waService := services.InitWhatsAppService()
-			_ = waService.SyncNewMemberContact(phone, fullName, username, packageName)
-		}(memberPhone, resp.User.FullName, resp.User.Username, pkgName)
+		sponsor.FullName = "Sponsor Bionet"
 	}
+
+	go func(sp models.User, nu models.User, pkg string, pos string, uplineUname string, bonus float64) {
+		waService := services.InitWhatsAppService()
+		_ = waService.SendRegistrationWelcomeMessages(sp, nu, pkg, pos, uplineUname, bonus)
+	}(sponsor, resp.User, pkgName, resp.Position, resp.Upline.Username, resp.SponsorBonus)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",

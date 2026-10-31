@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Flame,
   Zap,
+  Gift,
 } from 'lucide-react';
 
 import AIHealthConsultModal from './AIHealthConsultModal';
@@ -21,6 +22,7 @@ import AIBinaryAdvisorModal from './AIBinaryAdvisorModal';
 import AIChurnRadarModal from './AIChurnRadarModal';
 import AIVoiceNoteModal from './AIVoiceNoteModal';
 import AIFraudScanModal from './AIFraudScanModal';
+import AIImageGeneratorModal from './AIImageGeneratorModal';
 
 export default function BionetAIFloatingHub({ currentUser, stats, onOpenRegisterDownline }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,10 +48,30 @@ export default function BionetAIFloatingHub({ currentUser, stats, onOpenRegister
 
   const handleSelectModule = (modKey) => {
     setIsMenuOpen(false);
+    if (modKey === 'wheel') {
+      window.dispatchEvent(new Event('bionet:open-wheel'));
+      return;
+    }
     setActiveModal(modKey);
   };
 
   const aiModules = [
+    {
+      id: 'wheel',
+      name: 'Intermezo: Roda Berkah Harian',
+      desc: 'Putar roda santai usia 25-60 tahun, menangkan voucher diskon & doa berkah.',
+      icon: Gift,
+      color: 'from-amber-500 via-emerald-500 to-teal-600',
+      badge: 'Game 25-60',
+    },
+    {
+      id: 'image_gen',
+      name: 'Studio Generator Gambar AI',
+      desc: 'Render visual produk komersial, promosi herbal & bisnis 8K.',
+      icon: Sparkles,
+      color: 'from-amber-500 via-orange-500 to-rose-500',
+      badge: 'FLUX + Gemini',
+    },
     {
       id: 'health',
       name: 'Konsultan Herbal & Resep AI',
@@ -123,7 +145,7 @@ export default function BionetAIFloatingHub({ currentUser, stats, onOpenRegister
               Bionet AI Hub
             </div>
             <div className="text-xs font-black text-white leading-tight">
-              6 Fitur Cerdas
+              7 Fitur Cerdas
             </div>
           </div>
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping sm:hidden" />
@@ -269,6 +291,12 @@ export default function BionetAIFloatingHub({ currentUser, stats, onOpenRegister
       <AIFraudScanModal
         isOpen={activeModal === 'fraud'}
         onClose={() => setActiveModal(null)}
+      />
+
+      <AIImageGeneratorModal
+        isOpen={activeModal === 'image_gen'}
+        onClose={() => setActiveModal(null)}
+        currentUser={currentUser}
       />
     </>
   );

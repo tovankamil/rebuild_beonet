@@ -232,3 +232,26 @@ type RORetentionResponse struct {
 	Customers      []ROCustomerItem `json:"customers"`
 	AIStrategyNote string           `json:"ai_strategy_note"`
 }
+
+// ============================================================================
+// 9. AI Commercial Product Image Generator (Gemini + FLUX)
+// ============================================================================
+
+type GenerateImageRequest struct {
+	Prompt      string `json:"prompt" binding:"required"`
+	AspectRatio string `json:"aspect_ratio"` // "3:4" (story/flyer), "1:1" (square), "9:16" (reels), "16:9" (banner)
+	Category    string `json:"category"`     // "product", "business", "lifestyle", "testimony"
+	Style       string `json:"style"`        // "photorealistic", "commercial_studio", "luxury_gold", "minimalist"
+}
+
+type GenerateImageResponse struct {
+	Status         string `json:"status"`
+	ImageURL       string `json:"image_url"`
+	OriginalPrompt string `json:"original_prompt"`
+	EnhancedPrompt string `json:"enhanced_prompt"`
+	AspectRatio    string `json:"aspect_ratio"`
+	Width          int    `json:"width"`
+	Height         int    `json:"height"`
+	FileName       string `json:"file_name"`
+	CreatedAt      string `json:"created_at"`
+}

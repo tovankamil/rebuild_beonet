@@ -51,6 +51,9 @@ scratch*/
 *_chrome_data/
 .tempmediaStorage/
 .system_generated/
+backend/uploads/generated/
+backend/tests/uploads/
+frontend/public/uploads/generated/
 
 # Temporary screenshots & testing media in root
 /*.png

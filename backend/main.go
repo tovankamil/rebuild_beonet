@@ -595,6 +595,7 @@ func main() {
 		&models.SecurityThreatLog{},
 		&models.BlockedIP{},
 		&models.GeoAccessLog{},
+		&models.AppBranding{},
 	}
 	for _, m := range allModels {
 		if err := config.DB.AutoMigrate(m); err != nil {
@@ -644,6 +645,7 @@ func main() {
 	gamificationHandler := handlers.NewGamificationHandler()
 	aiHandler := handlers.NewAIHandler()
 	securityHandler := handlers.NewSecurityHandler()
+	brandingHandler := handlers.NewBrandingHandler("./uploads")
 
 	// Initialize Google Gemini AI Service
 	if _, err := services.NewGeminiService(); err != nil {
@@ -717,6 +719,9 @@ func main() {
 		// Public PWA Web Push Public Key (Module 7)
 		api.GET("/public/push/public-key", prospectingHandler.GetVapidPublicKey)
 
+		// Public App Branding & Theme Appearance
+		api.GET("/public/branding", brandingHandler.GetBranding)
+
 		// Gemini AI Assistant Endpoint
 		api.POST("/ai/chat", func(c *gin.Context) {
 			var req struct {
@@ -749,6 +754,7 @@ func main() {
 		api.POST("/ai/voice-note", aiHandler.VoiceNoteScript)
 		api.POST("/ai/fraud-scan", aiHandler.FraudScan)
 		api.GET("/ai/ro-retention", aiHandler.RORetention)
+		api.POST("/ai/generate-image", aiHandler.GenerateImage)
 
 		// Auth
 		api.POST("/auth/login", authHandler.Login)
@@ -867,7 +873,8 @@ func main() {
 			protected.POST("/crm/whatsapp/device/disconnect", crmHandler.DisconnectWhatsAppDevice)
 			protected.POST("/crm/whatsapp/device/toggle-bot", crmHandler.ToggleWhatsAppAutoResponder)
 
-			// Pilar 3: WhatsApp CRM Lanjutan (WAHA Docker Expansion)
+			// Pilar 3: WhatsApp CRM Lanjutan (WAHA Docker Expansion & File Upload)
+			protected.POST("/crm/whatsapp/upload", crmHandler.UploadWhatsAppAttachment)
 			protected.POST("/crm/whatsapp/send-media", crmHandler.SendWhatsAppMedia)
 			protected.GET("/crm/whatsapp/schedules", crmHandler.GetWhatsAppSchedules)
 			protected.POST("/crm/whatsapp/schedules", crmHandler.CreateWhatsAppSchedule)
@@ -892,6 +899,8 @@ func main() {
 			protected.GET("/academy/modules", gamificationHandler.GetAcademyModules)
 			protected.POST("/academy/complete", gamificationHandler.CompleteAcademyModule)
 			protected.GET("/gamification/inactivity-alerts", gamificationHandler.GetInactivityAlerts)
+			protected.GET("/gamification/wheel/status", gamificationHandler.GetWheelStatus)
+			protected.POST("/gamification/wheel/spin", gamificationHandler.SpinWheel)
 
 			// PWA Web Push Notification (Module 7)
 			protected.POST("/notifications/push-subscribe", prospectingHandler.SubscribePush)
@@ -959,6 +968,11 @@ func main() {
 				adminGroup.GET("/whatsapp/status", middleware.RequireRole("admin", "keuangan"), monitoringHandler.GetWhatsAppStatus)
 				adminGroup.GET("/whatsapp/logs", middleware.RequireRole("admin", "keuangan"), monitoringHandler.GetWhatsAppLogs)
 				adminGroup.POST("/whatsapp/send-test", middleware.RequireRole("admin"), monitoringHandler.SendWhatsAppTest)
+
+				// Branding & Dashboard Color Customization (Admin Only)
+				adminGroup.GET("/branding", brandingHandler.GetBranding)
+				adminGroup.PUT("/branding", middleware.RequireRole("admin"), brandingHandler.UpdateBranding)
+				adminGroup.POST("/branding/upload-logo", middleware.RequireRole("admin"), brandingHandler.UploadLogo)
 
 				// Enterprise Security Guard & Cyber Threat Defense (Admin STRICT ONLY)
 				securityGroup := adminGroup.Group("/security", middleware.RequireRole("admin"))

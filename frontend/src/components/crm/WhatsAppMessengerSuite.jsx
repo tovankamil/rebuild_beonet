@@ -38,6 +38,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Bot,
+  Loader2,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
@@ -47,12 +48,61 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   // Navigation Sub-tab
   const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'broadcast' | 'bot' | 'device' | 'contacts' | 'logs'
 
+  // Current User & Role Authorization Mode
+  const currentUser = useMemo(() => {
+    if (user && user.role) return user;
+    try {
+      const stored = localStorage.getItem('user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  }, [user]);
+
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superadmin' || currentUser?.role === 'keuangan';
+
   // Chat Messenger State
   const [threads, setThreads] = useState([]);
   const [activeThreadId, setActiveThreadId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // File & Image Attachment State for Chat
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Ukuran berkas melebihi batas maksimum 10MB.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    setSelectedFile(file);
+    if (file.type.startsWith('image/')) {
+      const url = URL.createObjectURL(file);
+      setFilePreview(url);
+    } else {
+      setFilePreview(null);
+    }
+  };
+
+  const handleRemoveAttachment = () => {
+    setSelectedFile(null);
+    if (filePreview) {
+      URL.revokeObjectURL(filePreview);
+      setFilePreview(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   // Bulk Contact Import & CRM Phonebook State
   const [crmContacts, setCrmContacts] = useState([]);
@@ -518,38 +568,69 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
     threads.find((t) => (t.ID || t.id) === activeThreadId) ||
     (threads.length > 0 ? threads[0] : null);
 
-  // Send message in current thread
+  // Send message in current thread (text, image, or document attachment)
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
-    if (!inputText.trim() || !activeThreadId) return;
+    if ((!inputText.trim() && !selectedFile) || !activeThreadId) return;
 
     const messageText = inputText.trim();
     setInputText('');
     setSendingMessage(true);
 
     try {
-      const res = await api.post(`/crm/whatsapp/threads/${activeThreadId}/messages`, {
+      let mediaUrl = '';
+      let mediaType = 'text';
+      let fileName = '';
+      let fileSize = 0;
+
+      // 1. Upload attachment if attached
+      if (selectedFile) {
+        setUploadingAttachment(true);
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const uploadRes = await api.post('/crm/whatsapp/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (uploadRes.data?.data) {
+          mediaUrl = uploadRes.data.data.url;
+          mediaType = uploadRes.data.data.type || (selectedFile.type.startsWith('image/') ? 'image' : 'document');
+          fileName = uploadRes.data.data.name || selectedFile.name;
+          fileSize = uploadRes.data.data.size || selectedFile.size;
+        }
+        handleRemoveAttachment();
+      }
+
+      // 2. Send message into thread
+      const payload = {
         text: messageText,
-        media_type: 'text',
-      });
+        media_type: mediaType,
+      };
+      if (mediaUrl) {
+        payload.media_url = mediaUrl;
+        payload.file_name = fileName;
+        payload.file_size = fileSize;
+      }
+
+      const res = await api.post(`/crm/whatsapp/threads/${activeThreadId}/messages`, payload);
 
       if (res.data?.data) {
         setMessages((prev) => [...prev, res.data.data]);
-        // Update thread preview
+        const lastTxt = messageText || (fileName ? `[${fileName}]` : '[Lampiran]');
         setThreads((prev) =>
           prev.map((t) =>
             (t.ID || t.id) === activeThreadId
-              ? { ...t, last_message: messageText, last_message_time: new Date().toISOString() }
+              ? { ...t, last_message: lastTxt, last_message_time: new Date().toISOString() }
               : t
           )
         );
-
-// Direct real-time updates via live polling
       }
     } catch (err) {
       alert('Gagal mengirim pesan: ' + (err.response?.data?.message || err.message));
     } finally {
       setSendingMessage(false);
+      setUploadingAttachment(false);
     }
   };
 
@@ -961,9 +1042,22 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>WhatsApp Suite v3.2 &bull; Direct Gateway &amp; Live Messenger</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <span>WhatsApp Suite v3.2 &bull; Direct Gateway &amp; Live Messenger</span>
+              </div>
+              {isAdmin ? (
+                <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-indigo-500/30 border border-indigo-400/40 text-indigo-200 text-xs font-bold shadow-xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-300" />
+                  <span>Mode Administrator: Menampilkan Seluruh Kontak &amp; Riwayat WhatsApp Sistem</span>
+                </div>
+              ) : (
+                <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-xs font-bold shadow-xs">
+                  <Users className="w-3.5 h-3.5 text-emerald-300" />
+                  <span>Mode Mitra: Buku Kontak &amp; Riwayat Chat Privat Anda</span>
+                </div>
+              )}
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center space-x-2">
               <MessageSquare className="w-6 h-6 text-emerald-400" />
@@ -1409,9 +1503,63 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                                 : 'bg-white text-slate-800 rounded-tl-none border border-slate-200/80'
                             }`}
                           >
-                            <p className="leading-relaxed whitespace-pre-line text-xs font-sans">
-                              {msg.text}
-                            </p>
+                            {/* Media Attachment Display */}
+                            {msg.media_url && (
+                              <div className="mb-2">
+                                {msg.media_type === 'image' || (/\.(jpg|jpeg|png|webp|gif)$/i.test(msg.media_url)) ? (
+                                  <div className="relative group overflow-hidden rounded-xl bg-slate-900/10 border border-black/10">
+                                    <img
+                                      src={msg.media_url}
+                                      alt={msg.file_name || 'Lampiran Gambar'}
+                                      className="max-h-60 w-full object-cover rounded-xl transition duration-200 group-hover:scale-[1.01] cursor-pointer"
+                                      onClick={() => window.open(msg.media_url, '_blank')}
+                                      loading="lazy"
+                                    />
+                                    <a
+                                      href={msg.media_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      download
+                                      className="absolute bottom-2 right-2 px-2.5 py-1 rounded-lg bg-black/60 hover:bg-black/80 text-white text-[10px] flex items-center space-x-1 opacity-90 group-hover:opacity-100 transition shadow-xs"
+                                    >
+                                      <Download className="w-3.5 h-3.5" />
+                                      <span>Unduh</span>
+                                    </a>
+                                  </div>
+                                ) : (
+                                  <a
+                                    href={msg.media_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download
+                                    className={`flex items-center space-x-3 p-2.5 rounded-xl border transition ${
+                                      isMe
+                                        ? 'bg-emerald-700/60 hover:bg-emerald-700/90 border-emerald-400/30 text-white'
+                                        : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'
+                                    }`}
+                                  >
+                                    <div className={`p-2 rounded-lg flex-shrink-0 ${isMe ? 'bg-emerald-800 text-emerald-100' : 'bg-indigo-50 text-indigo-600'}`}>
+                                      <FileText className="w-5 h-5" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-bold text-xs truncate">
+                                        {msg.file_name || msg.media_url.split('/').pop() || 'Dokumen Lampiran'}
+                                      </p>
+                                      <p className={`text-[10px] ${isMe ? 'text-emerald-200' : 'text-slate-400'}`}>
+                                        {msg.file_size ? `${(msg.file_size / 1024).toFixed(0)} KB • ` : ''}Klik untuk mengunduh berkas
+                                      </p>
+                                    </div>
+                                    <Download className="w-4 h-4 flex-shrink-0 opacity-70" />
+                                  </a>
+                                )}
+                              </div>
+                            )}
+
+                            {msg.text && (
+                              <p className="leading-relaxed whitespace-pre-line text-xs font-sans">
+                                {msg.text}
+                              </p>
+                            )}
 
                             <div
                               className={`flex items-center justify-end space-x-1 mt-1 text-[10px] ${
@@ -1538,17 +1686,73 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   </button>
                 </div>
 
+                {/* Attachment Preview Banner */}
+                {selectedFile && (
+                  <div className="px-3.5 py-2.5 bg-emerald-50/70 border-t border-emerald-100 flex items-center justify-between text-xs animate-in fade-in">
+                    <div className="flex items-center space-x-2.5 min-w-0">
+                      {filePreview ? (
+                        <img
+                          src={filePreview}
+                          alt="Preview"
+                          className="w-10 h-10 object-cover rounded-xl border border-emerald-200 shadow-xs flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 flex-shrink-0">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-800 text-xs truncate max-w-[200px] sm:max-w-xs">
+                          {selectedFile.name}
+                        </p>
+                        <p className="text-[10px] text-slate-500 font-mono">
+                          {(selectedFile.size / 1024).toFixed(1)} KB &bull; Siap diunggah &amp; dikirim
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveAttachment}
+                      className="p-1.5 rounded-lg hover:bg-emerald-100 text-slate-400 hover:text-rose-600 transition"
+                      title="Batal lampirkan berkas"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
                 {/* Chat Input Bar */}
                 <form
                   onSubmit={handleSendMessage}
                   className="p-3 bg-white border-t border-slate-200 flex items-end space-x-2 flex-shrink-0"
                 >
+                  {/* Hidden File Picker */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.mp3,.mp4"
+                    className="hidden"
+                  />
+
+                  {/* Attachment Button */}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={sendingMessage || uploadingAttachment}
+                    className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition flex items-center space-x-1 flex-shrink-0"
+                    title="Lampirkan Gambar atau Dokumen (Maks 10MB)"
+                  >
+                    <Paperclip className="w-4 h-4 text-slate-600" />
+                    <span className="hidden sm:inline text-xs font-semibold">Lampiran</span>
+                  </button>
+
                   {/* Draft with AI Button */}
                   <button
                     type="button"
                     onClick={handleDraftWithAI}
                     disabled={aiDrafting}
-                    className="p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 transition flex items-center space-x-1"
+                    className="p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 transition flex items-center space-x-1 flex-shrink-0"
                     title="Rangkai Balasan Closing dengan Asisten AI"
                   >
                     <Sparkles className={`w-4 h-4 text-amber-600 ${aiDrafting ? 'animate-spin' : ''}`} />
@@ -1567,7 +1771,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                           handleSendMessage();
                         }
                       }}
-                      placeholder="Ketik pesan WhatsApp (tekan Enter untuk kirim)..."
+                      placeholder={selectedFile ? "Tambah keterangan/caption foto atau dokumen (opsional)..." : "Ketik pesan WhatsApp (tekan Enter untuk kirim)..."}
                       className="w-full bg-transparent text-xs text-slate-800 placeholder-slate-400 focus:outline-none resize-none max-h-24 leading-relaxed font-sans"
                     />
                   </div>
@@ -1575,11 +1779,15 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   {/* Send Button */}
                   <button
                     type="submit"
-                    disabled={!inputText.trim() || sendingMessage}
+                    disabled={(!inputText.trim() && !selectedFile) || sendingMessage || uploadingAttachment}
                     className="p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold transition shadow-md shadow-emerald-950 disabled:opacity-40 flex items-center justify-center flex-shrink-0"
                     title="Kirim Pesan"
                   >
-                    <Send className="w-4 h-4" />
+                    {sendingMessage || uploadingAttachment ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
                   </button>
                 </form>
               </>
@@ -1941,9 +2149,20 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
           {/* Header Title & Actions */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
-              <h3 className="font-extrabold text-slate-900 text-base flex items-center space-x-2">
-                <Users className="w-5 h-5 text-indigo-600" />
-                <span>Buku Kontak WhatsApp &amp; Generator vCard (.vcf)</span>
+              <h3 className="font-extrabold text-slate-900 text-base flex flex-wrap items-center gap-2">
+                <span className="flex items-center space-x-2">
+                  <Users className="w-5 h-5 text-indigo-600" />
+                  <span>Buku Kontak WhatsApp &amp; Generator vCard (.vcf)</span>
+                </span>
+                {isAdmin ? (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 border border-indigo-200 text-indigo-700">
+                    Mode Admin: Akses Seluruh Kontak Sistem
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 border border-emerald-200 text-emerald-700">
+                    Buku Kontak Privat Mitra: Hanya Kontak Anda
+                  </span>
+                )}
               </h3>
               <p className="text-xs text-slate-400">
                 Pencarian instan, filter kategori, penomoran urut, dan ekspor kontak ke buku telepon HP Android/iOS

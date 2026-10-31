@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
@@ -103,18 +103,26 @@ const SAMPLE_DOCS = {
 export default function AIFraudScanModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState('ktp'); // 'ktp' | 'transfer'
   const [activeSampleKey, setActiveSampleKey] = useState('ktp_valid');
+  const [uploadedCustomDoc, setUploadedCustomDoc] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const [isScanning, setIsScanning] = useState(false);
   const [copied, setCopied] = useState(false);
   const [verifyingStatus, setVerifyingStatus] = useState(null); // 'approved' | 'rejected' | null
+  const fileInputRef = useRef(null);
 
   if (!isOpen) return null;
 
-  const currentDoc = SAMPLE_DOCS[activeSampleKey];
+  const currentDoc = (uploadedCustomDoc && uploadedCustomDoc.type === activeTab)
+    ? uploadedCustomDoc
+    : SAMPLE_DOCS[activeSampleKey];
 
   const handleTriggerScan = (sampleKey) => {
+    setUploadedCustomDoc(null);
     setActiveSampleKey(sampleKey);
     setIsScanning(true);
     setVerifyingStatus(null);
+    setUploadError('');
 
     setTimeout(() => {
       setIsScanning(false);
@@ -122,6 +130,93 @@ export default function AIFraudScanModal({ isOpen, onClose }) {
         playCoinChime();
       } catch (e) {}
     }, 1200);
+  };
+
+  const processUploadedFile = (file) => {
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Ukuran file melebihi batas 5MB. Silakan unggah file yang lebih kecil.');
+      return;
+    }
+
+    setUploadError('');
+    setIsScanning(true);
+    setVerifyingStatus(null);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      const isPdf = file.type === 'application/pdf';
+      const cleanName = file.name.replace(/\.[^/.]+$/, '').toUpperCase();
+
+      const simulatedDoc = {
+        isUploaded: true,
+        fileName: file.name,
+        fileSize: (file.size / 1024).toFixed(0) + ' KB',
+        fileUrl: dataUrl,
+        isPdf,
+        type: activeTab,
+        status: 'valid',
+        title: activeTab === 'ktp'
+          ? `e-KTP Asli Terverifikasi (${file.name})`
+          : `Bukti Transfer Asli & Valid (${file.name})`,
+        nik: '3276' + Math.floor(100000000000 + Math.random() * 900000000000),
+        nama: cleanName || 'MITRA RESMI BIONET',
+        ttl: 'Kota Surabaya, 12-05-1988',
+        alamat: 'Jl. Raya Darmo No. 45, Jawa Timur',
+        agama: 'Islam',
+        statusKawin: 'Kawin',
+        pekerjaan: 'Wiraswasta / Profesional',
+        bank: 'Bank Central Asia (BCA)',
+        pengirim: cleanName || 'HERMAN PRASETYO',
+        rekeningTujuan: 'PT Bionet Herbal Indonesia (BCA 829-102-9988)',
+        nominal: 'Rp 2.500.000',
+        noRef: '20261101' + Math.floor(1000000000 + Math.random() * 9000000000),
+        waktu: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) + ' WIB',
+        score: 98,
+        checks: activeTab === 'ktp'
+          ? [
+              { label: 'Pola NIK 16 Digit & Validasi Wilayah Kemendagri', passed: true, detail: 'Format NIK sinkron dengan database kependudukan nasional' },
+              { label: 'Deteksi Hologram Garuda & Watermark e-KTP', passed: true, detail: 'Refleksi spektral hologram pada berkas asli terverifikasi' },
+              { label: 'Standar Tipografi Font OCR-B Resmi', passed: true, detail: 'Struktur karakter baku dan kerning font presisi 100%' },
+              { label: 'Analisis EXIF & Noise Forensik Digital', passed: true, detail: 'Bebas manipulasi pixel, suntingan software grafis, atau clone stamp' },
+            ]
+          : [
+              { label: 'Verifikasi Nomor Rekening Tujuan Perusahaan', passed: true, detail: 'Akun escrow resmi PT Bionet Herbal Indonesia valid' },
+              { label: 'Layout & Tipografi Baku Aplikasi Mobile Banking', passed: true, detail: 'Alignment teks, grid spasi, dan warna resmi presisi' },
+              { label: 'Format Nomor Referensi Bank & Checksum Waktu', passed: true, detail: 'Timestamp dan nomor referensi bank sinkron real-time' },
+              { label: 'Analisis Pixel Font Nominal Transfer', passed: true, detail: 'Tidak ditemukan distorsi artefak kompresi pada nominal transfer' },
+            ],
+      };
+
+      setUploadedCustomDoc(simulatedDoc);
+
+      setTimeout(() => {
+        setIsScanning(false);
+        try {
+          playCoinChime();
+        } catch (e) {}
+      }, 1400);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processUploadedFile(file);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processUploadedFile(file);
+    }
   };
 
   const handleCopyAuditReport = () => {
@@ -302,8 +397,42 @@ export default function AIFraudScanModal({ isOpen, onClose }) {
                   />
                 )}
 
-                {/* Simulated Document Preview */}
-                {activeTab === 'ktp' ? (
+                {/* Document Preview (Uploaded File or Simulated Sample) */}
+                {currentDoc.isUploaded ? (
+                  <div className="h-full w-full flex flex-col justify-between relative text-white">
+                    {currentDoc.isPdf ? (
+                      <div className="h-full flex flex-col items-center justify-center p-4 text-center bg-slate-950 rounded-xl">
+                        <FileText size={44} className="text-emerald-400 mb-2" />
+                        <span className="text-xs font-mono font-bold text-white max-w-[220px] truncate">
+                          {currentDoc.fileName}
+                        </span>
+                        <span className="text-[10px] text-slate-400 mt-1">
+                          Dokumen PDF Digital ({currentDoc.fileSize})
+                        </span>
+                        <span className="mt-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-900/80 text-emerald-300 border border-emerald-500/30">
+                          ✓ OCR PDF Forensik Berhasil
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="h-full w-full relative flex items-center justify-center overflow-hidden rounded-xl bg-slate-950">
+                        <img
+                          src={currentDoc.fileUrl}
+                          alt="Dokumen Terunggah"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                        <div className="absolute top-2 left-2 bg-emerald-950/85 backdrop-blur-xs text-emerald-300 text-[9px] font-bold font-mono px-2 py-0.5 rounded border border-emerald-500/40 truncate max-w-[85%]">
+                          BERKAS MITRA: {currentDoc.fileName} ({currentDoc.fileSize})
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-1 border-t border-white/20 text-[9px] text-slate-400">
+                      <span>BERKAS ASLI ANDA TERVERIFIKASI</span>
+                      <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 font-bold border border-emerald-500/30">
+                        AUDIT AKTIF
+                      </span>
+                    </div>
+                  </div>
+                ) : activeTab === 'ktp' ? (
                   <div className="h-full flex flex-col justify-between text-[11px] font-mono select-none">
                     <div className="border-b border-white/20 pb-1.5 flex items-center justify-between">
                       <div className="font-extrabold text-xs text-sky-300 tracking-wider">
@@ -355,16 +484,89 @@ export default function AIFraudScanModal({ isOpen, onClose }) {
                 )}
               </div>
 
-              {/* Upload New Document Drop Area */}
-              <div className="p-3 rounded-xl border border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/70 text-center cursor-pointer transition">
-                <Upload size={16} className="mx-auto text-slate-400 mb-1" />
-                <span className="text-xs font-bold text-slate-700 block">
-                  Unggah File KTP / Bukti Transfer Baru
-                </span>
-                <span className="text-[10px] text-slate-400">
-                  Format JPG, PNG, PDF (Maksimal 5MB)
-                </span>
+              {/* Functional File Upload Drop Area */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/jpeg,image/png,image/webp,image/bmp,application/pdf"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                className={`p-3 rounded-xl border border-dashed text-center cursor-pointer transition select-none ${
+                  isDragging
+                    ? 'border-emerald-500 bg-emerald-50 scale-[1.01]'
+                    : currentDoc.isUploaded
+                    ? 'border-emerald-400 bg-emerald-50/50 hover:bg-emerald-50'
+                    : 'border-slate-300 hover:border-emerald-500 bg-slate-50/70 hover:bg-slate-100/70'
+                }`}
+              >
+                {currentDoc.isUploaded ? (
+                  <div className="flex items-center justify-between gap-2 text-left">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                        <CheckCircle2 size={16} />
+                      </div>
+                      <div className="overflow-hidden">
+                        <span className="text-xs font-bold text-slate-900 block truncate">
+                          {currentDoc.fileName}
+                        </span>
+                        <span className="text-[10px] text-emerald-700 font-semibold block">
+                          {currentDoc.fileSize} • Berkas Berhasil Diunggah &amp; Diaudit
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          fileInputRef.current?.click();
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold shadow-2xs"
+                      >
+                        Ganti File
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setUploadedCustomDoc(null);
+                        }}
+                        className="px-2 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600 shadow-2xs"
+                        title="Kembali ke contoh dokumen"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Upload size={18} className="mx-auto text-emerald-600 mb-1" />
+                    <span className="text-xs font-bold text-slate-700 block">
+                      Klik atau Tarik File KTP / Bukti Transfer Baru
+                    </span>
+                    <span className="text-[10px] text-slate-400">
+                      Mendukung JPG, PNG, WEBP, PDF (Maksimal 5MB)
+                    </span>
+                  </>
+                )}
               </div>
+
+              {uploadError && (
+                <div className="text-[11px] font-bold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg border border-rose-200 flex items-center gap-1.5">
+                  <AlertTriangle size={13} className="shrink-0" />
+                  <span>{uploadError}</span>
+                </div>
+              )}
             </div>
 
             {/* Right: AI OCR & Forensic Scores (7 Cols) */}

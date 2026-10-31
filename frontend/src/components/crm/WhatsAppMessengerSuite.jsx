@@ -119,20 +119,44 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const [logPage, setLogPage] = useState(1);
   const [logPerPage, setLogPerPage] = useState(25);
 
-  // Unique cities from threads for filter dropdown
+  // Master Contacts List for Buku Kontak (Prioritizes 2,000+ CRM contacts, fallback to threads)
+  const allContactsList = useMemo(() => {
+    if (crmContacts && crmContacts.length > 0) {
+      return crmContacts.map((c) => ({
+        id: c.id || c.ID,
+        contact_name: c.name || c.contact_name || 'Tanpa Nama',
+        phone: c.phone,
+        city: c.city || '-',
+        lead_stage: c.category || c.lead_stage || 'lead',
+        product: c.tags || c.notes || 'Bio-Propolis Trigona 30ml',
+        notes: c.notes || '',
+      }));
+    }
+    return threads.map((t) => ({
+      id: t.id || t.ID,
+      contact_name: t.contact_name || 'Tanpa Nama',
+      phone: t.phone,
+      city: t.city || '-',
+      lead_stage: t.lead_stage || 'new',
+      product: t.product || 'Bio-Propolis Trigona 30ml',
+      notes: '',
+    }));
+  }, [crmContacts, threads]);
+
+  // Unique cities from contacts for filter dropdown
   const contactCities = useMemo(() => {
     const set = new Set();
-    threads.forEach((t) => {
+    allContactsList.forEach((t) => {
       if (t.city && t.city.trim() && t.city !== '-') {
         set.add(t.city.trim());
       }
     });
     return Array.from(set).sort();
-  }, [threads]);
+  }, [allContactsList]);
 
   // Filtered contacts based on search & filter
   const filteredContacts = useMemo(() => {
-    return threads.filter((t) => {
+    return allContactsList.filter((t) => {
       if (contactSearch.trim()) {
         const q = contactSearch.toLowerCase();
         const matchName = (t.contact_name || '').toLowerCase().includes(q);
@@ -154,7 +178,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
       return true;
     });
-  }, [threads, contactSearch, contactStageFilter, contactCityFilter]);
+  }, [allContactsList, contactSearch, contactStageFilter, contactCityFilter]);
 
   const totalContactPages = Math.ceil(filteredContacts.length / contactPerPage) || 1;
   const paginatedContacts = useMemo(() => {
@@ -411,6 +435,9 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
             setActiveThreadId(firstId);
             fetchMessages(firstId);
           }
+        } else {
+          setActiveThreadId(null);
+          setMessages([]);
         }
       }
     } catch (err) {
@@ -680,19 +707,50 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
     }
   };
 
-  // Bersihkan semua kontak demo dummy & data yang tidak terpakai
+  // Bersihkan semua kontak demo dummy & obrolan kosong dari sidebar
   const handleClearDemoThreads = async () => {
-    if (!window.confirm('Bersihkan semua kontak demo contoh dan percakapan tidak terpakai? Hanya kontak WhatsApp asli Anda yang akan dipertahankan.')) {
+    if (!window.confirm('Bersihkan semua obrolan kosong dan demo dari sidebar messenger? Seluruh kontak Anda di Buku Kontak tetap aman tersimpan.')) {
       return;
     }
     try {
       const res = await api.post('/crm/whatsapp/threads/clear-demo');
-      alert(res.data?.message || 'Kontak demo berhasil dibersihkan');
+      alert(res.data?.message || 'Sidebar obrolan berhasil dibersihkan');
       fetchThreads();
+      fetchContacts();
       setActiveThreadId(null);
       setMessages([]);
     } catch (err) {
       alert('Gagal membersihkan data: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  // Buka obrolan dari kontak di Buku Kontak (buat thread jika belum ada)
+  const handleOpenChatWithContact = async (c) => {
+    const rawTarget = (c.phone || '').replace(/[^0-9]/g, '');
+    const found = threads.find((t) => (t.phone || '').replace(/[^0-9]/g, '') === rawTarget);
+    if (found) {
+      setActiveThreadId(found.id || found.ID);
+      setActiveTab('chat');
+      return;
+    }
+
+    try {
+      const res = await api.post('/crm/whatsapp/threads', {
+        phone: c.phone,
+        contact_name: c.contact_name || c.name || 'Pelanggan Baru',
+        product: c.product || 'Bio-Propolis Trigona 30ml',
+        city: c.city || 'Indonesia',
+        lead_stage: c.lead_stage || 'new',
+      });
+      if (res.data?.data) {
+        const newTh = res.data.data;
+        setThreads((prev) => [newTh, ...prev]);
+        setActiveThreadId(newTh.id || newTh.ID);
+        setActiveTab('chat');
+      }
+    } catch (err) {
+      console.error('Failed to open chat with contact:', err);
+      setActiveTab('chat');
     }
   };
 
@@ -1080,10 +1138,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                 <button
                   onClick={handleClearDemoThreads}
                   className="px-2 py-1 rounded-lg font-bold transition text-rose-600 hover:bg-rose-100 flex items-center space-x-1 ml-auto text-[11px]"
-                  title="Hapus semua kontak demo bawaan dan percakapan tidak terpakai"
+                  title="Hapus semua kontak demo bawaan dan percakapan kosong dari sidebar"
                 >
                   <Trash2 className="w-3 h-3 text-rose-500" />
-                  <span>Bersihkan Demo</span>
+                  <span>Bersihkan Data</span>
                 </button>
               </div>
             </div>
@@ -2088,11 +2146,8 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                             </button>
 
                             <button
-                              onClick={() => {
-                                setActiveThreadId(t.id || t.ID);
-                                setActiveTab('chat');
-                              }}
-                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition"
+                              onClick={() => handleOpenChatWithContact(t)}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] border border-emerald-200 transition"
                             >
                               Buka Chat
                             </button>
@@ -2123,9 +2178,9 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   {filteredContacts.length.toLocaleString('id-ID')}
                 </span>{' '}
                 kontak
-                {filteredContacts.length !== threads.length && (
+                {filteredContacts.length !== allContactsList.length && (
                   <span className="text-slate-400 ml-1.5">
-                    (difilter dari total {threads.length.toLocaleString('id-ID')} kontak)
+                    (difilter dari total {allContactsList.length.toLocaleString('id-ID')} kontak)
                   </span>
                 )}
               </div>

@@ -920,7 +920,7 @@ func (s *WhatsAppService) DeleteThread(threadID string) bool {
 	return found
 }
 
-// ClearDemoThreads removes dummy demo threads and temporary LID/Pelanggan WhatsApp threads
+// ClearDemoThreads removes dummy demo threads, empty threads, and temporary LID/Pelanggan WhatsApp threads
 func (s *WhatsAppService) ClearDemoThreads() int {
 	s.threadsLock.Lock()
 	defer s.threadsLock.Unlock()
@@ -935,10 +935,13 @@ func (s *WhatsAppService) ClearDemoThreads() int {
 
 	count := 0
 	newThreads := make([]WhatsAppChatThread, 0, len(s.threads))
+	removedIDs := make([]string, 0)
 	for _, t := range s.threads {
-		// Remove demo seeds or unidentified LID threads
-		if demoIDs[t.ID] || strings.Contains(t.Phone, "629991399") || t.ContactName == "Pelanggan WhatsApp" {
+		msgs := s.messages[t.ID]
+		// Remove demo seeds, unidentified LID threads, or threads without conversation messages
+		if demoIDs[t.ID] || strings.Contains(t.Phone, "629991399") || t.ContactName == "Pelanggan WhatsApp" || len(msgs) == 0 {
 			delete(s.messages, t.ID)
+			removedIDs = append(removedIDs, t.ID)
 			count++
 			continue
 		}
@@ -946,11 +949,15 @@ func (s *WhatsAppService) ClearDemoThreads() int {
 	}
 	s.threads = newThreads
 	if config.DB != nil {
-		go func() {
+		go func(rIDs []string) {
 			demoIDsList := []string{"thread-bambang", "thread-siti", "thread-ahmad", "thread-dewi", "thread-budi"}
 			_ = config.DB.Where("thread_id IN (?)", demoIDsList).Delete(&models.WhatsAppMessageModel{}).Error
 			_ = config.DB.Where("id IN (?) OR phone LIKE ? OR contact_name = ?", demoIDsList, "%629991399%", "Pelanggan WhatsApp").Delete(&models.WhatsAppThreadModel{}).Error
-		}()
+			if len(rIDs) > 0 {
+				_ = config.DB.Where("id IN (?)", rIDs).Delete(&models.WhatsAppThreadModel{}).Error
+			}
+			_ = config.DB.Exec("DELETE FROM whats_app_thread_models WHERE id NOT IN (SELECT DISTINCT thread_id FROM whats_app_message_models)").Error
+		}(removedIDs)
 	}
 	return count
 }
@@ -1628,8 +1635,6 @@ func (s *WhatsAppService) ImportContacts(items []WhatsAppContactImportItem) (int
 			}
 		}
 
-		// Also ensure a conversation thread exists so they can be reached in Live Messenger
-		s.CreateNewThread(cleanPhone, it.Name, "Bio-Propolis Trigona 30ml", city, "new")
 		importedCount++
 	}
 

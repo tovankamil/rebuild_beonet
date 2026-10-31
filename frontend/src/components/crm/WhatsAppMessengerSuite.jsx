@@ -28,6 +28,12 @@ import {
   Calendar,
   Paperclip,
   Volume2,
+  Upload,
+  FileSpreadsheet,
+  AlertCircle,
+  Target,
+  ChevronDown,
+  Bot,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
@@ -43,6 +49,19 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Bulk Contact Import & CRM Phonebook State
+  const [crmContacts, setCrmContacts] = useState([]);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importMode, setImportMode] = useState('paste'); // 'paste' | 'file'
+  const [pasteInput, setPasteInput] = useState('');
+  const [parsedContacts, setParsedContacts] = useState([]);
+  const [isImporting, setIsImporting] = useState(false);
+
+  // Machine Learning & AI Closing State
+  const [aiGoal, setAiGoal] = useState('closing'); // 'closing' | 'bpom' | 'repeat_order' | 'consultation'
+  const [aiScoring, setAiScoring] = useState(false);
+  const [aiLeadRecommendation, setAiLeadRecommendation] = useState(null);
   const [threadFilter, setThreadFilter] = useState('all'); // 'all' | 'unread' | 'new' | 'interested' | 'closing' | 'health_journey'
   const [loadingThreads, setLoadingThreads] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
@@ -81,6 +100,137 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const [pairPhone, setPairPhone] = useState('+6281234567890');
   const [pairingLoading, setPairingLoading] = useState(false);
   const [pairSuccessMsg, setPairSuccessMsg] = useState('');
+
+  // Parse raw text for bulk contacts import
+  const parseRawContactLines = (text) => {
+    if (!text || !text.trim()) {
+      setParsedContacts([]);
+      return;
+    }
+    const lines = text.split('\n');
+    const result = [];
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      const parts = trimmed.split(/[,;\t]+/).map((p) => p.trim());
+      if (parts.length >= 2) {
+        const name = parts[0];
+        let phone = parts[1].replace(/[^0-9]/g, '');
+        if (phone.startsWith('0')) {
+          phone = '62' + phone.slice(1);
+        } else if (!phone.startsWith('62')) {
+          phone = '62' + phone;
+        }
+        const city = parts[2] || 'Indonesia';
+        const category = parts[3] || 'lead';
+        const notes = parts[4] || '';
+        const isValid = phone.length >= 10 && phone.length <= 15;
+        result.push({
+          name,
+          phone,
+          city,
+          category,
+          notes,
+          isValid,
+        });
+      }
+    });
+    setParsedContacts(result);
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const fileContent = event.target.result;
+      if (file.name.endsWith('.vcf')) {
+        const vcfLines = fileContent.split('\n');
+        let currentName = '';
+        const parsed = [];
+        vcfLines.forEach((l) => {
+          if (l.startsWith('FN:') || l.startsWith('fn:')) {
+            currentName = l.substring(3).trim();
+          } else if (l.startsWith('TEL') && l.includes(':')) {
+            const rawPhone = l.split(':')[1].replace(/[^0-9]/g, '');
+            let phone = rawPhone;
+            if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+            else if (!phone.startsWith('62')) phone = '62' + phone;
+            if (currentName && phone) {
+              parsed.push({
+                name: currentName,
+                phone,
+                city: 'Import vCard',
+                category: 'lead',
+                isValid: phone.length >= 10 && phone.length <= 15,
+              });
+              currentName = '';
+            }
+          }
+        });
+        setParsedContacts(parsed);
+      } else {
+        parseRawContactLines(fileContent);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleProcessImport = async () => {
+    const validOnes = parsedContacts.filter((c) => c.isValid);
+    if (validOnes.length === 0) {
+      alert('Tidak ada kontak dengan format nomor HP valid untuk diimpor.');
+      return;
+    }
+    setIsImporting(true);
+    try {
+      const res = await api.post('/crm/whatsapp/contacts/import', {
+        contacts: validOnes.map((c) => ({
+          name: c.name,
+          phone: c.phone,
+          city: c.city,
+          category: c.category,
+          tags: 'Import Massal',
+          notes: c.notes || 'Diimpor via CRM Bulk Import',
+        })),
+      });
+      alert(res.data?.message || `Berhasil mengimpor ${validOnes.length} kontak!`);
+      setShowImportModal(false);
+      setPasteInput('');
+      setParsedContacts([]);
+      fetchContacts();
+      fetchThreads();
+    } catch (err) {
+      alert('Gagal mengimpor kontak: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  // AI Lead Scoring & Intent Analysis
+  const handleAnalyzeLeadScore = async () => {
+    if (!activeThread) return;
+    setAiScoring(true);
+    try {
+      const res = await api.post('/crm/whatsapp/ai-score', {
+        thread_id: activeThread.id || activeThread.ID,
+      });
+      if (res.data?.data) {
+        setAiLeadRecommendation(res.data.data);
+        setThreads((prev) =>
+          prev.map((t) =>
+            (t.ID || t.id) === (activeThread.ID || activeThread.id)
+              ? { ...t, ai_score: res.data.data.ai_score, ai_intent: res.data.data.ai_intent }
+              : t
+          )
+        );
+      }
+    } catch (err) {
+      console.error('Failed to analyze lead score:', err);
+    } finally {
+      setAiScoring(false);
+    }
+  };
 
   // AI Assistant Drafting in Chat
   const [aiDrafting, setAiDrafting] = useState(false);
@@ -140,6 +290,18 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTypingSimulated]);
+
+  // Fetch Saved CRM Contacts
+  const fetchContacts = async () => {
+    try {
+      const res = await api.get('/crm/whatsapp/contacts');
+      if (res.data?.data) {
+        setCrmContacts(res.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch CRM contacts:', err);
+    }
+  };
 
   // Fetch Chat Threads
   const fetchThreads = async () => {
@@ -202,6 +364,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   useEffect(() => {
     fetchThreads();
     fetchAuxiliaryData();
+    fetchContacts();
     const interval = setInterval(() => {
       fetchThreads();
       fetchAuxiliaryData();
@@ -358,27 +521,37 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
     );
   };
 
-  // AI Assistant Drafting in Chat
-  const handleDraftWithAI = async () => {
+  // AI Assistant Drafting in Chat with Google Gemini LLM
+  const handleDraftWithAI = async (goalParam) => {
     if (!activeThread) return;
+    const goalToUse = typeof goalParam === 'string' ? goalParam : aiGoal;
+    setAiGoal(goalToUse);
     setAiDrafting(true);
     try {
-      const res = await api.post('/crm/ai/objection-handler', {
-        objection_type: 'ragu_khasiat',
-        customer_name: activeThread.contact_name,
-        product_name: activeThread.product || 'Bio-Propolis Trigona',
-        lead_name: activeThread.contact_name,
-        lead_phone: activeThread.phone,
-        tone: 'ramah, empatik dan berwibawa',
+      const res = await api.post('/crm/whatsapp/ai-reply', {
+        thread_id: activeThread.id || activeThread.ID,
+        goal: goalToUse,
       });
 
-      if (res.data?.whatsapp_ready_text || res.data?.response_text) {
-        setInputText(res.data.whatsapp_ready_text || res.data.response_text);
+      if (res.data?.draft) {
+        setInputText(res.data.draft);
       }
     } catch (err) {
-      setInputText(
-        `Halo ${activeThread.contact_name}, terima kasih telah berkonsultasi dengan Bionet! 🙏 Produk ${activeThread.product || 'Bio-Propolis Trigona'} kami 100% berizin resmi BPOM TR 226012891 dan bersertifikat Halal. Apakah ada keluhan spesifik yang ingin kami bantu berikan panduan dosisnya? 😊🌿`
-      );
+      const contactName = activeThread.contact_name || 'Kak';
+      const prod = activeThread.product || 'Bio-Propolis Trigona';
+      if (goalToUse === 'closing') {
+        setInputText(
+          `Halo ${contactName}! 🙏 Untuk pemesanan ${prod} hari ini, kami ada promo khusus gratis ongkir dan bonus konsultasi gratis. Boleh kami bantu data nama penerima dan alamat pengirimannya agar bisa langsung kami siapkan pengirimannya hari ini? 😊🌿`
+        );
+      } else if (goalToUse === 'bpom') {
+        setInputText(
+          `Halo ${contactName}! Produk ${prod} dari Bionet 100% berizin resmi BPOM RI (POM TR 226012891) serta bersertifikat Halal MUI ID321100001234. Sangat aman dan bebas Bahan Kimia Obat (BKO). Keasliannya bisa dicek langsung di aplikasi BPOM Mobile 🙏`
+        );
+      } else {
+        setInputText(
+          `Halo ${contactName}, terima kasih telah berkonsultasi dengan Bionet! 🙏 Produk ${prod} kami diformulasikan murni dengan teknologi nano sehingga lebih cepat diserap tubuh. Ada keluhan kesehatan spesifik yang ingin kami dampingi? 😊🌿`
+        );
+      }
     } finally {
       setAiDrafting(false);
     }
@@ -940,6 +1113,25 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
                   {/* Header Fast Actions */}
                   <div className="flex items-center space-x-1.5">
+                    {/* AI Lead Scoring & Intent Analysis Button */}
+                    <button
+                      onClick={handleAnalyzeLeadScore}
+                      disabled={aiScoring}
+                      className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition ${
+                        (activeThread.ai_score || 0) >= 80
+                          ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                          : (activeThread.ai_score || 0) >= 60
+                          ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                      }`}
+                      title="Analisis Skor Closing & Prediksi Repeat Order via AI"
+                    >
+                      <Sparkles className={`w-3.5 h-3.5 ${aiScoring ? 'animate-spin text-amber-500' : 'text-amber-600'}`} />
+                      <span className="hidden sm:inline">
+                        {aiScoring ? 'Menganalisis...' : `Skor AI: ${activeThread.ai_score || 75}%`}
+                      </span>
+                    </button>
+
                     {/* Objection AI Assistant */}
                     <button
                       onClick={() => onOpenObjectionModal && onOpenObjectionModal(activeThread)}
@@ -988,6 +1180,38 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                     </button>
                   </div>
                 </div>
+
+                {/* AI Predictive Lead Recommendation Banner */}
+                {aiLeadRecommendation && (
+                  <div className="mx-4 mt-2 p-2.5 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/80 flex items-start justify-between shadow-xs animate-in fade-in">
+                    <div className="flex items-start space-x-2">
+                      <Sparkles className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-bold text-indigo-950 flex items-center space-x-1.5">
+                          <span>{aiLeadRecommendation.intent_label || 'Rekomendasi AI Closing'}</span>
+                          <span className="px-1.5 py-0.2 rounded-full bg-indigo-200 text-indigo-800 text-[9px] font-black">
+                            {aiLeadRecommendation.ai_score}% Probability
+                          </span>
+                        </div>
+                        <p className="text-slate-600 mt-0.5">{aiLeadRecommendation.recommendation}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
+                      <button
+                        onClick={() => handleDraftWithAI('closing')}
+                        className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] transition shadow-2xs"
+                      >
+                        ⚡ Rangkai Balasan
+                      </button>
+                      <button
+                        onClick={() => setAiLeadRecommendation(null)}
+                        className="p-1 rounded-md text-slate-400 hover:text-slate-600"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Message Stream Pane */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 relative">
@@ -1067,6 +1291,46 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   )}
 
                   <div ref={messagesEndRef} />
+                </div>
+
+                {/* AI Assistant Quick Generator Bar */}
+                <div className="px-3.5 py-1.5 bg-gradient-to-r from-amber-50 to-orange-50/60 border-t border-amber-200/80 flex items-center space-x-1.5 overflow-x-auto text-[11px]">
+                  <span className="text-[10px] font-black uppercase text-amber-800 flex items-center space-x-1 flex-shrink-0">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Draf AI:</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleDraftWithAI('closing')}
+                    disabled={aiDrafting}
+                    className="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-amber-900 hover:bg-amber-100 font-bold whitespace-nowrap transition shadow-2xs flex items-center space-x-1"
+                  >
+                    <span>🎯 Closing Cepat & Rekening</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDraftWithAI('bpom')}
+                    disabled={aiDrafting}
+                    className="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-amber-900 hover:bg-amber-100 font-bold whitespace-nowrap transition shadow-2xs flex items-center space-x-1"
+                  >
+                    <span>📜 Legalitas BPOM & Halal</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDraftWithAI('repeat_order')}
+                    disabled={aiDrafting}
+                    className="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-amber-900 hover:bg-amber-100 font-bold whitespace-nowrap transition shadow-2xs flex items-center space-x-1"
+                  >
+                    <span>🔄 Tawaran Repeat Order</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDraftWithAI('consultation')}
+                    disabled={aiDrafting}
+                    className="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-amber-900 hover:bg-amber-100 font-bold whitespace-nowrap transition shadow-2xs flex items-center space-x-1"
+                  >
+                    <span>🌿 Solusi Dosis & Keluhan</span>
+                  </button>
                 </div>
 
                 {/* Quick Reply Pills Bar */}
@@ -1528,6 +1792,13 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
             </div>
 
             <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-md shadow-emerald-950 flex items-center space-x-1.5"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Import Kontak Massal</span>
+              </button>
               <button
                 onClick={() =>
                   downloadBatchVCard(
@@ -2041,6 +2312,169 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
           </div>
         </ModalPortal>
       )}
+
+      {/* Modal Import Kontak Massal (CSV, Excel, vCard, Paste) */}
+      {showImportModal && (
+        <ModalPortal isOpen={true} onClose={() => setShowImportModal(false)}>
+          <div className="bg-white rounded-3xl p-6 max-w-2xl w-full shadow-2xl space-y-4 border border-slate-200 animate-in fade-in max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2">
+                <Upload className="w-5 h-5 text-emerald-600" />
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-sm">Import Kontak Massal ke WhatsApp CRM</h3>
+                  <p className="text-[11px] text-slate-400">Dukung format CSV, Excel paste, atau file .vcf (vCard)</p>
+                </div>
+              </div>
+              <button onClick={() => setShowImportModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Mode Tabs */}
+            <div className="flex items-center space-x-2 border-b border-slate-200 pb-2">
+              <button
+                type="button"
+                onClick={() => setImportMode('paste')}
+                className={`px-3 py-1.5 rounded-xl font-bold text-xs transition ${
+                  importMode === 'paste' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                📋 Copy-Paste Teks
+              </button>
+              <button
+                type="button"
+                onClick={() => setImportMode('file')}
+                className={`px-3 py-1.5 rounded-xl font-bold text-xs transition ${
+                  importMode === 'file' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                📁 Upload File (CSV / .vcf)
+              </button>
+            </div>
+
+            {importMode === 'paste' ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <label className="font-bold text-slate-700">Paste Data Kontak (Nama, Nomor HP, Kota, Kategori):</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const sample = "Bpk Bambang Sudirman, 081298765432, Surabaya, Lead, Minat Bio-Propolis 30ml\nIbu Siti Rahmawati, 081312345678, Bandung, Pelanggan, Evaluasi Hari ke-7\nAhmad Fauzi, 081987654321, Jakarta, Mitra, Prospek Webinar BOP\nDewi Sartika, 082145678901, Semarang, Pelanggan, Order Ulang Botol ke-2";
+                      setPasteInput(sample);
+                      parseRawContactLines(sample);
+                    }}
+                    className="text-emerald-600 hover:underline font-bold text-[11px]"
+                  >
+                    + Masukkan Contoh Format
+                  </button>
+                </div>
+                <textarea
+                  rows={6}
+                  value={pasteInput}
+                  onChange={(e) => {
+                    setPasteInput(e.target.value);
+                    parseRawContactLines(e.target.value);
+                  }}
+                  placeholder="Contoh format:\nBudi Santoso, 081234567890, Surabaya, Lead\nSiti Aminah, 081298765432, Jakarta, Pelanggan"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-mono focus:outline-none focus:border-emerald-500 leading-relaxed"
+                />
+              </div>
+            ) : (
+              <div className="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center hover:border-emerald-500 transition cursor-pointer">
+                <Upload className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                <p className="text-xs font-bold text-slate-700">Pilih file CSV, Text, atau .vcf dari komputer Anda</p>
+                <p className="text-[10px] text-slate-400 mt-1">Mendukung format export Google Contacts, iCloud .vcf, atau spreadsheet Excel (.csv)</p>
+                <input
+                  type="file"
+                  accept=".csv,.txt,.vcf"
+                  onChange={handleFileUpload}
+                  className="mt-3 block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                />
+              </div>
+            )}
+
+            {/* Parsed Preview Table */}
+            {parsedContacts.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-extrabold text-slate-900">
+                    Pratinjau Hasil Deteksi ({parsedContacts.filter((c) => c.isValid).length} Valid dari {parsedContacts.length} baris)
+                  </span>
+                  <span className="text-[11px] text-slate-400">Nomor otomatis distandarisasi ke format internasional (+62)</span>
+                </div>
+                <div className="max-h-48 overflow-y-auto border border-slate-200 rounded-xl">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-50 text-slate-600 font-bold text-[10px] border-b border-slate-200">
+                      <tr>
+                        <th className="py-2 px-3">Nama</th>
+                        <th className="py-2 px-3">Nomor WhatsApp</th>
+                        <th className="py-2 px-3">Kota</th>
+                        <th className="py-2 px-3">Kategori</th>
+                        <th className="py-2 px-3 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {parsedContacts.slice(0, 15).map((c, idx) => (
+                        <tr key={idx} className={c.isValid ? 'hover:bg-slate-50' : 'bg-rose-50/50'}>
+                          <td className="py-2 px-3 font-semibold text-slate-900">{c.name}</td>
+                          <td className="py-2 px-3 font-mono text-slate-700">{c.phone}</td>
+                          <td className="py-2 px-3 text-slate-500">{c.city}</td>
+                          <td className="py-2 px-3">
+                            <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold">
+                              {c.category}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 text-center">
+                            {c.isValid ? (
+                              <span className="text-emerald-600 font-bold text-[10px]">✓ Siap Import</span>
+                            ) : (
+                              <span className="text-rose-600 font-bold text-[10px]">✕ No. Tidak Valid</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {parsedContacts.length > 15 && (
+                  <p className="text-[10px] text-slate-400 italic text-center">
+                    ...dan {parsedContacts.length - 15} kontak lainnya akan ikut diimpor
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="pt-3 flex items-center justify-end space-x-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setShowImportModal(false)}
+                className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={isImporting || parsedContacts.filter((c) => c.isValid).length === 0}
+                onClick={handleProcessImport}
+                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs transition shadow-md shadow-emerald-950 flex items-center space-x-1.5"
+              >
+                {isImporting ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Memproses Import...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Mulai Import ({parsedContacts.filter((c) => c.isValid).length} Kontak)</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
     </div>
   );
 }

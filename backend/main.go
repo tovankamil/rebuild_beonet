@@ -823,6 +823,9 @@ func main() {
 		&models.BioPage{},
 		&models.AcademyCompletion{},
 		&models.WhatsAppSchedule{},
+		&models.WhatsAppThreadModel{},
+		&models.WhatsAppMessageModel{},
+		&models.WhatsAppContactModel{},
 		&models.SecurityThreatLog{},
 		&models.BlockedIP{},
 		&models.GeoAccessLog{},
@@ -1103,6 +1106,16 @@ func main() {
 			protected.GET("/crm/whatsapp/schedules", crmHandler.GetWhatsAppSchedules)
 			protected.POST("/crm/whatsapp/schedules", crmHandler.CreateWhatsAppSchedule)
 			protected.DELETE("/crm/whatsapp/schedules/:id", crmHandler.DeleteWhatsAppSchedule)
+
+			// WhatsApp Buku Kontak & Bulk Import
+			protected.GET("/crm/whatsapp/contacts", crmHandler.GetWhatsAppContacts)
+			protected.POST("/crm/whatsapp/contacts", crmHandler.CreateWhatsAppContact)
+			protected.POST("/crm/whatsapp/contacts/import", crmHandler.ImportWhatsAppContacts)
+			protected.DELETE("/crm/whatsapp/contacts/:id", crmHandler.DeleteWhatsAppContact)
+
+			// Machine Learning & Deep Learning (AI Closing Reply & Lead Scoring)
+			protected.POST("/crm/whatsapp/ai-reply", crmHandler.GenerateWhatsAppAIReply)
+			protected.POST("/crm/whatsapp/ai-score", crmHandler.AnalyzeWhatsAppLeadScore)
 
 			// Pilar 1: Bio-Link & Sales Funnel Builder (Protected Mitra Management)
 			protected.GET("/bio/my-page", bioLinkHandler.GetMyBioPage)

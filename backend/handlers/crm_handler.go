@@ -1982,3 +1982,185 @@ func (h *CRMHandler) DeleteWhatsAppSchedule(c *gin.Context) {
 		"message": "Jadwal follow-up WhatsApp berhasil dihapus",
 	})
 }
+
+// =========================================================================
+// WHATSAPP CONTACT BOOK & BULK IMPORT HANDLERS
+// =========================================================================
+
+// GetWhatsAppContacts mengambil daftar kontak tersimpan di CRM
+// Endpoint: GET /api/crm/whatsapp/contacts
+func (h *CRMHandler) GetWhatsAppContacts(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	contacts := waService.GetContacts()
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   contacts,
+		"total":  len(contacts),
+	})
+}
+
+// CreateWhatsAppContact menyimpan kontak individu baru
+// Endpoint: POST /api/crm/whatsapp/contacts
+func (h *CRMHandler) CreateWhatsAppContact(c *gin.Context) {
+	var req models.WhatsAppContactModel
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Data kontak tidak valid",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	userID := c.GetString("user_id")
+	if req.UserID == "" {
+		req.UserID = userID
+	}
+
+	waService := services.InitWhatsAppService()
+	saved, err := waService.SaveContact(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	// Also ensure thread exists
+	waService.CreateNewThread(saved.Phone, saved.Name, "Bio-Propolis Trigona 30ml", saved.City, "new")
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  "success",
+		"message": "Kontak berhasil disimpan",
+		"data":    saved,
+	})
+}
+
+// ImportWhatsAppContacts memproses import kontak massal (CSV/Excel/vCard/Paste)
+// Endpoint: POST /api/crm/whatsapp/contacts/import
+func (h *CRMHandler) ImportWhatsAppContacts(c *gin.Context) {
+	var req struct {
+		Contacts []services.WhatsAppContactImportItem `json:"contacts" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Daftar kontak tidak valid",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	count, err := waService.ImportContacts(req.Contacts)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":         "success",
+		"message":        fmt.Sprintf("Berhasil mengimpor %d kontak ke Buku Kontak CRM & WhatsApp Messenger", count),
+		"imported_count": count,
+	})
+}
+
+// DeleteWhatsAppContact menghapus kontak berdasarkan ID
+// Endpoint: DELETE /api/crm/whatsapp/contacts/:id
+func (h *CRMHandler) DeleteWhatsAppContact(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "ID kontak wajib diisi"})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	if err := waService.DeleteContact(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Kontak berhasil dihapus",
+	})
+}
+
+// =========================================================================
+// WHATSAPP MACHINE LEARNING & AI ASSISTANT HANDLERS
+// =========================================================================
+
+// GenerateWhatsAppAIReply menghasilkan draf balasan cerdas berbasis Gemini LLM
+// Endpoint: POST /api/crm/whatsapp/ai-reply
+func (h *CRMHandler) GenerateWhatsAppAIReply(c *gin.Context) {
+	var req struct {
+		ThreadID string `json:"thread_id" binding:"required"`
+		Goal     string `json:"goal"` // "closing", "bpom", "repeat_order", "consultation"
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Parameter thread_id wajib diisi",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	if req.Goal == "" {
+		req.Goal = "closing"
+	}
+
+	waService := services.InitWhatsAppService()
+	draft, err := waService.GenerateAIReplyDraft(c.Request.Context(), req.ThreadID, req.Goal)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Gagal menghasilkan draf balasan AI: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":    "success",
+		"thread_id": req.ThreadID,
+		"goal":      req.Goal,
+		"draft":     draft,
+	})
+}
+
+// AnalyzeWhatsAppLeadScore menghitung skor prospek dan prediksi repeat order via AI
+// Endpoint: POST /api/crm/whatsapp/ai-score
+func (h *CRMHandler) AnalyzeWhatsAppLeadScore(c *gin.Context) {
+	var req struct {
+		ThreadID string `json:"thread_id" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Parameter thread_id wajib diisi",
+		})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	analysis, err := waService.AnalyzeLeadScoreAndIntent(c.Request.Context(), req.ThreadID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Gagal menganalisis skor lead: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   analysis,
+	})
+}

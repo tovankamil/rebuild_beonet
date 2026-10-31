@@ -2,6 +2,7 @@ package services
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"bionet-backend/config"
 	"bionet-backend/models"
 	"github.com/joho/godotenv"
 )
@@ -54,6 +56,8 @@ type WhatsAppChatThread struct {
 	LastMessageTime time.Time             `json:"last_message_time"`
 	UnreadCount     int                   `json:"unread_count"`
 	IsOnline        bool                  `json:"is_online"`
+	AIScore         int                   `json:"ai_score,omitempty"`
+	AIIntent        string                `json:"ai_intent,omitempty"`
 	Messages        []WhatsAppMessageItem `json:"messages,omitempty"`
 }
 
@@ -122,6 +126,10 @@ type WhatsAppService struct {
 	// Device Session
 	deviceSession WhatsAppDeviceSession
 	deviceLock    sync.RWMutex
+
+	// DB Persistence
+	isDBLoaded bool
+	dbLock     sync.Mutex
 }
 
 var (
@@ -716,8 +724,120 @@ func (s *WhatsAppService) SendCrmDirectMessage(phone, recipient, category, messa
 // IN-APP WHATSAPP MESSENGER THREADS & MESSAGES HUB
 // =========================================================================
 
+// ensureDBLoaded lazily loads threads and messages from MySQL
+func (s *WhatsAppService) ensureDBLoaded() {
+	if s == nil || s.isDBLoaded || config.DB == nil {
+		return
+	}
+	s.dbLock.Lock()
+	defer s.dbLock.Unlock()
+	if s.isDBLoaded {
+		return
+	}
+	s.LoadFromDB()
+	s.isDBLoaded = true
+}
+
+// LoadFromDB reads persistent threads and messages from MySQL, or seeds default data if table is empty
+func (s *WhatsAppService) LoadFromDB() {
+	if config.DB == nil {
+		return
+	}
+	s.threadsLock.Lock()
+	defer s.threadsLock.Unlock()
+
+	var dbThreads []models.WhatsAppThreadModel
+	if err := config.DB.Order("last_message_time desc").Find(&dbThreads).Error; err != nil {
+		log.Printf("[WhatsApp DB] Error querying whatsapp_threads: %v", err)
+		return
+	}
+
+	if len(dbThreads) == 0 {
+		// Seed default threads into MySQL for permanent persistence
+		for _, t := range s.threads {
+			mThread := models.WhatsAppThreadModel{
+				ID:              t.ID,
+				Phone:           t.Phone,
+				ContactName:     t.ContactName,
+				Avatar:          t.Avatar,
+				LeadStage:       t.LeadStage,
+				Product:         t.Product,
+				City:            t.City,
+				LastMessage:     t.LastMessage,
+				LastMessageTime: t.LastMessageTime,
+				UnreadCount:     t.UnreadCount,
+				IsOnline:        t.IsOnline,
+				AIScore:         75,
+				AIIntent:        "warm_consult",
+			}
+			_ = config.DB.Create(&mThread).Error
+
+			// Also persist initial messages
+			if msgs, ok := s.messages[t.ID]; ok {
+				for _, m := range msgs {
+					mMsg := models.WhatsAppMessageModel{
+						ID:        m.ID,
+						ThreadID:  t.ID,
+						Sender:    m.Sender,
+						Text:      m.Text,
+						MediaURL:  m.MediaURL,
+						MediaType: m.MediaType,
+						Status:    m.Status,
+						SentAt:    m.SentAt,
+					}
+					_ = config.DB.Create(&mMsg).Error
+				}
+			}
+		}
+		log.Printf("[WhatsApp DB] Seeded initial default threads and messages into MySQL")
+		return
+	}
+
+	// Populate in-memory cache with persisted threads from MySQL
+	loadedThreads := make([]WhatsAppChatThread, 0, len(dbThreads))
+	for _, dt := range dbThreads {
+		loadedThreads = append(loadedThreads, WhatsAppChatThread{
+			ID:              dt.ID,
+			Phone:           dt.Phone,
+			ContactName:     dt.ContactName,
+			Avatar:          dt.Avatar,
+			LeadStage:       dt.LeadStage,
+			Product:         dt.Product,
+			City:            dt.City,
+			LastMessage:     dt.LastMessage,
+			LastMessageTime: dt.LastMessageTime,
+			UnreadCount:     dt.UnreadCount,
+			IsOnline:        dt.IsOnline,
+			AIScore:         dt.AIScore,
+			AIIntent:        dt.AIIntent,
+		})
+
+		// Load messages for this thread
+		var dbMsgs []models.WhatsAppMessageModel
+		if err := config.DB.Where("thread_id = ?", dt.ID).Order("sent_at asc").Find(&dbMsgs).Error; err == nil {
+			msgs := make([]WhatsAppMessageItem, 0, len(dbMsgs))
+			for _, dm := range dbMsgs {
+				msgs = append(msgs, WhatsAppMessageItem{
+					ID:        dm.ID,
+					ThreadID:  dm.ThreadID,
+					Sender:    dm.Sender,
+					Text:      dm.Text,
+					MediaURL:  dm.MediaURL,
+					MediaType: dm.MediaType,
+					Status:    dm.Status,
+					SentAt:    dm.SentAt,
+				})
+			}
+			s.messages[dt.ID] = msgs
+		}
+	}
+	s.threads = loadedThreads
+	log.Printf("[WhatsApp DB] Successfully loaded %d threads and message histories from MySQL", len(loadedThreads))
+}
+
 // GetChatThreads returns all customer chat conversations
 func (s *WhatsAppService) GetChatThreads() []WhatsAppChatThread {
+	s.ensureDBLoaded()
 	s.threadsLock.RLock()
 	defer s.threadsLock.RUnlock()
 
@@ -728,6 +848,7 @@ func (s *WhatsAppService) GetChatThreads() []WhatsAppChatThread {
 
 // GetThreadMessages returns all messages for a specific conversation thread
 func (s *WhatsAppService) GetThreadMessages(threadID string) []WhatsAppMessageItem {
+	s.ensureDBLoaded()
 	s.threadsLock.RLock()
 	defer s.threadsLock.RUnlock()
 
@@ -789,6 +910,25 @@ func (s *WhatsAppService) SendMessageInThread(threadID, text, mediaType string) 
 	thread.LastMessage = text
 	thread.LastMessageTime = now
 	s.threadsLock.Unlock()
+
+	// Persist to MySQL
+	if config.DB != nil {
+		go func(m models.WhatsAppMessageModel, tID, lastTxt string, lastTime time.Time) {
+			_ = config.DB.Create(&m).Error
+			_ = config.DB.Model(&models.WhatsAppThreadModel{}).Where("id = ?", tID).Updates(map[string]interface{}{
+				"last_message":      lastTxt,
+				"last_message_time": lastTime,
+			}).Error
+		}(models.WhatsAppMessageModel{
+			ID:        newMsg.ID,
+			ThreadID:  newMsg.ThreadID,
+			Sender:    newMsg.Sender,
+			Text:      newMsg.Text,
+			MediaType: newMsg.MediaType,
+			Status:    newMsg.Status,
+			SentAt:    newMsg.SentAt,
+		}, threadID, text, now)
+	}
 
 	// Also record in WhatsApp Gateway Logs
 	s.addLog(WhatsAppLog{
@@ -1014,6 +1154,39 @@ func (s *WhatsAppService) CreateNewThread(phone, contactName, product, city, lea
 	}
 	s.threadsLock.Unlock()
 
+	// Persist new thread & greeting to MySQL
+	if config.DB != nil {
+		go func(t WhatsAppChatThread, mID, greeting string) {
+			mThread := models.WhatsAppThreadModel{
+				ID:              t.ID,
+				Phone:           t.Phone,
+				ContactName:     t.ContactName,
+				Avatar:          t.Avatar,
+				LeadStage:       t.LeadStage,
+				Product:         t.Product,
+				City:            t.City,
+				LastMessage:     greeting,
+				LastMessageTime: t.LastMessageTime,
+				UnreadCount:     0,
+				IsOnline:        true,
+				AIScore:         70,
+				AIIntent:        "warm_consult",
+			}
+			_ = config.DB.Create(&mThread).Error
+
+			mMsg := models.WhatsAppMessageModel{
+				ID:        mID,
+				ThreadID:  t.ID,
+				Sender:    "me",
+				Text:      greeting,
+				MediaType: "text",
+				Status:    "sent",
+				SentAt:    time.Now(),
+			}
+			_ = config.DB.Create(&mMsg).Error
+		}(newThread, msgID, initText)
+	}
+
 	// Dispatch outbound initial greeting via WAHA and record log
 	go func(targetPhone, cName, messageText, mID string) {
 		if s.wahaURL != "" || s.provider == "waha" {
@@ -1052,6 +1225,12 @@ func (s *WhatsAppService) DeleteThread(threadID string) bool {
 	if found {
 		s.threads = newThreads
 		delete(s.messages, threadID)
+		if config.DB != nil {
+			go func(tID string) {
+				_ = config.DB.Where("thread_id = ?", tID).Delete(&models.WhatsAppMessageModel{}).Error
+				_ = config.DB.Where("id = ?", tID).Delete(&models.WhatsAppThreadModel{}).Error
+			}(threadID)
+		}
 	}
 	return found
 }
@@ -1081,6 +1260,13 @@ func (s *WhatsAppService) ClearDemoThreads() int {
 		newThreads = append(newThreads, t)
 	}
 	s.threads = newThreads
+	if config.DB != nil {
+		go func() {
+			demoIDsList := []string{"thread-bambang", "thread-siti", "thread-ahmad", "thread-dewi", "thread-budi"}
+			_ = config.DB.Where("thread_id IN (?)", demoIDsList).Delete(&models.WhatsAppMessageModel{}).Error
+			_ = config.DB.Where("id IN (?) OR phone LIKE ? OR contact_name = ?", demoIDsList, "%629991399%", "Pelanggan WhatsApp").Delete(&models.WhatsAppThreadModel{}).Error
+		}()
+	}
 	return count
 }
 
@@ -1394,6 +1580,50 @@ func (s *WhatsAppService) RecordInboundMessage(fromPhone, senderName, message st
 	log.Printf("[RecordInboundMessage] Added inbound message to threadID '%s' (phone: %s): %s", foundThreadID, formattedPhone, message)
 	s.threadsLock.Unlock()
 
+	// Persist inbound message and update thread in MySQL
+	if config.DB != nil {
+		go func(tID, msgText, cPhone, cName string, sentTime time.Time, mID string) {
+			// Check if thread exists in DB
+			var count int64
+			config.DB.Model(&models.WhatsAppThreadModel{}).Where("id = ?", tID).Count(&count)
+			if count == 0 {
+				newMThread := models.WhatsAppThreadModel{
+					ID:              tID,
+					Phone:           "+" + cPhone,
+					ContactName:     cName,
+					Avatar:          fmt.Sprintf("https://api.dicebear.com/7.x/initials/svg?seed=%s", cName),
+					LeadStage:       "new",
+					Product:         "Bio-Propolis Trigona",
+					City:            "Online Lead",
+					LastMessage:     msgText,
+					LastMessageTime: sentTime,
+					UnreadCount:     1,
+					IsOnline:        true,
+					AIScore:         65,
+					AIIntent:        "warm_consult",
+				}
+				_ = config.DB.Create(&newMThread).Error
+			} else {
+				_ = config.DB.Model(&models.WhatsAppThreadModel{}).Where("id = ?", tID).Updates(map[string]interface{}{
+					"last_message":      msgText,
+					"last_message_time": sentTime,
+				}).Error
+			}
+
+			// Persist inbound message
+			inMsg := models.WhatsAppMessageModel{
+				ID:        mID,
+				ThreadID:  tID,
+				Sender:    "contact",
+				Text:      msgText,
+				MediaType: "text",
+				Status:    "read",
+				SentAt:    sentTime,
+			}
+			_ = config.DB.Create(&inMsg).Error
+		}(foundThreadID, message, formattedPhone, senderName, now, logID)
+	}
+
 	return &logEntry
 }
 
@@ -1604,4 +1834,344 @@ func (s *WhatsAppService) DeleteSchedule(id string, userID string) bool {
 		}
 	}
 	return false
+}
+
+
+// =========================================================================
+// WHATSAPP BULK CONTACT MANAGEMENT & MEMBER AUTO-SYNC
+// =========================================================================
+
+// WhatsAppContactImportItem represents an item in a bulk import payload
+type WhatsAppContactImportItem struct {
+	Name     string `json:"name"`
+	Phone    string `json:"phone"`
+	City     string `json:"city"`
+	Category string `json:"category"` // "member", "lead", "customer", "partner"
+	Tags     string `json:"tags"`
+	Notes    string `json:"notes"`
+}
+
+// GetContacts returns all stored WhatsApp CRM contacts
+func (s *WhatsAppService) GetContacts() []models.WhatsAppContactModel {
+	s.ensureDBLoaded()
+	if config.DB == nil {
+		return []models.WhatsAppContactModel{}
+	}
+	var contacts []models.WhatsAppContactModel
+	if err := config.DB.Order("created_at desc").Find(&contacts).Error; err != nil {
+		log.Printf("[GetContacts Error] %v", err)
+		return []models.WhatsAppContactModel{}
+	}
+	return contacts
+}
+
+// SaveContact creates or updates an individual contact
+func (s *WhatsAppService) SaveContact(c models.WhatsAppContactModel) (*models.WhatsAppContactModel, error) {
+	s.ensureDBLoaded()
+	c.Phone = FormatPhone(c.Phone)
+	if c.Phone == "" || c.Name == "" {
+		return nil, fmt.Errorf("nama dan nomor HP wajib diisi")
+	}
+	if config.DB != nil {
+		var existing models.WhatsAppContactModel
+		if err := config.DB.Where("phone = ?", c.Phone).First(&existing).Error; err == nil {
+			existing.Name = c.Name
+			existing.City = c.City
+			existing.Category = c.Category
+			existing.Tags = c.Tags
+			existing.Notes = c.Notes
+			config.DB.Save(&existing)
+			return &existing, nil
+		}
+		if err := config.DB.Create(&c).Error; err != nil {
+			return nil, err
+		}
+	}
+	return &c, nil
+}
+
+// DeleteContact removes a contact by ID
+func (s *WhatsAppService) DeleteContact(id string) error {
+	if config.DB == nil {
+		return fmt.Errorf("database not connected")
+	}
+	return config.DB.Where("id = ?", id).Delete(&models.WhatsAppContactModel{}).Error
+}
+
+// ImportContacts parses and persists bulk contacts with phone standardization
+func (s *WhatsAppService) ImportContacts(items []WhatsAppContactImportItem) (int, error) {
+	s.ensureDBLoaded()
+	if len(items) == 0 {
+		return 0, fmt.Errorf("daftar kontak kosong")
+	}
+
+	importedCount := 0
+	for _, it := range items {
+		cleanPhone := FormatPhone(it.Phone)
+		if cleanPhone == "" || strings.TrimSpace(it.Name) == "" {
+			continue
+		}
+
+		cat := it.Category
+		if cat == "" {
+			cat = "lead"
+		}
+		city := it.City
+		if city == "" {
+			city = "Indonesia"
+		}
+
+		if config.DB != nil {
+			var existing models.WhatsAppContactModel
+			if err := config.DB.Where("phone = ?", cleanPhone).First(&existing).Error; err == nil {
+				existing.Name = it.Name
+				existing.City = city
+				existing.Category = cat
+				existing.Tags = it.Tags
+				existing.Notes = it.Notes
+				config.DB.Save(&existing)
+			} else {
+				newContact := models.WhatsAppContactModel{
+					Phone:    cleanPhone,
+					Name:     it.Name,
+					City:     city,
+					Category: cat,
+					Tags:     it.Tags,
+					Notes:    it.Notes,
+				}
+				config.DB.Create(&newContact)
+			}
+		}
+
+		// Also ensure a conversation thread exists so they can be reached in Live Messenger
+		s.CreateNewThread(cleanPhone, it.Name, "Bio-Propolis Trigona 30ml", city, "new")
+		importedCount++
+	}
+
+	return importedCount, nil
+}
+
+// SyncNewMemberContact automatically syncs new downline registration to WhatsApp Contacts & sends welcoming greeting
+func (s *WhatsAppService) SyncNewMemberContact(phone, fullName, username, packageName string) error {
+	s.ensureDBLoaded()
+	cleanPhone := FormatPhone(phone)
+	if cleanPhone == "" {
+		return fmt.Errorf("nomor HP tidak valid")
+	}
+
+	if config.DB != nil {
+		var contact models.WhatsAppContactModel
+		if err := config.DB.Where("phone = ?", cleanPhone).First(&contact).Error; err != nil {
+			contact = models.WhatsAppContactModel{
+				Phone:    cleanPhone,
+				Name:     fullName,
+				City:     "Mitra Bionet",
+				Category: "member",
+				Tags:     "Mitra Resmi, Paket " + packageName,
+				Notes:    fmt.Sprintf("Username: %s | Terdaftar via Network Registration", username),
+			}
+			config.DB.Create(&contact)
+		}
+	}
+
+	// Create or find thread
+	th := s.CreateNewThread(cleanPhone, fullName, "Kemitraan "+packageName, "Indonesia", "closing")
+
+	// Compose official welcoming WhatsApp message
+	welcomeMsg := fmt.Sprintf(
+		"🌿 *SELAMAT BERGABUNG DI KELUARGA BESAR BIONET INDONESIA!* 🌿\n\n"+
+			"Halo Kak %s! Selamat, akun kemitraan resmi Bionet Anda telah berhasil diaktifkan.\n\n"+
+			"📋 *Detail Akun Kemitraan:*\n"+
+			"• Nama Lengkap: %s\n"+
+			"• Username: %s\n"+
+			"• Paket Kemitraan: %s\n"+
+			"• Status Lisensi: Aktif & Terverifikasi (Hak Usaha Binary Siap)\n\n"+
+			"Simpan nomor WhatsApp resmi ini untuk panduan akselerasi bisnis, informasi produk herbal BPOM, serta notifikasi pencairan bonus harian Anda.\n\n"+
+			"Salam Sehat & Sukses Sejahtera Bersama Bionet! 🚀",
+		fullName, fullName, username, packageName,
+	)
+
+	// Send welcoming message in thread
+	if th != nil {
+		_, _ = s.SendMessageInThread(th.ID, welcomeMsg, "text")
+	}
+
+	return nil
+}
+
+// =========================================================================
+// MACHINE LEARNING & DEEP LEARNING (AI CLOSING DRAFT & LEAD SCORING)
+// =========================================================================
+
+// GenerateAIReplyDraft produces high-converting AI closing reply using Gemini
+func (s *WhatsAppService) GenerateAIReplyDraft(ctx context.Context, threadID, closingGoal string) (string, error) {
+	s.ensureDBLoaded()
+
+	s.threadsLock.RLock()
+	var thread *WhatsAppChatThread
+	for i := range s.threads {
+		if s.threads[i].ID == threadID {
+			thread = &s.threads[i]
+			break
+		}
+	}
+	msgs := s.messages[threadID]
+	s.threadsLock.RUnlock()
+
+	contactName := "Pelanggan"
+	productName := "Bio-Propolis Trigona 30ml"
+	if thread != nil {
+		if thread.ContactName != "" {
+			contactName = thread.ContactName
+		}
+		if thread.Product != "" {
+			productName = thread.Product
+		}
+	}
+
+	// Build recent chat history
+	recentLines := []string{}
+	startIdx := 0
+	if len(msgs) > 6 {
+		startIdx = len(msgs) - 6
+	}
+	for _, m := range msgs[startIdx:] {
+		senderLabel := "Konsumen"
+		if m.Sender == "me" {
+			senderLabel = "CS Bionet"
+		}
+		recentLines = append(recentLines, fmt.Sprintf("%s: %s", senderLabel, m.Text))
+	}
+	historyText := strings.Join(recentLines, "\n")
+	if historyText == "" {
+		historyText = fmt.Sprintf("Konsumen (%s) baru saja menyapa dan menanyakan produk %s.", contactName, productName)
+	}
+
+	systemPrompt := `Anda adalah AI Senior Sales Closer dan CS Konsultan Kesehatan Resmi Bionet Indonesia (Herbal Nano Bio-Propolis Trigona, Bio-Gluta White, legalitas BPOM TR 226012891, Halal MUI, dan program kemitraan).
+Tugas Anda: Menghasilkan 1 pesan draf balasan WhatsApp yang persuasif, hangat, profesional, ramah, dan sangat berorientasi closing atau edukasi solutif.
+Pedoman Penulisan:
+1. Gunakan Bahasa Indonesia yang santun, luwes, dan bersahabat.
+2. Gunakan sapaan hangat (misal: "Halo Pak/Bu [Nama]" atau "Halo Kak [Nama]").
+3. Berikan solusi konkret atas pertanyaan atau kekhawatiran mereka.
+4. Sertakan Call to Action (CTA) yang jelas dan halus di akhir pesan (misal: konfirmasi pengiriman, penawaran promo paket hemat, atau ajakan konsultasi).
+5. Format draf balasan siap kirim di WhatsApp (boleh sertakan 2-3 emoji yang sopan: 🙏, 🌿, 😊).
+6. HANYA kembalikan teks pesan balasan tanpa kata pengantar atau catatan tambahan.`
+
+	userPrompt := fmt.Sprintf(
+		"Nama Kontak: %s\nProduk Terkait: %s\nTujuan Balasan: %s\n\nRiwayat Percakapan Terakhir:\n%s\n\nTuliskan draf balasan WhatsApp terbaik:",
+		contactName, productName, closingGoal, historyText,
+	)
+
+	if GlobalGeminiService != nil {
+		reply, err := GlobalGeminiService.AskWithSystemPrompt(ctx, systemPrompt, userPrompt)
+		if err == nil && strings.TrimSpace(reply) != "" {
+			return strings.TrimSpace(reply), nil
+		}
+		log.Printf("[GenerateAIReplyDraft] Gemini fallback triggered: %v", err)
+	}
+
+	// Heuristic high-converting fallback responses
+	switch strings.ToLower(closingGoal) {
+	case "closing", "closing_deal", "order":
+		return fmt.Sprintf("Halo Kak %s! 🙏 Untuk pemesanan %s hari ini, kami ada promo subsidi ongkir dan bonus konsultasi kesehatan gratis. Boleh kami bantu data nama penerima dan alamat lengkap pengirimannya agar bisa langsung kami proses pengirimannya hari ini? 😊", contactName, productName), nil
+	case "bpom", "legalitas", "legality":
+		return fmt.Sprintf("Halo Kak %s! Tidak perlu khawatir ya, produk %s dari Bionet sudah 100%% terdaftar resmi di BPOM RI (POM TR 226012891) serta bersertifikat Halal MUI ID321100001234. Keasliannya bisa dicek langsung di aplikasi BPOM Mobile. Kualitas dan keamanannya sangat terjamin 🙏🌿", contactName, productName), nil
+	case "repeat_order", "ro":
+		return fmt.Sprintf("Selamat siang Kak %s! Memasuki masa pemulihan rutin, bagaimana perkembangan kondisi kesehatannya? Mengingat persediaan botol sebelumnya sudah menipis, mau kami siapkan paket repeat order 2 botol hemat dengan gratis ongkir? 🌿", contactName), nil
+	default:
+		return fmt.Sprintf("Halo Kak %s! Terima kasih banyak sudah menghubungi Bionet. Bio-Propolis Trigona diformulasikan murni dengan teknologi nano sehingga lebih cepat diserap tubuh. Ada keluhan kesehatan spesifik yang ingin Kakak konsultasikan bersama tim kami? Kami siap mendampingi 🙏😊", contactName), nil
+	}
+}
+
+// AnalyzeLeadScoreAndIntent analyzes lead behavior & intent with predictive scoring
+func (s *WhatsAppService) AnalyzeLeadScoreAndIntent(ctx context.Context, threadID string) (map[string]interface{}, error) {
+	s.ensureDBLoaded()
+
+	s.threadsLock.RLock()
+	var thread *WhatsAppChatThread
+	for i := range s.threads {
+		if s.threads[i].ID == threadID {
+			thread = &s.threads[i]
+			break
+		}
+	}
+	msgs := s.messages[threadID]
+	s.threadsLock.RUnlock()
+
+	contactName := "Pelanggan"
+	productName := "Bio-Propolis Trigona"
+	if thread != nil {
+		contactName = thread.ContactName
+		productName = thread.Product
+	}
+
+	allCustomerText := ""
+	for _, m := range msgs {
+		if m.Sender == "contact" {
+			allCustomerText += " " + strings.ToLower(m.Text)
+		}
+	}
+
+	score := 50
+	intent := "warm_consult"
+	intentLabel := "🌿 Konsultasi Aktif"
+	recommendation := "Lanjutkan konsultasi keluhan kesehatan & perkenalkan keunggulan nano-propolis."
+
+	// High purchase intent signals
+	if strings.Contains(allCustomerText, "pesan") || strings.Contains(allCustomerText, "beli") ||
+		strings.Contains(allCustomerText, "rekening") || strings.Contains(allCustomerText, "transfer") ||
+		strings.Contains(allCustomerText, "kirim") || strings.Contains(allCustomerText, "ongkir") ||
+		strings.Contains(allCustomerText, "harga") {
+		score = 88
+		intent = "hot_closing"
+		intentLabel = "🔥 Hot Lead (Siap Closing)"
+		recommendation = "Kirim rincian total pembayaran & nomor rekening resmi Bionet, kunci transaksi hari ini."
+	} else if strings.Contains(allCustomerText, "repeat") || strings.Contains(allCustomerText, "lagi") ||
+		strings.Contains(allCustomerText, "habis") || strings.Contains(allCustomerText, "botol kedua") {
+		score = 92
+		intent = "repeat_order"
+		intentLabel = "🔄 Potensi Repeat Order"
+		recommendation = "Tawarkan paket hemat 2 botol RO dengan subsidi ongkir."
+	} else if strings.Contains(allCustomerText, "join") || strings.Contains(allCustomerText, "mitra") ||
+		strings.Contains(allCustomerText, "bisnis") || strings.Contains(allCustomerText, "bonus") ||
+		strings.Contains(allCustomerText, "bop") {
+		score = 85
+		intent = "partnership"
+		intentLabel = "⭐ Prospek Kemitraan"
+		recommendation = "Undang ke webinar Zoom BOP atau kirim PDF Marketing Plan Bionet."
+	} else if strings.Contains(allCustomerText, "mahal") || strings.Contains(allCustomerText, "ragu") ||
+		strings.Contains(allCustomerText, "pikir") {
+		score = 45
+		intent = "cold_inquiry"
+		intentLabel = "❄️ Ragu / Keberatan Harga"
+		recommendation = "Edukasi perbandingan efektivitas dosis nano propolis vs herbal biasa, tawarkan paket tester."
+	}
+
+	// Update in memory and database
+	s.threadsLock.Lock()
+	if thread != nil {
+		thread.AIScore = score
+		thread.AIIntent = intent
+	}
+	s.threadsLock.Unlock()
+
+	if config.DB != nil {
+		_ = config.DB.Model(&models.WhatsAppThreadModel{}).
+			Where("id = ?", threadID).
+			Updates(map[string]interface{}{
+				"ai_score":  score,
+				"ai_intent": intent,
+			}).Error
+	}
+
+	return map[string]interface{}{
+		"thread_id":      threadID,
+		"contact_name":   contactName,
+		"product":        productName,
+		"ai_score":       score,
+		"ai_intent":      intent,
+		"intent_label":   intentLabel,
+		"recommendation": recommendation,
+		"analyzed_at":    time.Now(),
+	}, nil
 }

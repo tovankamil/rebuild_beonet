@@ -455,6 +455,22 @@ func (h *DashboardHandler) RegisterDownline(c *gin.Context) {
 		)
 	}
 
+	// 4. Otomatis Sinkronisasi Kontak WhatsApp CRM & Kirim Sambutan Hangat Resmi
+	memberPhone := req.Phone
+	if memberPhone == "" && resp.User.Phone != nil {
+		memberPhone = *resp.User.Phone
+	}
+	if memberPhone != "" {
+		pkgName := "Kemitraan Bionet"
+		if resp.Pin.Package != nil && resp.Pin.Package.Name != "" {
+			pkgName = resp.Pin.Package.Name
+		}
+		go func(phone, fullName, username, packageName string) {
+			waService := services.InitWhatsAppService()
+			_ = waService.SyncNewMemberContact(phone, fullName, username, packageName)
+		}(memberPhone, resp.User.FullName, resp.User.Username, pkgName)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": fmt.Sprintf("Mitra baru @%s berhasil didaftarkan dan ditempatkan pada pohon jaringan!", resp.User.Username),

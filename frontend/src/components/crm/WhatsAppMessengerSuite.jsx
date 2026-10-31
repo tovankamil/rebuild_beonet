@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   MessageSquare,
   Send,
@@ -33,6 +33,10 @@ import {
   AlertCircle,
   Target,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   Bot,
 } from 'lucide-react';
 import api from '../../services/api';
@@ -100,6 +104,95 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const [pairPhone, setPairPhone] = useState('');
   const [pairingLoading, setPairingLoading] = useState(false);
   const [pairSuccessMsg, setPairSuccessMsg] = useState('');
+
+  // Contacts Table Search, Filter, & Pagination State
+  const [contactSearch, setContactSearch] = useState('');
+  const [contactStageFilter, setContactStageFilter] = useState('all');
+  const [contactCityFilter, setContactCityFilter] = useState('all');
+  const [contactPage, setContactPage] = useState(1);
+  const [contactPerPage, setContactPerPage] = useState(25);
+
+  // Delivery Logs Search, Filter, & Pagination State
+  const [logSearch, setLogSearch] = useState('');
+  const [logStatusFilter, setLogStatusFilter] = useState('all');
+  const [logDirectionFilter, setLogDirectionFilter] = useState('all');
+  const [logPage, setLogPage] = useState(1);
+  const [logPerPage, setLogPerPage] = useState(25);
+
+  // Unique cities from threads for filter dropdown
+  const contactCities = useMemo(() => {
+    const set = new Set();
+    threads.forEach((t) => {
+      if (t.city && t.city.trim() && t.city !== '-') {
+        set.add(t.city.trim());
+      }
+    });
+    return Array.from(set).sort();
+  }, [threads]);
+
+  // Filtered contacts based on search & filter
+  const filteredContacts = useMemo(() => {
+    return threads.filter((t) => {
+      if (contactSearch.trim()) {
+        const q = contactSearch.toLowerCase();
+        const matchName = (t.contact_name || '').toLowerCase().includes(q);
+        const matchPhone = (t.phone || '').toLowerCase().includes(q);
+        const matchCity = (t.city || '').toLowerCase().includes(q);
+        const matchProduct = (t.product || '').toLowerCase().includes(q);
+        if (!matchName && !matchPhone && !matchCity && !matchProduct) {
+          return false;
+        }
+      }
+
+      if (contactStageFilter !== 'all' && t.lead_stage !== contactStageFilter) {
+        return false;
+      }
+
+      if (contactCityFilter !== 'all' && t.city !== contactCityFilter) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [threads, contactSearch, contactStageFilter, contactCityFilter]);
+
+  const totalContactPages = Math.ceil(filteredContacts.length / contactPerPage) || 1;
+  const paginatedContacts = useMemo(() => {
+    const start = (contactPage - 1) * contactPerPage;
+    return filteredContacts.slice(start, start + contactPerPage);
+  }, [filteredContacts, contactPage, contactPerPage]);
+
+  // Filtered delivery logs
+  const filteredLogs = useMemo(() => {
+    return logs.filter((l) => {
+      if (logSearch.trim()) {
+        const q = logSearch.toLowerCase();
+        const matchRecipient = (l.recipient || '').toLowerCase().includes(q);
+        const matchPhone = (l.phone || '').toLowerCase().includes(q);
+        const matchMsg = (l.message || '').toLowerCase().includes(q);
+        const matchCategory = (l.category || '').toLowerCase().includes(q);
+        if (!matchRecipient && !matchPhone && !matchMsg && !matchCategory) {
+          return false;
+        }
+      }
+
+      if (logStatusFilter !== 'all' && l.status !== logStatusFilter) {
+        return false;
+      }
+
+      if (logDirectionFilter !== 'all' && l.direction !== logDirectionFilter) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [logs, logSearch, logStatusFilter, logDirectionFilter]);
+
+  const totalLogPages = Math.ceil(filteredLogs.length / logPerPage) || 1;
+  const paginatedLogs = useMemo(() => {
+    const start = (logPage - 1) * logPerPage;
+    return filteredLogs.slice(start, start + logPerPage);
+  }, [filteredLogs, logPage, logPerPage]);
 
   // Parse raw text for bulk contacts import
   const parseRawContactLines = (text) => {
@@ -1787,21 +1880,22 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
       {/* ========================================================================= */}
       {activeTab === 'contacts' && (
         <div className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          {/* Header Title & Actions */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div>
               <h3 className="font-extrabold text-slate-900 text-base flex items-center space-x-2">
                 <Users className="w-5 h-5 text-indigo-600" />
                 <span>Buku Kontak WhatsApp &amp; Generator vCard (.vcf)</span>
               </h3>
               <p className="text-xs text-slate-400">
-                Simpan nomor prospek ke buku telepon HP Android/iOS sekali klik tanpa mengetik manual
+                Pencarian instan, filter kategori, penomoran urut, dan ekspor kontak ke buku telepon HP Android/iOS
               </p>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setShowImportModal(true)}
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-md shadow-emerald-950 flex items-center space-x-1.5"
+                className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shadow-xs flex items-center space-x-1.5"
               >
                 <Upload className="w-4 h-4" />
                 <span>Import Kontak Massal</span>
@@ -1809,28 +1903,140 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
               <button
                 onClick={() =>
                   downloadBatchVCard(
-                    threads.map((t) => ({
+                    filteredContacts.map((t) => ({
                       name: t.contact_name,
                       phone: t.phone,
                       city: t.city,
                       notes: `Prospek Bionet: ${t.product || ''}`,
                     })),
-                    'semua-kontak-bionet-whatsapp'
+                    filteredContacts.length === threads.length ? 'semua-kontak-bionet-whatsapp' : 'kontak-terfilter-bionet'
                   )
                 }
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs transition shadow-md shadow-indigo-950 flex items-center space-x-1.5"
+                className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs transition shadow-xs flex items-center space-x-1.5"
+                title="Ekspor daftar kontak saat ini ke format .vcf untuk disimpan massal di ponsel"
               >
                 <Download className="w-4 h-4" />
-                <span>Ekspor Semua Kontak (.vcf)</span>
+                <span>
+                  {filteredContacts.length === threads.length
+                    ? 'Ekspor Semua (.vcf)'
+                    : `Ekspor Terfilter (${filteredContacts.length.toLocaleString('id-ID')}) (.vcf)`}
+                </span>
               </button>
             </div>
           </div>
 
-          {/* Contacts Table */}
-          <div className="overflow-x-auto">
+          {/* Search & Filter Toolbar */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+            {/* Search Input */}
+            <div className="relative flex-1 min-w-[240px]">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={contactSearch}
+                onChange={(e) => {
+                  setContactSearch(e.target.value);
+                  setContactPage(1);
+                }}
+                placeholder="Cari nama kontak, nomor WhatsApp, kota, produk..."
+                className="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 text-xs bg-white text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition shadow-2xs"
+              />
+              {contactSearch && (
+                <button
+                  onClick={() => {
+                    setContactSearch('');
+                    setContactPage(1);
+                  }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Dropdowns */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Filter Stage */}
+              <div className="flex items-center space-x-1.5">
+                <Filter className="w-3.5 h-3.5 text-slate-400" />
+                <select
+                  value={contactStageFilter}
+                  onChange={(e) => {
+                    setContactStageFilter(e.target.value);
+                    setContactPage(1);
+                  }}
+                  className="py-2 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-2xs"
+                >
+                  <option value="all">Semua Status Pipeline</option>
+                  <option value="new">Baru / Lead</option>
+                  <option value="interested">Tertarik / Konsultasi</option>
+                  <option value="webinar">Peserta Webinar BOP</option>
+                  <option value="closing">Siap Closing</option>
+                  <option value="health_journey">Siklus Pemulihan</option>
+                  <option value="day_25_ro">Siklus Repeat Order</option>
+                </select>
+              </div>
+
+              {/* Filter Kota */}
+              {contactCities.length > 0 && (
+                <select
+                  value={contactCityFilter}
+                  onChange={(e) => {
+                    setContactCityFilter(e.target.value);
+                    setContactPage(1);
+                  }}
+                  className="py-2 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-2xs"
+                >
+                  <option value="all">Semua Kota ({contactCities.length})</option>
+                  {contactCities.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {/* Per Page Selector */}
+              <div className="flex items-center space-x-1 text-xs text-slate-500 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                <span>Baris:</span>
+                <select
+                  value={contactPerPage}
+                  onChange={(e) => {
+                    setContactPerPage(Number(e.target.value));
+                    setContactPage(1);
+                  }}
+                  className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+
+              {/* Reset Filter Button */}
+              {(contactSearch || contactStageFilter !== 'all' || contactCityFilter !== 'all') && (
+                <button
+                  onClick={() => {
+                    setContactSearch('');
+                    setContactStageFilter('all');
+                    setContactCityFilter('all');
+                    setContactPage(1);
+                  }}
+                  className="px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition flex items-center space-x-1 border border-rose-200"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Contacts Table with Numbering */}
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b border-slate-200">
                 <tr>
+                  <th className="py-3 px-3 text-center w-14">No.</th>
                   <th className="py-3 px-4">Nama Kontak</th>
                   <th className="py-3 px-4">Nomor WhatsApp</th>
                   <th className="py-3 px-4">Kota</th>
@@ -1839,48 +2045,202 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   <th className="py-3 px-4 text-center">Tindakan Cepat</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {threads.map((t) => (
-                  <tr key={t.id || t.ID} className="hover:bg-slate-50/80 transition">
-                    <td className="py-3 px-4 font-bold text-slate-900">{t.contact_name}</td>
-                    <td className="py-3 px-4 font-mono font-medium text-slate-700">{t.phone}</td>
-                    <td className="py-3 px-4 text-slate-600">{t.city || '-'}</td>
-                    <td className="py-3 px-4 font-semibold text-indigo-700">{t.product || '-'}</td>
-                    <td className="py-3 px-4">{getStageBadge(t.lead_stage)}</td>
-                    <td className="py-3 px-4 text-center">
-                      <div className="flex items-center justify-center space-x-1.5">
-                        <button
-                          onClick={() =>
-                            downloadVCardContact({
-                              name: t.contact_name,
-                              phone: t.phone,
-                              city: t.city,
-                              notes: `Prospek Bionet - ${t.product || ''}`,
-                            })
-                          }
-                          className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] border border-emerald-200 flex items-center space-x-1 transition"
-                          title="Download file .vcf untuk membuka dialog simpan kontak di HP"
-                        >
-                          <Smartphone className="w-3 h-3 text-emerald-600" />
-                          <span>Simpan ke HP</span>
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setActiveThreadId(t.id || t.ID);
-                            setActiveTab('chat');
-                          }}
-                          className="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition"
-                        >
-                          Buka Chat
-                        </button>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {paginatedContacts.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-slate-400">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Users className="w-8 h-8 text-slate-300" />
+                        <span className="font-semibold text-slate-600 text-sm">Tidak ada kontak yang sesuai filter</span>
+                        <span className="text-xs text-slate-400">Coba ubah kata kunci pencarian atau reset filter di atas</span>
                       </div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  paginatedContacts.map((t, index) => {
+                    const rowNumber = (contactPage - 1) * contactPerPage + index + 1;
+                    return (
+                      <tr key={t.id || t.ID || index} className="hover:bg-slate-50/80 transition">
+                        <td className="py-3 px-3 text-center font-mono text-[11px] font-bold text-slate-400">
+                          {rowNumber}
+                        </td>
+                        <td className="py-3 px-4 font-bold text-slate-900">{t.contact_name}</td>
+                        <td className="py-3 px-4 font-mono font-medium text-slate-700">{t.phone}</td>
+                        <td className="py-3 px-4 text-slate-600">{t.city || '-'}</td>
+                        <td className="py-3 px-4 font-semibold text-indigo-700">{t.product || '-'}</td>
+                        <td className="py-3 px-4">{getStageBadge(t.lead_stage)}</td>
+                        <td className="py-3 px-4 text-center">
+                          <div className="flex items-center justify-center space-x-1.5">
+                            <button
+                              onClick={() =>
+                                downloadVCardContact({
+                                  name: t.contact_name,
+                                  phone: t.phone,
+                                  city: t.city,
+                                  notes: `Prospek Bionet - ${t.product || ''}`,
+                                })
+                              }
+                              className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] border border-emerald-200 flex items-center space-x-1 transition"
+                              title="Download file .vcf untuk membuka dialog simpan kontak di HP"
+                            >
+                              <Smartphone className="w-3 h-3 text-emerald-600" />
+                              <span>Simpan ke HP</span>
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setActiveThreadId(t.id || t.ID);
+                                setActiveTab('chat');
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition"
+                            >
+                              Buka Chat
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {filteredContacts.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
+              <div>
+                Menampilkan{' '}
+                <span className="font-bold text-slate-900">
+                  {((contactPage - 1) * contactPerPage + 1).toLocaleString('id-ID')}
+                </span>{' '}
+                -{' '}
+                <span className="font-bold text-slate-900">
+                  {Math.min(contactPage * contactPerPage, filteredContacts.length).toLocaleString('id-ID')}
+                </span>{' '}
+                dari{' '}
+                <span className="font-bold text-emerald-700">
+                  {filteredContacts.length.toLocaleString('id-ID')}
+                </span>{' '}
+                kontak
+                {filteredContacts.length !== threads.length && (
+                  <span className="text-slate-400 ml-1.5">
+                    (difilter dari total {threads.length.toLocaleString('id-ID')} kontak)
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-1">
+                {/* First Page */}
+                <button
+                  onClick={() => setContactPage(1)}
+                  disabled={contactPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Halaman Pertama"
+                >
+                  <ChevronsLeft className="w-4 h-4" />
+                </button>
+
+                {/* Prev Page */}
+                <button
+                  onClick={() => setContactPage((p) => Math.max(1, p - 1))}
+                  disabled={contactPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Halaman Sebelumnya"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {/* Dynamic Page Numbers Window */}
+                {(() => {
+                  const pages = [];
+                  const maxButtons = 5;
+                  let startPage = Math.max(1, contactPage - 2);
+                  let endPage = Math.min(totalContactPages, startPage + maxButtons - 1);
+                  if (endPage - startPage + 1 < maxButtons) {
+                    startPage = Math.max(1, endPage - maxButtons + 1);
+                  }
+
+                  if (startPage > 1) {
+                    pages.push(
+                      <button
+                        key={1}
+                        onClick={() => setContactPage(1)}
+                        className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold"
+                      >
+                        1
+                      </button>
+                    );
+                    if (startPage > 2) {
+                      pages.push(
+                        <span key="ellipsis-1" className="px-1 text-slate-400">
+                          ...
+                        </span>
+                      );
+                    }
+                  }
+
+                  for (let p = startPage; p <= endPage; p++) {
+                    const isActive = p === contactPage;
+                    pages.push(
+                      <button
+                        key={p}
+                        onClick={() => setContactPage(p)}
+                        className={`px-2.5 py-1 rounded-lg font-bold text-xs transition ${
+                          isActive
+                            ? 'bg-emerald-600 text-white shadow-xs'
+                            : 'border border-slate-200 text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    );
+                  }
+
+                  if (endPage < totalContactPages) {
+                    if (endPage < totalContactPages - 1) {
+                      pages.push(
+                        <span key="ellipsis-2" className="px-1 text-slate-400">
+                          ...
+                        </span>
+                      );
+                    }
+                    pages.push(
+                      <button
+                        key={totalContactPages}
+                        onClick={() => setContactPage(totalContactPages)}
+                        className="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 font-semibold"
+                      >
+                        {totalContactPages}
+                      </button>
+                    );
+                  }
+
+                  return pages;
+                })()}
+
+                {/* Next Page */}
+                <button
+                  onClick={() => setContactPage((p) => Math.min(totalContactPages, p + 1))}
+                  disabled={contactPage === totalContactPages}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Halaman Berikutnya"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {/* Last Page */}
+                <button
+                  onClick={() => setContactPage(totalContactPages)}
+                  disabled={contactPage === totalContactPages}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Halaman Terakhir"
+                >
+                  <ChevronsRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -2091,16 +2451,114 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
       {/* SUB-VIEW 6: DELIVERY LOGS & TELEMETRY */}
       {/* ========================================================================= */}
       {activeTab === 'logs' && (
-        <div className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm space-y-3">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h3 className="font-extrabold text-slate-900 text-sm">Riwayat Live Log Telemetri Server WhatsApp</h3>
-            <span className="text-xs text-slate-400 font-bold">{logs.length} Log Terakhir</span>
+        <div className="bg-white p-5 rounded-3xl border border-slate-200/90 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div>
+              <h3 className="font-extrabold text-slate-900 text-sm">Riwayat Live Log Telemetri Server WhatsApp</h3>
+              <p className="text-xs text-slate-400">
+                Audit realtime centang pesan terkirim, dibaca, dan pesan masuk dari pelanggan
+              </p>
+            </div>
+            <span className="text-xs text-slate-500 font-bold bg-slate-100 px-3 py-1 rounded-xl">
+              {filteredLogs.length.toLocaleString('id-ID')} Log Terdata
+            </span>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Search & Filter Toolbar for Logs */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={logSearch}
+                onChange={(e) => {
+                  setLogSearch(e.target.value);
+                  setLogPage(1);
+                }}
+                placeholder="Cari penerima, nomor, isi pesan..."
+                className="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 text-xs bg-white text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              />
+              {logSearch && (
+                <button
+                  onClick={() => {
+                    setLogSearch('');
+                    setLogPage(1);
+                  }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={logStatusFilter}
+                onChange={(e) => {
+                  setLogStatusFilter(e.target.value);
+                  setLogPage(1);
+                }}
+                className="py-2 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              >
+                <option value="all">Semua Status Centang</option>
+                <option value="read">Dibaca (Centang Biru)</option>
+                <option value="delivered">Terkirim (Centang Dua Abu)</option>
+                <option value="sent">Terkirim Server (Centang Satu)</option>
+                <option value="failed">Gagal</option>
+              </select>
+
+              <select
+                value={logDirectionFilter}
+                onChange={(e) => {
+                  setLogDirectionFilter(e.target.value);
+                  setLogPage(1);
+                }}
+                className="py-2 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              >
+                <option value="all">Semua Arah</option>
+                <option value="inbound">Masuk (Inbound)</option>
+                <option value="outbound">Keluar (Outbound)</option>
+              </select>
+
+              <div className="flex items-center space-x-1 text-xs text-slate-500 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200">
+                <span>Baris:</span>
+                <select
+                  value={logPerPage}
+                  onChange={(e) => {
+                    setLogPerPage(Number(e.target.value));
+                    setLogPage(1);
+                  }}
+                  className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+
+              {(logSearch || logStatusFilter !== 'all' || logDirectionFilter !== 'all') && (
+                <button
+                  onClick={() => {
+                    setLogSearch('');
+                    setLogStatusFilter('all');
+                    setLogDirectionFilter('all');
+                    setLogPage(1);
+                  }}
+                  className="px-2.5 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition flex items-center space-x-1 border border-rose-200"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Logs Table with Numbering */}
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] border-b border-slate-200">
                 <tr>
+                  <th className="py-2.5 px-3 text-center w-12">No.</th>
                   <th className="py-2.5 px-3">Waktu</th>
                   <th className="py-2.5 px-3">Penerima / Nomor</th>
                   <th className="py-2.5 px-3">Arah</th>
@@ -2109,31 +2567,106 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   <th className="py-2.5 px-3 text-center">Status Centang</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {logs.map((l) => (
-                  <tr key={l.id} className="hover:bg-slate-50">
-                    <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">
-                      {l.sent_at ? new Date(l.sent_at).toLocaleTimeString('id-ID') : '-'}
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {paginatedLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-10 text-center text-slate-400 italic">
+                      Tidak ada log telemetri yang cocok dengan filter pencarian.
                     </td>
-                    <td className="py-2.5 px-3">
-                      <div className="font-bold text-slate-900">{l.recipient}</div>
-                      <div className="text-[10px] text-slate-400 font-mono">{l.phone}</div>
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        l.direction === 'inbound' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {l.direction === 'inbound' ? 'Masuk' : 'Keluar'}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 text-slate-600 capitalize text-[10px]">{l.category}</td>
-                    <td className="py-2.5 px-3 text-slate-700 max-w-xs truncate">{l.message}</td>
-                    <td className="py-2.5 px-3 text-center">{getDeliveryStatusIcon(l.status)}</td>
                   </tr>
-                ))}
+                ) : (
+                  paginatedLogs.map((l, index) => {
+                    const rowNumber = (logPage - 1) * logPerPage + index + 1;
+                    return (
+                      <tr key={l.id || index} className="hover:bg-slate-50 transition">
+                        <td className="py-2.5 px-3 text-center font-mono text-[11px] font-bold text-slate-400">
+                          {rowNumber}
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-400 font-mono text-[10px]">
+                          {l.sent_at ? new Date(l.sent_at).toLocaleTimeString('id-ID') : '-'}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <div className="font-bold text-slate-900">{l.recipient}</div>
+                          <div className="text-[10px] text-slate-400 font-mono">{l.phone}</div>
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              l.direction === 'inbound'
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-blue-100 text-blue-800'
+                            }`}
+                          >
+                            {l.direction === 'inbound' ? 'Masuk' : 'Keluar'}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-600 capitalize text-[10px]">{l.category}</td>
+                        <td className="py-2.5 px-3 text-slate-700 max-w-xs truncate">{l.message}</td>
+                        <td className="py-2.5 px-3 text-center">{getDeliveryStatusIcon(l.status)}</td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls for Logs */}
+          {filteredLogs.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs text-slate-500">
+              <div>
+                Menampilkan{' '}
+                <span className="font-bold text-slate-900">
+                  {((logPage - 1) * logPerPage + 1).toLocaleString('id-ID')}
+                </span>{' '}
+                -{' '}
+                <span className="font-bold text-slate-900">
+                  {Math.min(logPage * logPerPage, filteredLogs.length).toLocaleString('id-ID')}
+                </span>{' '}
+                dari{' '}
+                <span className="font-bold text-emerald-700">
+                  {filteredLogs.length.toLocaleString('id-ID')}
+                </span>{' '}
+                log
+              </div>
+
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => setLogPage(1)}
+                  disabled={logPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronsLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setLogPage((p) => Math.max(1, p - 1))}
+                  disabled={logPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                <span className="px-2.5 py-1 text-xs font-bold text-slate-700">
+                  Hal {logPage} / {totalLogPages}
+                </span>
+
+                <button
+                  onClick={() => setLogPage((p) => Math.min(totalLogPages, p + 1))}
+                  disabled={logPage === totalLogPages}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setLogPage(totalLogPages)}
+                  disabled={logPage === totalLogPages}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronsRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

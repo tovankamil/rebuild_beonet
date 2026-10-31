@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   UserPlus,
   Search,
@@ -23,6 +23,10 @@ import {
   HeartHandshake,
   Zap,
   Smartphone,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
@@ -50,6 +54,14 @@ export default function LeadsCRMTab({ user }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [tablePage, setTablePage] = useState(1);
+  const [tablePerPage, setTablePerPage] = useState(15);
+
+  const totalTablePages = Math.ceil(leads.length / tablePerPage) || 1;
+  const paginatedLeads = useMemo(() => {
+    const start = (tablePage - 1) * tablePerPage;
+    return leads.slice(start, start + tablePerPage);
+  }, [leads, tablePage, tablePerPage]);
   const [viewMode, setViewMode] = useState(() => {
     try {
       return localStorage.getItem('bionet_crm_view') || 'kanban';
@@ -624,11 +636,12 @@ export default function LeadsCRMTab({ user }) {
 
       {/* VIEW 2: DAFTAR TABEL PROSPEK */}
       {viewMode === 'table' && (
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden space-y-0">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
                 <tr>
+                  <th className="py-3 px-3 text-center w-12">No.</th>
                   <th className="py-3 px-4">Nama Prospek</th>
                   <th className="py-3 px-4">Kontak WhatsApp</th>
                   <th className="py-3 px-4">Kota</th>
@@ -640,98 +653,179 @@ export default function LeadsCRMTab({ user }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {leads.length === 0 ? (
+                {paginatedLeads.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-8 text-center text-slate-400 italic">
+                    <td colSpan={9} className="py-12 text-center text-slate-400 italic">
                       Belum ada data prospek yang sesuai dengan filter.
                     </td>
                   </tr>
                 ) : (
-                  leads.map((lead) => (
-                    <tr key={lead.id} className="hover:bg-slate-50/80 transition">
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900">{lead.name}</div>
-                        {lead.email && <div className="text-[10px] text-slate-400">{lead.email}</div>}
-                      </td>
-                      <td className="py-3 px-4 font-mono font-medium text-slate-700">
-                        <a
-                          href={`https://wa.me/${lead.phone}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="hover:text-emerald-600 flex items-center space-x-1"
-                        >
-                          <Phone className="w-3 h-3 text-emerald-600" />
-                          <span>{lead.phone}</span>
-                        </a>
-                      </td>
-                      <td className="py-3 px-4 text-slate-600">{lead.city || '-'}</td>
-                      <td className="py-3 px-4 font-medium text-indigo-700">{lead.product_interest || '-'}</td>
-                      <td className="py-3 px-4">{getSourceBadge(lead.source)}</td>
-                      <td className="py-3 px-4">{getStatusBadge(lead.status)}</td>
-                      <td className="py-3 px-4 font-mono text-slate-800">
-                        {lead.estimated_value ? `Rp ${Number(lead.estimated_value).toLocaleString('id-ID')}` : '-'}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center justify-center space-x-1.5">
-                          {/* Simpan Kontak .vcf */}
-                          <button
-                            onClick={() =>
-                              downloadVCardContact({
-                                name: lead.name,
-                                phone: lead.phone,
-                                city: lead.city,
-                                notes: `Prospek: ${lead.product_interest || ''}`,
-                              })
-                            }
-                            className="px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] flex items-center space-x-1 border border-indigo-200 transition"
-                            title="Simpan Kontak ke HP (.vcf)"
+                  paginatedLeads.map((lead, index) => {
+                    const rowNumber = (tablePage - 1) * tablePerPage + index + 1;
+                    return (
+                      <tr key={lead.id} className="hover:bg-slate-50/80 transition">
+                        <td className="py-3 px-3 text-center font-mono text-[11px] font-bold text-slate-400">
+                          {rowNumber}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="font-bold text-slate-900">{lead.name}</div>
+                          {lead.email && <div className="text-[10px] text-slate-400">{lead.email}</div>}
+                        </td>
+                        <td className="py-3 px-4 font-mono font-medium text-slate-700">
+                          <a
+                            href={`https://wa.me/${lead.phone}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="hover:text-emerald-600 flex items-center space-x-1"
                           >
-                            <Smartphone className="w-3 h-3 text-indigo-600" />
-                            <span>.vcf</span>
-                          </button>
+                            <Phone className="w-3 h-3 text-emerald-600" />
+                            <span>{lead.phone}</span>
+                          </a>
+                        </td>
+                        <td className="py-3 px-4 text-slate-600">{lead.city || '-'}</td>
+                        <td className="py-3 px-4 font-medium text-indigo-700">{lead.product_interest || '-'}</td>
+                        <td className="py-3 px-4">{getSourceBadge(lead.source)}</td>
+                        <td className="py-3 px-4">{getStatusBadge(lead.status)}</td>
+                        <td className="py-3 px-4 font-mono text-slate-800">
+                          {lead.estimated_value ? `Rp ${Number(lead.estimated_value).toLocaleString('id-ID')}` : '-'}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center justify-center space-x-1.5">
+                            {/* Simpan Kontak .vcf */}
+                            <button
+                              onClick={() =>
+                                downloadVCardContact({
+                                  name: lead.name,
+                                  phone: lead.phone,
+                                  city: lead.city,
+                                  notes: `Prospek: ${lead.product_interest || ''}`,
+                                })
+                              }
+                              className="px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[10px] flex items-center space-x-1 border border-indigo-200 transition"
+                              title="Simpan Kontak ke HP (.vcf)"
+                            >
+                              <Smartphone className="w-3 h-3 text-indigo-600" />
+                              <span>.vcf</span>
+                            </button>
 
-                          {/* Bantu AI Button */}
-                          <button
-                            onClick={() => handleOpenObjectionModal(lead)}
-                            className="px-2 py-1 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-[10px] flex items-center space-x-1 shadow-xs transition"
-                            title="Bantu Jawab AI Keraguan Konsumen"
-                          >
-                            <Sparkles className="w-3 h-3 text-amber-200" />
-                            <span>Bantu AI</span>
-                          </button>
+                            {/* Bantu AI Button */}
+                            <button
+                              onClick={() => handleOpenObjectionModal(lead)}
+                              className="px-2 py-1 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-[10px] flex items-center space-x-1 shadow-xs transition"
+                              title="Bantu Jawab AI Keraguan Konsumen"
+                            >
+                              <Sparkles className="w-3 h-3 text-amber-200" />
+                              <span>Bantu AI</span>
+                            </button>
 
-                          {/* AI Chat Follow-up */}
-                          <button
-                            onClick={() => handleOpenAiFollowUp(lead)}
-                            className="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] flex items-center space-x-1 shadow-xs transition"
-                            title="Follow-up WhatsApp dengan AI"
-                          >
-                            <MessageSquare className="w-3 h-3 text-emerald-100" />
-                            <span>WA</span>
-                          </button>
+                            {/* AI Chat Follow-up */}
+                            <button
+                              onClick={() => handleOpenAiFollowUp(lead)}
+                              className="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] flex items-center space-x-1 shadow-xs transition"
+                              title="Follow-up WhatsApp dengan AI"
+                            >
+                              <MessageSquare className="w-3 h-3 text-emerald-100" />
+                              <span>WA</span>
+                            </button>
 
-                          <button
-                            onClick={() => handleOpenEdit(lead)}
-                            className="p-1 rounded-md text-slate-400 hover:text-indigo-600"
-                            title="Edit Data"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteLead(lead.id, lead.name)}
-                            className="p-1 rounded-md text-slate-400 hover:text-red-600"
-                            title="Hapus Prospek"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                            <button
+                              onClick={() => handleOpenEdit(lead)}
+                              className="p-1 rounded-md text-slate-400 hover:text-indigo-600"
+                              title="Edit Data"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteLead(lead.id, lead.name)}
+                              className="p-1 rounded-md text-slate-400 hover:text-red-600"
+                              title="Hapus Prospek"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
           </div>
+
+          {/* Table Pagination Controls */}
+          {leads.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-t border-slate-100 text-xs text-slate-500 bg-slate-50/50">
+              <div className="flex items-center space-x-3">
+                <div>
+                  Menampilkan{' '}
+                  <span className="font-bold text-slate-900">
+                    {((tablePage - 1) * tablePerPage + 1).toLocaleString('id-ID')}
+                  </span>{' '}
+                  -{' '}
+                  <span className="font-bold text-slate-900">
+                    {Math.min(tablePage * tablePerPage, leads.length).toLocaleString('id-ID')}
+                  </span>{' '}
+                  dari <span className="font-bold text-emerald-700">{leads.length.toLocaleString('id-ID')}</span> prospek
+                </div>
+                <div className="flex items-center space-x-1 text-xs">
+                  <span>Baris:</span>
+                  <select
+                    value={tablePerPage}
+                    onChange={(e) => {
+                      setTablePerPage(Number(e.target.value));
+                      setTablePage(1);
+                    }}
+                    className="py-1 px-2 rounded-lg border border-slate-200 text-xs font-bold bg-white text-slate-700 focus:outline-none"
+                  >
+                    <option value={10}>10</option>
+                    <option value={15}>15</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-1">
+                <button
+                  onClick={() => setTablePage(1)}
+                  disabled={tablePage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Halaman Pertama"
+                >
+                  <ChevronsLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setTablePage((p) => Math.max(1, p - 1))}
+                  disabled={tablePage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Halaman Sebelumnya"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                <span className="px-3 py-1 font-bold text-xs text-slate-700 bg-white border border-slate-200 rounded-lg">
+                  Halaman {tablePage} dari {totalTablePages}
+                </span>
+
+                <button
+                  onClick={() => setTablePage((p) => Math.min(totalTablePages, p + 1))}
+                  disabled={tablePage === totalTablePages}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Halaman Berikutnya"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setTablePage(totalTablePages)}
+                  disabled={tablePage === totalTablePages}
+                  className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                  title="Halaman Terakhir"
+                >
+                  <ChevronsRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

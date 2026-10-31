@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"bionet-backend/config"
 	"bionet-backend/handlers"
@@ -22,50 +20,6 @@ import (
 
 func seedDefaultData() {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("bionet123"), bcrypt.DefaultCost)
-
-	// 1. Seed Member: mitra01
-	var mitraUser models.User
-	if err := config.DB.Where("username = ?", "mitra01").First(&mitraUser).Error; err != nil {
-		mitraUser = models.User{
-			ID:           uuid.New().String(),
-			Username:     "mitra01",
-			FullName:     "Mitra Bionet Juara",
-			PasswordHash: string(hashedPassword),
-			Role:         "member",
-			Status:       "active",
-		}
-		if err := config.DB.Create(&mitraUser).Error; err == nil {
-			log.Println("Seeded demo user: username=mitra01, password=bionet123, role=member")
-
-			config.DB.Create(&models.Wallet{
-				ID:      uuid.New().String(),
-				UserID:  mitraUser.ID,
-				Balance: 2750000.00,
-			})
-			config.DB.Create(&models.PointBalance{
-				ID:         uuid.New().String(),
-				UserID:     mitraUser.ID,
-				PointLeft:  125.00,
-				PointRight: 98.00,
-			})
-			config.DB.Create(&models.WalletTransaction{
-				ID:           uuid.New().String(),
-				UserID:       mitraUser.ID,
-				Type:         "credit",
-				Amount:       500000.00,
-				BalanceAfter: 2750000.00,
-				Description:  "Bonus Pasangan (Pairing Bonus)",
-			})
-			config.DB.Create(&models.UserBank{
-				ID:            uuid.New().String(),
-				UserID:        mitraUser.ID,
-				BankName:      "BCA (Bank Central Asia)",
-				AccountNumber: "8271928371",
-				AccountName:   "Mitra Bionet Juara",
-				IsPrimary:     true,
-			})
-		}
-	}
 
 	// 2. Seed Admin: admin01
 	var adminUser models.User
@@ -131,151 +85,6 @@ func seedDefaultData() {
 		}
 	}
 
-	// Seed Member: mitra02 & mitra03
-	var mitra02 models.User
-	if err := config.DB.Where("username = ?", "mitra02").First(&mitra02).Error; err != nil {
-		mitra02 = models.User{
-			ID:           uuid.New().String(),
-			Username:     "mitra02",
-			FullName:     "Ahmad Yani - Leader Gold",
-			PasswordHash: string(hashedPassword),
-			Role:         "member",
-			Status:       "active",
-		}
-		if err := config.DB.Create(&mitra02).Error; err == nil {
-			config.DB.Create(&models.Wallet{
-				ID:      uuid.New().String(),
-				UserID:  mitra02.ID,
-				Balance: 4250000.00,
-			})
-			config.DB.Create(&models.PointBalance{
-				ID:         uuid.New().String(),
-				UserID:     mitra02.ID,
-				PointLeft:  210.00,
-				PointRight: 185.00,
-			})
-			config.DB.Create(&models.WalletTransaction{
-				ID:           uuid.New().String(),
-				UserID:       mitra02.ID,
-				Type:         "credit",
-				Amount:       300000.00,
-				BalanceAfter: 4250000.00,
-				Description:  "Bonus Pasangan (Pairing 15 Pasang Kaki Kiri/Kanan)",
-			})
-			config.DB.Create(&models.WalletTransaction{
-				ID:           uuid.New().String(),
-				UserID:       mitra02.ID,
-				Type:         "credit",
-				Amount:       150000.00,
-				BalanceAfter: 3950000.00,
-				Description:  "Bonus Sponsor Mitra Baru Paket Gold",
-			})
-		}
-	}
-
-	var mitra03 models.User
-	if err := config.DB.Where("username = ?", "mitra03").First(&mitra03).Error; err != nil {
-		mitra03 = models.User{
-			ID:           uuid.New().String(),
-			Username:     "mitra03",
-			FullName:     "Siti Rahmawati - Diamond Leader",
-			PasswordHash: string(hashedPassword),
-			Role:         "member",
-			Status:       "active",
-		}
-		if err := config.DB.Create(&mitra03).Error; err == nil {
-			config.DB.Create(&models.Wallet{
-				ID:      uuid.New().String(),
-				UserID:  mitra03.ID,
-				Balance: 7800000.00,
-			})
-			config.DB.Create(&models.PointBalance{
-				ID:         uuid.New().String(),
-				UserID:     mitra03.ID,
-				PointLeft:  450.00,
-				PointRight: 490.00,
-			})
-			config.DB.Create(&models.WalletTransaction{
-				ID:           uuid.New().String(),
-				UserID:       mitra03.ID,
-				Type:         "credit",
-				Amount:       600000.00,
-				BalanceAfter: 7800000.00,
-				Description:  "Bonus Pasangan Harian (30 Pasang Matching Binary)",
-			})
-			config.DB.Create(&models.WalletTransaction{
-				ID:           uuid.New().String(),
-				UserID:       mitra03.ID,
-				Type:         "debit",
-				Amount:       1000000.00,
-				BalanceAfter: 7200000.00,
-				Description:  "Penarikan Dana / Payout Flip.id ke Bank BCA",
-			})
-		}
-	}
-
-	// Link mitra02 as direct sponsor downline & binary network of mitra01
-	if mitraUser.ID != "" && mitra02.ID != "" {
-		var spCount int64
-		config.DB.Model(&models.Sponsor{}).Where("user_id = ?", mitra02.ID).Count(&spCount)
-		if spCount == 0 {
-			config.DB.Create(&models.Sponsor{
-				ID:        uuid.New().String(),
-				UserID:    mitra02.ID,
-				SponsorID: mitraUser.ID,
-			})
-			config.DB.Create(&models.SponsorPath{
-				ID:           uuid.New().String(),
-				AncestorID:   mitraUser.ID,
-				DescendantID: mitra02.ID,
-				Level:        1,
-			})
-			config.DB.Create(&models.NetworkPosition{
-				ID:       uuid.New().String(),
-				UserID:   mitra02.ID,
-				UplineID: mitraUser.ID,
-				Position: "kiri",
-			})
-			config.DB.Create(&models.UplinePath{
-				ID:           uuid.New().String(),
-				AncestorID:   mitraUser.ID,
-				DescendantID: mitra02.ID,
-				Level:        1,
-			})
-		}
-	}
-
-	var countTx int64
-	config.DB.Model(&models.WalletTransaction{}).Count(&countTx)
-	if countTx <= 3 {
-		if err := config.DB.Where("username = ?", "mitra01").First(&mitraUser).Error; err == nil {
-			config.DB.Create(&models.WalletTransaction{
-				ID:           uuid.New().String(),
-				UserID:       mitraUser.ID,
-				Type:         "credit",
-				Amount:       150000.00,
-				BalanceAfter: 2250000.00,
-				Description:  "Bonus Sponsor Mitra Baru (Paket Gold 3 HU)",
-			})
-			config.DB.Create(&models.WalletTransaction{
-				ID:           uuid.New().String(),
-				UserID:       mitraUser.ID,
-				Type:         "credit",
-				Amount:       350000.00,
-				BalanceAfter: 2600000.00,
-				Description:  "Bonus Pasangan (Pairing 10 Pasang Kiri & Kanan)",
-			})
-			config.DB.Create(&models.WalletTransaction{
-				ID:           uuid.New().String(),
-				UserID:       mitraUser.ID,
-				Type:         "debit",
-				Amount:       250000.00,
-				BalanceAfter: 2350000.00,
-				Description:  "Penarikan Dana / Payout Flip.id ke Rekening Mitra",
-			})
-		}
-	}
-
 	// 4. Seed PIN Packages & Pins
 	var pkgCount int64
 	config.DB.Model(&models.PinPackage{}).Count(&pkgCount)
@@ -301,23 +110,6 @@ func seedDefaultData() {
 			IsActive:     true,
 		}
 		config.DB.Create(&goldPkg)
-
-		if mitraUser.ID != "" {
-			config.DB.Create(&models.Pin{
-				ID:         uuid.New().String(),
-				SerialCode: "PIN-BIO-SILVER-88219",
-				PackageID:  silverPkg.ID,
-				OwnerID:    mitraUser.ID,
-				Status:     "active",
-			})
-			config.DB.Create(&models.Pin{
-				ID:         uuid.New().String(),
-				SerialCode: "PIN-BIO-GOLD-99120",
-				PackageID:  goldPkg.ID,
-				OwnerID:    mitraUser.ID,
-				Status:     "active",
-			})
-		}
 	}
 
 	// 5. Seed Products
@@ -356,32 +148,6 @@ func seedDefaultData() {
 			IsActive:    true,
 		}
 		config.DB.Create(&prod3)
-
-		// Seed dummy order for Gudang demo
-		if mitraUser.ID != "" {
-			orderDemo := models.Order{
-				ID:          uuid.New().String(),
-				UserID:      mitraUser.ID,
-				OrderNumber: fmt.Sprintf("RO-BIO-%d", time.Now().Unix()),
-				TotalAmount: 370000.00,
-				Status:      "processing",
-			}
-			config.DB.Create(&orderDemo)
-			config.DB.Create(&models.OrderItem{
-				ID:          uuid.New().String(),
-				OrderID:     orderDemo.ID,
-				ProductID:   prod1.ID,
-				Quantity:    1,
-				PriceAtTime: prod1.Price,
-			})
-			config.DB.Create(&models.OrderItem{
-				ID:          uuid.New().String(),
-				OrderID:     orderDemo.ID,
-				ProductID:   prod2.ID,
-				Quantity:    1,
-				PriceAtTime: prod2.Price,
-			})
-		}
 	}
 
 	// 6. Seed Master Menus & Dynamic Role Permissions

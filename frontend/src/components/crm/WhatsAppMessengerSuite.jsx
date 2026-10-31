@@ -308,9 +308,16 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
     try {
       const res = await api.get('/crm/whatsapp/threads');
       if (res.data?.data) {
-        setThreads(res.data.data);
-        if (!activeThreadId && res.data.data.length > 0) {
-          setActiveThreadId(res.data.data[0].ID || res.data.data[0].id);
+        const fetched = res.data.data;
+        setThreads(fetched);
+        if (fetched.length > 0) {
+          const currentId = activeThreadIdRef.current;
+          const found = fetched.some((t) => (t.ID || t.id) === currentId);
+          if (!currentId || !found) {
+            const firstId = fetched[0].ID || fetched[0].id;
+            setActiveThreadId(firstId);
+            fetchMessages(firstId);
+          }
         }
       }
     } catch (err) {
@@ -387,9 +394,9 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
     }
   }, [activeThreadId]);
 
-  const activeThread = threads.find(
-    (t) => (t.ID || t.id) === activeThreadId
-  );
+  const activeThread =
+    threads.find((t) => (t.ID || t.id) === activeThreadId) ||
+    (threads.length > 0 ? threads[0] : null);
 
   // Send message in current thread
   const handleSendMessage = async (e) => {
@@ -927,11 +934,11 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
       {/* SUB-VIEW 1: IN-APP LIVE WHATSAPP WEB MESSENGER */}
       {/* ========================================================================= */}
       {activeTab === 'chat' && (
-        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[640px] max-h-[780px]">
+        <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-12 h-[760px] max-h-[calc(100vh-190px)] min-h-[580px]">
           {/* Left Sidebar: Threads List (Cols 4) */}
-          <div className="md:col-span-4 border-r border-slate-200 flex flex-col h-full bg-slate-50/60">
+          <div className="md:col-span-4 border-r border-slate-200 flex flex-col h-full max-h-full min-h-0 bg-slate-50/60 overflow-hidden">
             {/* Top Search & Filter Bar */}
-            <div className="p-3.5 border-b border-slate-200/80 bg-white space-y-2">
+            <div className="p-3.5 border-b border-slate-200/80 bg-white space-y-2 flex-shrink-0">
               <div className="relative">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
@@ -989,7 +996,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
             </div>
 
             {/* Threads List Items */}
-            <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
+            <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100 overscroll-contain">
               {filteredThreads.length === 0 ? (
                 <div className="p-8 text-center text-slate-400 text-xs italic">
                   Tidak ada percakapan yang cocok.
@@ -1079,11 +1086,11 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
           </div>
 
           {/* Right Area: Active Chat Conversation (Cols 8) */}
-          <div className="md:col-span-8 flex flex-col h-full bg-[#efeae2]/40 relative">
+          <div className="md:col-span-8 flex flex-col h-full max-h-full min-h-0 bg-[#efeae2]/40 relative overflow-hidden">
             {activeThread ? (
               <>
                 {/* Active Chat Header */}
-                <div className="p-3.5 bg-white border-b border-slate-200 flex items-center justify-between shadow-xs z-10">
+                <div className="p-3.5 bg-white border-b border-slate-200 flex items-center justify-between shadow-xs z-10 flex-shrink-0">
                   <div className="flex items-center space-x-3 min-w-0">
                     <img
                       src={activeThread.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'}
@@ -1183,7 +1190,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
                 {/* AI Predictive Lead Recommendation Banner */}
                 {aiLeadRecommendation && (
-                  <div className="mx-4 mt-2 p-2.5 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/80 flex items-start justify-between shadow-xs animate-in fade-in">
+                  <div className="mx-4 mt-2 p-2.5 rounded-xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/80 flex items-start justify-between shadow-xs animate-in fade-in flex-shrink-0">
                     <div className="flex items-start space-x-2">
                       <Sparkles className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
                       <div className="text-xs">
@@ -1214,7 +1221,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                 )}
 
                 {/* Message Stream Pane */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 relative">
+                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 relative overscroll-contain">
                   {/* Subtle WhatsApp wallpaper overlay */}
                   <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#059669_1px,transparent_1px)] [background-size:16px_16px]" />
 
@@ -1294,7 +1301,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                 </div>
 
                 {/* AI Assistant Quick Generator Bar */}
-                <div className="px-3.5 py-1.5 bg-gradient-to-r from-amber-50 to-orange-50/60 border-t border-amber-200/80 flex items-center space-x-1.5 overflow-x-auto text-[11px]">
+                <div className="px-3.5 py-1.5 bg-gradient-to-r from-amber-50 to-orange-50/60 border-t border-amber-200/80 flex items-center space-x-1.5 overflow-x-auto text-[11px] flex-shrink-0">
                   <span className="text-[10px] font-black uppercase text-amber-800 flex items-center space-x-1 flex-shrink-0">
                     <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                     <span>Draf AI:</span>
@@ -1334,7 +1341,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                 </div>
 
                 {/* Quick Reply Pills Bar */}
-                <div className="px-3.5 py-2 bg-slate-50 border-t border-slate-200/80 flex items-center space-x-1.5 overflow-x-auto text-[11px]">
+                <div className="px-3.5 py-2 bg-slate-50 border-t border-slate-200/80 flex items-center space-x-1.5 overflow-x-auto text-[11px] flex-shrink-0">
                   <span className="text-[10px] font-black uppercase text-slate-400 mr-1 flex-shrink-0">
                     ⚡ Template:
                   </span>
@@ -1383,7 +1390,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                 {/* Chat Input Bar */}
                 <form
                   onSubmit={handleSendMessage}
-                  className="p-3 bg-white border-t border-slate-200 flex items-end space-x-2"
+                  className="p-3 bg-white border-t border-slate-200 flex items-end space-x-2 flex-shrink-0"
                 >
                   {/* Draft with AI Button */}
                   <button

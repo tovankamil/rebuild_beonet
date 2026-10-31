@@ -80,3 +80,4 @@ func (c *WhatsAppContactModel) BeforeCreate(tx *gorm.DB) (err error) {
 	}
 	return
 }
+

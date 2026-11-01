@@ -87,6 +87,20 @@ func SecurityGuardMiddleware() gin.HandlerFunc {
 				bodyToScan = ""
 			}
 
+			// Endpoint pesan komunikasi manusia, webmail, chat, dan AI studio membawa teks bebas/HTML/markdown.
+			// Data diolah secara aman dengan GORM parameterized queries (? placeholders).
+			// Body dilewati dari regex teks bebas agar tidak terjadi false-positive, namun path, query, dan header tetap 100% dipindai.
+			isContentEndpoint := strings.HasPrefix(path, "/api/mail/") ||
+				strings.HasPrefix(path, "/api/chat/") ||
+				strings.HasPrefix(path, "/api/ai/") ||
+				strings.HasPrefix(path, "/api/crm/whatsapp") ||
+				strings.HasPrefix(path, "/api/public/whatsapp") ||
+				strings.HasPrefix(path, "/api/marketing/")
+
+			if isContentEndpoint {
+				bodyToScan = ""
+			}
+
 			threat, detected := securityService.CheckAttackPayload(
 				clientIP,
 				c.Request.Method,

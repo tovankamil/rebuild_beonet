@@ -47,7 +47,7 @@ var (
 	secOnce               sync.Once
 
 	// Pre-compiled threat detection regexes for high performance
-	sqlInjectionRegex = regexp.MustCompile(`(?i)(union(\s+all)?\s+select|select\s+.*\s+from|insert\s+into|drop\s+table|drop\s+database|truncate\s+table|alter\s+table|exec\s+(\+)?(s|x)p|benchmark\s*\(|sleep\s*\(\s*\d+\s*\)|--\s*$|--\s+|\bOR\b\s+['"\d\w]+\s*=\s*['"\d\w]+|\bAND\b\s+['"\d\w]+\s*=\s*['"\d\w]+|'\s*or\s*'1'\s*=\s*'1|;\s*drop\b)`)
+	sqlInjectionRegex = regexp.MustCompile(`(?i)(\bunion(\s+all)?\s+select\b|\bselect\s+[\w\*\s,`+"`"+`]+\s+from\s+[\w`+"`"+`]+|\binsert\s+into\s+[\w`+"`"+`]+|\bdrop\s+(table|database)\b|\btruncate\s+table\b|\balter\s+table\b|\bexec\s+(\+)?(s|x)p\b|\bbenchmark\s*\(\s*\d+|\bsleep\s*\(\s*\d+\s*\)|'\s*or\s*'1'\s*=\s*'1|;\s*drop\s+table\b)`)
 	xssPayloadRegex   = regexp.MustCompile(`(?i)(<script[\s>]|javascript:\s*|onerror\s*=|onload\s*=|alert\s*\(|<iframe[\s>]|<img[^>]+src=[^>]+onerror|document\.cookie|<svg[^>]+onload)`)
 	pathTraversalRegex = regexp.MustCompile(`(?i)(\.\./|\.\.\\|%2e%2e%2f|%2e%2e/|\.\.%2f|%2e%2e%5c|/etc/passwd|/etc/shadow|c:\\windows|boot\.ini)`)
 	sensitiveProbeRegex = regexp.MustCompile(`(?i)(\.env|\.git/|\.aws/|wp-admin|wp-login\.php|phpmyadmin|/pma/|admin\.php|config\.json|xmlrpc\.php|actuator/|server-status|\.ds_store|eval-stdin\.php)`)

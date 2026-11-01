@@ -114,8 +114,34 @@ export const isValidTabName = (tab) => {
 export const isTabAllowedForRole = (tab, role = 'member') => {
   if (!tab) return false;
   const clean = tab.toLowerCase().trim();
-  if (MODAL_TABS.has(clean)) return true;
-  if (role === 'admin') return true;
+
+  // Role: Gudang (Logistik & Inventori Pergudangan - STRICTLY WAREHOUSE ONLY)
+  if (role === 'gudang') {
+    const allowed = [
+      'warehouse-overview',
+      'warehouse-inventory',
+      'warehouse-orders',
+      'admin-guide',
+      'products',
+    ];
+    return allowed.includes(clean);
+  }
+
+  // Role: Admin (Pusat Kendali Eksekutif & Audit - NO MEMBER GAMIFICATION GAMES)
+  if (role === 'admin') {
+    if (
+      clean === 'lucky-wheel' ||
+      clean === 'herbal-farm' ||
+      clean === 'rank-rewards' ||
+      clean === 'digital-card' ||
+      clean === 'certificate' ||
+      clean === 'e-certificate' ||
+      clean === 'prospect-calculator'
+    ) {
+      return false;
+    }
+    return true;
+  }
 
   if (role === 'keuangan') {
     const allowed = [
@@ -147,18 +173,9 @@ export const isTabAllowedForRole = (tab, role = 'member') => {
     return allowed.includes(clean);
   }
 
-  if (role === 'gudang') {
-    const allowed = [
-      'warehouse-overview',
-      'warehouse-inventory',
-      'warehouse-orders',
-      'admin-guide',
-      'products',
-    ];
-    return allowed.includes(clean);
-  }
-
   // Regular Member Role Restrictions
+  if (MODAL_TABS.has(clean)) return true;
+
   if (
     clean.startsWith('admin-') ||
     clean.startsWith('warehouse-') ||
@@ -285,9 +302,15 @@ export default function App() {
   const [midtransPaymentData, setMidtransPaymentData] = useState(null);
 
   useEffect(() => {
-    const handleOpenWheel = () => setLuckyWheelOpen(true);
-    const handleOpenRanks = () => setRankRewardsOpen(true);
-    const handleOpenFarm = () => setHerbalFarmOpen(true);
+    const handleOpenWheel = () => {
+      if (user?.role === 'member') setLuckyWheelOpen(true);
+    };
+    const handleOpenRanks = () => {
+      if (user?.role === 'member') setRankRewardsOpen(true);
+    };
+    const handleOpenFarm = () => {
+      if (user?.role === 'member') setHerbalFarmOpen(true);
+    };
     const handleOpenMidtrans = (e) => {
       setMidtransPaymentData(e?.detail || null);
       setMidtransModalOpen(true);
@@ -304,17 +327,19 @@ export default function App() {
       window.removeEventListener('bionet:open-farm', handleOpenFarm);
       window.removeEventListener('bionet:open-midtrans', handleOpenMidtrans);
     };
-  }, []);
+  }, [user?.role]);
 
   // Handle special modal tabs: open their respective modal AND keep or restore the previous base tab
   useEffect(() => {
     if (MODAL_TABS.has(activeTab)) {
-      if (activeTab === 'lucky-wheel') setLuckyWheelOpen(true);
-      else if (activeTab === 'rank-rewards') setRankRewardsOpen(true);
-      else if (activeTab === 'herbal-farm') setHerbalFarmOpen(true);
-      else if (activeTab === 'digital-card') setDigitalCardOpen(true);
-      else if (activeTab === 'certificate' || activeTab === 'e-certificate') setCertificateOpen(true);
-      else if (activeTab === 'prospect-calculator') setProspectCalculatorOpen(true);
+      if (user?.role === 'member') {
+        if (activeTab === 'lucky-wheel') setLuckyWheelOpen(true);
+        else if (activeTab === 'rank-rewards') setRankRewardsOpen(true);
+        else if (activeTab === 'herbal-farm') setHerbalFarmOpen(true);
+        else if (activeTab === 'digital-card') setDigitalCardOpen(true);
+        else if (activeTab === 'certificate' || activeTab === 'e-certificate') setCertificateOpen(true);
+        else if (activeTab === 'prospect-calculator') setProspectCalculatorOpen(true);
+      }
 
       const restoreTab =
         previousBaseTabRef.current &&
@@ -328,6 +353,17 @@ export default function App() {
       previousBaseTabRef.current = activeTab;
     }
   }, [activeTab, user?.role]);
+
+  // Safety role enforcement: if activeTab is not permitted for current role, reset to default role tab
+  useEffect(() => {
+    if (user?.role && activeTab && !isTabAllowedForRole(activeTab, user.role)) {
+      const fallbackTab = getInitialTab(user.role);
+      setActiveTab(fallbackTab);
+      try {
+        localStorage.setItem('bionet_active_tab', fallbackTab);
+      } catch {}
+    }
+  }, [user?.role, activeTab]);
 
   // Synchronize activeTab to URL Hash, Browser History & LocalStorage
   useEffect(() => {
@@ -852,53 +888,65 @@ export default function App() {
         }}
       />
 
-      {/* Module 4: Kalkulator Simulasi Bonus & Prospek Mitra Modal */}
-      <ProspectingCalculatorModal
-        isOpen={prospectCalculatorOpen}
-        onClose={() => setProspectCalculatorOpen(false)}
-        currentUser={user}
-      />
+      {/* Module 4: Kalkulator Simulasi Bonus & Prospek Mitra Modal (Member Only) */}
+      {role === 'member' && (
+        <ProspectingCalculatorModal
+          isOpen={prospectCalculatorOpen}
+          onClose={() => setProspectCalculatorOpen(false)}
+          currentUser={user}
+        />
+      )}
 
-      {/* Module 5: KTA Digital Resmi BPOM Modal */}
-      <DigitalMemberCardModal
-        isOpen={digitalCardOpen}
-        onClose={() => setDigitalCardOpen(false)}
-        currentUser={user}
-      />
+      {/* Module 5: KTA Digital Resmi BPOM Modal (Member Only) */}
+      {role === 'member' && (
+        <DigitalMemberCardModal
+          isOpen={digitalCardOpen}
+          onClose={() => setDigitalCardOpen(false)}
+          currentUser={user}
+        />
+      )}
 
-      {/* Module 5: E-Sertifikat Kemitraan & Konsultan Herbal Modal */}
-      <ECertificateModal
-        isOpen={certificateOpen}
-        onClose={() => setCertificateOpen(false)}
-        currentUser={user}
-      />
+      {/* Module 5: E-Sertifikat Kemitraan & Konsultan Herbal Modal (Member Only) */}
+      {role === 'member' && (
+        <ECertificateModal
+          isOpen={certificateOpen}
+          onClose={() => setCertificateOpen(false)}
+          currentUser={user}
+        />
+      )}
 
-      {/* Module 6: Intermezo Roda Berkah Keberuntungan Modal */}
-      <BionetLuckyWheelModal
-        isOpen={luckyWheelOpen}
-        onClose={() => setLuckyWheelOpen(false)}
-        currentUser={user}
-      />
+      {/* Module 6: Intermezo Roda Berkah Keberuntungan Modal (Member Only) */}
+      {role === 'member' && (
+        <BionetLuckyWheelModal
+          isOpen={luckyWheelOpen}
+          onClose={() => setLuckyWheelOpen(false)}
+          currentUser={user}
+        />
+      )}
 
-      {/* Module 8: Sistem Peringkat & Klaim Reward Karir Bionet */}
-      <BionetRankRewardsModal
-        isOpen={rankRewardsOpen}
-        onClose={() => setRankRewardsOpen(false)}
-        currentUser={user}
-        onRewardClaimed={() => {
-          fetchStats();
-        }}
-      />
+      {/* Module 8: Sistem Peringkat & Klaim Reward Karir Bionet (Member Only) */}
+      {role === 'member' && (
+        <BionetRankRewardsModal
+          isOpen={rankRewardsOpen}
+          onClose={() => setRankRewardsOpen(false)}
+          currentUser={user}
+          onRewardClaimed={() => {
+            fetchStats();
+          }}
+        />
+      )}
 
-      {/* Module 10: Game Intermezo Kebun Herbal & Peternakan Lebah (Ala Shopee Farm) */}
-      <BionetHerbalFarmModal
-        isOpen={herbalFarmOpen}
-        onClose={() => setHerbalFarmOpen(false)}
-        currentUser={user}
-        onRewardClaimed={() => {
-          fetchStats();
-        }}
-      />
+      {/* Module 10: Game Intermezo Kebun Herbal & Peternakan Lebah (Member Only) */}
+      {role === 'member' && (
+        <BionetHerbalFarmModal
+          isOpen={herbalFarmOpen}
+          onClose={() => setHerbalFarmOpen(false)}
+          currentUser={user}
+          onRewardClaimed={() => {
+            fetchStats();
+          }}
+        />
+      )}
 
       {/* Module 9: Pembayaran Otomatis Midtrans Snap QRIS & VA */}
       {midtransModalOpen && (
@@ -913,17 +961,19 @@ export default function App() {
         />
       )}
 
-      {/* Floating AI Copilot Widget */}
-      <AIAssistantWidget currentUser={user} hideFab={true} />
+      {/* Floating AI Copilot Widget (Member Only) */}
+      {role === 'member' && <AIAssistantWidget currentUser={user} hideFab={true} />}
 
-      {/* Luxury Bionet AI Intelligence Suite Floating Hub */}
-      <BionetAIFloatingHub
-        currentUser={user}
-        stats={stats}
-        onOpenRegisterDownline={(slotData) => {
-          setActiveTab('genealogy');
-        }}
-      />
+      {/* Luxury Bionet AI Intelligence Suite Floating Hub (Member Only) */}
+      {role === 'member' && (
+        <BionetAIFloatingHub
+          currentUser={user}
+          stats={stats}
+          onOpenRegisterDownline={(slotData) => {
+            setActiveTab('genealogy');
+          }}
+        />
+      )}
     </div>
   );
 }

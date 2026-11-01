@@ -190,23 +190,25 @@ export default function Header({
 
       {/* Right: Actions, Notifications, Chat, & User Meta */}
       <div className="flex items-center gap-2 sm:gap-2.5">
-        {/* Mini Game Intermezo Button (Usia 25-60) */}
-        <button
-          type="button"
-          onClick={() => {
-            if (onNavigate) {
-              onNavigate('lucky-wheel');
-            } else {
-              window.dispatchEvent(new Event('bionet:open-wheel'));
-            }
-          }}
-          title="Putar Roda Keberuntungan Berkah (Intermezo Usia 25-60 Tahun)"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-teal-500/15 border border-amber-400/40 hover:border-amber-500 text-amber-900 hover:text-emerald-950 transition-all text-xs font-bold shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
-        >
-          <span className="text-base leading-none">🎡</span>
-          <span className="hidden sm:inline">Roda Berkah</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-        </button>
+        {/* Mini Game Intermezo Button (Member Only) */}
+        {user?.role === 'member' && (
+          <button
+            type="button"
+            onClick={() => {
+              if (onNavigate) {
+                onNavigate('lucky-wheel');
+              } else {
+                window.dispatchEvent(new Event('bionet:open-wheel'));
+              }
+            }}
+            title="Putar Roda Keberuntungan Berkah (Intermezo Usia 25-60 Tahun)"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-teal-500/15 border border-amber-400/40 hover:border-amber-500 text-amber-900 hover:text-emerald-950 transition-all text-xs font-bold shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <span className="text-base leading-none">🎡</span>
+            <span className="hidden sm:inline">Roda Berkah</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+          </button>
+        )}
 
         {/* Referral Link Fast Share (Member Only) */}
         {user?.role === 'member' && (
@@ -448,8 +450,8 @@ export default function Header({
           </button>
         )}
 
-        {/* Module 5 Quick Trigger: KTA Digital */}
-        {onOpenDigitalCard && (
+        {/* Module 5 Quick Trigger: KTA Digital (Member Only) */}
+        {user?.role === 'member' && onOpenDigitalCard && (
           <button
             type="button"
             onClick={() => {
@@ -464,8 +466,8 @@ export default function Header({
           </button>
         )}
 
-        {/* Module 8 Quick Trigger: Jenjang Karir & Reward Kemitraan */}
-        {onOpenRankRewards && (
+        {/* Module 8 Quick Trigger: Jenjang Karir & Reward Kemitraan (Member Only) */}
+        {user?.role === 'member' && onOpenRankRewards && (
           <button
             type="button"
             onClick={() => {
@@ -480,8 +482,8 @@ export default function Header({
           </button>
         )}
 
-        {/* Module 10 Quick Trigger: Kebun Herbal & Peternakan Lebah Bionet */}
-        {onOpenHerbalFarm && (
+        {/* Module 10 Quick Trigger: Kebun Herbal & Peternakan Lebah Bionet (Member Only) */}
+        {user?.role === 'member' && onOpenHerbalFarm && (
           <button
             type="button"
             onClick={() => {
@@ -496,24 +498,26 @@ export default function Header({
           </button>
         )}
 
-        {/* Module 7: Uji Suara Notifikasi Komisi */}
-        <button
-          type="button"
-          onClick={() => {
-            playCoinChime();
-            setChimePlayed(true);
-            setTimeout(() => setChimePlayed(false), 2000);
-          }}
-          title="Uji Suara Notifikasi Komisi (Web Audio API Synthesizer)"
-          className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all text-xs font-bold active:scale-95 shadow-xs ${
-            chimePlayed
-              ? 'bg-amber-100 text-amber-900 border-amber-300 scale-95'
-              : 'bg-amber-50 hover:bg-amber-100/80 text-amber-800 border-amber-200'
-          }`}
-        >
-          <Volume2 size={13} className={chimePlayed ? 'text-amber-600 animate-bounce' : 'text-amber-600'} />
-          <span className="hidden 2xl:inline">{chimePlayed ? 'Kring! Komisi!' : 'Uji Suara'}</span>
-        </button>
+        {/* Module 7: Uji Suara Notifikasi Komisi (Member Only) */}
+        {user?.role === 'member' && (
+          <button
+            type="button"
+            onClick={() => {
+              playCoinChime();
+              setChimePlayed(true);
+              setTimeout(() => setChimePlayed(false), 2000);
+            }}
+            title="Uji Suara Notifikasi Komisi (Web Audio API Synthesizer)"
+            className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all text-xs font-bold active:scale-95 shadow-xs ${
+              chimePlayed
+                ? 'bg-amber-100 text-amber-900 border-amber-300 scale-95'
+                : 'bg-amber-50 hover:bg-amber-100/80 text-amber-800 border-amber-200'
+            }`}
+          >
+            <Volume2 size={13} className={chimePlayed ? 'text-amber-600 animate-bounce' : 'text-amber-600'} />
+            <span className="hidden 2xl:inline">{chimePlayed ? 'Kring! Komisi!' : 'Uji Suara'}</span>
+          </button>
+        )}
 
         {/* Refresh Button (Visible on sm+ screens to preserve mobile header space) */}
         <button

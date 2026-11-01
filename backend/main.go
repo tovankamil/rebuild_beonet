@@ -449,7 +449,7 @@ func seedDefaultData() {
 				OrderIndex:  14,
 			})
 		}
-		for _, r := range []string{"admin", "member", "cs", "keuangan"} {
+		for _, r := range []string{"member"} {
 			var p models.RoleMenuPermission
 			if err := config.DB.Where("role = ? AND menu_key = ?", r, "farm").First(&p).Error; err != nil {
 				config.DB.Create(&models.RoleMenuPermission{
@@ -460,6 +460,8 @@ func seedDefaultData() {
 				})
 			}
 		}
+		// Clean up stray farm gamification permissions for non-member roles
+		config.DB.Where("menu_key = ? AND role != ?", "farm", "member").Delete(&models.RoleMenuPermission{})
 	}
 
 	// Seed demo notifications & chats for rich first experience across roles
@@ -854,8 +856,8 @@ func main() {
 			protected.PUT("/dashboard/address", dashboardHandler.UpdateUserAddress)
 			protected.GET("/dashboard/recent-members", dashboardHandler.GetRecentMembers)
 			protected.GET("/dashboard/stats", dashboardHandler.GetStats)
-			protected.GET("/dashboard/genealogy", dashboardHandler.GetGenealogy)
-			protected.GET("/dashboard/referrals", dashboardHandler.GetDirectReferrals)
+			protected.GET("/dashboard/genealogy", middleware.RequireRole("member", "admin"), dashboardHandler.GetGenealogy)
+			protected.GET("/dashboard/referrals", middleware.RequireRole("member", "admin"), dashboardHandler.GetDirectReferrals)
 			protected.GET("/dashboard/transactions", dashboardHandler.GetWalletTransactions)
 			protected.GET("/dashboard/bank", dashboardHandler.GetUserBank)
 			protected.POST("/dashboard/bank", dashboardHandler.SaveUserBank)
@@ -982,16 +984,16 @@ func main() {
 			protected.GET("/bio/my-page", bioLinkHandler.GetMyBioPage)
 			protected.PUT("/bio/my-page", bioLinkHandler.UpdateMyBioPage)
 
-			// Pilar 2: Gamifikasi, Motivasi & Duplikasi Jaringan
-			protected.GET("/gamification/reward-progress", gamificationHandler.GetRewardProgress)
-			protected.GET("/academy/modules", gamificationHandler.GetAcademyModules)
-			protected.POST("/academy/complete", gamificationHandler.CompleteAcademyModule)
-			protected.GET("/gamification/inactivity-alerts", gamificationHandler.GetInactivityAlerts)
-			protected.GET("/gamification/wheel/status", gamificationHandler.GetWheelStatus)
-			protected.POST("/gamification/wheel/spin", gamificationHandler.SpinWheel)
+			// Pilar 2: Gamifikasi, Motivasi & Duplikasi Jaringan (Member Only)
+			protected.GET("/gamification/reward-progress", middleware.RequireRole("member"), gamificationHandler.GetRewardProgress)
+			protected.GET("/academy/modules", middleware.RequireRole("member"), gamificationHandler.GetAcademyModules)
+			protected.POST("/academy/complete", middleware.RequireRole("member"), gamificationHandler.CompleteAcademyModule)
+			protected.GET("/gamification/inactivity-alerts", middleware.RequireRole("member"), gamificationHandler.GetInactivityAlerts)
+			protected.GET("/gamification/wheel/status", middleware.RequireRole("member"), gamificationHandler.GetWheelStatus)
+			protected.POST("/gamification/wheel/spin", middleware.RequireRole("member"), gamificationHandler.SpinWheel)
 
-			// Kebun Herbal & Peternakan Lebah Bionet (Shopee Farm Gamification Engine)
-			farmGroup := protected.Group("/farm")
+			// Kebun Herbal & Peternakan Lebah Bionet (Shopee Farm Gamification Engine - Member Only)
+			farmGroup := protected.Group("/farm", middleware.RequireRole("member"))
 			{
 				farmGroup.GET("/state", farmHandler.GetFarmState)
 				farmGroup.POST("/plant", farmHandler.PlantSeed)

@@ -221,54 +221,6 @@ function getRoleMenuModules(role) {
           { id: 'components', title: 'Galeri Komponen DashLite', desc: 'Desain token & elemen UI', icon: Palette },
         ],
       },
-      {
-        id: 'lucky-wheel',
-        title: 'Intermezo: Roda Berkah',
-        icon: Gift,
-        badge: 'Game 25-60',
-        action: 'open_lucky_wheel',
-        submenus: [
-          {
-            id: 'lucky-wheel',
-            title: '🎡 Roda Berkah Keberuntungan',
-            desc: 'Putar roda santai harian & menangkan voucher belanja herbal!',
-            icon: Gift,
-            action: 'open_lucky_wheel',
-          },
-        ],
-      },
-      {
-        id: 'rank-rewards',
-        title: 'Jenjang Karir & Reward',
-        icon: Award,
-        badge: 'Rp 300 Jt',
-        action: 'open_rank_rewards',
-        submenus: [
-          {
-            id: 'rank-rewards',
-            title: '🏆 Jenjang Karir & Reward',
-            desc: 'Katalog reward & kualifikasi PV Bronze s/d Crown',
-            icon: Award,
-            action: 'open_rank_rewards',
-          },
-        ],
-      },
-      {
-        id: 'herbal-farm',
-        title: 'Kebun Herbal & Lebah',
-        icon: Droplets,
-        badge: 'Farm',
-        action: 'open_herbal_farm',
-        submenus: [
-          {
-            id: 'herbal-farm',
-            title: '🏡 Kebun Herbal & Lebah Trigona',
-            desc: 'Simulasi kebun herbal, rawat lebah & panen madu',
-            icon: Droplets,
-            action: 'open_herbal_farm',
-          },
-        ],
-      },
     ];
   }
 
@@ -403,7 +355,7 @@ function getRoleMenuModules(role) {
         icon: Layers,
         badge: 'Stok',
         submenus: [
-          { id: 'warehouse-overview', title: 'Katalog Stok Fisik', desc: 'Penyesuaian stok produk', icon: Layers },
+          { id: 'warehouse-inventory', title: 'Katalog Stok Fisik & Restock', desc: 'Penyesuaian stok produk masuk', icon: Layers },
         ],
       },
       {
@@ -412,7 +364,7 @@ function getRoleMenuModules(role) {
         icon: ShoppingBag,
         badge: 'Fulfillment',
         submenus: [
-          { id: 'warehouse-overview', title: 'Daftar Pesanan Siap Kirim', desc: 'Input nomor resi pengiriman', icon: Send },
+          { id: 'warehouse-orders', title: 'Daftar Pesanan Siap Kirim', desc: 'Input nomor resi pengiriman ekspedisi', icon: Send },
         ],
       },
       {
@@ -421,7 +373,7 @@ function getRoleMenuModules(role) {
         icon: Sparkles,
         badge: 'Produk',
         submenus: [
-          { id: 'products', title: 'Katalog Produk Bionet', desc: 'Spesifikasi & foto produk', icon: ShoppingBag },
+          { id: 'products', title: 'Katalog Produk Bionet', desc: 'Spesifikasi fisik & foto produk herbal', icon: ShoppingBag },
         ],
       },
     ];
@@ -672,6 +624,9 @@ export default function AppsSidebar({
   const menuModules = dynamicAllowedKeys
     ? baseModules.filter((m) => {
         if (userRole === 'admin') return true;
+        if (userRole === 'gudang') {
+          return ['warehouse-overview', 'warehouse-inventory', 'warehouse-orders', 'products'].includes(m.id);
+        }
         return (
           dynamicAllowedKeys.includes(m.id) ||
           m.id === 'meetings' ||
@@ -704,17 +659,20 @@ export default function AppsSidebar({
 
   const handleIconClick = (item, event) => {
     if (item.action === 'open_lucky_wheel' || item.id === 'lucky-wheel') {
+      if (userRole !== 'member') return;
       window.dispatchEvent(new Event('bionet:open-wheel'));
       setActiveTab('lucky-wheel');
       return;
     }
     if (item.action === 'open_rank_rewards' || item.id === 'rank-rewards') {
+      if (userRole !== 'member') return;
       if (onOpenRankRewards) onOpenRankRewards();
       else window.dispatchEvent(new Event('bionet:open-ranks'));
       setActiveTab('rank-rewards');
       return;
     }
     if (item.action === 'open_herbal_farm' || item.id === 'herbal-farm') {
+      if (userRole !== 'member') return;
       if (onOpenHerbalFarm) onOpenHerbalFarm();
       else window.dispatchEvent(new Event('bionet:open-farm'));
       setActiveTab('herbal-farm');
@@ -742,28 +700,34 @@ export default function AppsSidebar({
     if (sub.action === 'logout') {
       onLogout();
     } else if (sub.action === 'copy_ref') {
-      handleCopyLink();
+      if (userRole === 'member') handleCopyLink();
     } else if (sub.action === 'open_profile' || sub.id === 'profile') {
       if (onOpenProfile) onOpenProfile('profile');
     } else if (sub.action === 'open_password' || sub.id === 'profile-password') {
       if (onOpenProfile) onOpenProfile('password');
     } else if (sub.action === 'open_prospect_calculator' || sub.id === 'prospect-calculator') {
+      if (userRole !== 'member') return;
       if (onOpenProspectCalculator) onOpenProspectCalculator();
       setActiveTab('prospect-calculator');
     } else if (sub.action === 'open_digital_card' || sub.id === 'digital-card') {
+      if (userRole !== 'member') return;
       if (onOpenDigitalCard) onOpenDigitalCard();
       setActiveTab('digital-card');
     } else if (sub.action === 'open_certificate' || sub.id === 'e-certificate' || sub.id === 'certificate') {
+      if (userRole !== 'member') return;
       if (onOpenCertificate) onOpenCertificate();
       setActiveTab('certificate');
     } else if (sub.action === 'open_lucky_wheel' || sub.id === 'lucky-wheel') {
+      if (userRole !== 'member') return;
       window.dispatchEvent(new Event('bionet:open-wheel'));
       setActiveTab('lucky-wheel');
     } else if (sub.action === 'open_rank_rewards' || sub.id === 'rank-rewards') {
+      if (userRole !== 'member') return;
       if (onOpenRankRewards) onOpenRankRewards();
       else window.dispatchEvent(new Event('bionet:open-ranks'));
       setActiveTab('rank-rewards');
     } else if (sub.action === 'open_herbal_farm' || sub.id === 'herbal-farm') {
+      if (userRole !== 'member') return;
       if (onOpenHerbalFarm) onOpenHerbalFarm();
       else window.dispatchEvent(new Event('bionet:open-farm'));
       setActiveTab('herbal-farm');

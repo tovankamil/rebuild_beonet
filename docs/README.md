@@ -22,6 +22,12 @@ Selamat datang di dokumentasi resmi proyek **Rebuild Bionet**. Dokumentasi ini b
    - Analisis kesenjangan pada Fase 1-4 dan PRD Dashboard Mitra.
    - Catatan audit UI/UX dan rencana sprint selanjutnya.
 
+4. [**Laporan Audit Keamanan, WAF, Performa & UI/UX QA (`audit_security_waf_qa_report.md`)**](./audit_security_waf_qa_report.md)
+   - Analisis arsitektur WAF (*In-App WAF Shield* vs *Edge Cloudflare/AWS WAF*).
+   - Laporan hasil simulasi pentest (*white-box review / OWASP Top 10*) dan rekapitulasi tambalan keamanan.
+   - Audit performa *bundle chunking* frontend dan kueri basis data.
+   - SOP Kepatuhan Operasional awal bulan (*Capture IPE & Eksekusi UAR Pensiun*).
+
 ---
 
 ## 🏗️ Gambaran Arsitektur Sistem Bionet

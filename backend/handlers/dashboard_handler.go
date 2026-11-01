@@ -479,6 +479,11 @@ func (h *DashboardHandler) RegisterDownline(c *gin.Context) {
 		_ = waService.SendRegistrationWelcomeMessages(sp, nu, pkg, pos, uplineUname, bonus)
 	}(sponsor, resp.User, pkgName, resp.Position, resp.Upline.Username, resp.SponsorBonus)
 
+	// 5. Kirim Welcome Email Resmi Pendaftaran Mitra Baru
+	if req.Email != "" {
+		_ = services.GlobalEmailService.SendWelcomeEmail(strings.TrimSpace(req.Email), resp.User.Username, resp.User.FullName)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": fmt.Sprintf("Mitra baru @%s berhasil didaftarkan dan ditempatkan pada pohon jaringan!", resp.User.Username),

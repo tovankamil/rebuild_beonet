@@ -42,6 +42,7 @@ import {
   Droplets,
   Globe,
   Gift,
+  Mail,
 } from 'lucide-react';
 import DashAvatar from './DashAvatar';
 import { useBranding } from '../../context/BrandingContext';
@@ -190,6 +191,15 @@ function getRoleMenuModules(role) {
         badge: 'Webinar',
         submenus: [
           { id: 'meetings', title: 'Ruang Meeting & Webinar BOP', desc: 'Jadwal BOP, Video KYC & live meeting', icon: Video },
+        ],
+      },
+      {
+        id: 'mail',
+        title: 'Email & Webmail',
+        icon: Mail,
+        badge: 'Gmail/IMAP',
+        submenus: [
+          { id: 'mail', title: 'Kotak Masuk (Webmail)', desc: 'Baca & balas email Gmail / domain sendiri', icon: Mail },
         ],
       },
       {

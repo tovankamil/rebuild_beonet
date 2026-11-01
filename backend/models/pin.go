@@ -79,6 +79,7 @@ type RegisterDownlineRequest struct {
 	FullName string `json:"full_name" binding:"required"`
 	Password string `json:"password" binding:"required,min=6"`
 	Phone    string `json:"phone" binding:"required"`
+	Email    string `json:"email"`
 	KTP      string `json:"ktp"`
 }
 

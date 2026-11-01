@@ -257,33 +257,12 @@ export default function AIImageGeneratorModal({ isOpen, onClose, currentUser, on
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const handleApplyToMarketingKit = () => {
+  const handleUsePromotionalMaterial = () => {
     if (!generatedResult?.imageUrl) return;
-    
-    const customFlyer = {
-      id: `flyer_custom_${Date.now()}`,
-      category: category,
-      title: prompt.slice(0, 36) + '...',
-      tag: 'Kreasi Studio AI Bionet',
-      headline: prompt.toUpperCase().slice(0, 48),
-      subheadline: `Solusi Sehat & Sukses Bersama Mitra Resmi Bionet`,
-      badge: 'Visual 8K Gemini + FLUX',
-      bgGradient: 'from-emerald-950 via-teal-950 to-slate-950',
-      accentColor: '#10B981',
-      imageUrl: generatedResult.imageUrl,
-      copywriting: `🌿 *${prompt.toUpperCase()}* 🌿\n\nHadirkan kebaikan alami herbal berstandar BPOM untuk kesehatan optimal keluarga.\n\n👉 Konsultasi & Pemesanan:\nWhatsApp: {{wa_link}}\nMitra Resmi: {{partner_name}} (Kode: {{referral_code}})`,
-    };
-
     if (onSelectForMarketing) {
-      onSelectForMarketing(customFlyer);
-    } else {
-      window.dispatchEvent(
-        new CustomEvent('bionet:open-marketing-kit', {
-          detail: { customFlyer },
-        })
-      );
+      onSelectForMarketing(generatedResult.imageUrl);
     }
-    onClose();
+    handleDownloadRawImage();
   };
 
   if (!isOpen) return null;
@@ -530,7 +509,7 @@ export default function AIImageGeneratorModal({ isOpen, onClose, currentUser, on
               </div>
             </div>
 
-            {/* Right Column: Visual Preview & 1-Click Marketing Kit Action (5 cols) - Independent Scroll */}
+            {/* Right Column: Visual Preview & Promosi Action (5 cols) - Independent Scroll */}
             <div className="lg:col-span-5 p-5 sm:p-6 bg-slate-900 text-white flex flex-col justify-between overflow-y-auto space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -608,12 +587,12 @@ export default function AIImageGeneratorModal({ isOpen, onClose, currentUser, on
               <div className="space-y-2 pt-3 border-t border-white/10 shrink-0">
                 <button
                   type="button"
-                  onClick={handleApplyToMarketingKit}
+                  onClick={handleUsePromotionalMaterial}
                   disabled={loading || !generatedResult?.imageUrl}
-                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20 transition active:scale-[0.98] cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center space-x-2 shadow-lg shadow-emerald-500/20 transition active:scale-[0.98] cursor-pointer"
                 >
-                  <ShieldCheck size={18} />
-                  <span>Jadikan Background Flyer Marketing Kit (Beri Stempel)</span>
+                  <Sparkles size={18} />
+                  <span>Gunakan Sebagai Materi Promosi</span>
                 </button>
 
                 <div className="grid grid-cols-2 gap-2">

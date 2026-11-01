@@ -168,7 +168,7 @@ func (r *dashboardRepositoryImpl) GetGenealogy(userID string, targetIdentifier s
 		}
 	}
 
-	tree := r.buildTreeNode(rootID, "root", 1, 3)
+	tree := r.buildTreeNode(rootID, "root", 1, 5)
 	return tree, nil
 }
 
@@ -499,6 +499,7 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 			PasswordHash: string(hashedPassword),
 			Role:         "member",
 			Status:       "active",
+			Email:        strings.TrimSpace(req.Email),
 			KTP:          strings.TrimSpace(req.KTP),
 			CreatedAt:    now,
 			UpdatedAt:    now,

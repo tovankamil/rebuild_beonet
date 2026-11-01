@@ -40,7 +40,6 @@ import SmartROReminderCard from './crm/SmartROReminderCard';
 import RecentJoinedMembersBar from './dashboard/RecentJoinedMembersBar';
 import RegisterDownlineModal from './RegisterDownlineModal';
 import BioLinkBuilderModal from './biolink/BioLinkBuilderModal';
-import MarketingKitModal from './marketing/MarketingKitModal';
 import WebinarFunnelModal from './marketing/WebinarFunnelModal';
 import LeaderboardModal from './gamification/LeaderboardModal';
 import BionetAcademyModal from './gamification/BionetAcademyModal';
@@ -64,19 +63,6 @@ export default function OverviewTab({
   const [showStoreModal, setShowStoreModal] = useState(false);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [showBioLinkModal, setShowBioLinkModal] = useState(false);
-  const [showMarketingKitModal, setShowMarketingKitModal] = useState(false);
-  const [marketingKitInitialFlyer, setMarketingKitInitialFlyer] = useState(null);
-
-  useEffect(() => {
-    const handleOpenMarketing = (e) => {
-      if (e.detail?.customFlyer) {
-        setMarketingKitInitialFlyer(e.detail.customFlyer);
-      }
-      setShowMarketingKitModal(true);
-    };
-    window.addEventListener('bionet:open-marketing-kit', handleOpenMarketing);
-    return () => window.removeEventListener('bionet:open-marketing-kit', handleOpenMarketing);
-  }, []);
   const [showWebinarModal, setShowWebinarModal] = useState(false);
   const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
   const [showAcademyModal, setShowAcademyModal] = useState(false);
@@ -211,8 +197,8 @@ export default function OverviewTab({
       </div>
 
       {/* ======================================================== */}
-      {/* 4 PILAR AKSI CEPAT MITRA: BIO-LINK, MARKETING KIT, LEADERBOARD, ACADEMY */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* 3 PILAR AKSI CEPAT MITRA: BIO-LINK, LEADERBOARD, ACADEMY */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <button
           onClick={() => setShowBioLinkModal(true)}
           className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md shadow-emerald-700/20 flex items-center justify-between transition group active:scale-[0.98]"
@@ -230,22 +216,6 @@ export default function OverviewTab({
           <ChevronRight size={16} className="text-white/70 group-hover:translate-x-0.5 transition shrink-0" />
         </button>
 
-        <button
-          onClick={() => setShowMarketingKitModal(true)}
-          className="p-3.5 rounded-2xl bg-white hover:bg-amber-50/50 border border-slate-200/90 hover:border-amber-300 text-slate-800 shadow-xs flex items-center justify-between transition group active:scale-[0.98]"
-          title="Studio Flyer Promosi Berstempel & Naskah Copywriting"
-        >
-          <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-              <Sparkles size={18} />
-            </div>
-            <div className="text-left">
-              <span className="font-heading font-bold text-xs block leading-tight text-slate-900">Marketing Kit</span>
-              <span className="text-[10px] text-slate-500">Flyer Berstempel HD</span>
-            </div>
-          </div>
-          <ChevronRight size={16} className="text-slate-400 group-hover:translate-x-0.5 transition shrink-0" />
-        </button>
 
         <button
           onClick={() => setShowLeaderboardModal(true)}
@@ -885,21 +855,11 @@ export default function OverviewTab({
         />
       )}
 
-      {/* Modals: Bio-Link, Marketing Kit, Webinar, Leaderboard, Academy */}
+      {/* Modals: Bio-Link, Webinar, Leaderboard, Academy */}
       {showBioLinkModal && (
         <BioLinkBuilderModal
           user={currentUser}
           onClose={() => setShowBioLinkModal(false)}
-        />
-      )}
-      {showMarketingKitModal && (
-        <MarketingKitModal
-          user={currentUser}
-          initialCustomFlyer={marketingKitInitialFlyer}
-          onClose={() => {
-            setShowMarketingKitModal(false);
-            setMarketingKitInitialFlyer(null);
-          }}
         />
       )}
       {showWebinarModal && (

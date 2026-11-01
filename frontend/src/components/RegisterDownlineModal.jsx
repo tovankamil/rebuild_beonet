@@ -15,6 +15,7 @@ import {
   Coins,
   Layers,
   Phone,
+  Mail,
   User,
   CreditCard,
   Lock,
@@ -50,6 +51,7 @@ export default function RegisterDownlineModal({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [ktp, setKtp] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -83,6 +85,7 @@ export default function RegisterDownlineModal({
       setFullName('');
       setPassword('');
       setPhone('');
+      setEmail('');
       setKtp('');
       setCopied(false);
       setActivePosition(position || 'kiri');
@@ -154,6 +157,7 @@ export default function RegisterDownlineModal({
         full_name: fullName.trim(),
         password: password,
         phone: phone.trim(),
+        email: email.trim(),
         ktp: ktp.trim(),
       });
 

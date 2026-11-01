@@ -45,6 +45,10 @@ import {
   AlertTriangle,
   RotateCcw,
   Wifi,
+  ChevronLeft,
+  Paperclip,
+  Quote,
+  Presentation,
 } from 'lucide-react';
 import api from '../services/api';
 import ModalPortal from './common/ModalPortal';
@@ -70,6 +74,7 @@ export default function MeetingTab({ user, setActiveTab }) {
   const [copiedRoom, setCopiedRoom] = useState(null);
 
   // In-Meeting Stage States
+  const [isSubtitleOn, setIsSubtitleOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isMicOn, setIsMicOn] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);

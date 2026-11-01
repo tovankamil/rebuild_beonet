@@ -27,6 +27,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Video,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
@@ -37,6 +38,7 @@ import AIObjectionHandlerModal from './AIObjectionHandlerModal';
 import TestimonialVaultView from './TestimonialVaultView';
 import CrmWebhookView from './CrmWebhookView';
 import WhatsAppMessengerSuite from './WhatsAppMessengerSuite';
+import TikTokAnalyticsTab from './TikTokAnalyticsTab';
 import { downloadVCardContact, downloadBatchVCard } from '../../utils/vCardGenerator';
 
 export default function LeadsCRMTab({ user }) {
@@ -377,6 +379,12 @@ export default function LeadsCRMTab({ user }) {
       badge: 'Live',
     },
     {
+      key: 'tiktok-analytics',
+      label: 'TikTok Video & Komentar',
+      icon: Video,
+      badge: 'Views',
+    },
+    {
       key: 'kanban',
       label: 'Papan Kanban',
       icon: Layers,
@@ -618,6 +626,14 @@ export default function LeadsCRMTab({ user }) {
         <WhatsAppMessengerSuite
           user={user}
           onOpenObjectionModal={handleOpenObjectionModal}
+        />
+      )}
+
+      {/* VIEW 0.5: TIKTOK VIDEO ANALYTICS & LEAD CONVERTER */}
+      {viewMode === 'tiktok-analytics' && (
+        <TikTokAnalyticsTab
+          user={user}
+          onLeadCreated={fetchLeads}
         />
       )}
 

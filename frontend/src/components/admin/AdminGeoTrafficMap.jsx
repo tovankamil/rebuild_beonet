@@ -175,6 +175,354 @@ const INDONESIA_HUBS = [
   },
 ];
 
+
+// 34 Indonesian Provinces with authentic Atlas colors & callout pointers from reference image
+const INDONESIA_PROVINCES = [
+  // --- SUMATERA ---
+  {
+    id: 'aceh',
+    name: 'Provinsi Daerah Istimewa Aceh',
+    shortName: 'Aceh',
+    color: '#15803d', // Green
+    centroid: { x: 58, y: 72 },
+    labelPos: { x: 30, y: 55, anchor: 'start' },
+    pointer: 'M 90,58 L 75,70 L 62,72',
+    d: 'M 50,62 C 60,50 78,44 95,40 C 98,48 94,62 86,72 C 78,80 68,90 60,94 C 54,86 48,72 50,62 Z',
+  },
+  {
+    id: 'sumut',
+    name: 'Provinsi Sumatera Utara',
+    shortName: 'Sumatera Utara',
+    color: '#ca8a04', // Yellow-green
+    centroid: { x: 92, y: 108 },
+    labelPos: { x: 125, y: 50, anchor: 'start' },
+    pointer: 'M 130,55 L 110,85 L 94,104',
+    d: 'M 86,72 C 94,62 108,54 116,60 C 124,72 132,92 128,110 C 120,122 104,130 92,126 C 82,118 78,100 86,72 Z',
+  },
+  {
+    id: 'sumbar',
+    name: 'Provinsi Sumatera Barat',
+    shortName: 'Sumatera Barat',
+    color: '#7c3aed', // Purple
+    centroid: { x: 112, y: 156 },
+    labelPos: { x: 10, y: 175, anchor: 'start' },
+    pointer: 'M 72,175 L 96,168 L 110,158',
+    d: 'M 100,132 C 112,128 124,138 122,152 C 120,166 130,178 136,188 C 128,192 118,186 112,174 C 104,158 98,144 100,132 Z',
+  },
+  {
+    id: 'riau',
+    name: 'Provinsi Riau',
+    shortName: 'Riau',
+    color: '#db2777', // Pink
+    centroid: { x: 142, y: 140 },
+    labelPos: { x: 130, y: 115, anchor: 'start' },
+    pointer: 'M 142,120 L 142,136',
+    d: 'M 124,110 C 138,102 152,114 162,128 C 166,142 158,156 146,160 C 134,158 122,146 122,130 Z',
+  },
+  {
+    id: 'kepri',
+    name: 'Provinsi Kepulauan Riau',
+    shortName: 'Kepulauan Riau',
+    color: '#0891b2', // Cyan
+    centroid: { x: 195, y: 115 },
+    labelPos: { x: 200, y: 80, anchor: 'start' },
+    pointer: 'M 215,85 L 205,105 L 196,114',
+    d: 'M 188,110 C 196,108 202,114 198,122 C 192,124 186,118 188,110 Z M 210,130 C 218,128 222,134 218,140 C 212,142 208,136 210,130 Z',
+  },
+  {
+    id: 'jambi',
+    name: 'Provinsi Jambi',
+    shortName: 'Jambi',
+    color: '#ea580c', // Orange
+    centroid: { x: 154, y: 182 },
+    labelPos: { x: 140, y: 175, anchor: 'start' },
+    pointer: 'M 152,177 L 154,182',
+    d: 'M 136,165 C 148,160 162,165 174,172 C 172,185 160,195 148,198 C 138,194 134,180 136,165 Z',
+  },
+  {
+    id: 'sumsel',
+    name: 'Provinsi Sumatera Selatan',
+    shortName: 'Sumatera Selatan',
+    color: '#c026d3', // Magenta
+    centroid: { x: 178, y: 215 },
+    labelPos: { x: 170, y: 245, anchor: 'start' },
+    pointer: 'M 180,240 L 178,218',
+    d: 'M 152,198 C 166,192 182,190 196,204 C 204,218 198,232 184,238 C 168,236 156,222 152,198 Z',
+  },
+  {
+    id: 'bengkulu',
+    name: 'Provinsi Bengkulu',
+    shortName: 'Bengkulu',
+    color: '#0284c7', // Sky Blue
+    centroid: { x: 144, y: 214 },
+    labelPos: { x: 25, y: 235, anchor: 'start' },
+    pointer: 'M 75,235 L 125,225 L 142,216',
+    d: 'M 134,192 C 142,190 148,202 148,218 C 146,232 156,242 162,248 C 154,250 144,240 138,226 C 132,210 130,200 134,192 Z',
+  },
+  {
+    id: 'lampung',
+    name: 'Provinsi Lampung',
+    shortName: 'Lampung',
+    color: '#f43f5e', // Salmon Pink
+    centroid: { x: 198, y: 250 },
+    labelPos: { x: 55, y: 285, anchor: 'start' },
+    pointer: 'M 115,285 L 175,265 L 195,252',
+    d: 'M 174,236 C 188,232 202,234 212,246 C 214,256 206,265 194,264 C 182,260 172,248 174,236 Z',
+  },
+  {
+    id: 'babel',
+    name: 'Provinsi Kepulauan Bangka Belitung',
+    shortName: 'Bangka Belitung',
+    color: '#06b6d4', // Cyan
+    centroid: { x: 216, y: 190 },
+    labelPos: { x: 218, y: 155, anchor: 'start' },
+    pointer: 'M 235,160 L 222,180 L 216,188',
+    d: 'M 194,170 C 204,166 210,172 205,185 C 198,192 190,186 194,170 Z M 225,188 C 232,185 236,192 232,200 C 225,204 220,196 225,188 Z',
+  },
+
+  // --- JAWA ---
+  {
+    id: 'banten',
+    name: 'Provinsi Banten',
+    shortName: 'Banten',
+    color: '#15803d', // Dark green
+    centroid: { x: 228, y: 272 },
+    labelPos: { x: 130, y: 335, anchor: 'start' },
+    pointer: 'M 175,335 L 218,295 L 226,275',
+    d: 'M 212,264 C 222,260 234,264 238,272 C 234,280 224,284 216,278 C 210,274 208,268 212,264 Z',
+  },
+  {
+    id: 'jakarta',
+    name: 'Provinsi Daerah Khusus Ibukota Jakarta',
+    shortName: 'DKI Jakarta',
+    color: '#ef4444', // Red
+    centroid: { x: 246, y: 268 },
+    labelPos: { x: 236, y: 310, anchor: 'middle' },
+    pointer: 'M 246,305 L 246,272',
+    d: 'M 240,265 C 248,264 252,266 250,271 C 244,273 238,270 240,265 Z',
+  },
+  {
+    id: 'jabar',
+    name: 'Provinsi Jawa Barat',
+    shortName: 'Jawa Barat',
+    color: '#2563eb', // Blue
+    centroid: { x: 264, y: 278 },
+    labelPos: { x: 215, y: 375, anchor: 'start' },
+    pointer: 'M 240,370 L 255,315 L 263,282',
+    d: 'M 244,268 C 262,266 278,270 284,278 C 280,288 266,292 250,288 C 240,284 238,276 244,268 Z',
+  },
+  {
+    id: 'jateng',
+    name: 'Provinsi Jawa Tengah',
+    shortName: 'Jawa Tengah',
+    color: '#eab308', // Yellow
+    centroid: { x: 310, y: 282 },
+    labelPos: { x: 330, y: 340, anchor: 'start' },
+    pointer: 'M 335,335 L 318,302 L 312,286',
+    d: 'M 284,274 C 304,272 328,276 338,284 C 334,294 316,298 298,294 C 286,290 282,282 284,274 Z',
+  },
+  {
+    id: 'diy',
+    name: 'Provinsi Daerah Istimewa Yogyakarta',
+    shortName: 'DI Yogyakarta',
+    color: '#4f46e5', // Indigo/Purple
+    centroid: { x: 316, y: 297 },
+    labelPos: { x: 295, y: 405, anchor: 'start' },
+    pointer: 'M 310,400 L 316,335 L 316,301',
+    d: 'M 312,292 C 320,290 324,295 322,300 C 316,302 310,298 312,292 Z',
+  },
+  {
+    id: 'jatim',
+    name: 'Provinsi Jawa Timur',
+    shortName: 'Jawa Timur',
+    color: '#0d9488', // Teal
+    centroid: { x: 370, y: 288 },
+    labelPos: { x: 375, y: 385, anchor: 'start' },
+    pointer: 'M 385,380 L 374,320 L 370,294',
+    d: 'M 338,280 C 362,278 388,282 406,294 C 400,305 378,306 354,300 C 338,296 334,288 338,280 Z M 368,277 C 384,274 398,276 404,282 C 396,288 380,288 368,277 Z',
+  },
+
+  // --- BALI & NUSA TENGGARA ---
+  {
+    id: 'bali',
+    name: 'Provinsi Bali',
+    shortName: 'Bali',
+    color: '#ec4899', // Magenta
+    centroid: { x: 422, y: 312 },
+    labelPos: { x: 420, y: 360, anchor: 'start' },
+    pointer: 'M 430,355 L 424,326 L 422,315',
+    d: 'M 414,306 C 424,305 430,310 428,316 C 420,319 412,314 414,306 Z',
+  },
+  {
+    id: 'ntb',
+    name: 'Provinsi Nusa Tenggara Barat',
+    shortName: 'Nusa Tenggara Barat',
+    color: '#f97316', // Orange
+    centroid: { x: 462, y: 318 },
+    labelPos: { x: 472, y: 380, anchor: 'start' },
+    pointer: 'M 482,375 L 468,335 L 464,322',
+    d: 'M 436,310 C 445,308 450,313 447,319 C 438,321 434,316 436,310 Z M 456,314 C 472,310 488,315 484,324 C 470,326 455,322 456,314 Z',
+  },
+  {
+    id: 'ntt',
+    name: 'Provinsi Nusa Tenggara Timur',
+    shortName: 'Nusa Tenggara Timur',
+    color: '#f59e0b', // Amber/Yellow
+    centroid: { x: 545, y: 330 },
+    labelPos: { x: 535, y: 415, anchor: 'start' },
+    pointer: 'M 548,410 L 545,360 L 545,335',
+    d: 'M 498,318 C 522,315 544,320 540,328 C 520,330 500,326 498,318 Z M 488,336 C 496,334 502,338 498,342 C 490,344 484,340 488,336 Z M 562,328 C 582,324 602,332 598,342 C 580,344 562,338 562,328 Z',
+  },
+
+  // --- KALIMANTAN ---
+  {
+    id: 'kalbar',
+    name: 'Provinsi Kalimantan Barat',
+    shortName: 'Kalimantan Barat',
+    color: '#84cc16', // Lime Green
+    centroid: { x: 330, y: 175 },
+    labelPos: { x: 300, y: 120, anchor: 'start' },
+    pointer: 'M 320,126 L 330,155 L 330,172',
+    d: 'M 292,142 C 316,130 338,138 348,154 C 352,176 340,202 328,218 C 312,216 298,198 290,178 C 286,160 286,148 292,142 Z',
+  },
+  {
+    id: 'kalteng',
+    name: 'Provinsi Kalimantan Tengah',
+    shortName: 'Kalimantan Tengah',
+    color: '#f43f5e', // Coral Red
+    centroid: { x: 385, y: 200 },
+    labelPos: { x: 355, y: 215, anchor: 'middle' },
+    pointer: 'M 365,210 L 382,202',
+    d: 'M 348,154 C 368,148 392,154 402,170 C 404,196 394,226 380,246 C 360,244 346,220 344,195 C 344,178 346,162 348,154 Z',
+  },
+  {
+    id: 'kalsel',
+    name: 'Provinsi Kalimantan Selatan',
+    shortName: 'Kalimantan Selatan',
+    color: '#0284c7', // Blue-Teal
+    centroid: { x: 426, y: 236 },
+    labelPos: { x: 415, y: 285, anchor: 'middle' },
+    pointer: 'M 425,280 L 426,242',
+    d: 'M 404,210 C 418,206 432,212 436,224 C 438,240 430,254 418,252 C 408,250 402,235 404,210 Z',
+  },
+  {
+    id: 'kaltim',
+    name: 'Provinsi Kalimantan Timur',
+    shortName: 'Kalimantan Timur',
+    color: '#f59e0b', // Amber
+    centroid: { x: 440, y: 165 },
+    labelPos: { x: 440, y: 135, anchor: 'start' },
+    pointer: 'M 450,140 L 442,160',
+    d: 'M 380,118 C 414,120 448,130 468,155 C 474,176 465,202 444,212 C 428,204 416,182 408,162 C 398,144 388,128 380,118 Z',
+  },
+
+  // --- SULAWESI ---
+  {
+    id: 'sulut',
+    name: 'Provinsi Sulawesi Utara',
+    shortName: 'Sulawesi Utara',
+    color: '#facc15', // Yellow
+    centroid: { x: 596, y: 118 },
+    labelPos: { x: 615, y: 70, anchor: 'start' },
+    pointer: 'M 620,78 L 604,102 L 598,115',
+    d: 'M 576,118 C 586,112 602,110 610,122 C 602,128 588,126 576,118 Z',
+  },
+  {
+    id: 'gorontalo',
+    name: 'Provinsi Gorontalo',
+    shortName: 'Gorontalo',
+    color: '#22c55e', // Green
+    centroid: { x: 566, y: 124 },
+    labelPos: { x: 575, y: 92, anchor: 'start' },
+    pointer: 'M 580,98 L 570,115 L 566,122',
+    d: 'M 548,128 C 558,120 572,118 578,124 C 570,132 558,134 548,128 Z',
+  },
+  {
+    id: 'sulteng',
+    name: 'Provinsi Sulawesi Tengah',
+    shortName: 'Sulawesi Tengah',
+    color: '#b45309', // Brown/Amber
+    centroid: { x: 554, y: 160 },
+    labelPos: { x: 530, y: 110, anchor: 'start' },
+    pointer: 'M 542,118 L 548,142 L 552,156',
+    d: 'M 536,134 C 550,128 564,136 572,148 C 586,154 605,160 606,168 C 596,176 576,174 562,172 C 550,170 540,152 536,134 Z',
+  },
+  {
+    id: 'sulbar',
+    name: 'Provinsi Sulawesi Barat',
+    shortName: 'Sulawesi Barat',
+    color: '#0ea5e9', // Sky Blue
+    centroid: { x: 526, y: 198 },
+    labelPos: { x: 475, y: 215, anchor: 'start' },
+    pointer: 'M 505,215 L 522,204 L 526,198',
+    d: 'M 518,172 C 530,170 538,182 536,198 C 532,214 522,224 518,222 C 516,204 516,186 518,172 Z',
+  },
+  {
+    id: 'sulsel',
+    name: 'Provinsi Sulawesi Selatan',
+    shortName: 'Sulawesi Selatan',
+    color: '#9333ea', // Purple
+    centroid: { x: 536, y: 248 },
+    labelPos: { x: 485, y: 325, anchor: 'start' },
+    pointer: 'M 515,320 L 532,275 L 536,252',
+    d: 'M 524,222 C 538,218 548,228 548,246 C 546,262 538,272 528,272 C 522,264 520,242 524,222 Z',
+  },
+  {
+    id: 'sultra',
+    name: 'Provinsi Sulawesi Tenggara',
+    shortName: 'Sulawesi Tenggara',
+    color: '#06b6d4', // Cyan
+    centroid: { x: 568, y: 242 },
+    labelPos: { x: 595, y: 335, anchor: 'start' },
+    pointer: 'M 605,330 L 580,285 L 570,248',
+    d: 'M 552,216 C 568,222 584,234 588,248 C 582,260 568,266 558,258 C 552,246 548,230 552,216 Z M 560,274 C 566,270 572,274 570,284 C 564,288 558,282 560,274 Z',
+  },
+
+  // --- MALUKU ---
+  {
+    id: 'malut',
+    name: 'Provinsi Maluku Utara',
+    shortName: 'Maluku Utara',
+    color: '#f472b6', // Pink
+    centroid: { x: 652, y: 156 },
+    labelPos: { x: 660, y: 135, anchor: 'start' },
+    pointer: 'M 668,140 L 658,150 L 652,156',
+    d: 'M 640,138 C 652,132 662,142 658,158 C 668,166 660,178 648,174 C 642,164 636,150 640,138 Z',
+  },
+  {
+    id: 'maluku',
+    name: 'Provinsi Maluku',
+    shortName: 'Maluku',
+    color: '#fb923c', // Coral/Orange
+    centroid: { x: 642, y: 218 },
+    labelPos: { x: 700, y: 320, anchor: 'start' },
+    pointer: 'M 705,315 L 665,245 L 646,220',
+    d: 'M 632,206 C 655,202 676,210 672,218 C 648,220 630,216 632,206 Z M 612,214 C 622,212 626,218 622,224 C 614,226 610,220 612,214 Z M 688,268 C 696,266 700,272 696,278 C 690,280 684,274 688,268 Z',
+  },
+
+  // --- PAPUA ---
+  {
+    id: 'papua-barat',
+    name: 'Provinsi Papua Barat',
+    shortName: 'Papua Barat',
+    color: '#7c3aed', // Purple
+    centroid: { x: 746, y: 192 },
+    labelPos: { x: 795, y: 135, anchor: 'start' },
+    pointer: 'M 800,140 L 768,175 L 750,188',
+    d: 'M 716,170 C 734,158 752,164 756,176 C 758,190 746,206 734,212 C 724,208 712,194 716,170 Z',
+  },
+  {
+    id: 'papua',
+    name: 'Provinsi Papua',
+    shortName: 'Papua',
+    color: '#9a3412', // Warm Brown
+    centroid: { x: 824, y: 236 },
+    labelPos: { x: 910, y: 275, anchor: 'start' },
+    pointer: 'M 910,280 L 860,250 L 835,238',
+    d: 'M 758,176 C 788,178 820,192 846,204 C 872,214 892,228 894,248 C 896,274 880,288 850,290 C 820,292 788,286 766,272 C 752,254 748,230 754,205 Z',
+  },
+];
+
 // Provincial Breakdown Hierarchy Data
 const PROVINCE_BREAKDOWN = [
   { name: 'Jawa Timur', share: 28.4, visitors: 142, orders: 84, growth: '+14%' },
@@ -333,6 +681,9 @@ export default function AdminGeoTrafficMap({ setActiveTab }) {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [disconnectingId, setDisconnectingId] = useState(null);
   const [noticeMessage, setNoticeMessage] = useState(null);
+  const [showTrafficArcs, setShowTrafficArcs] = useState(true);
+  const [showProvinceLabels, setShowProvinceLabels] = useState(true);
+  const [hoveredProvince, setHoveredProvince] = useState(null);
 
   // Sync real-time visitors from backend if available
   const fetchLiveVisitors = async () => {
@@ -539,76 +890,201 @@ export default function AdminGeoTrafficMap({ setActiveTab }) {
                   <span>✕</span>
                 </button>
               )}
+              <button
+                onClick={() => setShowProvinceLabels(!showProvinceLabels)}
+                className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all border ${
+                  showProvinceLabels
+                    ? 'bg-blue-950/80 text-blue-300 border-blue-500/60 shadow-sm shadow-blue-950'
+                    : 'bg-slate-900 text-slate-400 border-slate-800'
+                }`}
+                title="Toggle teks label dan pointer nama provinsi seperti gambar atlas"
+              >
+                {showProvinceLabels ? '● Label Provinsi ON' : '○ Label Provinsi OFF'}
+              </button>
+              <button
+                onClick={() => setShowTrafficArcs(!showTrafficArcs)}
+                className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all border ${
+                  showTrafficArcs
+                    ? 'bg-cyan-950/80 text-cyan-300 border-cyan-600/60 shadow-sm shadow-cyan-950'
+                    : 'bg-slate-900 text-slate-400 border-slate-800'
+                }`}
+                title="Toggle visual arus data transaksi antar-provinsi"
+              >
+                {showTrafficArcs ? '● Arus Data Aktif' : '○ Arus Data Off'}
+              </button>
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" /> Trafik Tinggi
+                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block shadow-[0_0_8px_#34d399]" /> Trafik Tinggi
               </span>
               <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 inline-block" /> Menengah
+                <span className="w-2 h-2 rounded-full bg-cyan-400 inline-block shadow-[0_0_8px_#22d3ee]" /> Menengah
               </span>
             </div>
           </div>
 
-          {/* SVG Canvas Map of Indonesia */}
-          <div className="relative w-full aspect-[2/1] min-h-[300px] max-h-[460px] bg-[#070e1b] rounded-xl border border-slate-800/90 overflow-hidden flex items-center justify-center p-2">
-            {/* Radar Circular Grid Overlay */}
+          {/* SVG Canvas Map of Indonesia - Authentic Provincial Atlas (Matching User Reference Image) */}
+          <div className="relative w-full aspect-[2/1] min-h-[340px] max-h-[520px] bg-[#030d22] rounded-xl border border-cyan-800/50 shadow-2xl overflow-hidden flex items-center justify-center p-2">
+            {/* Satellite Ocean Background Gradient with Shallow Shelf Bathymetry */}
             <svg
-              className="absolute inset-0 w-full h-full pointer-events-none opacity-20"
+              className="absolute inset-0 w-full h-full pointer-events-none"
               viewBox="0 0 1000 500"
               preserveAspectRatio="xMidYMid meet"
             >
               <defs>
-                <radialGradient id="radarGridGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
+                {/* Deep Oceanic Bathymetry Glow */}
+                <radialGradient id="oceanSatelliteGrad" cx="50%" cy="45%" r="65%">
+                  <stop offset="0%" stopColor="#0b2447" stopOpacity="0.95" />
+                  <stop offset="45%" stopColor="#061833" stopOpacity="0.98" />
+                  <stop offset="100%" stopColor="#020917" stopOpacity="1" />
                 </radialGradient>
+                {/* Shallow Continental Shelf Shading (Sunda & Sahul) */}
+                <radialGradient id="shelfGlowSunda" cx="30%" cy="55%" r="35%">
+                  <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.12" />
+                  <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
+                </radialGradient>
+                <radialGradient id="shelfGlowSahul" cx="80%" cy="60%" r="30%">
+                  <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.09" />
+                  <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
+                </radialGradient>
+                {/* Glow Filter for Active Province */}
+                <filter id="provinceActiveGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
               </defs>
-              <circle cx="500" cy="250" r="120" stroke="#06b6d4" strokeWidth="1" fill="none" strokeDasharray="4 4" />
-              <circle cx="500" cy="250" r="220" stroke="#06b6d4" strokeWidth="1" fill="none" strokeDasharray="4 4" />
-              <circle cx="500" cy="250" r="320" stroke="#06b6d4" strokeWidth="1" fill="none" strokeDasharray="4 4" />
-              <line x1="100" y1="250" x2="900" y2="250" stroke="#06b6d4" strokeWidth="0.8" strokeDasharray="2 4" />
-              <line x1="500" y1="50" x2="500" y2="450" stroke="#06b6d4" strokeWidth="0.8" strokeDasharray="2 4" />
-            </svg>
 
-            {/* Stylized Vector Archipelago of Indonesia */}
-            <svg
-              className="w-full h-full z-10"
-              viewBox="0 0 950 420"
-              preserveAspectRatio="xMidYMid meet"
-            >
-              {/* Island Landmasses (Sumatera, Jawa, Kalimantan, Sulawesi, Bali/Nusa, Maluku/Papua) */}
-              <g fill="#142338" stroke="#253e5e" strokeWidth="1.2">
-                {/* Sumatera */}
-                <path d="M 60 70 L 110 50 L 145 90 L 175 160 L 210 230 L 180 245 L 140 190 L 105 130 Z" className="hover:fill-[#1b2f4a] transition-colors" />
-                {/* Bangka & Belitung */}
-                <circle cx="195" cy="180" r="8" />
-                <circle cx="215" cy="195" r="6" />
+              <rect width="1000" height="500" fill="url(#oceanSatelliteGrad)" />
+              <rect width="1000" height="500" fill="url(#shelfGlowSunda)" />
+              <rect width="1000" height="500" fill="url(#shelfGlowSahul)" />
 
-                {/* Jawa & Madura */}
-                <path d="M 215 260 L 260 270 L 320 280 L 390 295 L 400 305 L 340 295 L 250 280 L 220 268 Z" className="hover:fill-[#1b2f4a] transition-colors" />
-                <ellipse cx="380" cy="285" rx="14" ry="5" />
+              {/* Subtle Latitude / Longitude Tactical Coordinates */}
+              <g stroke="#1e3a5f" strokeWidth="0.6" opacity="0.4" strokeDasharray="3 5">
+                <line x1="60" y1="20" x2="60" y2="480" />
+                <line x1="210" y1="20" x2="210" y2="480" />
+                <line x1="360" y1="20" x2="360" y2="480" />
+                <line x1="510" y1="20" x2="510" y2="480" />
+                <line x1="660" y1="20" x2="660" y2="480" />
+                <line x1="810" y1="20" x2="810" y2="480" />
 
-                {/* Kalimantan (Indonesian portion) */}
-                <path d="M 290 140 L 360 120 L 440 135 L 465 190 L 450 240 L 390 250 L 320 230 L 290 190 Z" className="hover:fill-[#1b2f4a] transition-colors" />
-
-                {/* Sulawesi (K-shape) */}
-                <path d="M 540 130 L 590 115 L 565 170 L 585 220 L 560 270 L 535 270 L 530 200 L 515 170 Z" className="hover:fill-[#1b2f4a] transition-colors" />
-
-                {/* Bali, Lombok, Sumbawa, Flores, Timor */}
-                <ellipse cx="420" cy="312" rx="7" ry="5" />
-                <ellipse cx="440" cy="315" rx="7" ry="5" />
-                <ellipse cx="470" cy="318" rx="12" ry="5" />
-                <ellipse cx="520" cy="320" rx="20" ry="6" />
-                <ellipse cx="580" cy="335" rx="18" ry="6" />
-
-                {/* Maluku */}
-                <ellipse cx="640" cy="170" rx="14" ry="8" />
-                <ellipse cx="630" cy="230" rx="12" ry="6" />
-
-                {/* Papua (Western New Guinea) */}
-                <path d="M 720 180 L 780 185 L 860 210 L 870 280 L 800 290 L 750 260 L 730 210 Z" className="hover:fill-[#1b2f4a] transition-colors" />
+                <line x1="20" y1="80" x2="980" y2="80" />
+                <line x1="20" y1="190" x2="980" y2="190" stroke="#0284c7" strokeWidth="0.8" opacity="0.6" />
+                <line x1="20" y1="300" x2="980" y2="300" />
+                <line x1="20" y1="410" x2="980" y2="410" />
               </g>
 
-              {/* Pulsing Radar Hubs on Cities */}
+              {/* Equator Tag */}
+              <text x="25" y="186" fill="#0284c7" fontSize="8" fontFamily="monospace" opacity="0.7" fontWeight="bold">0° EQUATOR</text>
+            </svg>
+
+            {/* Main Interactive Vector Map of Indonesia with Color-Coded Provinces */}
+            <svg
+              className="w-full h-full z-10"
+              viewBox="0 0 960 480"
+              preserveAspectRatio="xMidYMid meet"
+            >
+              {/* 1. All Indonesian Provinces (Accurate Geographic Polygons & Atlas Colors) */}
+              <g stroke="#ffffff" strokeWidth="0.8" strokeLinejoin="round">
+                {INDONESIA_PROVINCES.map((prov) => {
+                  const isHovered = hoveredProvince?.id === prov.id;
+                  const isSelected = selectedHub?.province === prov.shortName;
+
+                  return (
+                    <path
+                      key={prov.id}
+                      d={prov.d}
+                      fill={prov.color}
+                      className="transition-all duration-200 cursor-pointer"
+                      style={{
+                        filter: isHovered || isSelected ? 'drop-shadow(0 0 10px rgba(255,255,255,0.8)) brightness(1.25)' : 'none',
+                        stroke: isHovered || isSelected ? '#ffffff' : 'rgba(255,255,255,0.6)',
+                        strokeWidth: isHovered || isSelected ? '1.8' : '0.8',
+                        opacity: selectedHub && !isSelected ? 0.45 : 1,
+                      }}
+                      onMouseEnter={() => setHoveredProvince(prov)}
+                      onMouseLeave={() => setHoveredProvince(null)}
+                      onClick={() => {
+                        const matchHub = INDONESIA_HUBS.find((h) => h.province === prov.shortName);
+                        setSelectedHub(isSelected ? null : matchHub || { province: prov.shortName, city: prov.shortName });
+                      }}
+                    />
+                  );
+                })}
+              </g>
+
+              {/* 2. Authentic White Pointer Lines & Province Callout Labels (Matching Reference Image) */}
+              {showProvinceLabels && (
+                <g className="pointer-events-none select-none">
+                  {INDONESIA_PROVINCES.map((prov) => {
+                    const isHovered = hoveredProvince?.id === prov.id;
+                    const isSelected = selectedHub?.province === prov.shortName;
+
+                    return (
+                      <g
+                        key={`label-${prov.id}`}
+                        opacity={selectedHub && !isSelected ? 0.35 : 1}
+                        className="transition-opacity duration-200"
+                      >
+                        {/* 2-Segment White Pointer Leader Line */}
+                        <path
+                          d={prov.pointer}
+                          fill="none"
+                          stroke={isHovered || isSelected ? '#38bdf8' : '#ffffff'}
+                          strokeWidth={isHovered || isSelected ? '1.2' : '0.7'}
+                          opacity={isHovered || isSelected ? 1 : 0.75}
+                        />
+
+                        {/* Centroid Pinpoint Dot */}
+                        <circle
+                          cx={prov.centroid.x}
+                          cy={prov.centroid.y}
+                          r={isHovered || isSelected ? 3 : 1.8}
+                          fill={isHovered || isSelected ? '#38bdf8' : '#ffffff'}
+                        />
+
+                        {/* Province Name Callout Text Label */}
+                        <text
+                          x={prov.labelPos.x}
+                          y={prov.labelPos.y}
+                          textAnchor={prov.labelPos.anchor || 'start'}
+                          fill={isHovered || isSelected ? '#38bdf8' : '#ffffff'}
+                          fontSize="7.5"
+                          fontFamily="sans-serif"
+                          fontWeight={isHovered || isSelected ? 'bold' : '600'}
+                          className="drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] tracking-tight"
+                        >
+                          {prov.name}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
+              )}
+
+              {/* 3. Dynamic Streaming Network Packet Arcs (Converging into Jakarta Central Hub) */}
+              {showTrafficArcs && (
+                <g className="pointer-events-none">
+                  {/* Arcs: Medan -> Jakarta */}
+                  <path d="M 95,110 Q 140,200 246,268" fill="none" stroke="#22d3ee" strokeWidth="1.2" strokeDasharray="4 6" opacity="0.65" className="animate-pulse" />
+                  {/* Arcs: Surabaya -> Jakarta */}
+                  <path d="M 370,288 Q 300,265 246,268" fill="none" stroke="#34d399" strokeWidth="1.5" strokeDasharray="5 5" opacity="0.85" className="animate-pulse" />
+                  {/* Arcs: Denpasar -> Jakarta */}
+                  <path d="M 422,312 Q 320,270 246,268" fill="none" stroke="#60a5fa" strokeWidth="1.2" strokeDasharray="4 6" opacity="0.7" />
+                  {/* Arcs: Balikpapan -> Jakarta */}
+                  <path d="M 440,165 Q 340,215 246,268" fill="none" stroke="#fbbf24" strokeWidth="1.3" strokeDasharray="4 6" opacity="0.7" />
+                  {/* Arcs: Makassar -> Jakarta */}
+                  <path d="M 536,248 Q 380,245 246,268" fill="none" stroke="#c084fc" strokeWidth="1.4" strokeDasharray="5 7" opacity="0.8" />
+                  {/* Arcs: Jayapura -> Jakarta */}
+                  <path d="M 824,236 Q 520,185 246,268" fill="none" stroke="#f472b6" strokeWidth="1.4" strokeDasharray="6 8" opacity="0.8" />
+
+                  {/* Pulsing Central Hub Aura at Jakarta */}
+                  <circle cx="246" cy="268" r="22" fill="#ef4444" opacity="0.2" className="animate-ping" style={{ transformOrigin: '246px 268px' }} />
+                  <circle cx="246" cy="268" r="36" fill="#38bdf8" opacity="0.1" className="animate-ping" style={{ transformOrigin: '246px 268px' }} />
+                </g>
+              )}
+
+              {/* 4. Interactive Major City Radar Beacons */}
               {INDONESIA_HUBS.map((hub) => {
                 const isSelected = selectedHub?.id === hub.id;
                 const isHovered = hoveredHub?.id === hub.id;
@@ -621,46 +1097,56 @@ export default function AdminGeoTrafficMap({ setActiveTab }) {
                     onMouseEnter={() => setHoveredHub(hub)}
                     onMouseLeave={() => setHoveredHub(null)}
                   >
-                    {/* Animated Ping Ripple Ring */}
+                    {/* Sonar Ping Ring */}
                     <circle
                       cx={hub.coords.x}
                       cy={hub.coords.y}
                       r="16"
                       fill={hub.color}
-                      opacity="0.15"
+                      opacity="0.25"
                       className="animate-ping"
                       style={{ transformOrigin: `${hub.coords.x}px ${hub.coords.y}px` }}
                     />
 
-                    {/* Outer Ring */}
+                    {/* Outer Neon Ring */}
                     <circle
                       cx={hub.coords.x}
                       cy={hub.coords.y}
-                      r={isSelected ? 10 : 7}
+                      r={isSelected ? 11 : 7}
                       fill="none"
-                      stroke={hub.color}
+                      stroke="#ffffff"
                       strokeWidth={isSelected ? '2.5' : '1.5'}
-                      opacity={isSelected ? 1 : 0.8}
+                      className="drop-shadow-[0_0_6px_rgba(255,255,255,0.9)]"
                     />
 
                     {/* Center Core Dot */}
                     <circle
                       cx={hub.coords.x}
                       cy={hub.coords.y}
-                      r={isSelected ? 5 : 3.5}
-                      fill={isSelected ? '#ffffff' : hub.color}
+                      r={isSelected ? 5.5 : 3.5}
+                      fill={hub.color}
+                      className="drop-shadow-[0_0_4px_#ffffff]"
                     />
 
-                    {/* City Text Label */}
+                    {/* City Badge Tag */}
+                    <rect
+                      x={hub.coords.x - 22}
+                      y={hub.coords.y - 20}
+                      width="44"
+                      height="12"
+                      rx="3"
+                      fill="rgba(2, 6, 23, 0.85)"
+                      stroke="rgba(255, 255, 255, 0.4)"
+                      strokeWidth="0.5"
+                    />
                     <text
                       x={hub.coords.x}
-                      y={hub.coords.y - 10}
+                      y={hub.coords.y - 11}
                       textAnchor="middle"
-                      fill="#e2e8f0"
-                      fontSize="9"
+                      fill="#ffffff"
+                      fontSize="7.5"
                       fontFamily="monospace"
                       fontWeight="bold"
-                      className="pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
                     >
                       {hub.city}
                     </text>
@@ -669,7 +1155,7 @@ export default function AdminGeoTrafficMap({ setActiveTab }) {
               })}
             </svg>
 
-            {/* Hover Tooltip Card */}
+          {/* Hover Tooltip Card */}
             {(hoveredHub || selectedHub) && (
               <div className="absolute bottom-3 left-3 bg-slate-900/95 border border-cyan-500/60 rounded-xl p-3 shadow-2xl backdrop-blur-md z-20 text-xs font-mono pointer-events-none min-w-[210px] animate-fadeIn">
                 <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">

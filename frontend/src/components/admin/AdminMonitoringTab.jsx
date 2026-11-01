@@ -35,8 +35,10 @@ import {
   TrendingUp,
   Eye,
   Lock,
+  ShieldAlert,
 } from 'lucide-react';
 import api from '../../services/api';
+import IncidentRadarView from './IncidentRadarView';
 
 export default function AdminMonitoringTab({ setActiveTab }) {
   const [loading, setLoading] = useState(true);
@@ -936,6 +938,18 @@ export default function AdminMonitoringTab({ setActiveTab }) {
           </button>
 
           <button
+            onClick={() => setActiveSubTab('incidents')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+              activeSubTab === 'incidents'
+                ? 'bg-rose-600 text-white shadow-sm shadow-rose-200'
+                : 'bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-200'
+            }`}
+          >
+            <ShieldAlert className="w-4 h-4 text-rose-600" />
+            <span>Log Gangguan &amp; Incident Radar</span>
+          </button>
+
+          <button
             onClick={() => setActiveSubTab('rag')}
             className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${
               activeSubTab === 'rag'
@@ -1510,6 +1524,9 @@ export default function AdminMonitoringTab({ setActiveTab }) {
           </div>
         </div>
       )}
+
+      {/* SUB-TAB 3.5: LOG GANGGUAN SISTEM & INCIDENT RADAR */}
+      {activeSubTab === 'incidents' && <IncidentRadarView />}
 
       {/* SUB-TAB 4: RAG AI EXPLAINER */}
       {activeSubTab === 'rag' && (

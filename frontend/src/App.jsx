@@ -27,6 +27,7 @@ import AdminBrandingTab from './components/admin/AdminBrandingTab';
 import WarehouseTab from './components/warehouse/WarehouseTab';
 import ChatTab from './components/ChatTab';
 import MeetingTab from './components/MeetingTab';
+import MailTab from './components/MailTab';
 import LeadsCRMTab from './components/crm/LeadsCRMTab';
 import AIMarketingStudioTab from './components/ai/AIMarketingStudioTab';
 import ProfileModal from './components/ProfileModal';
@@ -166,6 +167,11 @@ export default function App() {
     const role = user.role;
     if (role === 'admin') return;
 
+    if (activeTab === 'mail') {
+      setActiveTab(getInitialTab(role) || 'overview');
+      return;
+    }
+
     if (role === 'keuangan') {
       const allowed = ['admin-overview', 'admin-transactions', 'admin-withdrawals', 'admin-fraud', 'admin-monitoring', 'admin-guide', 'leads', 'overview', 'chat', 'meetings'];
       if (!allowed.includes(activeTab)) {
@@ -191,7 +197,7 @@ export default function App() {
     }
 
     // Member
-    if (activeTab.startsWith('admin-') || activeTab.startsWith('warehouse-') || activeTab === 'ai-marketing' || activeTab === 'components') {
+    if (activeTab.startsWith('admin-') || activeTab.startsWith('warehouse-') || activeTab === 'ai-marketing' || activeTab === 'components' || activeTab === 'mail') {
       setActiveTab(getInitialTab(role));
     }
   }, [user?.role, activeTab]);
@@ -481,6 +487,8 @@ export default function App() {
               )}
 
               {activeTab === 'chat' && <ChatTab currentUser={user} />}
+
+              {activeTab === 'mail' && role === 'admin' && <MailTab currentUser={user} />}
 
               {activeTab === 'leads' && <LeadsCRMTab user={user} />}
 

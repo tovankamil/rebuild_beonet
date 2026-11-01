@@ -384,6 +384,33 @@ func seedDefaultData() {
 			}
 		}
 
+		// Ensure mail menu & permissions exist
+		var mailMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "mail").First(&mailMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "mail",
+				Title:       "Email & Webmail",
+				Description: "Baca & balas email Gmail / domain sendiri",
+				Category:    "Komunikasi",
+				IconName:    "Mail",
+				OrderIndex:  20,
+			})
+		}
+		for _, r := range []string{"admin", "keuangan", "cs", "gudang", "member"} {
+			var p models.RoleMenuPermission
+			if err := config.DB.Where("role = ? AND menu_key = ?", r, "mail").First(&p).Error; err != nil {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID:        uuid.New().String(),
+					Role:      r,
+					MenuKey:   "mail",
+					IsEnabled: r == "admin",
+				})
+			} else {
+				config.DB.Model(&p).Update("is_enabled", r == "admin")
+			}
+		}
+
 		// Ensure admin-guide menu & permissions exist
 		var guideMenu models.AppMenu
 		if err := config.DB.Where("menu_key = ?", "admin-guide").First(&guideMenu).Error; err != nil {
@@ -596,6 +623,11 @@ func main() {
 		&models.BlockedIP{},
 		&models.GeoAccessLog{},
 		&models.AppBranding{},
+		&models.EmailConfig{},
+		&models.SystemIncidentLog{},
+		&models.TikTokConfig{},
+		&models.TikTokVideo{},
+		&models.TikTokComment{},
 	}
 	for _, m := range allModels {
 		if err := config.DB.AutoMigrate(m); err != nil {
@@ -661,6 +693,9 @@ func main() {
 
 	// Enable CORS
 	r.Use(middleware.CORSMiddleware())
+
+	// Automated System Outage & Panic Incident Recovery Logger
+	r.Use(middleware.IncidentRecoveryMiddleware())
 
 	// Real-time Traffic & Bandwidth Monitoring Middleware
 	r.Use(middleware.TrafficMonitorMiddleware())
@@ -906,6 +941,45 @@ func main() {
 			protected.POST("/notifications/push-subscribe", prospectingHandler.SubscribePush)
 			protected.GET("/notifications/push-public-key", prospectingHandler.GetVapidPublicKey)
 			protected.POST("/notifications/push-test", prospectingHandler.TestPushNotification)
+
+			// Email & Webmail Integration (Gmail & Custom Domain) - Admin Role Strictly Protected
+			mailGroup := protected.Group("/mail", middleware.RequireRole("admin"))
+			{
+				mailGroup.GET("/config", handlers.GlobalEmailHandler.GetConfig)
+				mailGroup.POST("/config", handlers.GlobalEmailHandler.SaveConfig)
+				mailGroup.GET("/inbox", handlers.GlobalEmailHandler.FetchInbox)
+				mailGroup.GET("/messages/:seq", handlers.GlobalEmailHandler.GetEmailDetail)
+				mailGroup.POST("/send", handlers.GlobalEmailHandler.SendEmail)
+			}
+
+			// High-Concurrency WAHA-Compatible WhatsApp Engine (Powered by Go Routines)
+			wahaGroup := protected.Group("/waha")
+			{
+				wahaGroup.GET("/sessions", handlers.GlobalWAHAHandler.GetSessions)
+				wahaGroup.POST("/sendText", handlers.GlobalWAHAHandler.SendText)
+				wahaGroup.POST("/sendFile", handlers.GlobalWAHAHandler.SendFile)
+				wahaGroup.POST("/broadcast", handlers.GlobalWAHAHandler.BroadcastBulk)
+				wahaGroup.GET("/queue/stats", handlers.GlobalWAHAHandler.GetEngineStats)
+			}
+
+			// System Incident & Outage Logging Telemetry
+			incidentGroup := protected.Group("/incidents")
+			{
+				incidentGroup.GET("", handlers.GlobalIncidentHandler.GetIncidents)
+				incidentGroup.GET("/stats", handlers.GlobalIncidentHandler.GetStats)
+				incidentGroup.POST("/report", handlers.GlobalIncidentHandler.ReportIncident)
+				incidentGroup.POST("/:id/resolve", handlers.GlobalIncidentHandler.ResolveIncident)
+			}
+
+			// TikTok Marketing & Video Analytics Suite
+			tiktokGroup := protected.Group("/tiktok")
+			{
+				tiktokGroup.GET("/overview", handlers.GlobalTikTokHandler.GetOverview)
+				tiktokGroup.GET("/videos", handlers.GlobalTikTokHandler.GetVideos)
+				tiktokGroup.GET("/comments", handlers.GlobalTikTokHandler.GetComments)
+				tiktokGroup.POST("/comments/:id/reply", handlers.GlobalTikTokHandler.ReplyComment)
+				tiktokGroup.POST("/comments/:id/convert-lead", handlers.GlobalTikTokHandler.ConvertToLead)
+			}
 
 			// ==============================================
 			// RBAC: ADMIN & MANAGEMENT ROUTES (Admin, Keuangan, CS)

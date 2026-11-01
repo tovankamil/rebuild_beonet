@@ -9,11 +9,17 @@ import (
 
 const DefaultJWTSecret = "super_secret_bionet_key_2026"
 
-func GenerateToken(userID string, username string, role string) (string, error) {
+// GetJWTSecret mengambil JWT_SECRET dari environment atau DefaultJWTSecret
+func GetJWTSecret() string {
 	secret := os.Getenv("JWT_SECRET")
-	if secret == "" {
-		secret = DefaultJWTSecret
+	if secret != "" {
+		return secret
 	}
+	return DefaultJWTSecret
+}
+
+func GenerateToken(userID string, username string, role string) (string, error) {
+	secret := GetJWTSecret()
 
 	claims := jwt.MapClaims{
 		"user_id":  userID,

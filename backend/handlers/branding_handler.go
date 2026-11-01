@@ -173,6 +173,27 @@ func (h *BrandingHandler) UploadLogo(c *gin.Context) {
 		return
 	}
 
+	// Proteksi XSS pada file SVG (Anti Stored XSS)
+	if ext == ".svg" {
+		svgContent, readErr := io.ReadAll(file)
+		if readErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Gagal membaca konten berkas SVG"})
+			return
+		}
+		lowerSVG := strings.ToLower(string(svgContent))
+		if strings.Contains(lowerSVG, "<script") || strings.Contains(lowerSVG, "javascript:") || strings.Contains(lowerSVG, "onload") || strings.Contains(lowerSVG, "onerror") || strings.Contains(lowerSVG, "<iframe") {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"status":  "error",
+				"message": "Berkas SVG ditolak: Terdeteksi skrip berbahaya (XSS Protection)",
+			})
+			return
+		}
+		// Reset cursor baca file
+		if seeker, ok := file.(io.Seeker); ok {
+			seeker.Seek(0, io.SeekStart)
+		}
+	}
+
 	targetDir := filepath.Join(h.uploadBaseDir, "branding")
 	if err := os.MkdirAll(targetDir, 0755); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

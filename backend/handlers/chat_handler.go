@@ -122,6 +122,14 @@ func (h *ChatHandler) GetMessages(c *gin.Context) {
 			currentUserID, withUserID, withUserID, currentUserID,
 		)
 	} else if room != "" {
+		// Proteksi BOLA/IDOR: Anggota biasa hanya diizinkan membaca room miliknya sendiri (support-<id>) atau room umum
+		if currentUserRole == "member" && room != "general" && room != "support-"+currentUserID {
+			c.JSON(http.StatusForbidden, gin.H{
+				"status":  "error",
+				"message": "Akses ditolak: Anda tidak memiliki izin mengakses riwayat percakapan ruangan ini",
+			})
+			return
+		}
 		query = query.Where("room = ?", room)
 	} else {
 		// Default behavior:

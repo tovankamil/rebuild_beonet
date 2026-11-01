@@ -259,7 +259,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
 
   // Stats Counters & KPIs
   const [metrics, setMetrics] = useState({
-    securityScore: 98.4,
+    securityScore: 98,
     totalBlocked: 14872,
     protectedDevices: 24389,
     activeIncidents: 38,
@@ -737,6 +737,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
                 'info'
               );
             }}
+            aria-label={audioEnabled ? 'Mute Tactical Siren Audio' : 'Unmute Tactical Siren Audio'}
             className={`p-2 rounded-xl border text-xs transition-all ${
               audioEnabled
                 ? 'bg-[#061b14] border-cyan-500/50 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
@@ -757,6 +758,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
               playCyberAlarm('threat');
               showToast('Uji coba nada sirine darurat dibunyikan!', 'danger');
             }}
+            aria-label="Tes bunyi speaker sirene SOC"
             className="px-2.5 py-1.5 rounded-xl bg-[#061b14] border border-[#0e3b2c] hover:border-cyan-500 text-slate-300 hover:text-white text-xs font-mono flex items-center gap-1.5 transition-all"
             title="Tes bunyi speaker sirene SOC"
           >
@@ -768,6 +770,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
           <button
             onClick={handleTriggerSimulatedAttack}
             disabled={testingAlert}
+            aria-label="Pemicu simulasi serangan cyber real-time untuk latihan kesiapan SOC"
             className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-700 hover:from-rose-500 hover:to-red-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_0_20px_rgba(225,29,72,0.4)] transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
             title="Pemicu simulasi serangan cyber real-time untuk latihan kesiapan SOC"
           >
@@ -779,6 +782,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
           <div className="flex items-center gap-1 bg-[#061b14] p-1 rounded-xl border border-[#0e3b2c] text-[10px] font-mono">
             <button
               onClick={() => setDefconLevel('SECURE')}
+              aria-label="Set DEFCON Level: Secure"
               className={`px-2 py-0.5 rounded-lg transition-all ${
                 defconLevel === 'SECURE'
                   ? 'bg-emerald-600 text-white font-bold shadow-sm'
@@ -789,6 +793,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
             </button>
             <button
               onClick={() => setDefconLevel('WARNING')}
+              aria-label="Set DEFCON Level: Warning"
               className={`px-2 py-0.5 rounded-lg transition-all ${
                 defconLevel === 'WARNING'
                   ? 'bg-amber-600 text-white font-bold shadow-sm'
@@ -799,6 +804,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
             </button>
             <button
               onClick={() => setDefconLevel('ATTACK')}
+              aria-label="Set DEFCON Level: Attack"
               className={`px-2 py-0.5 rounded-lg transition-all ${
                 defconLevel === 'ATTACK'
                   ? 'bg-rose-600 text-white font-bold shadow-sm animate-pulse'
@@ -807,6 +813,18 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
             >
               Attack
             </button>
+          </div>
+
+          {/* Admin Officer Profile Avatar (as in blueprint) */}
+          <div
+            className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-600 to-emerald-400 p-[1.5px] shrink-0 relative cursor-pointer ml-1"
+            title="SOC Security Officer: Admin"
+            aria-label="SOC Officer Profile"
+          >
+            <div className="w-full h-full rounded-full bg-[#03140e] flex items-center justify-center overflow-hidden">
+              <span className="text-[10px] font-bold text-cyan-300 font-mono">SOC</span>
+            </div>
+            <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-400 border border-[#03140e]" />
           </div>
         </div>
       </header>
@@ -901,13 +919,13 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
                       My agent
                     </span>
                     <span className="px-2 py-0.5 rounded-lg bg-[#03140e] border border-cyan-500/40 text-cyan-300">
-                      +3 DEFCON Models
+                      +3
                     </span>
                   </div>
 
                   <div className="flex items-center gap-1 text-slate-400">
                     <Bot size={13} className="text-cyan-400" />
-                    <span>AI Security Analyst (Powered by Gemini AI)</span>
+                    <span>AI Security Analyst</span>
                   </div>
                 </div>
               </div>
@@ -919,15 +937,15 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
             {/* 4-Card KPI Matrix (Left Col 5) */}
             <div className="md:col-span-5 rounded-2xl bg-[#061b14]/90 border border-[#0e3b2c] p-4 backdrop-blur-xl shadow-lg grid grid-cols-2 gap-3 font-mono">
               {/* Metric 1: Security Score */}
-              <div className="p-3 rounded-xl bg-[#03140e] border border-[#0e3b2c] flex flex-col justify-between">
+              <div className="p-3 rounded-xl bg-[#03140e] border border-[#0e3b2c] flex flex-col justify-between transition-all hover:border-[#13533e]">
                 <span className="text-[11px] text-slate-400 uppercase tracking-wider">
                   Security Score
                 </span>
                 <div className="my-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-extrabold text-white">
+                  <span className="text-2xl font-extrabold text-white tabular-nums">
                     {metrics.securityScore}%
                   </span>
-                  <span className="text-[10px] text-emerald-400 font-bold">↑ +2.1%</span>
+                  <span className="text-[10px] text-emerald-400 font-bold tabular-nums">↑ +2.1%</span>
                 </div>
                 <div className="text-[9px] text-emerald-400/80 flex items-center gap-1">
                   <ShieldCheck size={11} className="text-emerald-400" />
@@ -936,15 +954,15 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
               </div>
 
               {/* Metric 2: Threats Blocked */}
-              <div className="p-3 rounded-xl bg-[#03140e] border border-[#0e3b2c] flex flex-col justify-between">
+              <div className="p-3 rounded-xl bg-[#03140e] border border-[#0e3b2c] flex flex-col justify-between transition-all hover:border-[#13533e]">
                 <span className="text-[11px] text-slate-400 uppercase tracking-wider">
                   Threats Blocked
                 </span>
                 <div className="my-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-extrabold text-white">
+                  <span className="text-2xl font-extrabold text-white tabular-nums">
                     {metrics.totalBlocked.toLocaleString('id-ID')}
                   </span>
-                  <span className="text-[10px] text-emerald-400 font-bold">↑ +312%</span>
+                  <span className="text-[10px] text-emerald-400 font-bold tabular-nums">↑ +312%</span>
                 </div>
                 <div className="text-[9px] text-cyan-400/80 flex items-center gap-1">
                   <Shield size={11} className="text-cyan-400" />
@@ -953,15 +971,15 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
               </div>
 
               {/* Metric 3: Protected Devices / Users */}
-              <div className="p-3 rounded-xl bg-[#03140e] border border-[#0e3b2c] flex flex-col justify-between">
+              <div className="p-3 rounded-xl bg-[#03140e] border border-[#0e3b2c] flex flex-col justify-between transition-all hover:border-[#13533e]">
                 <span className="text-[11px] text-slate-400 uppercase tracking-wider">
                   Protected Device
                 </span>
                 <div className="my-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-extrabold text-white">
+                  <span className="text-2xl font-extrabold text-white tabular-nums">
                     {metrics.protectedDevices.toLocaleString('id-ID')}
                   </span>
-                  <span className="text-[10px] text-emerald-400 font-bold">↑ +18%</span>
+                  <span className="text-[10px] text-emerald-400 font-bold tabular-nums">↑ +18%</span>
                 </div>
                 <div className="text-[9px] text-slate-400 flex items-center gap-1">
                   <Server size={11} className="text-emerald-400" />
@@ -970,15 +988,15 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
               </div>
 
               {/* Metric 4: Active Incidents */}
-              <div className="p-3 rounded-xl bg-[#03140e] border border-[#0e3b2c] flex flex-col justify-between">
+              <div className="p-3 rounded-xl bg-[#03140e] border border-[#0e3b2c] flex flex-col justify-between transition-all hover:border-[#13533e]">
                 <span className="text-[11px] text-slate-400 uppercase tracking-wider">
                   Active Incidents
                 </span>
                 <div className="my-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-extrabold text-white">
+                  <span className="text-2xl font-extrabold text-white tabular-nums">
                     {metrics.activeIncidents}
                   </span>
-                  <span className="text-[10px] text-cyan-400 font-bold">↓ -312%</span>
+                  <span className="text-[10px] text-cyan-400 font-bold tabular-nums">↓ -312%</span>
                 </div>
                 <div className="text-[9px] text-amber-400/80 flex items-center gap-1">
                   <Activity size={11} className="text-amber-400" />

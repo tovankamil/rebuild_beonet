@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AppsSidebar from './components/dashlite/AppsSidebar';
 import Header from './components/Header';
@@ -47,6 +47,203 @@ import PublicMeetingPage from './components/meeting/PublicMeetingPage';
 import PublicBioPage from './pages/PublicBioPage';
 import api from './services/api';
 
+// ==================== URL ROUTING & TAB NAVIGATION CONSTANTS ====================
+export const MODAL_TABS = new Set([
+  'lucky-wheel',
+  'rank-rewards',
+  'herbal-farm',
+  'digital-card',
+  'certificate',
+  'e-certificate',
+  'prospect-calculator',
+]);
+
+export const KNOWN_BASE_TABS = new Set([
+  // Member & Shared Tabs
+  'overview',
+  'genealogy',
+  'referrals',
+  'withdrawal',
+  'transactions',
+  'pins',
+  'products',
+  'bank',
+  'chat',
+  'mail',
+  'leads',
+  'ai-marketing',
+  'meetings',
+  'components',
+  // Admin Tabs
+  'admin-overview',
+  'admin-users',
+  'admin-transactions',
+  'admin-points',
+  'admin-pins',
+  'admin-orders',
+  'admin-withdrawals',
+  'admin-fraud',
+  'admin-monitoring',
+  'admin-guide',
+  'admin-security',
+  'admin-geotraffic',
+  'admin-branding',
+  // Warehouse Tabs
+  'warehouse-overview',
+  'warehouse-inventory',
+  'warehouse-orders',
+]);
+
+export const getInitialTab = (role) => {
+  if (role === 'admin') return 'admin-overview';
+  if (role === 'keuangan') return 'admin-overview';
+  if (role === 'cs') return 'admin-users';
+  if (role === 'gudang') return 'warehouse-overview';
+  return 'overview';
+};
+
+export const isValidTabName = (tab) => {
+  if (!tab || typeof tab !== 'string') return false;
+  const clean = tab.toLowerCase().trim();
+  if (!clean) return false;
+  if (clean.startsWith('admin-') || clean.startsWith('warehouse-')) return true;
+  if (KNOWN_BASE_TABS.has(clean) || MODAL_TABS.has(clean)) return true;
+  return false;
+};
+
+export const isTabAllowedForRole = (tab, role = 'member') => {
+  if (!tab) return false;
+  const clean = tab.toLowerCase().trim();
+  if (MODAL_TABS.has(clean)) return true;
+  if (role === 'admin') return true;
+
+  if (role === 'keuangan') {
+    const allowed = [
+      'admin-overview',
+      'admin-transactions',
+      'admin-withdrawals',
+      'admin-fraud',
+      'admin-monitoring',
+      'admin-guide',
+      'admin-branding',
+      'leads',
+      'overview',
+      'chat',
+      'meetings',
+    ];
+    return allowed.includes(clean);
+  }
+
+  if (role === 'cs') {
+    const allowed = [
+      'admin-overview',
+      'admin-users',
+      'admin-guide',
+      'leads',
+      'chat',
+      'meetings',
+      'overview',
+    ];
+    return allowed.includes(clean);
+  }
+
+  if (role === 'gudang') {
+    const allowed = [
+      'warehouse-overview',
+      'warehouse-inventory',
+      'warehouse-orders',
+      'admin-guide',
+      'products',
+    ];
+    return allowed.includes(clean);
+  }
+
+  // Regular Member Role Restrictions
+  if (
+    clean.startsWith('admin-') ||
+    clean.startsWith('warehouse-') ||
+    clean === 'ai-marketing' ||
+    clean === 'components' ||
+    clean === 'mail'
+  ) {
+    return false;
+  }
+  return true;
+};
+
+export const parseHashTab = () => {
+  try {
+    const hash = window.location.hash || '';
+    if (!hash) return null;
+    const clean = hash.replace(/^#\/?/, '').split('?')[0].split('/')[0].trim().toLowerCase();
+    return clean || null;
+  } catch {
+    return null;
+  }
+};
+
+export const parsePathTab = () => {
+  try {
+    const pathname = window.location.pathname || '';
+    if (!pathname || pathname === '/' || pathname.startsWith('/bio')) return null;
+    const clean = pathname.replace(/^\//, '').split('?')[0].split('/')[0].trim().toLowerCase();
+    if (!clean || clean === 'index.html' || clean === 'login' || clean === 'register' || clean === 'bio') {
+      return null;
+    }
+    return clean;
+  } catch {
+    return null;
+  }
+};
+
+export const parseSearchTab = () => {
+  try {
+    const searchParams = new URLSearchParams(window.location.search);
+    const t = searchParams.get('tab');
+    return t ? t.trim().toLowerCase() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const parseStorageTab = () => {
+  try {
+    const t = localStorage.getItem('bionet_active_tab');
+    return t ? t.trim().toLowerCase() : null;
+  } catch {
+    return null;
+  }
+};
+
+export const parseTargetTab = (role) => {
+  // a) window.location.hash (e.g. #/genealogy or #genealogy -> genealogy)
+  const hashCandidate = parseHashTab();
+  if (hashCandidate && isValidTabName(hashCandidate) && isTabAllowedForRole(hashCandidate, role)) {
+    return hashCandidate;
+  }
+
+  // b) window.location.pathname (e.g. /genealogy -> genealogy)
+  const pathCandidate = parsePathTab();
+  if (pathCandidate && isValidTabName(pathCandidate) && isTabAllowedForRole(pathCandidate, role)) {
+    return pathCandidate;
+  }
+
+  // c) URL search params (?tab=genealogy)
+  const searchCandidate = parseSearchTab();
+  if (searchCandidate && isValidTabName(searchCandidate) && isTabAllowedForRole(searchCandidate, role)) {
+    return searchCandidate;
+  }
+
+  // d) localStorage.getItem('bionet_active_tab')
+  const storageCandidate = parseStorageTab();
+  if (storageCandidate && isValidTabName(storageCandidate) && isTabAllowedForRole(storageCandidate, role)) {
+    return storageCandidate;
+  }
+
+  // e) Fallback to getInitialTab(role)
+  return getInitialTab(role);
+};
+
 export default function App() {
   const [token, setToken] = useState(() => {
     try {
@@ -68,15 +265,11 @@ export default function App() {
     }
   });
 
-  const getInitialTab = (role) => {
-    if (role === 'admin') return 'admin-overview';
-    if (role === 'keuangan') return 'admin-overview';
-    if (role === 'cs') return 'admin-users';
-    if (role === 'gudang') return 'warehouse-overview';
-    return 'overview';
-  };
+  const [activeTab, setActiveTab] = useState(() => parseTargetTab(user?.role));
+  const previousBaseTabRef = useRef(
+    MODAL_TABS.has(activeTab) ? getInitialTab(user?.role) : (activeTab || getInitialTab(user?.role))
+  );
 
-  const [activeTab, setActiveTab] = useState(() => getInitialTab(user?.role));
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -113,18 +306,104 @@ export default function App() {
     };
   }, []);
 
+  // Handle special modal tabs: open their respective modal AND keep or restore the previous base tab
   useEffect(() => {
-    if (activeTab === 'lucky-wheel') {
-      setLuckyWheelOpen(true);
-      setActiveTab('overview');
-    } else if (activeTab === 'rank-rewards') {
-      setRankRewardsOpen(true);
-      setActiveTab('overview');
-    } else if (activeTab === 'herbal-farm') {
-      setHerbalFarmOpen(true);
-      setActiveTab('overview');
+    if (MODAL_TABS.has(activeTab)) {
+      if (activeTab === 'lucky-wheel') setLuckyWheelOpen(true);
+      else if (activeTab === 'rank-rewards') setRankRewardsOpen(true);
+      else if (activeTab === 'herbal-farm') setHerbalFarmOpen(true);
+      else if (activeTab === 'digital-card') setDigitalCardOpen(true);
+      else if (activeTab === 'certificate' || activeTab === 'e-certificate') setCertificateOpen(true);
+      else if (activeTab === 'prospect-calculator') setProspectCalculatorOpen(true);
+
+      const restoreTab =
+        previousBaseTabRef.current &&
+        !MODAL_TABS.has(previousBaseTabRef.current) &&
+        isTabAllowedForRole(previousBaseTabRef.current, user?.role)
+          ? previousBaseTabRef.current
+          : getInitialTab(user?.role);
+
+      setActiveTab(restoreTab);
+    } else if (activeTab) {
+      previousBaseTabRef.current = activeTab;
     }
-  }, [activeTab]);
+  }, [activeTab, user?.role]);
+
+  // Synchronize activeTab to URL Hash, Browser History & LocalStorage
+  useEffect(() => {
+    if (!token || !activeTab) return;
+    if (MODAL_TABS.has(activeTab)) return;
+
+    // 1. Persist to localStorage
+    try {
+      localStorage.setItem('bionet_active_tab', activeTab);
+    } catch (e) {
+      console.warn('Failed to save bionet_active_tab to localStorage:', e);
+    }
+
+    // 2. Synchronize URL hash and browser history stack
+    const targetHash = '#/' + activeTab;
+    const currentHash = window.location.hash || '';
+    const cleanCurrentHash = currentHash.replace(/^#\/?/, '').split('?')[0].split('/')[0].trim().toLowerCase();
+
+    if (cleanCurrentHash !== activeTab) {
+      try {
+        if (!cleanCurrentHash) {
+          window.history.replaceState({ tab: activeTab }, '', targetHash);
+        } else {
+          window.history.pushState({ tab: activeTab }, '', targetHash);
+        }
+      } catch {
+        window.location.hash = targetHash;
+      }
+    }
+  }, [activeTab, token]);
+
+  // Listen to popstate and hashchange events for browser Back / Forward buttons
+  useEffect(() => {
+    const handleUrlChange = (event) => {
+      // 1. Check event state if available
+      const stateTab = event?.state?.tab;
+      if (stateTab && isValidTabName(stateTab) && isTabAllowedForRole(stateTab, user?.role)) {
+        if (stateTab !== activeTab) {
+          setActiveTab(stateTab);
+        }
+        return;
+      }
+
+      // 2. Parse from current hash
+      const hashTab = parseHashTab();
+      if (hashTab && isValidTabName(hashTab) && isTabAllowedForRole(hashTab, user?.role)) {
+        if (hashTab !== activeTab) {
+          setActiveTab(hashTab);
+        }
+        return;
+      }
+
+      // 3. Parse from pathname
+      const pathTab = parsePathTab();
+      if (pathTab && isValidTabName(pathTab) && isTabAllowedForRole(pathTab, user?.role)) {
+        if (pathTab !== activeTab) {
+          setActiveTab(pathTab);
+        }
+        return;
+      }
+
+      // 4. Fallback to initial tab
+      const defaultTab = getInitialTab(user?.role);
+      if (defaultTab !== activeTab) {
+        setActiveTab(defaultTab);
+      }
+    };
+
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
+
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
+    };
+  }, [activeTab, user?.role]);
   const [securityAlertAcknowledged, setSecurityAlertAcknowledged] = useState(() => {
     try {
       return sessionStorage.getItem('bionet_security_alert_ack') === 'true';
@@ -280,7 +559,8 @@ export default function App() {
   const handleLoginSuccess = (userData) => {
     setToken(localStorage.getItem('bionet_token'));
     setUser(userData);
-    setActiveTab(getInitialTab(userData?.role));
+    const target = parseTargetTab(userData?.role);
+    setActiveTab(target);
   };
 
   const handleLogout = async () => {
@@ -289,9 +569,15 @@ export default function App() {
     } catch (e) {}
     localStorage.removeItem('bionet_token');
     localStorage.removeItem('bionet_user');
+    localStorage.removeItem('bionet_active_tab');
     setToken(null);
     setUser(null);
     setStats(null);
+    try {
+      window.history.replaceState(null, '', window.location.pathname);
+    } catch {
+      window.location.hash = '';
+    }
   };
 
   // 0. Public Handlers (Bisa diakses publik tanpa login)
@@ -347,11 +633,11 @@ export default function App() {
         mobileOpen={mobileSidebarOpen}
         setMobileOpen={setMobileSidebarOpen}
         onOpenProfile={handleOpenProfile}
-        onOpenProspectCalculator={() => setProspectCalculatorOpen(true)}
-        onOpenDigitalCard={() => setDigitalCardOpen(true)}
-        onOpenCertificate={() => setCertificateOpen(true)}
-        onOpenRankRewards={() => setRankRewardsOpen(true)}
-        onOpenHerbalFarm={() => setHerbalFarmOpen(true)}
+        onOpenProspectCalculator={() => setActiveTab('prospect-calculator')}
+        onOpenDigitalCard={() => setActiveTab('digital-card')}
+        onOpenCertificate={() => setActiveTab('certificate')}
+        onOpenRankRewards={() => setActiveTab('rank-rewards')}
+        onOpenHerbalFarm={() => setActiveTab('herbal-farm')}
         onOpenMidtrans={(data) => { setMidtransPaymentData(data || null); setMidtransModalOpen(true); }}
       />
 
@@ -365,11 +651,11 @@ export default function App() {
           onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
           onNavigate={setActiveTab}
           onOpenProfile={handleOpenProfile}
-          onOpenProspectCalculator={() => setProspectCalculatorOpen(true)}
-          onOpenDigitalCard={() => setDigitalCardOpen(true)}
-          onOpenCertificate={() => setCertificateOpen(true)}
-          onOpenRankRewards={() => setRankRewardsOpen(true)}
-          onOpenHerbalFarm={() => setHerbalFarmOpen(true)}
+          onOpenProspectCalculator={() => setActiveTab('prospect-calculator')}
+          onOpenDigitalCard={() => setActiveTab('digital-card')}
+          onOpenCertificate={() => setActiveTab('certificate')}
+          onOpenRankRewards={() => setActiveTab('rank-rewards')}
+          onOpenHerbalFarm={() => setActiveTab('herbal-farm')}
           onOpenMidtrans={(data) => { setMidtransPaymentData(data || null); setMidtransModalOpen(true); }}
         />
 
@@ -483,9 +769,9 @@ export default function App() {
                   setActiveTab={setActiveTab}
                   currentUser={user}
                   onOpenProfile={handleOpenProfile}
-                  onOpenProspectCalculator={() => setProspectCalculatorOpen(true)}
-                  onOpenDigitalCard={() => setDigitalCardOpen(true)}
-                  onOpenCertificate={() => setCertificateOpen(true)}
+                  onOpenProspectCalculator={() => setActiveTab('prospect-calculator')}
+                  onOpenDigitalCard={() => setActiveTab('digital-card')}
+                  onOpenCertificate={() => setActiveTab('certificate')}
                   onProfileUpdated={(updated) => {
                     setUser((prev) => ({ ...prev, ...updated }));
                     fetchStats();

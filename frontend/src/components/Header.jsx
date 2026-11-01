@@ -193,7 +193,13 @@ export default function Header({
         {/* Mini Game Intermezo Button (Usia 25-60) */}
         <button
           type="button"
-          onClick={() => window.dispatchEvent(new Event('bionet:open-wheel'))}
+          onClick={() => {
+            if (onNavigate) {
+              onNavigate('lucky-wheel');
+            } else {
+              window.dispatchEvent(new Event('bionet:open-wheel'));
+            }
+          }}
           title="Putar Roda Keberuntungan Berkah (Intermezo Usia 25-60 Tahun)"
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-teal-500/15 border border-amber-400/40 hover:border-amber-500 text-amber-900 hover:text-emerald-950 transition-all text-xs font-bold shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
         >
@@ -430,7 +436,10 @@ export default function Header({
         {onOpenProspectCalculator && (
           <button
             type="button"
-            onClick={onOpenProspectCalculator}
+            onClick={() => {
+              if (onNavigate) onNavigate('prospect-calculator');
+              else onOpenProspectCalculator();
+            }}
             title="Kalkulator Simulasi Bonus & Prospek Mitra"
             className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100/80 text-teal-800 border border-teal-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
           >
@@ -443,7 +452,10 @@ export default function Header({
         {onOpenDigitalCard && (
           <button
             type="button"
-            onClick={onOpenDigitalCard}
+            onClick={() => {
+              if (onNavigate) onNavigate('digital-card');
+              else onOpenDigitalCard();
+            }}
             title="KTA Digital Resmi BPOM"
             className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100/80 text-emerald-800 border border-emerald-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
           >
@@ -456,7 +468,10 @@ export default function Header({
         {onOpenRankRewards && (
           <button
             type="button"
-            onClick={onOpenRankRewards}
+            onClick={() => {
+              if (onNavigate) onNavigate('rank-rewards');
+              else onOpenRankRewards();
+            }}
             title="Jenjang Karir & Klaim Reward Bionet (Bronze s/d Crown Diamond)"
             className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-50 to-emerald-50 hover:from-amber-100/80 hover:to-emerald-100/80 text-amber-900 border border-amber-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
           >
@@ -469,7 +484,10 @@ export default function Header({
         {onOpenHerbalFarm && (
           <button
             type="button"
-            onClick={onOpenHerbalFarm}
+            onClick={() => {
+              if (onNavigate) onNavigate('herbal-farm');
+              else onOpenHerbalFarm();
+            }}
             title="Game Intermezo: Kebun Herbal & Peternakan Lebah Bionet (Ala Shopee Farm)"
             className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-teal-50 to-emerald-50 hover:from-teal-100/80 hover:to-emerald-100/80 text-teal-900 border border-teal-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
           >

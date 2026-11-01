@@ -705,16 +705,19 @@ export default function AppsSidebar({
   const handleIconClick = (item, event) => {
     if (item.action === 'open_lucky_wheel' || item.id === 'lucky-wheel') {
       window.dispatchEvent(new Event('bionet:open-wheel'));
+      setActiveTab('lucky-wheel');
       return;
     }
     if (item.action === 'open_rank_rewards' || item.id === 'rank-rewards') {
       if (onOpenRankRewards) onOpenRankRewards();
       else window.dispatchEvent(new Event('bionet:open-ranks'));
+      setActiveTab('rank-rewards');
       return;
     }
     if (item.action === 'open_herbal_farm' || item.id === 'herbal-farm') {
       if (onOpenHerbalFarm) onOpenHerbalFarm();
       else window.dispatchEvent(new Event('bionet:open-farm'));
+      setActiveTab('herbal-farm');
       return;
     }
     if (item.id === 'profile') {
@@ -746,18 +749,24 @@ export default function AppsSidebar({
       if (onOpenProfile) onOpenProfile('password');
     } else if (sub.action === 'open_prospect_calculator' || sub.id === 'prospect-calculator') {
       if (onOpenProspectCalculator) onOpenProspectCalculator();
+      setActiveTab('prospect-calculator');
     } else if (sub.action === 'open_digital_card' || sub.id === 'digital-card') {
       if (onOpenDigitalCard) onOpenDigitalCard();
-    } else if (sub.action === 'open_certificate' || sub.id === 'e-certificate') {
+      setActiveTab('digital-card');
+    } else if (sub.action === 'open_certificate' || sub.id === 'e-certificate' || sub.id === 'certificate') {
       if (onOpenCertificate) onOpenCertificate();
+      setActiveTab('certificate');
     } else if (sub.action === 'open_lucky_wheel' || sub.id === 'lucky-wheel') {
       window.dispatchEvent(new Event('bionet:open-wheel'));
+      setActiveTab('lucky-wheel');
     } else if (sub.action === 'open_rank_rewards' || sub.id === 'rank-rewards') {
       if (onOpenRankRewards) onOpenRankRewards();
       else window.dispatchEvent(new Event('bionet:open-ranks'));
+      setActiveTab('rank-rewards');
     } else if (sub.action === 'open_herbal_farm' || sub.id === 'herbal-farm') {
       if (onOpenHerbalFarm) onOpenHerbalFarm();
       else window.dispatchEvent(new Event('bionet:open-farm'));
+      setActiveTab('herbal-farm');
     } else if (sub.id) {
       setActiveTab(sub.id);
       if (sub.subView) {
@@ -825,18 +834,24 @@ export default function AppsSidebar({
       if (onOpenProfile) onOpenProfile('password');
     } else if (sub.action === 'open_prospect_calculator' || sub.id === 'prospect-calculator') {
       if (onOpenProspectCalculator) onOpenProspectCalculator();
+      setActiveTab('prospect-calculator');
     } else if (sub.action === 'open_digital_card' || sub.id === 'digital-card') {
       if (onOpenDigitalCard) onOpenDigitalCard();
-    } else if (sub.action === 'open_certificate' || sub.id === 'e-certificate') {
+      setActiveTab('digital-card');
+    } else if (sub.action === 'open_certificate' || sub.id === 'e-certificate' || sub.id === 'certificate') {
       if (onOpenCertificate) onOpenCertificate();
+      setActiveTab('certificate');
     } else if (sub.action === 'open_lucky_wheel' || sub.id === 'lucky-wheel') {
       window.dispatchEvent(new Event('bionet:open-wheel'));
+      setActiveTab('lucky-wheel');
     } else if (sub.action === 'open_rank_rewards' || sub.id === 'rank-rewards') {
       if (onOpenRankRewards) onOpenRankRewards();
       else window.dispatchEvent(new Event('bionet:open-ranks'));
+      setActiveTab('rank-rewards');
     } else if (sub.action === 'open_herbal_farm' || sub.id === 'herbal-farm') {
       if (onOpenHerbalFarm) onOpenHerbalFarm();
       else window.dispatchEvent(new Event('bionet:open-farm'));
+      setActiveTab('herbal-farm');
     } else if (sub.id) {
       setActiveTab(sub.id);
       if (sub.subView) {

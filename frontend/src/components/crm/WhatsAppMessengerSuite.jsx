@@ -39,10 +39,18 @@ import {
   ChevronsRight,
   Bot,
   Loader2,
+  Phone,
+  PhoneCall,
+  PhoneOff,
+  PhoneIncoming,
+  PhoneOutgoing,
+  Video,
+  VideoOff,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
 import { downloadVCardContact, downloadBatchVCard } from '../../utils/vCardGenerator';
+import WhatsAppCallModal from './WhatsAppCallModal';
 
 export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   // Navigation Sub-tab
@@ -121,6 +129,95 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   const [isTypingSimulated, setIsTypingSimulated] = useState(false);
+
+  // WhatsApp Interactive Voice & Video Call State
+  const [callModalData, setCallModalData] = useState({
+    isOpen: false,
+    contact: null,
+    callType: 'voice',
+  });
+
+  const handleStartCall = (contactTarget, type = 'voice') => {
+    if (!contactTarget) return;
+    setCallModalData({
+      isOpen: true,
+      contact: contactTarget,
+      callType: type,
+    });
+  };
+
+  const handleCloseCall = () => {
+    setCallModalData((prev) => ({ ...prev, isOpen: false }));
+  };
+
+  const handleCallEnded = async ({ callType, durationSeconds, formattedDuration }) => {
+    const isVideo = callType === 'video';
+    const logText =
+      durationSeconds > 0
+        ? isVideo
+          ? `📹 Panggilan Video Selesai (Durasi: ${formattedDuration})`
+          : `📞 Panggilan Suara Berakhir (Durasi: ${formattedDuration})`
+        : isVideo
+        ? `📹 Panggilan Video Tak Terjawab`
+        : `📞 Panggilan Suara Tak Terjawab`;
+
+    const targetThreadId =
+      activeThreadId || (callModalData.contact?.id || callModalData.contact?.ID);
+
+    if (targetThreadId) {
+      try {
+        const payload = {
+          text: logText,
+          media_type: 'call_log',
+        };
+        const res = await api.post(`/crm/whatsapp/threads/${targetThreadId}/messages`, payload);
+        if (res.data?.data) {
+          setMessages((prev) => [...prev, res.data.data]);
+          setThreads((prev) =>
+            prev.map((t) =>
+              (t.ID || t.id) === targetThreadId
+                ? { ...t, last_message: logText, last_message_time: new Date().toISOString() }
+                : t
+            )
+          );
+        }
+      } catch (err) {
+        console.warn('Failed to append call log to server:', err);
+        const optimisticMsg = {
+          id: 'call_' + Date.now(),
+          sender: 'me',
+          text: logText,
+          media_type: 'call_log',
+          sent_at: new Date().toISOString(),
+          status: 'delivered',
+        };
+        setMessages((prev) => [...prev, optimisticMsg]);
+      }
+    }
+  };
+
+  const sendDirectMessageText = async (textToSend) => {
+    if (!textToSend || !activeThreadId) return;
+    try {
+      const payload = {
+        text: textToSend,
+        media_type: 'text',
+      };
+      const res = await api.post(`/crm/whatsapp/threads/${activeThreadId}/messages`, payload);
+      if (res.data?.data) {
+        setMessages((prev) => [...prev, res.data.data]);
+        setThreads((prev) =>
+          prev.map((t) =>
+            (t.ID || t.id) === activeThreadId
+              ? { ...t, last_message: textToSend, last_message_time: new Date().toISOString() }
+              : t
+          )
+        );
+      }
+    } catch (err) {
+      console.warn('Failed to dispatch invite message:', err);
+    }
+  };
 
   // New Chat Modal State
   const [newChatModalOpen, setNewChatModalOpen] = useState(false);
@@ -1304,12 +1401,32 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                             <span className="truncate">{thread.last_message || 'Belum ada pesan...'}</span>
                           </div>
 
-                          <div className="flex items-center space-x-1.5 flex-shrink-0">
+                          <div className="flex items-center space-x-1 flex-shrink-0">
                             {thread.unread_count > 0 && (
                               <span className="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white animate-pulse">
                                 {thread.unread_count}
                               </span>
                             )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStartCall(thread, 'voice');
+                              }}
+                              className="p-1 rounded-lg text-slate-300 hover:text-emerald-600 hover:bg-emerald-50 transition"
+                              title="Panggilan Suara"
+                            >
+                              <Phone className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStartCall(thread, 'video');
+                              }}
+                              className="p-1 rounded-lg text-slate-300 hover:text-teal-600 hover:bg-teal-50 transition"
+                              title="Panggilan Video"
+                            >
+                              <Video className="w-3.5 h-3.5" />
+                            </button>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1365,6 +1482,26 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
                   {/* Header Fast Actions */}
                   <div className="flex items-center space-x-1.5">
+                    {/* 📞 WhatsApp Voice Call Button */}
+                    <button
+                      onClick={() => handleStartCall(activeThread, 'voice')}
+                      className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center space-x-1 border border-emerald-200/80 transition shadow-2xs"
+                      title="Panggilan Suara (Voice Call)"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="hidden md:inline">Voice Call</span>
+                    </button>
+
+                    {/* 📹 WhatsApp Video Call Button */}
+                    <button
+                      onClick={() => handleStartCall(activeThread, 'video')}
+                      className="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs flex items-center space-x-1 border border-teal-200/80 transition shadow-2xs"
+                      title="Panggilan Video (Video Call)"
+                    >
+                      <Video className="w-3.5 h-3.5 text-teal-600" />
+                      <span className="hidden md:inline">Video Call</span>
+                    </button>
+
                     {/* AI Lead Scoring & Intent Analysis Button */}
                     <button
                       onClick={handleAnalyzeLeadScore}
@@ -1555,11 +1692,44 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                               </div>
                             )}
 
-                            {msg.text && (
+                            {/* Interactive Call Log Card or Regular Text */}
+                            {msg.media_type === 'call_log' || (msg.text && (msg.text.includes('Panggilan Suara') || msg.text.includes('Panggilan Video'))) ? (
+                              <div className="flex items-center space-x-2.5 py-1">
+                                <div
+                                  className={`p-2 rounded-xl flex-shrink-0 ${
+                                    isMe ? 'bg-emerald-700/80 text-white' : 'bg-emerald-50 text-emerald-700'
+                                  }`}
+                                >
+                                  {msg.text?.includes('Video') ? (
+                                    <Video className="w-4 h-4" />
+                                  ) : (
+                                    <PhoneIncoming className="w-4 h-4" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-bold text-xs">
+                                    {msg.text}
+                                  </p>
+                                  <button
+                                    onClick={() =>
+                                      handleStartCall(
+                                        activeThread,
+                                        msg.text?.includes('Video') ? 'video' : 'voice'
+                                      )
+                                    }
+                                    className={`text-[10px] font-semibold underline mt-0.5 hover:opacity-80 transition inline-block ${
+                                      isMe ? 'text-emerald-100' : 'text-emerald-700'
+                                    }`}
+                                  >
+                                    Panggil Balik
+                                  </button>
+                                </div>
+                              </div>
+                            ) : msg.text ? (
                               <p className="leading-relaxed whitespace-pre-line text-xs font-sans">
                                 {msg.text}
                               </p>
-                            )}
+                            ) : null}
 
                             <div
                               className={`flex items-center justify-end space-x-1 mt-1 text-[10px] ${
@@ -2348,6 +2518,22 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                         <td className="py-3 px-4">{getStageBadge(t.lead_stage)}</td>
                         <td className="py-3 px-4 text-center">
                           <div className="flex items-center justify-center space-x-1.5">
+                            <button
+                              onClick={() => handleStartCall(t, 'voice')}
+                              className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] border border-emerald-200 transition"
+                              title="Panggilan Suara (Voice Call)"
+                            >
+                              <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                            </button>
+
+                            <button
+                              onClick={() => handleStartCall(t, 'video')}
+                              className="p-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-[10px] border border-teal-200 transition"
+                              title="Panggilan Video (Video Call)"
+                            >
+                              <Video className="w-3.5 h-3.5 text-teal-600" />
+                            </button>
+
                             <button
                               onClick={() =>
                                 downloadVCardContact({
@@ -3288,6 +3474,18 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
           </div>
         </ModalPortal>
       )}
+
+      {/* WhatsApp Voice & Video Call Modal */}
+      <WhatsAppCallModal
+        isOpen={callModalData.isOpen}
+        onClose={handleCloseCall}
+        contact={callModalData.contact}
+        callType={callModalData.callType}
+        onCallEnded={handleCallEnded}
+        onSendInvitationMessage={(inviteText) => {
+          sendDirectMessageText(inviteText);
+        }}
+      />
 
     </div>
   );

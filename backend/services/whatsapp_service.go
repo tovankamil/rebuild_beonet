@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -1307,33 +1308,69 @@ func (s *WhatsAppService) GetDeviceSession() WhatsAppDeviceSession {
 						}
 					} else if wSession.Status == "SCAN_QR_CODE" || wSession.Status == "STARTING" {
 						s.deviceSession.Status = "scanning_qr"
-						// Fetch QR Code base64
+						// Fetch QR Code: WAHA returns binary PNG or JSON with data
 						qrReq, qErr := http.NewRequest("GET", strings.TrimRight(s.wahaURL, "/")+"/api/default/auth/qr", nil)
 						if qErr == nil {
 							if s.wahaKey != "" {
 								qrReq.Header.Set("X-Api-Key", s.wahaKey)
 							}
-							qrReq.Header.Set("Accept", "application/json")
 							if qResp, qErr2 := client.Do(qrReq); qErr2 == nil && qResp.StatusCode == http.StatusOK {
-								var qrData struct {
-									Data string `json:"data"`
-								}
-								if json.NewDecoder(qResp.Body).Decode(&qrData) == nil && qrData.Data != "" {
-									s.deviceSession.QRCode = "data:image/png;base64," + qrData.Data
-								}
+								bodyBytes, readErr := io.ReadAll(qResp.Body)
 								qResp.Body.Close()
+								if readErr == nil && len(bodyBytes) > 0 {
+									contentType := qResp.Header.Get("Content-Type")
+									if strings.Contains(contentType, "image/png") || bytes.HasPrefix(bodyBytes, []byte("\x89PNG")) {
+										s.deviceSession.QRCode = "data:image/png;base64," + base64.StdEncoding.EncodeToString(bodyBytes)
+									} else {
+										var qrData struct {
+											Data  string `json:"data"`
+											QR    string `json:"qr"`
+											Image string `json:"image"`
+										}
+										if json.Unmarshal(bodyBytes, &qrData) == nil {
+											raw := qrData.Data
+											if raw == "" {
+												raw = qrData.Image
+											}
+											if raw == "" {
+												raw = qrData.QR
+											}
+											if raw != "" {
+												if strings.HasPrefix(raw, "data:") {
+													s.deviceSession.QRCode = raw
+												} else {
+													s.deviceSession.QRCode = "data:image/png;base64," + raw
+												}
+											}
+										}
+									}
+								}
 							}
 						}
 					} else if wSession.Status == "FAILED" || wSession.Status == "STOPPED" {
 						s.deviceSession.Status = "scanning_qr"
-						// Auto-restart session in WAHA to immediately trigger a fresh QR Code
+						// Auto-start session in WAHA so it immediately initializes into SCAN_QR_CODE
 						go func() {
-							restartReq, rErr := http.NewRequest("POST", strings.TrimRight(s.wahaURL, "/")+"/api/sessions/default/restart", nil)
-							if rErr == nil {
+							startReq, _ := http.NewRequest("POST", strings.TrimRight(s.wahaURL, "/")+"/api/sessions/default/start", nil)
+							if startReq != nil {
 								if s.wahaKey != "" {
-									restartReq.Header.Set("X-Api-Key", s.wahaKey)
+									startReq.Header.Set("X-Api-Key", s.wahaKey)
 								}
-								client.Do(restartReq)
+								resp, err := client.Do(startReq)
+								if err == nil {
+									resp.Body.Close()
+								} else {
+									// Fallback restart
+									restartReq, _ := http.NewRequest("POST", strings.TrimRight(s.wahaURL, "/")+"/api/sessions/default/restart", nil)
+									if restartReq != nil {
+										if s.wahaKey != "" {
+											restartReq.Header.Set("X-Api-Key", s.wahaKey)
+										}
+										if rResp, rErr := client.Do(restartReq); rErr == nil {
+											rResp.Body.Close()
+										}
+									}
+								}
 							}
 						}()
 					}

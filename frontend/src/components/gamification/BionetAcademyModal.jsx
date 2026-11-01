@@ -489,64 +489,76 @@ export default function BionetAcademyModal({ user, onClose }) {
 
   return (
     <ModalPortal isOpen={true} onClose={onClose}>
-      <div className="relative w-full max-w-5xl max-h-[92vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col font-sans border border-slate-200">
-        {/* Top Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-emerald-950 via-teal-900 to-slate-900 text-white flex-shrink-0">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-slate-950 shadow-md">
-              <GraduationCap size={24} className="stroke-[2.5]" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h3 className="font-heading font-black text-lg text-white">
-                  Bionet Academy: Kurikulum 7 Hari Sukses Mitra
-                </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  {progressPercent}% Selesai
-                </span>
-              </div>
-              <p className="text-xs text-emerald-200/80">
-                Pelatihan mandiri terstruktur dengan kuis interaktif berhadiah E-Sertifikat Master Partner resmi
-              </p>
-            </div>
-          </div>
+      <div className="relative w-full max-w-5xl max-h-[92vh] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col font-sans border border-slate-200/80">
+        {/* Top Header - Executive Dark Obsidian Emerald Gradient */}
+        <div className="relative overflow-hidden px-6 py-5 bg-gradient-to-br from-[#021811] via-[#062c1d] to-[#041a12] text-white flex-shrink-0 border-b border-emerald-500/20 shadow-lg">
+          {/* Ambient Lighting Orbs */}
+          <div className="absolute -right-16 -top-16 w-64 h-64 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
 
-          <div className="flex items-center space-x-2">
-            {isAllCompleted && (
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div className="flex items-center space-x-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-400 via-teal-400 to-emerald-500 flex items-center justify-center text-slate-950 shadow-md shadow-emerald-950/40 ring-1 ring-white/30 flex-shrink-0">
+                <GraduationCap size={24} className="stroke-[2.5]" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-heading font-extrabold text-lg sm:text-xl text-white tracking-tight">
+                    Bionet Academy:
+                    <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-400 bg-clip-text text-transparent">
+                      {' '}Kurikulum 7 Hari Sukses Mitra
+                    </span>
+                  </h3>
+                  <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 backdrop-blur-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>{progressPercent}% Selesai</span>
+                  </span>
+                </div>
+                <p className="text-xs text-emerald-100/85 leading-relaxed font-normal">
+                  Pelatihan mandiri terstruktur dengan kuis interaktif berhadiah E-Sertifikat Master Partner resmi
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 flex-shrink-0">
+              {isAllCompleted && (
+                <button
+                  type="button"
+                  onClick={() => setShowCertificateView(true)}
+                  className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 transition shadow-md shadow-amber-500/20 hover:-translate-y-0.5"
+                >
+                  <Award size={15} />
+                  <span>Lihat Sertifikat</span>
+                </button>
+              )}
               <button
-                type="button"
-                onClick={() => setShowCertificateView(true)}
-                className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition shadow"
+                onClick={onClose}
+                className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-emerald-100 hover:text-white flex items-center justify-center transition-all duration-200 backdrop-blur-md"
+                aria-label="Tutup Modal"
               >
-                <Award size={15} />
-                <span>Lihat Sertifikat</span>
+                <X size={18} />
               </button>
-            )}
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              <X size={20} />
-            </button>
+            </div>
           </div>
         </div>
 
         {/* Overall Progress Ribbon */}
-        <div className="px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 flex-shrink-0">
-          <div className="flex items-center space-x-3 flex-1 max-w-lg">
+        <div className="px-6 py-3.5 bg-slate-50/90 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0">
+          <div className="flex items-center space-x-3.5 flex-1 max-w-md">
             <span className="text-xs font-bold text-slate-700 whitespace-nowrap">
-              Kemajuan Anda: {completedModules.length} / 7 Modul
+              Kemajuan Anda: <span className="text-emerald-700 font-extrabold">{completedModules.length}</span> / 7 Modul
             </span>
-            <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+            <div className="w-full h-2.5 bg-slate-200/80 rounded-full overflow-hidden p-0.5 shadow-inner">
               <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 rounded-full transition-all duration-500 shadow-sm"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
           </div>
 
-          <span className="text-xs text-emerald-700 font-bold flex items-center space-x-1">
-            <Sparkles size={14} />
+          <span className="text-xs text-emerald-800 font-bold flex items-center space-x-1.5 bg-emerald-50/80 border border-emerald-200/70 px-3 py-1 rounded-full">
+            <Sparkles size={14} className="text-emerald-600" />
             <span>Selesaikan 7 modul untuk sertifikasi resmi</span>
           </span>
         </div>
@@ -554,7 +566,7 @@ export default function BionetAcademyModal({ user, onClose }) {
         {/* Body Content */}
         <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 bg-slate-50/70">
           {/* Left Column: List of 7 Modules (4 cols) */}
-          <div className="lg:col-span-4 p-4 space-y-2 border-b lg:border-b-0 lg:border-r border-slate-200 bg-white">
+          <div className="lg:col-span-4 p-4 space-y-2.5 border-b lg:border-b-0 lg:border-r border-slate-200 bg-white">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-2 mb-1">
               Daftar 7 Modul Harian:
             </span>
@@ -567,18 +579,18 @@ export default function BionetAcademyModal({ user, onClose }) {
                 <button
                   key={mod.day}
                   onClick={() => handleSelectDay(mod.day)}
-                  className={`w-full p-3 rounded-xl border text-left transition flex items-start space-x-3 ${
+                  className={`w-full p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-start space-x-3.5 ${
                     isSelected
-                      ? 'border-emerald-600 bg-emerald-50/70 ring-1 ring-emerald-500/20'
-                      : 'border-slate-200/80 hover:border-slate-300 bg-white'
+                      ? 'border-emerald-500 bg-gradient-to-r from-emerald-50/90 to-teal-50/40 shadow-sm ring-2 ring-emerald-500/20'
+                      : 'border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/80 bg-white shadow-xs'
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 mt-0.5 ${
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs shrink-0 mt-0.5 transition-all ${
                       isCompleted
-                        ? 'bg-emerald-600 text-white shadow-xs'
+                        ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-600/30'
                         : isSelected
-                        ? 'bg-emerald-100 text-emerald-800'
+                        ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30'
                         : 'bg-slate-100 text-slate-600'
                     }`}
                   >
@@ -587,8 +599,10 @@ export default function BionetAcademyModal({ user, onClose }) {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-emerald-700">Hari ke-{mod.day}</span>
-                      <span className="text-[10px] text-slate-400">{mod.duration}</span>
+                      <span className="text-[10px] font-extrabold text-emerald-700 uppercase tracking-wider">
+                        Hari ke-{mod.day}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-medium">{mod.duration}</span>
                     </div>
                     <h5 className="font-heading font-bold text-xs text-slate-900 truncate mt-0.5">
                       {mod.title}
@@ -728,7 +742,7 @@ export default function BionetAcademyModal({ user, onClose }) {
                     <button
                       type="button"
                       onClick={handleCheckQuiz}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-700/20 transition"
+                      className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/25 hover:shadow-emerald-400/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] ring-1 ring-white/30 transition-all duration-200"
                     >
                       Periksa Jawaban Kuis
                     </button>

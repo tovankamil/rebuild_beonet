@@ -14,6 +14,10 @@ import {
   X,
   Droplets,
   Smartphone,
+  Users,
+  HeartPulse,
+  Award,
+  BookOpen,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
@@ -80,6 +84,7 @@ export default function CustomerHealthJourneyView({ user }) {
 
   // Modal State
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Form State
@@ -238,82 +243,278 @@ export default function CustomerHealthJourneyView({ user }) {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-900 rounded-3xl p-6 text-white relative overflow-hidden shadow-xl border border-emerald-800">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Top Executive Medical Banner */}
+      <div className="relative overflow-hidden rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-[#021810] via-[#062c1d] to-[#041a12] p-6 sm:p-8 text-white shadow-2xl shadow-emerald-950/30">
+        {/* Soft Ambient Radial Lights */}
+        <div className="absolute -right-24 -top-24 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none animate-pulse duration-1000" />
+        <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold">
-              <HeartHandshake className="w-3.5 h-3.5 text-emerald-300" />
-              <span>Metodologi Retensi &amp; Pendampingan Pasien Herbal Bionet</span>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-3.5 max-w-3xl">
+            {/* Clinical Protocol Badge */}
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-semibold backdrop-blur-md shadow-xs">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+              </span>
+              <HeartHandshake className="w-3.5 h-3.5 text-emerald-300 ml-0.5" />
+              <span className="tracking-wide">Protokol Retensi Klinis Pasien Herbal Bionet</span>
             </div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-              Customer Health Journey (Siklus 3-7-14-25 Hari)
-            </h2>
-            <p className="text-xs sm:text-sm text-emerald-100/90 max-w-2xl leading-relaxed">
-              Dampingi konsumen herbal secara sistematis pada fase detoks (Hari 3), evaluasi awal (Hari 7), testimoni hasil klinis (Hari 14), hingga repeat order otomatis sebelum stok habis (Hari 25).
-            </p>
+
+            {/* Banner Title */}
+            <div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                Customer Health Journey
+                <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-400 bg-clip-text text-transparent">
+                  {' '}(Siklus 3-7-14-25 Hari)
+                </span>
+              </h2>
+              <p className="text-xs sm:text-sm text-emerald-100/85 max-w-2xl leading-relaxed mt-2 font-normal">
+                Sistematisasi pendampingan konsumen herbal Bionet: pantau detoks awal (Hari 3), evaluasi vitalitas (Hari 7), kumpulkan testimoni klinis (Hari 14), dan amankan repeat order otomatis sebelum botol habis (Hari 25).
+              </p>
+            </div>
+
+            {/* Stepper Timeline Mini Pills */}
+            <div className="pt-1 flex flex-wrap items-center gap-2 text-[11px] font-medium text-emerald-200/90">
+              <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-amber-300">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span>H-3: Detoks</span>
+              </div>
+              <span className="text-emerald-500/60">→</span>
+              <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-blue-300">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                <span>H-7: Evaluasi</span>
+              </div>
+              <span className="text-emerald-500/60">→</span>
+              <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-purple-300">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                <span>H-14: Testimoni</span>
+              </div>
+              <span className="text-emerald-500/60">→</span>
+              <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/30 text-emerald-300">
+                <Sparkles className="w-3 h-3 text-emerald-400" />
+                <span>H-25: Repeat Order</span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2.5 flex-shrink-0">
+          {/* Action CTAs */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-shrink-0">
             <button
-              onClick={handleOpenCreate}
-              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs transition shadow-lg shadow-emerald-950 flex items-center space-x-2"
+              type="button"
+              onClick={() => setGuideModalOpen(true)}
+              className="inline-flex items-center justify-center space-x-2 px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-white hover:text-emerald-200 font-semibold text-xs sm:text-sm backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
             >
-              <Plus className="w-4 h-4" />
-              <span>Tambah Pasien / Konsumen Baru</span>
+              <BookOpen className="w-4 h-4 text-emerald-300" />
+              <span>Panduan SOP Siklus</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleOpenCreate}
+              className="group relative inline-flex items-center justify-center space-x-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-extrabold text-xs sm:text-sm tracking-wide shadow-lg shadow-emerald-500/25 hover:shadow-emerald-400/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 ring-1 ring-white/30"
+            >
+              <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" />
+              <span>Tambah Pasien Baru</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 4-Step Milestone Stage Counter Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-          <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            Total Pasien Aktif
+      {/* 5-Step Milestone Stage Interactive Metric Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        {/* Card 1: Total Pasien Aktif */}
+        <button
+          type="button"
+          onClick={() => setFilterMilestone('all')}
+          className={`text-left p-4 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 ${
+            filterMilestone === 'all'
+              ? 'bg-gradient-to-b from-white to-slate-50 border-emerald-500 shadow-md ring-2 ring-emerald-500/40'
+              : 'bg-white border-slate-200/80 shadow-xs hover:border-slate-300'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+              Total Pasien
+            </span>
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+              filterMilestone === 'all' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+            }`}>
+              <Users className="w-3.5 h-3.5" />
+            </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-1">{totalActive}</div>
-          <div className="text-[10px] text-slate-400 mt-0.5">Sedang terapi herbal</div>
-        </div>
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 tracking-tight">
+            {totalActive}
+          </div>
+          <div className="flex items-center justify-between mt-1 text-[11px]">
+            <span className="text-slate-500 font-medium">Sedang terapi herbal</span>
+            {filterMilestone === 'all' && (
+              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md">
+                Semua
+              </span>
+            )}
+          </div>
+        </button>
 
-        <div className="bg-white p-4 rounded-2xl border border-amber-200/80 shadow-xs bg-gradient-to-b from-white to-amber-50/30">
-          <div className="text-[11px] font-bold text-amber-700 uppercase tracking-wider flex items-center justify-between">
-            <span>Hari ke-3 (Detoks)</span>
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+        {/* Card 2: Hari ke-3 Detoks */}
+        <button
+          type="button"
+          onClick={() => setFilterMilestone(filterMilestone === 'day_3' ? 'all' : 'day_3')}
+          className={`text-left p-4 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 ${
+            filterMilestone === 'day_3'
+              ? 'bg-gradient-to-b from-amber-50/80 to-amber-100/50 border-amber-500 shadow-md ring-2 ring-amber-500/50'
+              : 'bg-gradient-to-b from-white to-amber-50/30 border-amber-200/80 shadow-xs hover:border-amber-300'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider">
+              Hari ke-3
+            </span>
+            <div className="flex items-center space-x-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+              </span>
+              <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                <Droplets className="w-3.5 h-3.5" />
+              </div>
+            </div>
           </div>
-          <div className="text-2xl font-black text-amber-800 mt-1">{countDay3}</div>
-          <div className="text-[10px] text-amber-600/80 mt-0.5">Adaptasi rasa &amp; detox</div>
-        </div>
+          <div className="text-2xl sm:text-3xl font-black text-amber-900 mt-2 tracking-tight">
+            {countDay3}
+          </div>
+          <div className="flex items-center justify-between mt-1 text-[11px]">
+            <span className="text-amber-700/90 font-medium">Detoks & adaptasi rasa</span>
+            {filterMilestone === 'day_3' && (
+              <span className="text-[10px] font-bold text-amber-800 bg-amber-200/60 px-1.5 py-0.5 rounded-md">
+                Aktif
+              </span>
+            )}
+          </div>
+        </button>
 
-        <div className="bg-white p-4 rounded-2xl border border-blue-200/80 shadow-xs bg-gradient-to-b from-white to-blue-50/30">
-          <div className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">
-            Hari ke-7 (Evaluasi)
+        {/* Card 3: Hari ke-7 Evaluasi */}
+        <button
+          type="button"
+          onClick={() => setFilterMilestone(filterMilestone === 'day_7' ? 'all' : 'day_7')}
+          className={`text-left p-4 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 ${
+            filterMilestone === 'day_7'
+              ? 'bg-gradient-to-b from-blue-50/80 to-blue-100/50 border-blue-500 shadow-md ring-2 ring-blue-500/50'
+              : 'bg-gradient-to-b from-white to-blue-50/30 border-blue-200/80 shadow-xs hover:border-blue-300'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-blue-800 uppercase tracking-wider">
+              Hari ke-7
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+              <HeartPulse className="w-3.5 h-3.5" />
+            </div>
           </div>
-          <div className="text-2xl font-black text-blue-800 mt-1">{countDay7}</div>
-          <div className="text-[10px] text-blue-600/80 mt-0.5">Tidur pulas &amp; stamina</div>
-        </div>
+          <div className="text-2xl sm:text-3xl font-black text-blue-900 mt-2 tracking-tight">
+            {countDay7}
+          </div>
+          <div className="flex items-center justify-between mt-1 text-[11px]">
+            <span className="text-blue-700/90 font-medium">Tidur pulas & stamina</span>
+            {filterMilestone === 'day_7' && (
+              <span className="text-[10px] font-bold text-blue-800 bg-blue-200/60 px-1.5 py-0.5 rounded-md">
+                Aktif
+              </span>
+            )}
+          </div>
+        </button>
 
-        <div className="bg-white p-4 rounded-2xl border border-purple-200/80 shadow-xs bg-gradient-to-b from-white to-purple-50/30">
-          <div className="text-[11px] font-bold text-purple-700 uppercase tracking-wider">
-            Hari ke-14 (Testimoni)
+        {/* Card 4: Hari ke-14 Testimoni */}
+        <button
+          type="button"
+          onClick={() => setFilterMilestone(filterMilestone === 'day_14' ? 'all' : 'day_14')}
+          className={`text-left p-4 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 ${
+            filterMilestone === 'day_14'
+              ? 'bg-gradient-to-b from-purple-50/80 to-purple-100/50 border-purple-500 shadow-md ring-2 ring-purple-500/50'
+              : 'bg-gradient-to-b from-white to-purple-50/30 border-purple-200/80 shadow-xs hover:border-purple-300'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-purple-800 uppercase tracking-wider">
+              Hari ke-14
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
+              <Award className="w-3.5 h-3.5" />
+            </div>
           </div>
-          <div className="text-2xl font-black text-purple-800 mt-1">{countDay14}</div>
-          <div className="text-[10px] text-purple-600/80 mt-0.5">Koleksi bukti pemulihan</div>
-        </div>
+          <div className="text-2xl sm:text-3xl font-black text-purple-900 mt-2 tracking-tight">
+            {countDay14}
+          </div>
+          <div className="flex items-center justify-between mt-1 text-[11px]">
+            <span className="text-purple-700/90 font-medium">Bukti lab & testimoni</span>
+            {filterMilestone === 'day_14' && (
+              <span className="text-[10px] font-bold text-purple-800 bg-purple-200/60 px-1.5 py-0.5 rounded-md">
+                Aktif
+              </span>
+            )}
+          </div>
+        </button>
 
-        <div className="bg-white p-4 rounded-2xl border border-emerald-300 shadow-xs bg-gradient-to-b from-white to-emerald-50/40">
-          <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider flex items-center justify-between">
-            <span>Hari ke-25 (RO)</span>
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+        {/* Card 5: Hari ke-25 Repeat Order */}
+        <button
+          type="button"
+          onClick={() => setFilterMilestone(filterMilestone === 'day_25' ? 'all' : 'day_25')}
+          className={`text-left p-4 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 ${
+            filterMilestone === 'day_25'
+              ? 'bg-gradient-to-b from-emerald-50/90 to-teal-100/50 border-emerald-500 shadow-md ring-2 ring-emerald-500/50'
+              : 'bg-gradient-to-b from-white to-emerald-50/40 border-emerald-300 shadow-xs hover:border-emerald-400'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
+              Hari ke-25
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <Sparkles className="w-3.5 h-3.5" />
+            </div>
           </div>
-          <div className="text-2xl font-black text-emerald-700 mt-1">{countDay25}</div>
-          <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
-            Stok menipis, kunci RO!
+          <div className="text-2xl sm:text-3xl font-black text-emerald-800 mt-2 tracking-tight">
+            {countDay25}
           </div>
-        </div>
+          <div className="flex items-center justify-between mt-1 text-[11px]">
+            <span className="text-emerald-700 font-bold">Kunci Repeat Order!</span>
+            {filterMilestone === 'day_25' ? (
+              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-200/60 px-1.5 py-0.5 rounded-md">
+                Aktif
+              </span>
+            ) : (
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            )}
+          </div>
+        </button>
       </div>
+
+      {/* Active Filter Pill Bar (Shown when a specific filter is engaged) */}
+      {filterMilestone !== 'all' && (
+        <div className="bg-emerald-50/80 border border-emerald-200/80 px-4 py-2.5 rounded-2xl flex items-center justify-between text-xs text-emerald-900 animate-in fade-in">
+          <div className="flex items-center space-x-2">
+            <span className="font-bold">Menampilkan Filter Milestone:</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-semibold text-[11px]">
+              {filterMilestone === 'day_3' && 'Hari ke-3: Detoks & Adaptasi'}
+              {filterMilestone === 'day_7' && 'Hari ke-7: Evaluasi & Vitalitas'}
+              {filterMilestone === 'day_14' && 'Hari ke-14: Koleksi Testimoni'}
+              {filterMilestone === 'day_25' && 'Hari ke-25: Penguncian Repeat Order'}
+            </span>
+            <span className="text-emerald-700 text-[11px]">
+              ({filteredRecords.length} pasien)
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFilterMilestone('all')}
+            className="text-xs font-bold text-emerald-700 hover:text-emerald-900 underline underline-offset-2 flex items-center space-x-1"
+          >
+            <span>Reset ke Semua Pasien</span>
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Filters and Search Bar */}
       <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -380,7 +581,7 @@ export default function CustomerHealthJourneyView({ user }) {
             </p>
             <button
               onClick={handleOpenCreate}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition inline-flex items-center space-x-1.5 shadow-md shadow-emerald-950"
+              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition inline-flex items-center space-x-1.5 shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0"
             >
               <Plus className="w-4 h-4" />
               <span>Tambah Pasien Sekarang</span>
@@ -574,7 +775,7 @@ export default function CustomerHealthJourneyView({ user }) {
                     href={waUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition shadow-md shadow-emerald-950 flex items-center justify-center space-x-2"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition shadow-md shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-2"
                   >
                     <MessageCircle className="w-4 h-4 text-emerald-200" />
                     <span>Kirim WA {activeMilestone.title}: {activeMilestone.subtitle}</span>
@@ -767,7 +968,7 @@ export default function CustomerHealthJourneyView({ user }) {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow-md shadow-emerald-950 flex items-center justify-center space-x-1.5"
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold transition shadow-md shadow-emerald-500/25 flex items-center justify-center space-x-1.5"
                 >
                   {saving && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
                   <span>{saving ? 'Menyimpan...' : 'Mulai Pendampingan'}</span>
@@ -781,6 +982,90 @@ export default function CustomerHealthJourneyView({ user }) {
                 </button>
               </div>
             </form>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* MODAL: PANDUAN PROTOKOL SIKLUS 3-7-14-25 */}
+      {guideModalOpen && (
+        <ModalPortal isOpen={guideModalOpen} onClose={() => setGuideModalOpen(false)}>
+          <div
+            className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 space-y-5 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+                  <BookOpen className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-base sm:text-lg">
+                    Panduan SOP Siklus Sehat 3-7-14-25 Hari
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Protokol retensi &amp; pendampingan klinis konsumen herbal Bionet
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setGuideModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200/80 space-y-1.5">
+                <div className="flex items-center space-x-2 text-amber-900 font-extrabold text-xs uppercase tracking-wider">
+                  <Droplets className="w-4 h-4 text-amber-600" />
+                  <span>Fase 1 (Hari ke-3) &mdash; Adaptasi Rasa &amp; Detoksifikasi Alami</span>
+                </div>
+                <p className="text-xs text-amber-900/90 leading-relaxed">
+                  <strong>Tujuan Utama:</strong> Mengonfirmasi pasien sudah meminum produk dengan dosis benar serta menenangkan respon detoks awal (sensasi hangat, BAB lebih lancar, sedikit ngantuk/lelah). Pasien yang didampingi di Hari 3 memiliki tingkat kepatuhan terapi 85% lebih tinggi.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-blue-50/80 border border-blue-200/80 space-y-1.5">
+                <div className="flex items-center space-x-2 text-blue-900 font-extrabold text-xs uppercase tracking-wider">
+                  <HeartPulse className="w-4 h-4 text-blue-600" />
+                  <span>Fase 2 (Hari ke-7) &mdash; Evaluasi Kebugaran &amp; Kualitas Tidur</span>
+                </div>
+                <p className="text-xs text-blue-900/90 leading-relaxed">
+                  <strong>Tujuan Utama:</strong> Memastikan sel tubuh mulai merespon perbaikan. Tanyakan perbaikan spesifik seperti kualitas tidur malam yang lebih pulas, sendi yang lebih enteng saat bangun pagi, dan vitalitas tubuh harian.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-purple-50/80 border border-purple-200/80 space-y-1.5">
+                <div className="flex items-center space-x-2 text-purple-900 font-extrabold text-xs uppercase tracking-wider">
+                  <Award className="w-4 h-4 text-purple-600" />
+                  <span>Fase 3 (Hari ke-14) &mdash; Koleksi Testimoni &amp; Validasi Hasil</span>
+                </div>
+                <p className="text-xs text-purple-900/90 leading-relaxed">
+                  <strong>Tujuan Utama:</strong> Di minggu ke-2, terjadi regenerasi sel organ nyata. Minta pasien menceritakan perubahan rasa sakit atau hasil cek gula darah/asam urat mandiri. Dokumentasikan izin testimoni untuk membangun kepercayaan konsumen baru.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-300 space-y-1.5">
+                <div className="flex items-center space-x-2 text-emerald-900 font-extrabold text-xs uppercase tracking-wider">
+                  <Sparkles className="w-4 h-4 text-emerald-600" />
+                  <span>Fase 4 (Hari ke-25) &mdash; Penguncian Repeat Order (RO) Otomatis</span>
+                </div>
+                <p className="text-xs text-emerald-900/90 leading-relaxed">
+                  <strong>Tujuan Utama:</strong> Isi botol 30ml tersisa untuk 3&ndash;5 hari konsumsi. Jangan biarkan pasien kehabisan stok agar progres pengobatan tidak terputus. Tawarkan paket hemat repeat order 2-3 botol dengan fasilitas gratis ongkir dan konsultasi berlanjut.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setGuideModalOpen(false)}
+                className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-sm"
+              >
+                Tutup Panduan
+              </button>
+            </div>
           </div>
         </ModalPortal>
       )}

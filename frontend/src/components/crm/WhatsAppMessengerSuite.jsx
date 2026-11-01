@@ -2794,12 +2794,48 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   </button>
                 </div>
 
-                <div className="inline-block p-3.5 bg-white rounded-3xl border-2 border-emerald-500 shadow-md">
-                  <img
-                    src={deviceSession?.qr_code || "http://localhost:3000/api/default/auth/qr"}
-                    alt="WhatsApp QR Code Pairing"
-                    className="w-48 h-48 mx-auto object-contain rounded-xl"
-                  />
+                <div className="inline-block p-3.5 bg-white rounded-3xl border-2 border-emerald-500 shadow-md min-w-[210px] min-h-[210px] flex items-center justify-center">
+                  {deviceSession?.status === 'connected' ? (
+                    <div className="w-48 h-48 flex flex-col items-center justify-center text-center p-3 space-y-2 bg-emerald-50/80 rounded-2xl border border-emerald-200">
+                      <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/30">
+                        <CheckCircle2 className="w-7 h-7" />
+                      </div>
+                      <span className="text-xs font-extrabold text-emerald-950">
+                        WhatsApp Terhubung!
+                      </span>
+                      <span className="text-[11px] font-mono text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200">
+                        {deviceSession?.phone_number || '+62xxxxxxxx'}
+                      </span>
+                      <span className="text-[10px] text-emerald-600">
+                        Siap mengirim &amp; menerima pesan live
+                      </span>
+                    </div>
+                  ) : deviceSession?.qr_code ? (
+                    <img
+                      src={deviceSession.qr_code}
+                      alt="WhatsApp QR Code Pairing"
+                      className="w-48 h-48 mx-auto object-contain rounded-xl"
+                    />
+                  ) : (
+                    <div className="w-48 h-48 flex flex-col items-center justify-center text-center p-3 space-y-2.5 bg-slate-50 rounded-2xl border border-slate-200">
+                      <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
+                      <div>
+                        <div className="text-xs font-bold text-slate-800">
+                          Menyiapkan QR Code...
+                        </div>
+                        <p className="text-[10px] text-slate-500 leading-tight mt-1">
+                          WAHA sedang inisialisasi sesi WhatsApp (5–10 detik).
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={fetchAuxiliaryData}
+                        className="px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition"
+                      >
+                        Cek Ulang Sekarang
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="text-[11px] font-bold text-slate-500 flex items-center justify-center space-x-1.5">

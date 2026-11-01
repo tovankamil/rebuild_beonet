@@ -22,19 +22,23 @@ import { playCoinChime } from '../../utils/soundNotification';
 const MIDTRANS_CLIENT_KEY = 'Mid-client-AHAJ8uv7NclrJ0Bm';
 const MIDTRANS_SNAP_SCRIPT = 'https://app.sandbox.midtrans.com/snap/snap.js';
 
+const DEFAULT_ORDER_DATA = {
+  order_id: '',
+  gross_amount: 150000,
+  item_name: 'Paket Repeat Order Bio-Propolis Trigona',
+  customer_name: 'Mitra Bionet',
+  customer_email: 'mitra@bionet.id',
+  customer_phone: '081234567890',
+};
+
 export default function MidtransSnapModal({
   isOpen,
   onClose,
-  orderData = {
-    order_id: '',
-    gross_amount: 150000,
-    item_name: 'Paket Repeat Order Bio-Propolis Trigona',
-    customer_name: 'Mitra Bionet',
-    customer_email: 'mitra@bionet.id',
-    customer_phone: '081234567890',
-  },
+  orderData,
   onPaymentSuccess,
 }) {
+  const safeOrder = orderData || DEFAULT_ORDER_DATA;
+
   const [loading, setLoading] = useState(false);
   const [snapToken, setSnapToken] = useState('');
   const [paymentStatus, setPaymentStatus] = useState('idle'); // 'idle' | 'pending' | 'success' | 'error'
@@ -66,19 +70,19 @@ export default function MidtransSnapModal({
       setSnapToken('');
       handleGenerateToken();
     }
-  }, [isOpen, orderData?.order_id, orderData?.gross_amount]);
+  }, [isOpen, safeOrder?.order_id, safeOrder?.gross_amount]);
 
   const handleGenerateToken = async () => {
     setLoading(true);
     setErrorMsg('');
     try {
       const res = await api.post('/payment/midtrans/token', {
-        order_id: orderData.order_id || `ORDER-${Date.now()}`,
-        gross_amount: orderData.gross_amount || 150000,
-        item_name: orderData.item_name || 'Paket Produk Bionet',
-        customer_name: orderData.customer_name || 'Mitra Bionet',
-        customer_email: orderData.customer_email || 'mitra@bionet.id',
-        customer_phone: orderData.customer_phone || '081234567890',
+        order_id: safeOrder?.order_id || `ORDER-${Date.now()}`,
+        gross_amount: safeOrder?.gross_amount || 150000,
+        item_name: safeOrder?.item_name || 'Paket Produk Bionet',
+        customer_name: safeOrder?.customer_name || 'Mitra Bionet',
+        customer_email: safeOrder?.customer_email || 'mitra@bionet.id',
+        customer_phone: safeOrder?.customer_phone || '081234567890',
       });
 
       if (res.data?.status === 'success' && res.data?.data?.snap_token) {
@@ -141,7 +145,9 @@ export default function MidtransSnapModal({
     }).format(val || 0);
   };
 
-  const vaNumber = `82910${Math.abs((orderData?.order_id || '99').hashCode ? orderData.order_id.hashCode() : 84920194).toString().slice(0, 8)}`;
+  if (!isOpen) return null;
+
+  const vaNumber = `82910${Math.abs((safeOrder?.order_id || '99').hashCode ? safeOrder.order_id.hashCode() : 84920194).toString().slice(0, 8)}`;
 
   return (
     <ModalPortal isOpen={isOpen} onClose={onClose} ariaLabel="Pembayaran Otomatis Midtrans">
@@ -180,11 +186,11 @@ export default function MidtransSnapModal({
         {/* Order Summary Card */}
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 mb-4">
           <div className="text-xs text-slate-500 font-semibold mb-0.5">Rincian Pembayaran:</div>
-          <div className="text-sm font-bold text-slate-900 truncate">{orderData.item_name}</div>
+          <div className="text-sm font-bold text-slate-900 truncate">{safeOrder?.item_name || 'Paket Produk Bionet'}</div>
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200">
             <span className="text-xs text-slate-600">Total Tagihan:</span>
             <span className="font-heading font-black text-lg text-emerald-700 font-mono">
-              {formatRupiah(orderData.gross_amount)}
+              {formatRupiah(safeOrder?.gross_amount || 0)}
             </span>
           </div>
         </div>

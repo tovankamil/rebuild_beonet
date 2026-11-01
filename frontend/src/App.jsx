@@ -901,15 +901,17 @@ export default function App() {
       />
 
       {/* Module 9: Pembayaran Otomatis Midtrans Snap QRIS & VA */}
-      <MidtransSnapModal
-        isOpen={midtransModalOpen}
-        onClose={() => setMidtransModalOpen(false)}
-        orderData={midtransPaymentData}
-        currentUser={user}
-        onPaymentSuccess={(result) => {
-          fetchStats();
-        }}
-      />
+      {midtransModalOpen && (
+        <MidtransSnapModal
+          isOpen={midtransModalOpen}
+          onClose={() => setMidtransModalOpen(false)}
+          orderData={midtransPaymentData}
+          currentUser={user}
+          onPaymentSuccess={(result) => {
+            fetchStats();
+          }}
+        />
+      )}
 
       {/* Floating AI Copilot Widget */}
       <AIAssistantWidget currentUser={user} hideFab={true} />

@@ -20,6 +20,7 @@ export default defineConfig({
           'vendor-motion': ['framer-motion'],
           'vendor-icons': ['lucide-react'],
           'vendor-axios': ['axios'],
+          'vendor-canvas': ['html2canvas'],
         },
       },
     },

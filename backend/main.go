@@ -882,7 +882,6 @@ func main() {
 			// Jenjang Karir & Klaim Reward (Module 8)
 			protected.GET("/ranks/my-progress", rankHandler.GetMyRankProgress)
 			protected.POST("/ranks/claim", rankHandler.ClaimReward)
-			protected.GET("/ranks/catalog", rankHandler.GetStandardRanks)
 
 			// Dynamic RBAC Menu for Current User
 			protected.GET("/rbac/my-menus", rbacHandler.GetMyMenus)

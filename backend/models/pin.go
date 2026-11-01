@@ -8,19 +8,38 @@ import (
 )
 
 type PinPackage struct {
-	ID           string    `gorm:"type:char(36);primaryKey" json:"id"`
-	Name         string    `gorm:"type:varchar(100);not null" json:"name"`
-	Price        float64   `gorm:"type:decimal(15,2);not null" json:"price"`
-	SponsorBonus float64   `gorm:"type:decimal(15,2);default:0.00" json:"sponsor_bonus"`
-	PairingBonus float64   `gorm:"type:decimal(15,2);default:0.00" json:"pairing_bonus"`
-	Points       float64   `gorm:"type:decimal(15,2);default:1.00" json:"points"`
-	IsActive     bool      `gorm:"default:true" json:"is_active"`
-	CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+	ID            string                   `gorm:"type:char(36);primaryKey" json:"id"`
+	Name          string                   `gorm:"type:varchar(100);not null" json:"name"`
+	Price         float64                  `gorm:"type:decimal(15,2);not null" json:"price"`
+	SponsorBonus  float64                  `gorm:"type:decimal(15,2);default:0.00" json:"sponsor_bonus"`
+	PairingBonus  float64                  `gorm:"type:decimal(15,2);default:0.00" json:"pairing_bonus"`
+	Points        float64                  `gorm:"type:decimal(15,2);default:1.00" json:"points"`
+	ProductQuota  int                      `gorm:"default:1" json:"product_quota"`                                                // Jumlah item produk yang didapat saat join
+	SelectionRule string                   `gorm:"type:varchar(50);default:'free_choice'" json:"selection_rule"`                  // 'free_choice' or 'fixed_bundle'
+	Description   string                   `gorm:"type:text" json:"description"`
+	IsActive      bool                     `gorm:"default:true" json:"is_active"`
+	CreatedAt     time.Time                `gorm:"autoCreateTime" json:"created_at"`
+	Items         []JoinPackageProductItem `gorm:"foreignKey:PackageID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"items,omitempty"`
 }
 
 func (pp *PinPackage) BeforeCreate(tx *gorm.DB) (err error) {
 	if pp.ID == "" {
 		pp.ID = uuid.New().String()
+	}
+	return
+}
+
+type JoinPackageProductItem struct {
+	ID        string   `gorm:"type:char(36);primaryKey" json:"id"`
+	PackageID string   `gorm:"type:char(36);not null;index" json:"package_id"`
+	ProductID string   `gorm:"type:char(36);not null;index" json:"product_id"`
+	Quantity  int      `gorm:"default:1" json:"quantity"`
+	Product   *Product `gorm:"foreignKey:ProductID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;" json:"product,omitempty"`
+}
+
+func (j *JoinPackageProductItem) BeforeCreate(tx *gorm.DB) (err error) {
+	if j.ID == "" {
+		j.ID = uuid.New().String()
 	}
 	return
 }
@@ -71,16 +90,22 @@ type TransferPinRequest struct {
 	TargetUsername string `json:"target_username" binding:"required"`
 }
 
+type SelectedProductItem struct {
+	ProductID string `json:"product_id"`
+	Quantity  int    `json:"quantity"`
+}
+
 type RegisterDownlineRequest struct {
-	PinID    string `json:"pin_id" binding:"required"`
-	UplineID string `json:"upline_id" binding:"required"`
-	Position string `json:"position" binding:"required"` // "kiri" atau "kanan"
-	Username string `json:"username" binding:"required"`
-	FullName string `json:"full_name" binding:"required"`
-	Password string `json:"password" binding:"required,min=6"`
-	Phone    string `json:"phone" binding:"required"`
-	Email    string `json:"email"`
-	KTP      string `json:"ktp"`
+	PinID            string                `json:"pin_id" binding:"required"`
+	UplineID         string                `json:"upline_id" binding:"required"`
+	Position         string                `json:"position" binding:"required"` // "kiri" atau "kanan"
+	Username         string                `json:"username" binding:"required"`
+	FullName         string                `json:"full_name" binding:"required"`
+	Password         string                `json:"password" binding:"required,min=6"`
+	Phone            string                `json:"phone" binding:"required"`
+	Email            string                `json:"email"`
+	KTP              string                `json:"ktp"`
+	SelectedProducts []SelectedProductItem `json:"selected_products"`
 }
 
 type RegisterDownlineResponse struct {

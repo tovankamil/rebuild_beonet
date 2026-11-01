@@ -694,6 +694,25 @@ func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req mod
 			return err
 		}
 
+		// 15. Potong Stok Produk Herbal Kemitraan (jika ada produk yang dipilih)
+		if len(req.SelectedProducts) > 0 {
+			for _, item := range req.SelectedProducts {
+				if item.ProductID == "" || item.Quantity <= 0 {
+					continue
+				}
+				var prod models.Product
+				if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", item.ProductID).First(&prod).Error; err != nil {
+					return fmt.Errorf("produk herbal ID %s tidak ditemukan", item.ProductID)
+				}
+				if prod.Stock < item.Quantity {
+					return fmt.Errorf("stok produk '%s' tidak mencukupi (tersedia: %d, diminta: %d)", prod.Name, prod.Stock, item.Quantity)
+				}
+				if err := tx.Model(&prod).Update("stock", gorm.Expr("stock - ?", item.Quantity)).Error; err != nil {
+					return fmt.Errorf("gagal memotong stok produk '%s': %w", prod.Name, err)
+				}
+			}
+		}
+
 		response = &models.RegisterDownlineResponse{
 			User:          newUser,
 			Pin:           pin,

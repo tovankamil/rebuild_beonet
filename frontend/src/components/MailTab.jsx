@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import DashPagination from './dashlite/DashPagination';
 import {
   Mail,
   Send,
@@ -170,6 +171,8 @@ export default function MailTab({ currentUser }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Settings state
   const [config, setConfig] = useState({
@@ -242,7 +245,7 @@ export default function MailTab({ currentUser }) {
   const fetchInbox = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/mail/inbox?limit=25');
+      const res = await api.get('/mail/inbox?limit=100');
       if (res.data?.data) {
         setInboxList(res.data.data);
       }
@@ -519,6 +522,9 @@ export default function MailTab({ currentUser }) {
       item.snippet?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const totalPages = Math.ceil(filteredInbox.length / pageSize) || 1;
+  const paginatedInbox = filteredInbox.slice((page - 1) * pageSize, page * pageSize);
+
   return (
     <div className="space-y-6">
       {/* Top Header & Quick Action Bar */}
@@ -596,14 +602,20 @@ export default function MailTab({ currentUser }) {
                 type="text"
                 placeholder="Cari subjek, pengirim, atau kata kunci..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setPage(1);
+                }}
                 className="w-full pl-10 pr-4 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 text-slate-800 placeholder-slate-400"
               />
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               <button
-                onClick={fetchInbox}
+                onClick={() => {
+                  setPage(1);
+                  fetchInbox();
+                }}
                 disabled={loading}
                 className="px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 flex items-center gap-1.5 transition-colors disabled:opacity-50"
                 title="Muat ulang email terbaru"
@@ -629,44 +641,60 @@ export default function MailTab({ currentUser }) {
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
-              {filteredInbox.map((item) => (
-                <div
-                  key={item.seq_num || item.uid}
-                  onClick={() => openEmail(item)}
-                  className={`p-4 hover:bg-sky-50/50 cursor-pointer transition-colors flex items-start gap-4 ${
-                    !item.is_seen ? 'bg-sky-50/20 font-semibold' : 'bg-white'
-                  }`}
-                >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-200 to-slate-100 flex items-center justify-center text-slate-600 flex-shrink-0 mt-0.5">
-                    <User size={18} />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-sm font-bold text-slate-800 truncate">{item.from}</span>
-                      <span className="text-xs text-slate-400 flex items-center gap-1 flex-shrink-0">
-                        <Clock size={12} />
-                        {new Date(item.date).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
+            <>
+              <div className="divide-y divide-slate-100">
+                {paginatedInbox.map((item) => (
+                  <div
+                    key={item.seq_num || item.uid}
+                    onClick={() => openEmail(item)}
+                    className={`p-4 hover:bg-sky-50/50 cursor-pointer transition-colors flex items-start gap-4 ${
+                      !item.is_seen ? 'bg-sky-50/20 font-semibold' : 'bg-white'
+                    }`}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-slate-200 to-slate-100 flex items-center justify-center text-slate-600 flex-shrink-0 mt-0.5">
+                      <User size={18} />
                     </div>
 
-                    <h4 className="text-xs font-semibold text-slate-700 truncate mb-1">
-                      {item.subject || '(Tanpa Subjek)'}
-                    </h4>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-sm font-bold text-slate-800 truncate">{item.from}</span>
+                        <span className="text-xs text-slate-400 flex items-center gap-1 flex-shrink-0">
+                          <Clock size={12} />
+                          {new Date(item.date).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
 
-                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                      {item.snippet}
-                    </p>
+                      <h4 className="text-xs font-semibold text-slate-700 truncate mb-1">
+                        {item.subject || '(Tanpa Subjek)'}
+                      </h4>
+
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                        {item.snippet}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+
+              {/* Pagination Bar */}
+              <DashPagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalItems={filteredInbox.length}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={(newSize) => {
+                  setPageSize(newSize);
+                  setPage(1);
+                }}
+                pageSizeOptions={[5, 10, 20, 50, 100]}
+              />
+            </>
           )}
         </div>
       )}

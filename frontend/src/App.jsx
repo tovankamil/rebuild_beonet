@@ -16,6 +16,8 @@ import AdminUsersTab from './components/admin/AdminUsersTab';
 import AdminTransactionsTab from './components/admin/AdminTransactionsTab';
 import AdminPointsTab from './components/admin/AdminPointsTab';
 import AdminPinsTab from './components/admin/AdminPinsTab';
+import AdminPackagesTab from './components/admin/AdminPackagesTab';
+import AdminProductsTab from './components/admin/AdminProductsTab';
 import AdminOrdersTab from './components/admin/AdminOrdersTab';
 import AdminWithdrawalsTab from './components/admin/AdminWithdrawalsTab';
 import AdminFraudTab from './components/admin/AdminFraudTab';
@@ -79,6 +81,8 @@ export const KNOWN_BASE_TABS = new Set([
   'admin-users',
   'admin-transactions',
   'admin-points',
+  'admin-packages',
+  'admin-products',
   'admin-pins',
   'admin-orders',
   'admin-withdrawals',
@@ -761,6 +765,10 @@ export default function App() {
               {activeTab === 'admin-transactions' && <AdminTransactionsTab />}
 
               {activeTab === 'admin-points' && <AdminPointsTab />}
+
+              {activeTab === 'admin-packages' && <AdminPackagesTab />}
+
+              {activeTab === 'admin-products' && <AdminProductsTab />}
 
               {activeTab === 'admin-pins' && <AdminPinsTab />}
 

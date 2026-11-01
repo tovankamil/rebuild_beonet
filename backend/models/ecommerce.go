@@ -10,6 +10,9 @@ import (
 type Product struct {
 	ID          string    `gorm:"type:char(36);primaryKey" json:"id"`
 	Name        string    `gorm:"type:varchar(150);not null" json:"name"`
+	Category    string    `gorm:"type:varchar(50);default:'Herbal'" json:"category"`
+	BPOMNumber  string    `gorm:"type:varchar(100)" json:"bpom_number"`
+	WeightGram  int       `gorm:"default:250" json:"weight_gram"`
 	Description string    `gorm:"type:text" json:"description"`
 	Price       float64   `gorm:"type:decimal(15,2);not null" json:"price"`
 	Cogs        float64   `gorm:"type:decimal(15,2);not null" json:"cogs"`

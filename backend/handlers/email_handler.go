@@ -115,8 +115,11 @@ func (h *EmailHandler) SaveConfig(c *gin.Context) {
 // FetchInbox mengambil daftar email masuk
 func (h *EmailHandler) FetchInbox(c *gin.Context) {
 	userID := c.GetString("user_id")
-	limitStr := c.DefaultQuery("limit", "20")
+	limitStr := c.DefaultQuery("limit", "100")
 	limit, _ := strconv.Atoi(limitStr)
+	if limit <= 0 {
+		limit = 100
+	}
 
 	list, err := services.GlobalEmailService.FetchInbox(userID, limit)
 	if err != nil {

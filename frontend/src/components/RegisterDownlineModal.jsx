@@ -21,6 +21,10 @@ import {
   Lock,
   Copy,
   Check,
+  ShoppingBag,
+  Plus,
+  Minus,
+  Package,
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -57,6 +61,9 @@ export default function RegisterDownlineModal({
   const [errorMsg, setErrorMsg] = useState('');
   const [successData, setSuccessData] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState({});
 
   // ESC key listener for modal accessibility
   useEffect(() => {
@@ -89,7 +96,9 @@ export default function RegisterDownlineModal({
       setKtp('');
       setCopied(false);
       setActivePosition(position || 'kiri');
+      setSelectedProducts({});
       fetchPins();
+      fetchProducts();
     }
   }, [isOpen, position]);
 
@@ -117,6 +126,44 @@ export default function RegisterDownlineModal({
   };
 
   const selectedPin = pins.find((p) => p.id === selectedPinId);
+  const productQuota = selectedPin?.package?.product_quota || 1;
+  const currentTotalSelected = Object.values(selectedProducts).reduce((a, b) => a + (b || 0), 0);
+
+  const fetchProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const res = await api.get('/products');
+      if (res.data?.data) {
+        const activeProds = res.data.data.filter((p) => p.is_active !== false && p.stock > 0);
+        setProducts(activeProds);
+      }
+    } catch (err) {
+      console.error('Failed to load products for join:', err);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  const handleProductQuantityChange = (productId, delta) => {
+    setSelectedProducts((prev) => {
+      const currentQty = prev[productId] || 0;
+      const newQty = Math.max(0, currentQty + delta);
+      const totalWithoutThis = Object.entries(prev)
+        .filter(([id]) => id !== productId)
+        .reduce((sum, [, qty]) => sum + (qty || 0), 0);
+
+      if (totalWithoutThis + newQty > productQuota) {
+        return prev;
+      }
+
+      if (newQty === 0) {
+        const copy = { ...prev };
+        delete copy[productId];
+        return copy;
+      }
+      return { ...prev, [productId]: newQty };
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -159,6 +206,9 @@ export default function RegisterDownlineModal({
         phone: phone.trim(),
         email: email.trim(),
         ktp: ktp.trim(),
+        selected_products: Object.entries(selectedProducts)
+          .filter(([_, qty]) => qty > 0)
+          .map(([id, qty]) => ({ product_id: id, quantity: qty })),
       });
 
       if (res.data?.data) {
@@ -431,8 +481,8 @@ export default function RegisterDownlineModal({
 
               {/* Selected PIN Incentives Preview - Structured Responsive Grid */}
               {selectedPin && selectedPin.package && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 text-center">
-                  <div className="col-span-2 sm:col-span-1 p-2 rounded-lg bg-white border border-slate-100 shadow-2xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 rounded-xl bg-slate-50/80 border border-slate-200/70 text-center">
+                  <div className="p-2 rounded-lg bg-white border border-slate-100 shadow-2xs">
                     <span className="text-[10px] font-bold text-slate-400 block uppercase">
                       Paket Hak Usaha
                     </span>
@@ -463,6 +513,155 @@ export default function RegisterDownlineModal({
                     </span>
                     <span className="text-[10px] text-cyan-600/80 font-medium">
                       Kaki {activePosition}
+                    </span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-purple-50/60 border border-purple-100/80 shadow-2xs">
+                    <span className="text-[10px] font-bold text-purple-700 block uppercase">
+                      Jatah Produk
+                    </span>
+                    <span className="font-heading font-extrabold text-xs text-purple-700 block mt-0.5">
+                      {productQuota} Herbal
+                    </span>
+                    <span className="text-[10px] text-purple-600/80 font-medium">
+                      Bebas Pilih
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Pemilihan Produk Herbal Berdasarkan Jatah Paket */}
+              {selectedPin && (
+                <div className="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200/90 space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                        <ShoppingBag size={14} />
+                      </div>
+                      <div>
+                        <span className="font-heading font-bold text-xs text-emerald-950 block">
+                          Pilih Produk Herbal Kemitraan
+                        </span>
+                        <span className="text-[11px] text-emerald-800">
+                          Jatah Paket {selectedPin.package?.name || 'Join'}: <strong>{productQuota} Produk Herbal</strong>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div
+                      className={`px-2.5 py-1 rounded-full text-xs font-bold border transition-colors ${
+                        currentTotalSelected === productQuota
+                          ? 'bg-emerald-600 text-white border-emerald-600'
+                          : currentTotalSelected > 0
+                          ? 'bg-amber-100 text-amber-900 border-amber-300'
+                          : 'bg-white text-slate-700 border-slate-300'
+                      }`}
+                    >
+                      {currentTotalSelected === productQuota ? (
+                        <span className="flex items-center gap-1">
+                          <Check size={12} /> Lengkap ({currentTotalSelected}/{productQuota})
+                        </span>
+                      ) : (
+                        <span>Dipilih: {currentTotalSelected} / {productQuota}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* List of Herbal Products */}
+                  {loadingProducts ? (
+                    <div className="p-4 text-center text-xs text-slate-400 bg-white rounded-lg border border-slate-200">
+                      Memuat katalog produk herbal...
+                    </div>
+                  ) : products.length === 0 ? (
+                    <div className="p-3 text-center text-xs text-slate-500 bg-white rounded-lg border border-slate-200">
+                      Stok produk herbal sedang disiapkan di gudang.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
+                      {products.map((p) => {
+                        const qty = selectedProducts[p.id] || 0;
+                        const isSelected = qty > 0;
+                        const canAdd = currentTotalSelected < productQuota;
+
+                        return (
+                          <div
+                            key={p.id}
+                            className={`p-2.5 rounded-xl border transition-all flex items-center justify-between gap-2 ${
+                              isSelected
+                                ? 'bg-white border-emerald-500 ring-2 ring-emerald-500/20 shadow-xs'
+                                : 'bg-white border-slate-200 hover:border-slate-300'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200/80 overflow-hidden flex items-center justify-center shrink-0">
+                                {p.image_url ? (
+                                  <img
+                                    src={p.image_url}
+                                    alt={p.name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = '';
+                                    }}
+                                  />
+                                ) : (
+                                  <ShoppingBag size={18} className="text-slate-400" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <h5 className="font-bold text-slate-900 text-xs truncate">
+                                  {p.name}
+                                </h5>
+                                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5">
+                                  <span className="text-emerald-700 font-medium">
+                                    {p.category || 'Herbal'}
+                                  </span>
+                                  {p.bpom_number && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="font-mono text-[9px]">{p.bpom_number}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Stepper Count */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleProductQuantityChange(p.id, -1)}
+                                disabled={qty === 0}
+                                className="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-slate-700 font-bold transition-colors active:scale-90"
+                              >
+                                <Minus size={12} />
+                              </button>
+                              <span
+                                className={`w-5 text-center font-bold text-xs ${
+                                  isSelected ? 'text-emerald-700' : 'text-slate-400'
+                                }`}
+                              >
+                                {qty}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleProductQuantityChange(p.id, 1)}
+                                disabled={!canAdd}
+                                className="w-6 h-6 rounded-md bg-emerald-600 hover:bg-emerald-700 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white font-bold transition-colors active:scale-90 shadow-2xs"
+                              >
+                                <Plus size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  <div className="text-[11px] text-emerald-900/80 flex items-center justify-between">
+                    <span>
+                      {currentTotalSelected < productQuota
+                        ? `Silakan pilih ${productQuota - currentTotalSelected} produk lagi sesuai jatah paket.`
+                        : `✅ Jatah ${productQuota} produk herbal telah lengkap dipilih.`}
                     </span>
                   </div>
                 </div>

@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"bionet-backend/config"
@@ -12,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type AdminHandler struct{}
@@ -806,3 +808,290 @@ func (h *AdminHandler) GetAuditLogs(c *gin.Context) {
 		"total":  total,
 	})
 }
+
+// Package Management Handlers
+
+type CreatePackageInput struct {
+	Name          string  `json:"name" binding:"required"`
+	Price         float64 `json:"price" binding:"required"`
+	SponsorBonus  float64 `json:"sponsor_bonus"`
+	PairingBonus  float64 `json:"pairing_bonus"`
+	Points        float64 `json:"points"`
+	ProductQuota  int     `json:"product_quota"`
+	SelectionRule string  `json:"selection_rule"`
+	Description   string  `json:"description"`
+	IsActive      *bool   `json:"is_active"`
+	Items         []struct {
+		ProductID string `json:"product_id"`
+		Quantity  int    `json:"quantity"`
+	} `json:"items"`
+}
+
+// GetPackages mengambil daftar seluruh paket kemitraan PIN
+func (h *AdminHandler) GetPackages(c *gin.Context) {
+	var packages []models.PinPackage
+	if err := config.DB.Preload("Items.Product").Order("price ASC").Find(&packages).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Gagal memuat paket kemitraan",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Calculate summary
+	var totalPackages int64
+	var activePackages int64
+	var totalPins int64
+	config.DB.Model(&models.PinPackage{}).Count(&totalPackages)
+	config.DB.Model(&models.PinPackage{}).Where("is_active = ?", true).Count(&activePackages)
+	config.DB.Model(&models.Pin{}).Count(&totalPins)
+
+	// Enrich with pin counts per package
+	type PkgWithStats struct {
+		models.PinPackage
+		ActivePinsCount int64 `json:"active_pins_count"`
+		UsedPinsCount   int64 `json:"used_pins_count"`
+	}
+
+	var enrichedList []PkgWithStats
+	for _, p := range packages {
+		var activePins int64
+		var usedPins int64
+		config.DB.Model(&models.Pin{}).Where("package_id = ? AND status = 'active'", p.ID).Count(&activePins)
+		config.DB.Model(&models.Pin{}).Where("package_id = ? AND status = 'used'", p.ID).Count(&usedPins)
+
+		enrichedList = append(enrichedList, PkgWithStats{
+			PinPackage:      p,
+			ActivePinsCount: activePins,
+			UsedPinsCount:   usedPins,
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data":   enrichedList,
+		"summary": gin.H{
+			"total_packages":  totalPackages,
+			"active_packages": activePackages,
+			"total_pins":      totalPins,
+		},
+	})
+}
+
+// CreatePackage membuat paket kemitraan baru
+func (h *AdminHandler) CreatePackage(c *gin.Context) {
+	var input CreatePackageInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Data input paket tidak valid",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	rule := strings.TrimSpace(input.SelectionRule)
+	if rule == "" {
+		rule = "free_choice"
+	}
+	quota := input.ProductQuota
+	if quota <= 0 {
+		quota = 1
+	}
+
+	isActive := true
+	if input.IsActive != nil {
+		isActive = *input.IsActive
+	}
+
+	pkg := models.PinPackage{
+		ID:            uuid.New().String(),
+		Name:          strings.TrimSpace(input.Name),
+		Price:         input.Price,
+		SponsorBonus:  input.SponsorBonus,
+		PairingBonus:  input.PairingBonus,
+		Points:        input.Points,
+		ProductQuota:  quota,
+		SelectionRule: rule,
+		Description:   strings.TrimSpace(input.Description),
+		IsActive:      isActive,
+		CreatedAt:     time.Now(),
+	}
+
+	err := config.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(&pkg).Error; err != nil {
+			return err
+		}
+
+		if len(input.Items) > 0 {
+			for _, item := range input.Items {
+				if item.ProductID == "" || item.Quantity <= 0 {
+					continue
+				}
+				pkgItem := models.JoinPackageProductItem{
+					ID:        uuid.New().String(),
+					PackageID: pkg.ID,
+					ProductID: item.ProductID,
+					Quantity:  item.Quantity,
+				}
+				if err := tx.Create(&pkgItem).Error; err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Gagal menyimpan paket kemitraan",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	config.DB.Preload("Items.Product").Where("id = ?", pkg.ID).First(&pkg)
+
+	c.JSON(http.StatusCreated, gin.H{
+		"status":  "success",
+		"message": fmt.Sprintf("Paket kemitraan '%s' berhasil dibuat", pkg.Name),
+		"data":    pkg,
+	})
+}
+
+// UpdatePackage memperbarui data paket kemitraan
+func (h *AdminHandler) UpdatePackage(c *gin.Context) {
+	pkgID := c.Param("id")
+	var pkg models.PinPackage
+	if err := config.DB.Where("id = ?", pkgID).First(&pkg).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "error",
+			"message": "Paket kemitraan tidak ditemukan",
+		})
+		return
+	}
+
+	var input CreatePackageInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Data input tidak valid",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	rule := strings.TrimSpace(input.SelectionRule)
+	if rule == "" {
+		rule = "free_choice"
+	}
+	quota := input.ProductQuota
+	if quota <= 0 {
+		quota = 1
+	}
+
+	updates := map[string]interface{}{
+		"name":           strings.TrimSpace(input.Name),
+		"price":          input.Price,
+		"sponsor_bonus":  input.SponsorBonus,
+		"pairing_bonus":  input.PairingBonus,
+		"points":         input.Points,
+		"product_quota":  quota,
+		"selection_rule": rule,
+		"description":    strings.TrimSpace(input.Description),
+	}
+	if input.IsActive != nil {
+		updates["is_active"] = *input.IsActive
+	}
+
+	err := config.DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&pkg).Updates(updates).Error; err != nil {
+			return err
+		}
+
+		// Update items bundle
+		if input.Items != nil {
+			tx.Where("package_id = ?", pkgID).Delete(&models.JoinPackageProductItem{})
+			for _, item := range input.Items {
+				if item.ProductID == "" || item.Quantity <= 0 {
+					continue
+				}
+				pkgItem := models.JoinPackageProductItem{
+					ID:        uuid.New().String(),
+					PackageID: pkgID,
+					ProductID: item.ProductID,
+					Quantity:  item.Quantity,
+				}
+				if err := tx.Create(&pkgItem).Error; err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Gagal memperbarui paket kemitraan",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	config.DB.Preload("Items.Product").Where("id = ?", pkgID).First(&pkg)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": fmt.Sprintf("Paket kemitraan '%s' berhasil diperbarui", pkg.Name),
+		"data":    pkg,
+	})
+}
+
+// DeletePackage menghapus atau menonaktifkan paket kemitraan
+func (h *AdminHandler) DeletePackage(c *gin.Context) {
+	pkgID := c.Param("id")
+	var pkg models.PinPackage
+	if err := config.DB.Where("id = ?", pkgID).First(&pkg).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status":  "error",
+			"message": "Paket kemitraan tidak ditemukan",
+		})
+		return
+	}
+
+	var pinCount int64
+	config.DB.Model(&models.Pin{}).Where("package_id = ?", pkgID).Count(&pinCount)
+	if pinCount > 0 {
+		// Soft deactivate because PINs are linked
+		config.DB.Model(&pkg).Update("is_active", false)
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "success",
+			"message": fmt.Sprintf("Paket kemitraan '%s' dinonaktifkan (diarsipkan) karena terdapat %d serial PIN terkait", pkg.Name, pinCount),
+			"data":    pkg,
+		})
+		return
+	}
+
+	err := config.DB.Transaction(func(tx *gorm.DB) error {
+		tx.Where("package_id = ?", pkgID).Delete(&models.JoinPackageProductItem{})
+		return tx.Delete(&pkg).Error
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Gagal menghapus paket kemitraan",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": fmt.Sprintf("Paket kemitraan '%s' berhasil dihapus", pkg.Name),
+	})
+}
+

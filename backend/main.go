@@ -90,26 +90,46 @@ func seedDefaultData() {
 	config.DB.Model(&models.PinPackage{}).Count(&pkgCount)
 	if pkgCount == 0 {
 		silverPkg := models.PinPackage{
-			ID:           uuid.New().String(),
-			Name:         "Paket Silver (1 HU)",
-			Price:        250000.00,
-			SponsorBonus: 50000.00,
-			PairingBonus: 20000.00,
-			Points:       1.00,
-			IsActive:     true,
+			ID:            uuid.New().String(),
+			Name:          "Paket Silver (1 HU)",
+			Price:         250000.00,
+			SponsorBonus:  50000.00,
+			PairingBonus:  20000.00,
+			Points:        1.00,
+			ProductQuota:  1,
+			SelectionRule: "free_choice",
+			Description:   "Paket kemitraan dasar dengan 1 Hak Usaha (HU) dan jatah 1 item produk herbal.",
+			IsActive:      true,
 		}
 		config.DB.Create(&silverPkg)
 
 		goldPkg := models.PinPackage{
-			ID:           uuid.New().String(),
-			Name:         "Paket Gold (3 HU)",
-			Price:        750000.00,
-			SponsorBonus: 150000.00,
-			PairingBonus: 60000.00,
-			Points:       3.00,
-			IsActive:     true,
+			ID:            uuid.New().String(),
+			Name:          "Paket Gold (3 HU)",
+			Price:         500000.00,
+			SponsorBonus:  200000.00,
+			PairingBonus:  60000.00,
+			Points:        3.00,
+			ProductQuota:  3,
+			SelectionRule: "free_choice",
+			Description:   "Paket kemitraan terlaris dengan 3 Hak Usaha, 3 Poin Binary, Bonus Sponsor Rp 200.000, dan jatah 3 item produk herbal.",
+			IsActive:      true,
 		}
 		config.DB.Create(&goldPkg)
+
+		platinumPkg := models.PinPackage{
+			ID:            uuid.New().String(),
+			Name:          "Paket Platinum (7 HU)",
+			Price:         1500000.00,
+			SponsorBonus:  500000.00,
+			PairingBonus:  150000.00,
+			Points:        7.00,
+			ProductQuota:  8,
+			SelectionRule: "free_choice",
+			Description:   "Paket kemitraan eksekutif dengan 7 Hak Usaha, 7 Poin Binary, Bonus Sponsor Rp 500.000, dan bonus ekstra 8 item produk herbal.",
+			IsActive:      true,
+		}
+		config.DB.Create(&platinumPkg)
 	}
 
 	// 5. Seed Products
@@ -119,6 +139,9 @@ func seedDefaultData() {
 		prod1 := models.Product{
 			ID:          uuid.New().String(),
 			Name:        "Bionet Bio-Herbal Drops 30ml",
+			Category:    "Tetes Herbal",
+			BPOMNumber:  "POM TR 226012341",
+			WeightGram:  150,
 			Description: "Konsentrat herbal tetes kaya antioksidan dan mineral alami untuk meningkatkan daya tahan tubuh.",
 			Price:       150000.00,
 			Cogs:        85000.00,
@@ -130,6 +153,9 @@ func seedDefaultData() {
 		prod2 := models.Product{
 			ID:          uuid.New().String(),
 			Name:        "Bionet Propolis Premium Pure",
+			Category:    "Madu Alami",
+			BPOMNumber:  "POM TR 213678901",
+			WeightGram:  250,
 			Description: "Ekstrak propolis murni lebah trigona tanpa alkohol untuk vitalitas dan peremajaan sel.",
 			Price:       220000.00,
 			Cogs:        120000.00,
@@ -141,6 +167,9 @@ func seedDefaultData() {
 		prod3 := models.Product{
 			ID:          uuid.New().String(),
 			Name:        "Bionet Bio-Energy Refresh Spray 100ml",
+			Category:    "Perawatan Bio-Energi",
+			BPOMNumber:  "POM NA 18210105432",
+			WeightGram:  200,
 			Description: "Spray ion energi bio-aktif untuk kesegaran kulit dan relaksasi aura kemitraan.",
 			Price:       110000.00,
 			Cogs:        60000.00,
@@ -148,6 +177,20 @@ func seedDefaultData() {
 			IsActive:    true,
 		}
 		config.DB.Create(&prod3)
+
+		prod4 := models.Product{
+			ID:          uuid.New().String(),
+			Name:        "Bionet Curcuma Plus Bio-Capsule",
+			Category:    "Kapsul",
+			BPOMNumber:  "POM TR 203345121",
+			WeightGram:  180,
+			Description: "Kapsul ekstrak temulawak dan pegagan konsentrat tinggi untuk metabolisme, lambung dan stamina.",
+			Price:       175000.00,
+			Cogs:        95000.00,
+			Stock:       120,
+			IsActive:    true,
+		}
+		config.DB.Create(&prod4)
 	}
 
 	// 6. Seed Master Menus & Dynamic Role Permissions
@@ -462,6 +505,56 @@ func seedDefaultData() {
 		}
 		// Clean up stray farm gamification permissions for non-member roles
 		config.DB.Where("menu_key = ? AND role != ?", "farm", "member").Delete(&models.RoleMenuPermission{})
+
+		// Ensure admin-packages menu & permissions exist
+		var pkgMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "admin-packages").First(&pkgMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "admin-packages",
+				Title:       "Master Paket Join Kemitraan",
+				Description: "Konfigurasi paket join HU, kuota produk herbal & bonus sponsor",
+				Category:    "Admin",
+				IconName:    "Package",
+				OrderIndex:  5,
+			})
+		}
+		for _, r := range []string{"admin", "keuangan"} {
+			var p models.RoleMenuPermission
+			if err := config.DB.Where("role = ? AND menu_key = ?", r, "admin-packages").First(&p).Error; err != nil {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID:        uuid.New().String(),
+					Role:      r,
+					MenuKey:   "admin-packages",
+					IsEnabled: true,
+				})
+			}
+		}
+
+		// Ensure admin-products menu & permissions exist
+		var prodMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "admin-products").First(&prodMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "admin-products",
+				Title:       "Master Katalog Produk Herbal",
+				Description: "Katalog herbal, izin BPOM, HPP, stok fisik & upload foto",
+				Category:    "Admin",
+				IconName:    "ShoppingBag",
+				OrderIndex:  6,
+			})
+		}
+		for _, r := range []string{"admin", "gudang", "keuangan"} {
+			var p models.RoleMenuPermission
+			if err := config.DB.Where("role = ? AND menu_key = ?", r, "admin-products").First(&p).Error; err != nil {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID:        uuid.New().String(),
+					Role:      r,
+					MenuKey:   "admin-products",
+					IsEnabled: true,
+				})
+			}
+		}
 	}
 
 	// Seed demo notifications & chats for rich first experience across roles
@@ -620,6 +713,7 @@ func main() {
 		&models.Pin{},
 		&models.PinTransfer{},
 		&models.Product{},
+		&models.JoinPackageProductItem{},
 		&models.Order{},
 		&models.OrderItem{},
 		&models.Sponsor{},
@@ -683,6 +777,12 @@ func main() {
 		}
 	}
 
+	// Ensure default values for herbal products and join packages
+	config.DB.Model(&models.Product{}).Where("category IS NULL OR category = ''").Update("category", "Herbal")
+	config.DB.Model(&models.Product{}).Where("weight_gram IS NULL OR weight_gram = 0").Update("weight_gram", 250)
+	config.DB.Model(&models.PinPackage{}).Where("product_quota IS NULL OR product_quota = 0").Update("product_quota", 1)
+	config.DB.Model(&models.PinPackage{}).Where("selection_rule IS NULL OR selection_rule = ''").Update("selection_rule", "free_choice")
+
 	// Seed demo data
 	seedDefaultData()
 
@@ -715,6 +815,7 @@ func main() {
 	aiHandler := handlers.NewAIHandler()
 	securityHandler := handlers.NewSecurityHandler()
 	brandingHandler := handlers.NewBrandingHandler("./uploads")
+	productHandler := handlers.NewProductHandler("./uploads")
 	midtransService := services.NewMidtransService()
 	paymentHandler := handlers.NewPaymentHandler(midtransService)
 	rankHandler := handlers.NewRankHandler()
@@ -1087,6 +1188,19 @@ func main() {
 				adminGroup.GET("/pins", adminHandler.GetPins)
 				adminGroup.GET("/pin-transfers", adminHandler.GetPinTransfers)
 				adminGroup.POST("/pins/generate", middleware.RequireRole("admin"), adminHandler.GeneratePins)
+
+				// Master Paket Join Kemitraan
+				adminGroup.GET("/packages", adminHandler.GetPackages)
+				adminGroup.POST("/packages", middleware.RequireRole("admin"), adminHandler.CreatePackage)
+				adminGroup.PUT("/packages/:id", middleware.RequireRole("admin"), adminHandler.UpdatePackage)
+				adminGroup.DELETE("/packages/:id", middleware.RequireRole("admin"), adminHandler.DeletePackage)
+
+				// Master Katalog Produk Herbal
+				adminGroup.GET("/products", productHandler.GetAdminProducts)
+				adminGroup.POST("/products", middleware.RequireRole("admin"), productHandler.CreateProduct)
+				adminGroup.PUT("/products/:id", middleware.RequireRole("admin"), productHandler.UpdateProduct)
+				adminGroup.DELETE("/products/:id", middleware.RequireRole("admin"), productHandler.DeleteProduct)
+				adminGroup.POST("/products/upload-image", middleware.RequireRole("admin"), productHandler.UploadProductImage)
 
 				// E-Commerce Orders
 				adminGroup.GET("/orders", adminHandler.GetOrders)

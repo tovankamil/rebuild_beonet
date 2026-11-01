@@ -20,6 +20,99 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 
+/**
+ * Isolated Sandboxed Iframe for Email HTML
+ * Prevents email <style> tags (like Google's body { width: 720px; }) from leaking into and squeezing the main dashboard layout.
+ */
+function EmailBodyViewer({ html, textSnippet }) {
+  const iframeRef = useRef(null);
+  const [iframeHeight, setIframeHeight] = useState(450);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      try {
+        if (iframeRef.current && iframeRef.current.contentWindow) {
+          const doc = iframeRef.current.contentWindow.document;
+          if (doc && doc.body) {
+            const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight, 250);
+            setIframeHeight(h + 24);
+          }
+        }
+      } catch (err) {
+        // Sandboxed fallback
+      }
+    };
+
+    const t1 = setTimeout(updateHeight, 200);
+    const t2 = setTimeout(updateHeight, 800);
+    const t3 = setTimeout(updateHeight, 1800);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [html]);
+
+  if (!html) {
+    return (
+      <pre className="whitespace-pre-wrap font-sans text-xs sm:text-sm leading-relaxed text-slate-700 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+        {textSnippet || '(Pesan kosong)'}
+      </pre>
+    );
+  }
+
+  const sanitizedDoc = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <base target="_blank">
+  <style>
+    body {
+      margin: 0;
+      padding: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #1e293b;
+      background: #ffffff;
+      box-sizing: border-box;
+      word-wrap: break-word;
+    }
+    img { max-width: 100%; height: auto; }
+    table { max-width: 100% !important; }
+  </style>
+</head>
+<body>
+  ${html}
+</body>
+</html>`;
+
+  return (
+    <div className="w-full overflow-hidden rounded-xl border border-slate-100 bg-white">
+      <iframe
+        ref={iframeRef}
+        srcDoc={sanitizedDoc}
+        title="Email Body"
+        onLoad={() => {
+          try {
+            if (iframeRef.current && iframeRef.current.contentWindow) {
+              const doc = iframeRef.current.contentWindow.document;
+              if (doc && doc.body) {
+                const h = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight, 250);
+                setIframeHeight(h + 24);
+              }
+            }
+          } catch {}
+        }}
+        className="w-full border-0 block"
+        style={{ height: `${iframeHeight}px`, minHeight: '300px' }}
+        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin"
+      />
+    </div>
+  );
+}
+
 export default function MailTab({ currentUser }) {
   const [activeView, setActiveView] = useState('inbox'); // 'inbox', 'detail', 'compose', 'settings'
   const [inboxList, setInboxList] = useState([]);
@@ -404,18 +497,12 @@ export default function MailTab({ currentUser }) {
                 )}
               </div>
 
-              {/* Email Content Body */}
-              <div className="prose prose-sm max-w-none text-slate-800">
-                {selectedEmail.body_html ? (
-                  <div
-                    dangerouslySetInnerHTML={{ __html: selectedEmail.body_html }}
-                    className="overflow-x-auto"
-                  />
-                ) : (
-                  <pre className="whitespace-pre-wrap font-sans text-xs sm:text-sm leading-relaxed text-slate-700 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                    {selectedEmail.body_text || selectedEmail.snippet || '(Pesan kosong)'}
-                  </pre>
-                )}
+              {/* Email Content Body (Sandboxed & Isolated to prevent CSS leak) */}
+              <div className="w-full">
+                <EmailBodyViewer
+                  html={selectedEmail.body_html}
+                  textSnippet={selectedEmail.body_text || selectedEmail.snippet}
+                />
               </div>
 
               {/* Bottom Quick Reply Action */}

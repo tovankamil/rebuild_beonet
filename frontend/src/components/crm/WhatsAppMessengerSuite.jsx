@@ -158,8 +158,8 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
           ? `📹 Panggilan Video Selesai (Durasi: ${formattedDuration})`
           : `📞 Panggilan Suara Berakhir (Durasi: ${formattedDuration})`
         : isVideo
-          ? `📹 Panggilan Video Tak Terjawab`
-          : `📞 Panggilan Suara Tak Terjawab`;
+          ? `📹 Panggilan Video Dibatalkan (Belum Terhubung)`
+          : `📞 Panggilan Suara Dibatalkan (Belum Terhubung)`;
 
     const targetThreadId =
       activeThreadId || (callModalData.contact?.id || callModalData.contact?.ID);

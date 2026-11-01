@@ -573,14 +573,39 @@ export default function WhatsAppCallModal({
                 </div>
               </div>
 
-              {/* Fast Connect button during calling/ringing for testing / instant agent demo */}
+              {/* Direct WhatsApp Call & Room Invite Helper Card */}
               {(callStatus === 'calling' || callStatus === 'ringing') && (
-                <button
-                  onClick={handleConnectNow}
-                  className="text-xs text-emerald-400 hover:text-emerald-300 underline font-semibold transition"
-                >
-                  ⚡ Jawab Cepat (Simulasi Terhubung Langsung)
-                </button>
+                <div className="w-full max-w-xs p-3.5 rounded-2xl bg-slate-900/90 border border-emerald-500/30 text-center space-y-2.5 shadow-lg">
+                  <div className="text-[11px] text-slate-300 font-medium leading-tight">
+                    Hubungkan langsung ke WhatsApp penerima:
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleSendWhatsAppInvitation}
+                      className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center justify-center space-x-1.5 transition shadow-sm"
+                      title="Kirim tautan panggilan langsung ke chat WhatsApp penerima"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Kirim Tautan WA</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleOpenDirectWhatsApp}
+                      className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 text-xs font-bold flex items-center space-x-1.5 transition border border-slate-700"
+                      title="Buka langsung di aplikasi WhatsApp HP/Desktop untuk telepon WhatsApp asli"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>WhatsApp HP</span>
+                    </button>
+                  </div>
+                  <button
+                    onClick={handleConnectNow}
+                    className="text-[11px] text-emerald-400 hover:text-emerald-300 underline font-semibold transition block mx-auto pt-1"
+                  >
+                    ⚡ Jawab Cepat (Simulasi Terhubung Langsung)
+                  </button>
+                </div>
               )}
             </div>
           )}
@@ -633,14 +658,32 @@ export default function WhatsAppCallModal({
                   <span>Bionet Telehealth HD • 1080p 60fps</span>
                 </div>
 
-                {/* Instant Answer Button for Testing */}
+                {/* Instant Answer & Direct WhatsApp Buttons */}
                 {(callStatus === 'calling' || callStatus === 'ringing') && (
-                  <div className="absolute bottom-4 z-10">
+                  <div className="absolute bottom-4 z-10 flex flex-col items-center space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={handleSendWhatsAppInvitation}
+                        className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold flex items-center space-x-1 shadow-lg transition backdrop-blur-md"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>Kirim Link Panggilan</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleOpenDirectWhatsApp}
+                        className="px-3 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-emerald-300 text-[11px] font-bold flex items-center space-x-1 border border-slate-700 transition"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>WA HP</span>
+                      </button>
+                    </div>
                     <button
                       onClick={handleConnectNow}
-                      className="px-3.5 py-1.5 rounded-full bg-emerald-600/90 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg transition backdrop-blur-md"
+                      className="px-3 py-1 rounded-full bg-black/60 hover:bg-black/80 text-emerald-300 text-[11px] font-medium transition backdrop-blur-md"
                     >
-                      ⚡ Hubungkan Konsultasi Sekarang
+                      ⚡ Simulasi Terhubung Sekarang
                     </button>
                   </div>
                 )}

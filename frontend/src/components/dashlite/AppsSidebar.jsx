@@ -55,168 +55,81 @@ function getRoleMenuModules(role) {
     return [
       {
         id: 'admin-overview',
-        title: 'Overview Admin',
+        title: 'Overview & Pengguna',
         icon: LayoutDashboard,
-        badge: 'Admin',
+        badge: 'Pusat',
         submenus: [
-          { id: 'admin-overview', title: 'Ringkasan Eksekutif', desc: 'KPI global pengguna, bonus & omset', icon: LayoutDashboard },
-          { id: 'admin-withdrawals', title: 'Approval Pencairan Dana', desc: 'Verifikasi penarikan saldo mitra', icon: Landmark },
-        ],
-      },
-      {
-        id: 'admin-users',
-        title: 'Manajemen Pengguna & RBAC',
-        icon: Users,
-        badge: 'RBAC',
-        submenus: [
-          { id: 'admin-users', title: 'Direktori Pengguna', desc: 'Mitra, Gudang, Administrator', icon: Users },
+          { id: 'admin-overview', title: 'Ringkasan Eksekutif & Omset', desc: 'KPI global pengguna, bonus & omset', icon: LayoutDashboard },
+          { id: 'admin-users', title: 'Direktori Pengguna & Mitra', desc: 'Mitra, Gudang, Administrator', icon: Users },
           { id: 'admin-users', title: 'Alokasi Role & Status Akun', desc: 'Ubah role & status aktif/suspend', icon: Shield },
         ],
       },
       {
         id: 'admin-transactions',
-        title: 'Buku Besar & Bonus Pasangan',
+        title: 'Finansial & Poin Binary',
         icon: Wallet,
-        badge: 'Ledger',
+        badge: 'Finansial',
         submenus: [
           { id: 'admin-transactions', title: 'Buku Besar Transaksi', desc: 'Seluruh mutasi kredit & debit platform', icon: Wallet },
           { id: 'admin-transactions', title: 'Audit Bonus Pasangan', desc: 'Riwayat pembayaran matching binary', icon: Zap },
-        ],
-      },
-      {
-        id: 'admin-points',
-        title: 'Poin Pasangan Binary',
-        icon: GitFork,
-        badge: 'Kaki Binary',
-        submenus: [
-          { id: 'admin-points', title: 'Keseimbangan Kaki Kiri/Kanan', desc: 'Volume omset PV & rasio kaki', icon: GitFork },
-          { id: 'admin-points', title: 'Potensi Pasangan & Adjust Poin', desc: 'Matching pair & koreksi manual', icon: TrendingUp },
-        ],
-      },
-      {
-        id: 'admin-pins',
-        title: 'Stokis & Serial PIN',
-        icon: KeyRound,
-        badge: 'HU',
-        submenus: [
-          { id: 'admin-pins', title: 'Master Serial PIN', desc: 'Inventori PIN Silver, Gold, Platinum', icon: KeyRound },
-          { id: 'admin-pins', title: 'Log Transfer Antar Mitra', desc: 'Riwayat mutasi PIN jaringan', icon: Send },
-          { id: 'admin-pins', title: 'Pencetakan PIN Baru', desc: 'Generate serial PIN untuk mitra', icon: Sparkles },
+          { id: 'admin-points', title: 'Poin Pasangan Binary', desc: 'Volume omset PV & rasio kaki binary', icon: GitFork },
+          { id: 'admin-withdrawals', title: 'Approval Pencairan Dana (WD)', desc: 'Validasi & approval transfer Flip.id', icon: Landmark },
         ],
       },
       {
         id: 'admin-orders',
-        title: 'Pesanan RO E-Commerce',
+        title: 'Pesanan RO & Serial PIN',
         icon: ShoppingBag,
         badge: 'RO',
         submenus: [
-          { id: 'admin-orders', title: 'Daftar Invoice Belanja RO', desc: 'Pesanan produk repeat order mitra', icon: ShoppingBag },
+          { id: 'admin-orders', title: 'Daftar Invoice Pesanan RO', desc: 'Pesanan repeat order mitra', icon: ShoppingBag },
           { id: 'admin-orders', title: 'Audit Status & Resi Ekspedisi', desc: 'Alur fulfillment pesanan', icon: Truck },
-        ],
-      },
-      {
-        id: 'admin-withdrawals',
-        title: 'Pencairan Dana (WD)',
-        icon: Landmark,
-        badge: 'Flip.id',
-        submenus: [
-          { id: 'admin-withdrawals', title: 'Daftar Request Withdrawal', desc: 'Persetujuan transfer dana Flip.id', icon: Landmark },
-          { id: 'overview', title: 'Mode Pratinjau Portal Mitra', desc: 'Lihat tampilan dari sudut pandang mitra', icon: ExternalLink },
-        ],
-      },
-      {
-        id: 'admin-fraud',
-        title: 'Fraud Control & Risiko',
-        icon: ShieldAlert,
-        badge: 'Security',
-        submenus: [
-          { id: 'admin-fraud', title: 'Audit Risiko & Sybil Detection', desc: 'Deteksi duplikasi KTP, rekening & lonjakan WD', icon: ShieldAlert },
-          { id: 'admin-users', title: 'Manajemen Pembekuan Akun', desc: 'Suspend akun mencurigakan & audit log', icon: Shield },
+          { id: 'admin-pins', title: 'Master Serial PIN Hak Usaha', desc: 'Inventori PIN Silver, Gold, Platinum', icon: KeyRound },
+          { id: 'admin-pins', title: 'Pencetakan Serial PIN Baru', desc: 'Generate serial PIN untuk mitra', icon: Sparkles },
         ],
       },
       {
         id: 'admin-security',
-        title: 'Radar Keamanan & Geo-Traffic',
+        title: 'Keamanan, Fraud & Server',
         icon: ShieldAlert,
         badge: 'DEFCON',
         submenus: [
           { id: 'admin-security', title: 'Radar Ancaman Cyber (DEFCON)', desc: 'Deteksi real-time DDoS, SQLi & blokir IP', icon: ShieldAlert },
+          { id: 'admin-fraud', title: 'Audit Fraud & Sybil Detection', desc: 'Deteksi duplikasi KTP & anomali penarikan', icon: ShieldAlert },
           { id: 'admin-geotraffic', title: 'Geo-Traffic Radar Nusantara', desc: 'Peta sebaran pengunjung & provinsi aktif', icon: Globe },
-        ],
-      },
-      {
-        id: 'admin-monitoring',
-        title: 'Live Telemetry & User',
-        icon: Activity,
-        badge: 'Live',
-        submenus: [
-          { id: 'admin-monitoring', title: 'User Online & Bandwidth Traffic', desc: 'Monitoring realtime user aktif, RAM server & traffic jaringan', icon: Activity },
-          { id: 'admin-overview', title: 'Ringkasan Eksekutif & Omset', desc: 'KPI global platform', icon: LayoutDashboard },
+          { id: 'admin-monitoring', title: 'Live Telemetry & User Online', desc: 'Monitoring realtime user aktif & trafik', icon: Activity },
         ],
       },
       {
         id: 'leads',
-        title: 'Prospek & Leads (CRM)',
+        title: 'CRM Prospek & Studio AI',
         icon: Target,
-        badge: 'CRM',
+        badge: 'CRM & AI',
         submenus: [
-          { id: 'leads', subView: 'kanban', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
+          { id: 'leads', subView: 'kanban', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko & webinar', icon: Target },
           { id: 'leads', subView: 'whatsapp-suite', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
-        { id: 'leads', subView: 'ro-reminders', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
-        ],
-      },
-      {
-        id: 'ai-marketing',
-        title: 'Studio Konten AI & Video (Admin)',
-        icon: Sparkles,
-        badge: 'Admin Only',
-        submenus: [
-          { id: 'ai-marketing', title: 'Generator Copywriting & WA Broadcast', desc: 'Materi promosi resmi berizin BPOM', icon: Sparkles },
-          { id: 'ai-marketing', title: 'Naskah & Generator Video TikTok / Reels', desc: 'Script 9:16 & rendering video kinetik', icon: Video },
+          { id: 'leads', subView: 'ro-reminders', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
+          { id: 'ai-marketing', title: 'Studio Konten AI & Generator Video', desc: 'Copywriting BPOM & video TikTok / Reels', icon: Video },
         ],
       },
       {
         id: 'chat',
-        title: 'Live Chat Bantuan',
+        title: 'Pusat Komunikasi & Webmail',
         icon: MessagesSquare,
-        badge: 'Support',
+        badge: 'Layanan',
         submenus: [
-          { id: 'chat', title: 'Helpdesk & Chat Mitra', desc: 'Respon tiket & pesan live mitra', icon: MessagesSquare },
-        ],
-      },
-      {
-        id: 'meetings',
-        title: 'Video Conference & BOP',
-        icon: Video,
-        badge: 'Webinar',
-        submenus: [
-          { id: 'meetings', title: 'Ruang Meeting & Webinar BOP', desc: 'Jadwal BOP, Video KYC & live meeting', icon: Video },
-        ],
-      },
-      {
-        id: 'mail',
-        title: 'Email & Webmail',
-        icon: Mail,
-        badge: 'Gmail/IMAP',
-        submenus: [
-          { id: 'mail', title: 'Kotak Masuk (Webmail)', desc: 'Baca & balas email Gmail / domain sendiri', icon: Mail },
+          { id: 'chat', title: 'Live Chat Bantuan Mitra', desc: 'Respon tiket & layanan live 24/7', icon: MessagesSquare },
+          { id: 'meetings', title: 'Video Conference & BOP', desc: 'Ruang meeting & webinar prospek bisnis', icon: Video },
+          { id: 'mail', title: 'Kotak Masuk Webmail (Gmail/Domain)', desc: 'Baca & balas email Gmail / domain sendiri', icon: Mail },
         ],
       },
       {
         id: 'admin-branding',
-        title: 'Tampilan & Tema Warna',
+        title: 'Pengaturan & Panduan',
         icon: Palette,
-        badge: 'Tema',
+        badge: 'Sistem',
         submenus: [
-          { id: 'admin-branding', title: 'Logo & Tema Warna Dashboard', desc: 'Ubah logo aplikasi, warna primary dan secondary', icon: Palette },
-        ],
-      },
-      {
-        id: 'admin-guide',
-        title: 'Panduan Fitur & Menu',
-        icon: BookOpen,
-        badge: 'Manual',
-        submenus: [
+          { id: 'admin-branding', title: 'Logo & Tema Warna Dashboard', desc: 'Ubah logo aplikasi & tema warna sistem', icon: Palette },
           { id: 'admin-guide', title: 'Direktori & Panduan Lengkap', desc: 'Penjelasan semua fitur & menu aplikasi', icon: BookOpen },
           { id: 'components', title: 'Galeri Komponen DashLite', desc: 'Desain token & elemen UI', icon: Palette },
         ],
@@ -857,15 +770,15 @@ export default function AppsSidebar({
         }`}
       >
         {/* DESKTOP VIEW (Slim 68px Icon Column) */}
-        <div className="hidden lg:flex flex-col items-center justify-between py-4 h-full w-full">
-          {/* Top Brand Logo */}
-          <div className="flex flex-col items-center gap-2.5 w-full">
+        <div className="hidden lg:flex flex-col items-center justify-between py-3 h-full w-full overflow-hidden">
+          {/* Top Brand Logo & Scrollable Navigation Container */}
+          <div className="flex flex-col items-center gap-2 w-full flex-1 min-h-0 overflow-hidden">
             <div
               onClick={() => {
                 const defaultTab = userRole === 'admin' ? 'admin-overview' : userRole === 'gudang' ? 'warehouse-overview' : 'overview';
                 setActiveTab(defaultTab);
               }}
-              className="w-11 h-11 rounded-2xl flex items-center justify-center cursor-pointer shadow-lg hover:scale-105 active:scale-95 transition-transform overflow-hidden p-1.5"
+              className="w-11 h-11 rounded-2xl flex items-center justify-center cursor-pointer shadow-lg hover:scale-105 active:scale-95 transition-transform overflow-hidden p-1.5 shrink-0"
               style={{
                 background: branding?.logo_url
                   ? 'rgba(255, 255, 255, 0.1)'
@@ -884,13 +797,13 @@ export default function AppsSidebar({
               )}
             </div>
 
-            <div className="w-7 h-[1px] bg-emerald-900/60 my-1" />
+            <div className="w-7 h-[1px] bg-emerald-900/60 my-0.5 shrink-0" />
 
-            {/* Navigation Icons List */}
-            <nav className="flex flex-col items-center gap-2 w-full px-2 overflow-y-auto max-h-[calc(100vh-140px)] scrollbar-none">
+            {/* Navigation Icons List (Clean 7 Pillars with Submenu Support) */}
+            <nav className="flex flex-col items-center gap-1.5 w-full px-2 overflow-y-auto overflow-x-hidden flex-1 min-h-0 py-1 scrollbar-none">
               {menuModules.map((item) => {
                 const Icon = item.icon;
-                const isActive = activeTab === item.id;
+                const isActive = activeTab === item.id || item.submenus?.some((sub) => sub.id === activeTab);
                 const isHovered = hoveredMenu?.id === item.id;
 
                 return (
@@ -898,7 +811,7 @@ export default function AppsSidebar({
                     key={item.id}
                     onMouseEnter={(e) => handleMouseEnter(item, e)}
                     onMouseLeave={handleMouseLeave}
-                    className="relative flex items-center justify-center w-full"
+                    className="relative flex items-center justify-center w-full shrink-0"
                   >
                     <button
                       onClick={(e) => handleIconClick(item, e)}
@@ -920,40 +833,42 @@ export default function AppsSidebar({
             </nav>
           </div>
 
-          {/* Bottom User Avatar Trigger */}
-          <div
-            onClick={() => onOpenProfile && onOpenProfile('profile')}
-            onMouseEnter={(e) =>
-              handleMouseEnter(
-                {
-                  id: 'profile',
-                  title: user?.full_name || user?.username || 'Akun Pengguna',
-                  badge: roleLabel,
-                  submenus: [
-                    { action: 'open_profile', title: 'Edit Profil & KYC', desc: 'Nama, No. HP, KTP & NPWP', icon: User },
-                    { action: 'open_password', title: 'Ganti Kata Sandi', desc: 'Ubah password akun Anda', icon: KeyRound },
-                    { action: 'copy_ref', title: 'Salin Link Referral', desc: 'Bagikan ke calon mitra', icon: Share2 },
-                    { id: 'bank', title: 'Pengaturan Rekening Bank', desc: 'Data bank penerima bonus', icon: Building2 },
-                    { action: 'logout', title: 'Keluar dari Sistem', desc: 'Akhiri sesi akun aman', icon: LogOut, danger: true },
-                  ],
-                },
-                e
-              )
-            }
-            onMouseLeave={handleMouseLeave}
-            className="relative flex items-center justify-center cursor-pointer p-1 rounded-full hover:scale-105 active:scale-95 transition-transform"
-          >
-            <div className="relative">
-              <div className={`w-10 h-10 rounded-full font-heading font-extrabold text-sm flex items-center justify-center shadow-sm ${
-                userRole === 'admin'
-                  ? 'bg-amber-200 text-amber-900'
-                  : userRole === 'gudang'
-                  ? 'bg-sky-200 text-sky-900'
-                  : 'bg-[#bbf7d0] text-[#065f46]'
-              }`}>
-                {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
+          {/* Bottom User Avatar Trigger (Pinned securely, isolated from navigation) */}
+          <div className="w-full shrink-0 pt-2 pb-1 border-t border-emerald-950/80 flex flex-col items-center justify-center">
+            <div
+              onClick={() => onOpenProfile && onOpenProfile('profile')}
+              onMouseEnter={(e) =>
+                handleMouseEnter(
+                  {
+                    id: 'profile',
+                    title: user?.full_name || user?.username || 'Akun Pengguna',
+                    badge: roleLabel,
+                    submenus: [
+                      { action: 'open_profile', title: 'Edit Profil & KYC', desc: 'Nama, No. HP, KTP & NPWP', icon: User },
+                      { action: 'open_password', title: 'Ganti Kata Sandi', desc: 'Ubah password akun Anda', icon: KeyRound },
+                      { action: 'copy_ref', title: 'Salin Link Referral', desc: 'Bagikan ke calon mitra', icon: Share2 },
+                      { id: 'bank', title: 'Pengaturan Rekening Bank', desc: 'Data bank penerima bonus', icon: Building2 },
+                      { action: 'logout', title: 'Keluar dari Sistem', desc: 'Akhiri sesi akun aman', icon: LogOut, danger: true },
+                    ],
+                  },
+                  e
+                )
+              }
+              onMouseLeave={handleMouseLeave}
+              className="relative flex items-center justify-center cursor-pointer p-1 rounded-full hover:scale-105 active:scale-95 transition-transform"
+            >
+              <div className="relative">
+                <div className={`w-10 h-10 rounded-full font-heading font-extrabold text-sm flex items-center justify-center shadow-sm ${
+                  userRole === 'admin'
+                    ? 'bg-amber-200 text-amber-900'
+                    : userRole === 'gudang'
+                    ? 'bg-sky-200 text-sky-900'
+                    : 'bg-[#bbf7d0] text-[#065f46]'
+                }`}>
+                  {user?.username ? user.username.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#10b981] ring-2 ring-[#051812]" />
               </div>
-              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-[#10b981] ring-2 ring-[#051812]" />
             </div>
           </div>
         </div>

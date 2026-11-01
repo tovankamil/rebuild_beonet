@@ -651,6 +651,7 @@ func main() {
 		&models.GeoAccessLog{},
 		&models.AppBranding{},
 		&models.EmailConfig{},
+		&models.EmailAutoReplyLog{},
 		&models.SystemIncidentLog{},
 		&models.TikTokConfig{},
 		&models.TikTokVideo{},
@@ -1018,6 +1019,7 @@ func main() {
 				mailGroup.GET("/inbox", handlers.GlobalEmailHandler.FetchInbox)
 				mailGroup.GET("/messages/:seq", handlers.GlobalEmailHandler.GetEmailDetail)
 				mailGroup.POST("/send", handlers.GlobalEmailHandler.SendEmail)
+				mailGroup.POST("/ai-reply", handlers.GlobalEmailHandler.GenerateAIReply)
 			}
 
 			// High-Concurrency WAHA-Compatible WhatsApp Engine (Powered by Go Routines)

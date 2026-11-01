@@ -19,9 +19,56 @@ import {
   FileText,
   Paperclip,
   Image as ImageIcon,
-  X
+  X,
+  Sparkles,
+  Bot,
+  Zap
 } from 'lucide-react';
 import api from '../services/api';
+
+const AUTO_REPLY_PRESETS = [
+  {
+    id: 'cs',
+    title: '📌 Konfirmasi CS 24 Jam',
+    subject: 'Re: [Bionet Official] Konfirmasi Penerimaan Email',
+    message: `Halo, terima kasih telah menghubungi Bionet Official.
+
+Pesan Anda telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.
+
+Jika ada informasi mendesak mengenai akun atau layanan Bionet Anda, silakan lampirkan ID Pengguna Anda pada balasan email ini.
+
+Salam hangat,
+Customer Care Bionet Indonesia`
+  },
+  {
+    id: 'ekspedisi',
+    title: '📦 Ekspedisi & Produk Herbal',
+    subject: 'Re: [Bionet Official] Status Pengiriman & Produk Herbal',
+    message: `Halo, terima kasih telah menghubungi Tim Logistik & Produk Herbal Bionet.
+
+Pesan dan pertanyaan Anda terkait ketersediaan stok produk herbal, konfirmasi resi, atau status pengiriman ekspedisi telah kami terima. Tim gudang dan operasional kami akan memeriksa nomor pesanan Anda secepat mungkin.
+
+Pastikan Anda telah menyertakan Nomor Invoice atau Nomor Resi pengiriman agar proses pengecekan dapat dilakukan lebih cepat.
+
+Salam sehat,
+Tim Logistik Bionet Herbal`
+  },
+  {
+    id: 'kemitraan',
+    title: '💼 Kemitraan & Penarikan Dana',
+    subject: 'Re: [Bionet Official] Informasi Kemitraan & Finansial',
+    message: `Halo Mitra Bionet yang terhormat,
+
+Terima kasih atas email Anda kepada Tim Kemitraan & Finansial Bionet.
+
+Email Anda terkait program kemitraan, bonus referensi, verifikasi rekening, atau proses penarikan dana (withdrawal) telah masuk ke antrean prioritas departemen keuangan kami. Semua permintaan penarikan dan verifikasi diproses sesuai jadwal operasional perbankan.
+
+Terima kasih atas kerja sama dan dedikasi Anda bersama jaringan Bionet.
+
+Salam sukses mulia,
+Tim Kemitraan & Finance Bionet`
+  }
+];
 
 /**
  * Isolated Sandboxed Iframe for Email HTML
@@ -140,6 +187,10 @@ export default function MailTab({ currentUser }) {
     imap_password: '',
     imap_encryption: 'ssl',
     is_active: false,
+    auto_reply_enabled: false,
+    auto_reply_mode: 'standard', // 'standard' or 'ai'
+    auto_reply_subject: 'Re: [Bionet Official] Konfirmasi Penerimaan Email',
+    auto_reply_message: 'Halo, terima kasih telah menghubungi Bionet Official.\n\nPesan Anda telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim Bionet Indonesia',
   });
   const [configSaving, setConfigSaving] = useState(false);
   const [configMessage, setConfigMessage] = useState(null);
@@ -159,6 +210,10 @@ export default function MailTab({ currentUser }) {
   const [sending, setSending] = useState(false);
   const [sendSuccess, setSendSuccess] = useState(null);
 
+  // AI Reply State
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiNotice, setAiNotice] = useState(null);
+
   // Load config and inbox on mount
   useEffect(() => {
     fetchConfig();
@@ -169,7 +224,15 @@ export default function MailTab({ currentUser }) {
     try {
       const res = await api.get('/mail/config');
       if (res.data?.data) {
-        setConfig((prev) => ({ ...prev, ...res.data.data }));
+        const data = res.data.data;
+        setConfig((prev) => ({
+          ...prev,
+          ...data,
+          auto_reply_enabled: data.auto_reply_enabled ?? false,
+          auto_reply_mode: data.auto_reply_mode || 'standard',
+          auto_reply_subject: data.auto_reply_subject || 'Re: [Bionet Official] Konfirmasi Penerimaan Email',
+          auto_reply_message: data.auto_reply_message || 'Halo, terima kasih telah menghubungi Bionet Official.\n\nPesan Anda telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim Bionet Indonesia',
+        }));
       }
     } catch (err) {
       console.warn('Failed to fetch mail config:', err);
@@ -276,6 +339,97 @@ export default function MailTab({ currentUser }) {
       attachments: [],
     });
     setActiveView('compose');
+  };
+
+  const handleAIReplyFromDetail = async (email) => {
+    if (!email) return;
+    setAiLoading(true);
+    setAiNotice(null);
+
+    const cleanFrom = email.from.includes('<')
+      ? email.from.split('<')[1].replace('>', '').trim()
+      : email.from.trim();
+
+    try {
+      const res = await api.post('/mail/ai-reply', {
+        sender: email.from,
+        subject: email.subject || 'Konfirmasi Pesan',
+        body: email.body_text || email.snippet || email.subject || 'Mohon respon pertanyaan ini',
+      });
+
+      const aiReplyText = res.data?.data?.reply || '';
+      const quoteHeader = `\n\n--- Pada ${new Date(email.date).toLocaleString('id-ID')}, ${email.from} menulis:\n> ${
+        email.body_text || email.snippet || ''
+      }`;
+
+      setComposeForm({
+        to: cleanFrom,
+        subject: email.subject.startsWith('Re:') ? email.subject : `Re: ${email.subject}`,
+        body: aiReplyText ? `${aiReplyText}${quoteHeader}` : quoteHeader,
+        in_reply_to: email.message_id || '',
+        attachments: [],
+      });
+
+      setActiveView('compose');
+      setAiNotice({ type: 'success', text: '✨ Draf balasan cerdas berhasil diracik oleh Google Gemini AI!' });
+    } catch (err) {
+      console.error('Failed to generate AI reply:', err);
+      alert(err.response?.data?.message || 'Gagal meracik balasan AI. Pastikan GEMINI_API_KEY terkonfigurasi di server backend.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleGenerateAIReplyInCompose = async () => {
+    setAiLoading(true);
+    setAiNotice(null);
+
+    const sender = composeForm.to || (selectedEmail?.from || 'Pelanggan');
+    const subject = composeForm.subject || (selectedEmail?.subject || 'Pertanyaan');
+    const body = selectedEmail?.body_text || selectedEmail?.snippet || composeForm.body || subject;
+
+    try {
+      const res = await api.post('/mail/ai-reply', {
+        sender,
+        subject,
+        body,
+      });
+
+      const aiReplyText = res.data?.data?.reply || '';
+      if (!aiReplyText) {
+        throw new Error('AI tidak memberikan respon balasan');
+      }
+
+      setComposeForm((prev) => {
+        const quoteIndex = prev.body.indexOf('\n\n--- Pada ');
+        if (quoteIndex !== -1) {
+          const quotePart = prev.body.substring(quoteIndex);
+          return {
+            ...prev,
+            body: `${aiReplyText}${quotePart}`,
+          };
+        }
+        return {
+          ...prev,
+          body: prev.body ? `${aiReplyText}\n\n${prev.body}` : aiReplyText,
+        };
+      });
+
+      setAiNotice({ type: 'success', text: '✨ Jawaban cerdas berhasil diracik dan disisipkan oleh Gemini AI!' });
+    } catch (err) {
+      console.error('Failed to generate AI reply in compose:', err);
+      alert(err.response?.data?.message || 'Gagal meracik balasan AI. Periksa koneksi atau konfigurasi GEMINI_API_KEY di server.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const applyPreset = (preset) => {
+    setConfig((prev) => ({
+      ...prev,
+      auto_reply_subject: preset.subject || prev.auto_reply_subject,
+      auto_reply_message: preset.message,
+    }));
   };
 
   const handleSendEmail = async (e) => {
@@ -521,7 +675,7 @@ export default function MailTab({ currentUser }) {
       {activeView === 'detail' && (
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
           {/* Detail Header Bar */}
-          <div className="p-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between gap-3">
+          <div className="p-4 border-b border-slate-100 bg-slate-50/60 flex flex-wrap items-center justify-between gap-3">
             <button
               onClick={() => setActiveView('inbox')}
               className="px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 flex items-center gap-1.5 transition-colors"
@@ -531,13 +685,36 @@ export default function MailTab({ currentUser }) {
             </button>
 
             {selectedEmail && (
-              <button
-                onClick={() => handleReply(selectedEmail)}
-                className="px-4 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl flex items-center gap-1.5 shadow-sm transition-all"
-              >
-                <Reply size={14} />
-                Balas Email Ini
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleAIReplyFromDetail(selectedEmail)}
+                  disabled={aiLoading}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-xl flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50"
+                  title="Gunakan Google Gemini AI untuk menganalisis email dan merangkai balasan instan"
+                >
+                  {aiLoading ? (
+                    <>
+                      <RefreshCw size={14} className="animate-spin" />
+                      <span>AI sedang meracik jawaban...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={14} />
+                      <span>✨ Buat Balasan Cerdas dengan AI</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleReply(selectedEmail)}
+                  className="px-4 py-1.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl flex items-center gap-1.5 shadow-sm transition-all"
+                >
+                  <Reply size={14} />
+                  Balas Email Ini
+                </button>
+              </div>
             )}
           </div>
 
@@ -580,14 +757,41 @@ export default function MailTab({ currentUser }) {
               </div>
 
               {/* Bottom Quick Reply Action */}
-              <div className="pt-6 border-t border-slate-100">
-                <button
-                  onClick={() => handleReply(selectedEmail)}
-                  className="px-5 py-2.5 text-xs font-semibold text-white bg-sky-600 hover:bg-sky-700 rounded-xl flex items-center gap-2 shadow-sm transition-all"
-                >
-                  <Reply size={16} />
-                  Balas Pesan Ini (@{selectedEmail.from})
-                </button>
+              <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => handleAIReplyFromDetail(selectedEmail)}
+                    disabled={aiLoading}
+                    className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-xl flex items-center gap-2 shadow-md shadow-purple-600/20 transition-all disabled:opacity-50"
+                  >
+                    {aiLoading ? (
+                      <>
+                        <RefreshCw size={15} className="animate-spin" />
+                        <span>AI sedang meracik jawaban...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={15} />
+                        <span>✨ Buat Balasan Cerdas dengan AI</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleReply(selectedEmail)}
+                    className="px-4 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center gap-2 transition-all border border-slate-200/80"
+                  >
+                    <Reply size={15} />
+                    <span>Balas Manual (@{selectedEmail.from})</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                  <Sparkles size={13} className="text-purple-500" />
+                  <span>Google Gemini Smart Assistant</span>
+                </div>
               </div>
             </div>
           ) : (
@@ -627,6 +831,29 @@ export default function MailTab({ currentUser }) {
             </div>
           )}
 
+          {aiNotice && (
+            <div
+              className={`mb-4 p-3.5 rounded-xl text-xs font-medium flex items-center justify-between gap-2 ${
+                aiNotice.type === 'success'
+                  ? 'bg-purple-50 text-purple-900 border border-purple-200'
+                  : 'bg-rose-50 text-rose-800 border border-rose-200'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-purple-600 flex-shrink-0" />
+                <span>{aiNotice.text}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAiNotice(null)}
+                className="text-purple-400 hover:text-purple-700 p-0.5 rounded"
+                title="Tutup pesan"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          )}
+
           <form onSubmit={handleSendEmail} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -655,7 +882,28 @@ export default function MailTab({ currentUser }) {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Isi Pesan Email *</label>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700">Isi Pesan Email *</label>
+                <button
+                  type="button"
+                  onClick={handleGenerateAIReplyInCompose}
+                  disabled={aiLoading}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-purple-700 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200/90 rounded-xl shadow-xs transition-all disabled:opacity-50"
+                  title="Gunakan Google Gemini AI untuk merangkai draf balasan kontekstual secara otomatis"
+                >
+                  {aiLoading ? (
+                    <>
+                      <RefreshCw size={13} className="animate-spin text-purple-600" />
+                      <span>AI sedang meracik jawaban...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={13} className="text-purple-600" />
+                      <span>✨ Buat Balasan Cerdas dengan AI</span>
+                    </>
+                  )}
+                </button>
+              </div>
               <textarea
                 required
                 rows={10}
@@ -1020,6 +1268,261 @@ export default function MailTab({ currentUser }) {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* 🤖 Automasi Balas Pesan (Auto-Responder & Smart AI) */}
+            <div className="p-5 bg-gradient-to-b from-white to-slate-50/70 rounded-xl border border-slate-200 shadow-sm space-y-5">
+              {/* Header with Title, Badge, and Toggle Switch */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center flex-shrink-0 shadow-xs">
+                    <Bot size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-slate-800">
+                        🤖 Automasi Balas Pesan (Auto-Responder & Smart AI)
+                      </h3>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase ${
+                          config.auto_reply_enabled
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : 'bg-slate-100 text-slate-500 border border-slate-200'
+                        }`}
+                      >
+                        {config.auto_reply_enabled ? 'Aktif' : 'Nonaktif'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Sistem akan secara otomatis mengirimkan email balasan setiap kali ada pesan baru yang masuk ke kotak masuk Anda.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Toggle Switch */}
+                <div className="flex items-center gap-3 self-end sm:self-center">
+                  <span className="text-xs font-semibold text-slate-600">
+                    {config.auto_reply_enabled ? 'Auto-Reply Aktif' : 'Nonaktif'}
+                  </span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={config.auto_reply_enabled}
+                    onClick={() =>
+                      setConfig((prev) => ({
+                        ...prev,
+                        auto_reply_enabled: !prev.auto_reply_enabled,
+                      }))
+                    }
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
+                      config.auto_reply_enabled ? 'bg-emerald-500' : 'bg-slate-300'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                        config.auto_reply_enabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* Active Details when auto_reply_enabled is TRUE */}
+              {config.auto_reply_enabled && (
+                <div className="space-y-5 animate-in fade-in-50 duration-200">
+                  {/* Mode Selection Cards */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-2.5">
+                      Pilih Metode Balasan Otomatis:
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {/* Card 1: Standard Template */}
+                      <div
+                        onClick={() => setConfig((prev) => ({ ...prev, auto_reply_mode: 'standard' }))}
+                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between gap-3 ${
+                          config.auto_reply_mode === 'standard'
+                            ? 'border-sky-500 bg-sky-50/50 shadow-sm'
+                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 font-bold ${
+                              config.auto_reply_mode === 'standard'
+                                ? 'bg-sky-600 text-white'
+                                : 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            <Zap size={18} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-xs font-bold text-slate-800">
+                                ⚡ Template Kalimat Standar
+                              </h4>
+                              {config.auto_reply_mode === 'standard' && (
+                                <span className="w-2 h-2 rounded-full bg-sky-500" />
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                              Gunakan teks jawaban tetap yang dapat Anda sesuaikan bebas dengan preset siap pakai.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-[10px] font-semibold text-sky-700 bg-sky-100/70 px-2.5 py-1 rounded-md w-fit">
+                          Dapat Diedit Bebas & Cepat
+                        </div>
+                      </div>
+
+                      {/* Card 2: Smart AI Auto-Reply (Google Gemini) */}
+                      <div
+                        onClick={() => setConfig((prev) => ({ ...prev, auto_reply_mode: 'ai' }))}
+                        className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col justify-between gap-3 relative overflow-hidden ${
+                          config.auto_reply_mode === 'ai'
+                            ? 'border-purple-500 bg-purple-50/50 shadow-sm'
+                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 font-bold ${
+                              config.auto_reply_mode === 'ai'
+                                ? 'bg-gradient-to-tr from-purple-600 to-indigo-600 text-white'
+                                : 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            <Sparkles size={18} />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                🧠 Smart AI Auto-Reply
+                              </h4>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-xs">
+                                Google Gemini
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                              Email masuk dianalisis konteksnya oleh AI untuk merespons otomatis secara cerdas & santun.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-[10px] font-semibold text-purple-700 bg-purple-100/70 px-2.5 py-1 rounded-md w-fit">
+                          24/7 Context-Aware AI Reasoning
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mode Details Section */}
+                  {config.auto_reply_mode === 'standard' ? (
+                    <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Subjek Email Balasan Otomatis *
+                        </label>
+                        <input
+                          type="text"
+                          required={config.auto_reply_enabled && config.auto_reply_mode === 'standard'}
+                          value={config.auto_reply_subject}
+                          onChange={(e) => setConfig({ ...config, auto_reply_subject: e.target.value })}
+                          placeholder="Re: [Bionet Official] Konfirmasi Penerimaan Email"
+                          className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 text-slate-800"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                          <label className="block text-xs font-bold text-slate-700">
+                            Isi Template Balasan (Dapat Diedit Bebas) *
+                          </label>
+                          {/* Quick Template Preset Buttons */}
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-[11px] text-slate-400 font-medium mr-1">Preset Cepat:</span>
+                            {AUTO_REPLY_PRESETS.map((preset) => (
+                              <button
+                                key={preset.id}
+                                type="button"
+                                onClick={() => applyPreset(preset)}
+                                className="px-2.5 py-1 text-[11px] font-semibold text-slate-700 bg-slate-100 hover:bg-sky-50 hover:text-sky-700 hover:border-sky-300 border border-slate-200 rounded-lg transition-colors"
+                                title={`Gunakan template: ${preset.title}`}
+                              >
+                                {preset.title}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <textarea
+                          required={config.auto_reply_enabled && config.auto_reply_mode === 'standard'}
+                          rows={6}
+                          value={config.auto_reply_message}
+                          onChange={(e) => setConfig({ ...config, auto_reply_message: e.target.value })}
+                          placeholder="Tuliskan template balasan otomatis untuk pelanggan Anda..."
+                          className="w-full px-3.5 py-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 text-slate-800 leading-relaxed font-sans"
+                        />
+                        <p className="text-[11px] text-slate-400 mt-1">
+                          Template ini akan langsung dikirimkan ke pengirim setiap kali ada email baru masuk.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-gradient-to-br from-purple-50/60 to-indigo-50/40 p-4 rounded-xl border border-purple-200/90 space-y-3.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs font-bold text-purple-900">
+                          <Sparkles size={16} className="text-purple-600" />
+                          Mode Balasan Cerdas Google Gemini AI Sedang Aktif
+                        </div>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-purple-200/70 text-purple-800">
+                          Model: Gemini 2.0 / 1.5 Flash
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-purple-950/80 leading-relaxed">
+                        Setiap email yang masuk ke kotak masuk Anda akan dipindai oleh Google Gemini AI. Sistem memahami pertanyaan pelanggan (seperti status pesanan herbal, kemitraan Bionet, atau info rekening) dan menyusun respon resmi yang ramah, akurat, dan sopan dalam hitungan detik.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                        <div className="bg-white/90 p-2.5 rounded-lg border border-purple-100 text-xs">
+                          <div className="font-bold text-slate-800 mb-0.5 flex items-center gap-1.5">
+                            <CheckCircle size={13} className="text-emerald-500" />
+                            Respon Kontekstual
+                          </div>
+                          <p className="text-[11px] text-slate-500">Merespons sesuai topik email tanpa kaku seperti bot konvensional.</p>
+                        </div>
+
+                        <div className="bg-white/90 p-2.5 rounded-lg border border-purple-100 text-xs">
+                          <div className="font-bold text-slate-800 mb-0.5 flex items-center gap-1.5">
+                            <CheckCircle size={13} className="text-emerald-500" />
+                            Identitas Resmi Bionet
+                          </div>
+                          <p className="text-[11px] text-slate-500">Menyertakan salam resmi tim Bionet Indonesia dan nada bicara korporat.</p>
+                        </div>
+
+                        <div className="bg-white/90 p-2.5 rounded-lg border border-purple-100 text-xs">
+                          <div className="font-bold text-slate-800 mb-0.5 flex items-center gap-1.5">
+                            <CheckCircle size={13} className="text-emerald-500" />
+                            Otomatis 24 Jam
+                          </div>
+                          <p className="text-[11px] text-slate-500">Tetap melayani pertanyaan mitra dan pelanggan saat Anda sedang offline.</p>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-purple-200/60">
+                        <label className="block text-[11px] font-bold text-purple-900 mb-1">
+                          Prefix / Subjek Default Email Balasan AI:
+                        </label>
+                        <input
+                          type="text"
+                          value={config.auto_reply_subject}
+                          onChange={(e) => setConfig({ ...config, auto_reply_subject: e.target.value })}
+                          placeholder="Re: [Bionet Official] Tanggapan Pesan Anda"
+                          className="w-full px-3 py-2 text-xs bg-white border border-purple-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-4">

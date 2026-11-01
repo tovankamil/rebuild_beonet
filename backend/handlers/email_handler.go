@@ -34,7 +34,11 @@ func (h *EmailHandler) GetConfig(c *gin.Context) {
 				"imap_port":       993,
 				"imap_username":   "",
 				"imap_encryption": "ssl",
-				"is_active":       false,
+				"is_active":          false,
+				"auto_reply_enabled": false,
+				"auto_reply_mode":    "standard",
+				"auto_reply_subject": "Re: [Bionet Official] Konfirmasi Penerimaan Email",
+				"auto_reply_message": "Halo, terima kasih telah menghubungi Bionet Official.\n\nPesan Anda telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim Bionet Indonesia",
 			},
 		})
 		return
@@ -53,21 +57,25 @@ func (h *EmailHandler) GetConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"data": gin.H{
-			"id":              cfg.ID,
-			"provider":        cfg.Provider,
-			"email_address":   cfg.EmailAddress,
-			"sender_name":     cfg.SenderName,
-			"smtp_host":       cfg.SMTPHost,
-			"smtp_port":       cfg.SMTPPort,
-			"smtp_username":   cfg.SMTPUsername,
-			"smtp_password":   maskedSMTPPass,
-			"smtp_encryption": cfg.SMTPEncryption,
-			"imap_host":       cfg.IMAPHost,
-			"imap_port":       cfg.IMAPPort,
-			"imap_username":   cfg.IMAPUsername,
-			"imap_password":   maskedIMAPPass,
-			"imap_encryption": cfg.IMAPEncryption,
-			"is_active":       cfg.IsActive,
+			"id":                 cfg.ID,
+			"provider":           cfg.Provider,
+			"email_address":      cfg.EmailAddress,
+			"sender_name":        cfg.SenderName,
+			"smtp_host":          cfg.SMTPHost,
+			"smtp_port":          cfg.SMTPPort,
+			"smtp_username":      cfg.SMTPUsername,
+			"smtp_password":      maskedSMTPPass,
+			"smtp_encryption":    cfg.SMTPEncryption,
+			"imap_host":          cfg.IMAPHost,
+			"imap_port":          cfg.IMAPPort,
+			"imap_username":      cfg.IMAPUsername,
+			"imap_password":      maskedIMAPPass,
+			"imap_encryption":    cfg.IMAPEncryption,
+			"is_active":          cfg.IsActive,
+			"auto_reply_enabled": cfg.AutoReplyEnabled,
+			"auto_reply_mode":    cfg.AutoReplyMode,
+			"auto_reply_subject": cfg.AutoReplySubject,
+			"auto_reply_message": cfg.AutoReplyMessage,
 		},
 	})
 }
@@ -170,6 +178,32 @@ func (h *EmailHandler) SendEmail(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Email berhasil terkirim ke " + req.To,
+	})
+}
+
+// GenerateAIReply menghasilkan draf jawaban email cerdas menggunakan Google Gemini AI
+func (h *EmailHandler) GenerateAIReply(c *gin.Context) {
+	var req struct {
+		Sender  string `json:"sender"`
+		Subject string `json:"subject"`
+		Body    string `json:"body" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Konten email masuk wajib disertakan"})
+		return
+	}
+
+	reply, err := services.GlobalEmailService.GenerateAIReply(req.Sender, req.Subject, req.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal menghasilkan balasan cerdas AI: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"data": gin.H{
+			"reply": reply,
+		},
 	})
 }
 

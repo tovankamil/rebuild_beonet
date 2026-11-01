@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -362,6 +363,11 @@ func (s *EmailService) FetchInbox(userID string, limit int) ([]models.EmailSumma
 		list[i], list[j] = list[j], list[i]
 	}
 
+	// Cek dan proses balasan otomatis (Auto-Reply) di latar belakang
+	if len(list) > 0 {
+		go s.ProcessAutoReplies(userID, list)
+	}
+
 	return list, nil
 }
 
@@ -582,5 +588,163 @@ func (s *EmailService) SendWelcomeEmail(toEmail, username, fullName string) erro
 	}()
 
 	return nil
+}
+
+// GenerateAIReply membuat draf jawaban email kontekstual menggunakan Google Gemini AI
+func (s *EmailService) GenerateAIReply(sender, subject, incomingBody string) (string, error) {
+	if GlobalGeminiService == nil {
+		return "", errors.New("layanan Gemini AI belum diinisialisasi")
+	}
+
+	prompt := fmt.Sprintf(`Anda adalah Customer Care dan Asisten Komunikasi Resmi Bionet Indonesia (Platform E-Commerce Herbal dan Bisnis Kemitraan Binary).
+Tugas Anda: Buat draf balasan email resmi yang sangat santun, empatik, solutif, dan profesional dalam Bahasa Indonesia.
+
+Informasi Email Masuk:
+- Pengirim: %s
+- Subjek: %s
+- Isi Pesan: %s
+
+Panduan Respon:
+1. Awali dengan salam hangat yang sopan kepada pengirim.
+2. Tanggapi inti pesan mereka secara jelas, informatif, dan solutif.
+   - Bila menanyakan produk/pengiriman RO: jelaskan produk herbal Bionet diproses sesuai nomor resi ekspedisi dan bisa dipantau langsung dari dashboard.
+   - Bila menanyakan kemitraan/bonus: jelaskan perhitungan bonus binary 1:1 dan pencairan dana diproses cepat via transfer bank.
+   - Bila menanyakan kendala teknis/akun: sampaikan langkah solutif dan tawarkan bantuan lanjutan.
+3. Akhiri dengan penutup yang ramah dan salam resmi:
+   "Salam Hangat,
+Tim Customer Care Bionet Indonesia
+Website: bionet.id"
+4. Jawab HANYA isi teks balasan email tersebut, tanpa awalan atau akhiran penjelasan meta.`, sender, subject, incomingBody)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+	defer cancel()
+
+	reply, err := GlobalGeminiService.GenerateText(ctx, prompt)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(reply), nil
+}
+
+// ProcessAutoReplies memproses pengiriman balasan otomatis untuk pesan masuk baru
+func (s *EmailService) ProcessAutoReplies(userID string, items []models.EmailSummary) {
+	cfg, err := s.GetActiveConfig(userID)
+	if err != nil || !cfg.AutoReplyEnabled || cfg.EmailAddress == "" {
+		return
+	}
+
+	for _, item := range items {
+		// Abaikan email yang lebih lama dari 48 jam agar tidak mengirim ke email lama
+		if time.Since(item.Date) > 48*time.Hour {
+			continue
+		}
+
+		rawFrom := strings.ToLower(item.From)
+		// Jangan balas diri sendiri
+		if strings.Contains(rawFrom, strings.ToLower(cfg.EmailAddress)) {
+			continue
+		}
+		// Abaikan notifikasi sistem, no-reply, bounce, daemon
+		if strings.Contains(rawFrom, "no-reply") ||
+			strings.Contains(rawFrom, "noreply") ||
+			strings.Contains(rawFrom, "mailer-daemon") ||
+			strings.Contains(rawFrom, "notifications@") ||
+			strings.Contains(rawFrom, "donotreply") ||
+			strings.Contains(rawFrom, "google.com") {
+			continue
+		}
+
+		// MessageID unik untuk logging
+		msgID := item.MessageID
+		if msgID == "" {
+			msgID = fmt.Sprintf("uid_%d_%s", item.UID, item.Date.Format("20060102150405"))
+		}
+
+		var count int64
+		config.DB.Model(&models.EmailAutoReplyLog{}).
+			Where("user_id = ? AND message_id = ?", userID, msgID).
+			Count(&count)
+		if count > 0 {
+			continue
+		}
+
+		targetEmail := extractEmailAddress(item.From)
+		if targetEmail == "" {
+			continue
+		}
+
+		replySubject := "Re: " + item.Subject
+		var replyBody string
+
+		if cfg.AutoReplyMode == "ai" && GlobalGeminiService != nil {
+			aiBody, err := s.GenerateAIReply(item.From, item.Subject, item.Snippet)
+			if err == nil && strings.TrimSpace(aiBody) != "" {
+				replyBody = aiBody
+			} else {
+				replyBody = cfg.AutoReplyMessage
+			}
+		} else {
+			if cfg.AutoReplySubject != "" {
+				replySubject = cfg.AutoReplySubject
+			}
+			replyBody = cfg.AutoReplyMessage
+			if strings.TrimSpace(replyBody) == "" {
+				replyBody = fmt.Sprintf("Halo,\n\nTerima kasih telah menghubungi Bionet Official.\n\nPesan Anda dengan subjek \"%s\" telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim Bionet Indonesia", item.Subject)
+			}
+		}
+
+		htmlReply := `<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #1e293b;">` +
+			stringsReplaceNewlinesForEmail(replyBody) +
+			`<hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />` +
+			`<p style="font-size: 11px; color: #94a3b8; margin: 0;">Pesan ini dikirim secara otomatis oleh Sistem Automasi Bionet Official.</p>` +
+			`</div>`
+
+		sendErr := s.SendEmail(userID, targetEmail, replySubject, htmlReply, replyBody, msgID, nil)
+		if sendErr != nil {
+			log.Printf("[AutoReply] Gagal mengirim balasan ke %s: %v", targetEmail, sendErr)
+			continue
+		}
+
+		// Catat ke database agar tidak pernah terkirim berulang ke pesan yang sama
+		logEntry := models.EmailAutoReplyLog{
+			UserID:    userID,
+			MessageID: msgID,
+			Sender:    targetEmail,
+			Subject:   item.Subject,
+			Mode:      cfg.AutoReplyMode,
+			RepliedAt: time.Now(),
+		}
+		config.DB.Create(&logEntry)
+		log.Printf("[AutoReply] Sukses mengirimkan auto-reply (%s) ke %s untuk pesan: %s", cfg.AutoReplyMode, targetEmail, item.Subject)
+	}
+}
+
+func extractEmailAddress(raw string) string {
+	start := strings.Index(raw, "<")
+	end := strings.Index(raw, ">")
+	if start != -1 && end != -1 && end > start {
+		return strings.TrimSpace(raw[start+1 : end])
+	}
+	parts := strings.Fields(raw)
+	for _, p := range parts {
+		clean := strings.Trim(p, "<>\",:;")
+		if strings.Contains(clean, "@") {
+			return clean
+		}
+	}
+	return strings.TrimSpace(raw)
+}
+
+func stringsReplaceNewlinesForEmail(s string) string {
+	var result string
+	for _, line := range strings.Split(s, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			result += "<br/>"
+		} else {
+			result += "<p style='margin: 0 0 10px;'>" + line + "</p>"
+		}
+	}
+	return result
 }
 

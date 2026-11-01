@@ -24,8 +24,30 @@ type EmailConfig struct {
 	IMAPPassword   string    `gorm:"type:varchar(255);not null" json:"imap_password"`
 	IMAPEncryption string    `gorm:"type:varchar(20);default:'ssl'" json:"imap_encryption"` // 'ssl', 'none'
 	IsActive       bool      `gorm:"default:true" json:"is_active"`
-	CreatedAt      time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt      time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	// Automasi Balas Pesan (Auto-Responder & Gemini AI)
+	AutoReplyEnabled bool   `gorm:"default:false" json:"auto_reply_enabled"`
+	AutoReplyMode    string `gorm:"type:varchar(20);default:'standard'" json:"auto_reply_mode"` // 'standard', 'ai'
+	AutoReplySubject string `gorm:"type:varchar(255);default:'Re: [Bionet Official] Konfirmasi Penerimaan Email'" json:"auto_reply_subject"`
+	AutoReplyMessage string `gorm:"type:text" json:"auto_reply_message"`
+	CreatedAt        time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt        time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+}
+
+type EmailAutoReplyLog struct {
+	ID        string    `gorm:"type:char(36);primaryKey" json:"id"`
+	UserID    string    `gorm:"type:char(36);not null;index" json:"user_id"`
+	MessageID string    `gorm:"type:varchar(255);not null;index" json:"message_id"`
+	Sender    string    `gorm:"type:varchar(150);not null" json:"sender"`
+	Subject   string    `gorm:"type:varchar(255);not null" json:"subject"`
+	Mode      string    `gorm:"type:varchar(20);default:'standard'" json:"mode"`
+	RepliedAt time.Time `gorm:"autoCreateTime" json:"replied_at"`
+}
+
+func (l *EmailAutoReplyLog) BeforeCreate(tx *gorm.DB) (err error) {
+	if l.ID == "" {
+		l.ID = uuid.New().String()
+	}
+	return
 }
 
 func (ec *EmailConfig) BeforeCreate(tx *gorm.DB) (err error) {

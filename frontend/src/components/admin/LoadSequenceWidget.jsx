@@ -1,19 +1,32 @@
 import React, { useState } from 'react';
-import { ExternalLink, ChevronDown } from 'lucide-react';
+import { ExternalLink, ChevronDown, CheckCircle2, ShieldCheck } from 'lucide-react';
 
-export default function LoadSequenceWidget() {
+export default function LoadSequenceWidget({
+  requestVelocity = 0,
+  totalThreats = 0,
+  resolutionRate = 100,
+}) {
   const [timeRange, setTimeRange] = useState('Last 24 Minutes');
-  const [scrubberPct, setScrubberPct] = useState(28); // percentage along the timeline
+  const [scrubberPct, setScrubberPct] = useState(35);
 
-  // Stepped sequence segments matching blueprint layout
-  // (x1, x2, y, color) with vertical drop lines
-  const segments = [
-    { x1: 25, x2: 135, y: 18, color: '#22d3ee', dropEnd: true },
-    { x1: 175, x2: 245, y: 32, color: '#10b981', dropStart: true, dropEnd: true },
-    { x1: 275, x2: 360, y: 32, color: '#22d3ee', dropEnd: true },
-    { x1: 385, x2: 440, y: 44, color: '#38bdf8', dropStart: true, dropEnd: true },
-    { x1: 455, x2: 485, y: 16, color: '#34d399', dropEnd: true },
-  ];
+  const isClean = totalThreats === 0;
+
+  // Stepped sequence segments matching blueprint layout with real dynamic tones
+  const segments = isClean
+    ? [
+        { x1: 25, x2: 135, y: 18, color: '#10b981', dropEnd: true },
+        { x1: 175, x2: 245, y: 26, color: '#34d399', dropStart: true, dropEnd: true },
+        { x1: 275, x2: 360, y: 26, color: '#22d3ee', dropEnd: true },
+        { x1: 385, x2: 440, y: 36, color: '#06b6d4', dropStart: true, dropEnd: true },
+        { x1: 455, x2: 485, y: 18, color: '#10b981', dropEnd: true },
+      ]
+    : [
+        { x1: 25, x2: 135, y: 18, color: '#f59e0b', dropEnd: true },
+        { x1: 175, x2: 245, y: 32, color: '#ef4444', dropStart: true, dropEnd: true },
+        { x1: 275, x2: 360, y: 32, color: '#22d3ee', dropEnd: true },
+        { x1: 385, x2: 440, y: 44, color: '#10b981', dropStart: true, dropEnd: true },
+        { x1: 455, x2: 485, y: 16, color: '#34d399', dropEnd: true },
+      ];
 
   const scrubberX = (scrubberPct / 100) * 500;
 
@@ -24,9 +37,12 @@ export default function LoadSequenceWidget() {
 
       {/* Header */}
       <div className="flex items-center justify-between pb-2.5 border-b border-[#0e3b2c]/60">
-        <h3 className="font-heading font-bold text-xs sm:text-sm text-white tracking-wide">
-          Load Sequence
-        </h3>
+        <div className="flex items-center gap-2">
+          <ShieldCheck size={14} className="text-cyan-400" />
+          <h3 className="font-heading font-bold text-xs sm:text-sm text-white tracking-wide">
+            Load Sequence
+          </h3>
+        </div>
         <button
           aria-label="Buka detail urutan beban"
           className="text-slate-400 hover:text-cyan-300 transition-colors p-1 rounded-lg"
@@ -36,18 +52,19 @@ export default function LoadSequenceWidget() {
         </button>
       </div>
 
-      {/* Metrics Row (Matching Blueprint: ○ 161.35 Alerts | Dropdown | ○ 96.15 Resolve) */}
+      {/* Metrics Row (Real Velocity & Resolution Rate) */}
       <div className="flex flex-wrap items-center justify-between gap-3 my-3">
-        {/* Metric 1: Alerts Velocity */}
+        {/* Metric 1: Request Rate / Real Velocity */}
         <div className="flex items-center gap-2">
-          {/* Ring badge */}
           <div className="w-4 h-4 rounded-full border-2 border-cyan-400 flex items-center justify-center shadow-[0_0_8px_rgba(6,182,212,0.4)]">
             <span className="w-1 h-1 rounded-full bg-cyan-400" />
           </div>
           <span className="font-extrabold text-sm sm:text-base text-white tracking-tight tabular-nums">
-            161.35
+            {requestVelocity > 0 ? requestVelocity.toLocaleString('id-ID') : '0.00'}
           </span>
-          <span className="text-[11px] text-slate-400">Alerts</span>
+          <span className="text-[11px] text-slate-400">
+            {totalThreats > 0 ? 'Threat Alerts' : 'Req/Min Rate'}
+          </span>
         </div>
 
         {/* Time Selector Dropdown */}
@@ -71,14 +88,13 @@ export default function LoadSequenceWidget() {
 
         {/* Metric 2: Resolution Rate */}
         <div className="flex items-center gap-2">
-          {/* Ring badge */}
-          <div className="w-4 h-4 rounded-full border-2 border-slate-300 flex items-center justify-center">
-            <span className="w-1 h-1 rounded-full bg-slate-300" />
+          <div className="w-4 h-4 rounded-full border-2 border-emerald-400 flex items-center justify-center shadow-[0_0_8px_rgba(16,185,129,0.3)]">
+            <span className="w-1 h-1 rounded-full bg-emerald-400" />
           </div>
-          <span className="font-extrabold text-sm sm:text-base text-white tracking-tight tabular-nums">
-            96.15
+          <span className="font-extrabold text-sm sm:text-base text-emerald-300 tracking-tight tabular-nums">
+            {resolutionRate}%
           </span>
-          <span className="text-[11px] text-slate-400">Resolve</span>
+          <span className="text-[11px] text-slate-400">Mitigated</span>
         </div>
       </div>
 
@@ -110,17 +126,15 @@ export default function LoadSequenceWidget() {
           {/* Stepped Event Segments & Vertical Connectors */}
           {segments.map((seg, i) => (
             <g key={i}>
-              {/* Horizontal line segment */}
               <line
                 x1={seg.x1}
-                y1={seg.y, seg.y}
+                y1={seg.y}
                 x2={seg.x2}
                 y2={seg.y}
                 stroke={seg.color}
                 strokeWidth="2.5"
                 strokeLinecap="round"
               />
-              {/* Vertical connector drop lines */}
               {seg.dropStart && (
                 <line
                   x1={seg.x1}
@@ -181,13 +195,14 @@ export default function LoadSequenceWidget() {
           />
         </svg>
 
-        {/* Timeline bottom timestamps */}
+        {/* Timeline bottom status */}
         <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono px-1 mt-1 tabular-nums">
-          <span>14:16</span>
-          <span className="text-cyan-300 font-bold">14:24</span>
-          <span>14:32</span>
-          <span>14:36</span>
-          <span>14:40</span>
+          <span>T-24m</span>
+          <span className="text-emerald-400 font-bold flex items-center gap-1">
+            <CheckCircle2 size={10} />
+            {isClean ? 'Perimeter Clean (0 Faults)' : `${totalThreats} Incidents Intercepted`}
+          </span>
+          <span>LIVE</span>
         </div>
       </div>
     </div>

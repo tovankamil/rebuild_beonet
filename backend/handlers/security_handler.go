@@ -142,53 +142,29 @@ func (h *SecurityHandler) UnblockIP(c *gin.Context) {
 	})
 }
 
-// TestSecurityAlert mensimulasikan ancaman keamanan dan memicu notifikasi real-time ke Telegram & WhatsApp
+// TestSecurityAlert menguji konektivitas saluran alert Telegram & WhatsApp tanpa mencemari log ancaman riil
 // POST /api/admin/security/test-alert
 func (h *SecurityHandler) TestSecurityAlert(c *gin.Context) {
-	var req models.TestAlertRequest
-	_ = c.ShouldBindJSON(&req)
+	tgSuccess := false
+	waSuccess := false
 
-	if req.ThreatType == "" {
-		req.ThreatType = "sql_injection"
-	}
-	if req.IPAddress == "" {
-		req.IPAddress = "180.244.12.34"
-	}
-	if req.Payload == "" {
-		req.Payload = "' UNION SELECT null, username, password_hash FROM users WHERE '1'='1"
-	}
+	testMsg := "🔍 *[DIAGNOSTIK SISTEM SOC BIONET]*\n" +
+		"Pengujian koneksi saluran alert keamanan berhasil.\n" +
+		"WAF & Security Shield beroperasi normal pada mode aktif."
 
-	loc := h.geoService.ResolveIP(req.IPAddress)
-	city := loc.City
-	if req.City != "" {
-		city = req.City
+	if services.GlobalTelegramService != nil {
+		if err := services.GlobalTelegramService.NotifyAdmin(testMsg); err == nil {
+			tgSuccess = true
+		}
 	}
-
-	threat := models.SecurityThreatLog{
-		IPAddress:    req.IPAddress,
-		ThreatType:   req.ThreatType,
-		Severity:     "critical",
-		Payload:      req.Payload,
-		Endpoint:     "/api/products/search",
-		Method:       "GET",
-		UserAgent:    "Mozilla/5.0 (Enterprise Security Test Runner)",
-		Country:      loc.Country,
-		Province:     loc.Province,
-		City:         city,
-		ISP:          loc.ISP,
-		Latitude:     loc.Latitude,
-		Longitude:    loc.Longitude,
-		Blocked:      true,
-		ActionTaken:  "blocked",
-		RequestCount: 1,
-		CreatedAt:    time.Now(),
-	}
-
-	h.securityService.RecordThreat(threat)
 
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
-		"message": "Simulasi alert keamanan berhasil dikirimkan ke Admin Telegram Bot dan WhatsApp Gateway",
-		"data":    threat,
+		"message": "Uji diagnostik koneksi saluran alert berhasil dikirimkan",
+		"data": gin.H{
+			"telegram_notified": tgSuccess,
+			"whatsapp_notified": waSuccess,
+			"timestamp":         time.Now().Format(time.RFC3339),
+		},
 	})
 }

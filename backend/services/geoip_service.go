@@ -104,7 +104,7 @@ func GetGeoIPService() *GeoIPService {
 			accessTypeCounts: make(map[string]int64),
 		}
 		svc.initIPRanges()
-		svc.seedInitialTraffic()
+		svc.loadTrafficFromDB()
 		GlobalGeoIPService = svc
 	})
 	return GlobalGeoIPService
@@ -387,29 +387,38 @@ func (s *GeoIPService) GetGeoTrafficSummary() models.GeoTrafficDTO {
 	}
 }
 
-// seedInitialTraffic creates realistic representative seed traffic across Indonesian cities
-func (s *GeoIPService) seedInitialTraffic() {
-	sampleAccesses := []struct {
-		ip         string
-		accessType string
-		username   string
-		endpoint   string
-	}{
-		{"114.120.45.12", "login", "mitra01", "/api/auth/login"},
-		{"36.65.12.90", "transaction", "mitra01", "/api/dashboard/withdrawals"},
-		{"180.240.89.21", "public_visit", "guest", "/api/bio/mitra01"},
-		{"36.80.11.44", "login", "admin01", "/api/auth/login"},
-		{"114.4.78.19", "transaction", "mitra01", "/api/pins/transfer"},
-		{"125.160.40.10", "public_visit", "guest", "/api/marketing/kits"},
-		{"110.136.22.8", "login", "mitra02", "/api/auth/login"},
-		{"118.96.14.99", "public_visit", "guest", "/api/bio/mitra01"},
-		{"114.124.33.7", "transaction", "mitra03", "/api/dashboard/withdrawals"},
-		{"103.28.190.5", "api", "admin01", "/api/admin/overview"},
-		{"112.215.80.33", "login", "gudang01", "/api/auth/login"},
-		{"103.111.40.12", "public_visit", "guest", "/api/marketing/webinars"},
+// loadTrafficFromDB memuat data akses murni dari database tanpa data tiruan/demo
+func (s *GeoIPService) loadTrafficFromDB() {
+	if config.DB == nil {
+		return
 	}
 
-	for _, sample := range sampleAccesses {
-		s.RecordAccess(sample.ip, sample.accessType, "", sample.username, sample.endpoint)
+	// 1. Hitung total kunjungan murni
+	var count int64
+	if err := config.DB.Model(&models.GeoAccessLog{}).Count(&count).Error; err == nil {
+		s.totalVisits = count
+	}
+
+	// 2. Ambil log akses terbaru
+	var logs []models.GeoAccessLog
+	if err := config.DB.Order("created_at asc").Limit(s.maxAccessLogs).Find(&logs).Error; err == nil {
+		s.recentAccessMu.Lock()
+		s.recentAccesses = logs
+		for _, logItem := range logs {
+			s.uniqueIPs[logItem.IPAddress] = true
+			if logItem.City != "" {
+				s.cityCounts[logItem.City]++
+			}
+			if logItem.Province != "" {
+				s.provinceCounts[logItem.Province]++
+			}
+			if logItem.ISP != "" {
+				s.ispCounts[logItem.ISP]++
+			}
+			if logItem.AccessType != "" {
+				s.accessTypeCounts[logItem.AccessType]++
+			}
+		}
+		s.recentAccessMu.Unlock()
 	}
 }

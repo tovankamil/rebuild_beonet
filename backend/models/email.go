@@ -61,9 +61,17 @@ type EmailDetail struct {
 }
 
 type SendEmailPayload struct {
-	To        string `json:"to" binding:"required"`
-	Subject   string `json:"subject" binding:"required"`
-	Body      string `json:"body" binding:"required"`
-	InReplyTo string `json:"in_reply_to"`
+	To          string            `json:"to" binding:"required"`
+	Subject     string            `json:"subject" binding:"required"`
+	Body        string            `json:"body" binding:"required"`
+	InReplyTo   string            `json:"in_reply_to"`
+	Attachments []EmailAttachment `json:"attachments"`
+}
+
+type EmailAttachment struct {
+	Filename    string `json:"filename"`
+	ContentType string `json:"content_type"`
+	Data        string `json:"data"` // base64 string
+	Size        int64  `json:"size"`
 }
 

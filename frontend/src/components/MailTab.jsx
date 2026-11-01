@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Mail,
   Send,
@@ -16,7 +16,10 @@ import {
   Server,
   Globe,
   HelpCircle,
-  FileText
+  FileText,
+  Paperclip,
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -141,12 +144,17 @@ export default function MailTab({ currentUser }) {
   const [configSaving, setConfigSaving] = useState(false);
   const [configMessage, setConfigMessage] = useState(null);
 
+  // File & Image attachment refs
+  const fileInputRef = useRef(null);
+  const imageInputRef = useRef(null);
+
   // Compose / Reply state
   const [composeForm, setComposeForm] = useState({
     to: '',
     subject: '',
     body: '',
     in_reply_to: '',
+    attachments: [],
   });
   const [sending, setSending] = useState(false);
   const [sendSuccess, setSendSuccess] = useState(null);
@@ -200,6 +208,59 @@ export default function MailTab({ currentUser }) {
     }
   };
 
+  const formatFileSize = (bytes) => {
+    if (!bytes || bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    files.forEach((file) => {
+      if (file.size > 20 * 1024 * 1024) {
+        alert(`File "${file.name}" terlalu besar (maksimal 20 MB).`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        const base64Data = typeof result === 'string' && result.includes(',')
+          ? result.split(',')[1]
+          : result;
+        const isImg = file.type.startsWith('image/');
+
+        setComposeForm((prev) => ({
+          ...prev,
+          attachments: [
+            ...(prev.attachments || []),
+            {
+              filename: file.name,
+              content_type: file.type || 'application/octet-stream',
+              data: base64Data,
+              size: file.size,
+              previewUrl: isImg ? result : null,
+            },
+          ],
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+
+    e.target.value = '';
+  };
+
+  const handleRemoveAttachment = (indexToRemove) => {
+    setComposeForm((prev) => ({
+      ...prev,
+      attachments: (prev.attachments || []).filter((_, idx) => idx !== indexToRemove),
+    }));
+  };
+
   const handleReply = (email) => {
     const cleanFrom = email.from.includes('<')
       ? email.from.split('<')[1].replace('>', '').trim()
@@ -212,6 +273,7 @@ export default function MailTab({ currentUser }) {
         email.body_text || email.snippet || ''
       }`,
       in_reply_to: email.message_id || '',
+      attachments: [],
     });
     setActiveView('compose');
   };
@@ -226,9 +288,21 @@ export default function MailTab({ currentUser }) {
     setSending(true);
     setSendSuccess(null);
     try {
-      const res = await api.post('/mail/send', composeForm);
+      const payload = {
+        to: composeForm.to,
+        subject: composeForm.subject,
+        body: composeForm.body,
+        in_reply_to: composeForm.in_reply_to,
+        attachments: (composeForm.attachments || []).map((att) => ({
+          filename: att.filename,
+          content_type: att.content_type,
+          data: att.data,
+          size: att.size,
+        })),
+      };
+      await api.post('/mail/send', payload);
       setSendSuccess('Email berhasil dikirim!');
-      setComposeForm({ to: '', subject: '', body: '', in_reply_to: '' });
+      setComposeForm({ to: '', subject: '', body: '', in_reply_to: '', attachments: [] });
       setTimeout(() => {
         setActiveView('inbox');
         fetchInbox();
@@ -330,7 +404,7 @@ export default function MailTab({ currentUser }) {
 
           <button
             onClick={() => {
-              setComposeForm({ to: '', subject: '', body: '', in_reply_to: '' });
+              setComposeForm({ to: '', subject: '', body: '', in_reply_to: '', attachments: [] });
               setActiveView('compose');
             }}
             className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
@@ -592,31 +666,119 @@ export default function MailTab({ currentUser }) {
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3">
-              <button
-                type="button"
-                onClick={() => setActiveView('inbox')}
-                className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl"
-              >
-                Kembali
-              </button>
-              <button
-                type="submit"
-                disabled={sending}
-                className="px-6 py-2.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl shadow-md shadow-sky-600/20 flex items-center gap-2 transition-all disabled:opacity-50"
-              >
-                {sending ? (
-                  <>
-                    <RefreshCw size={14} className="animate-spin" />
-                    Mengirim Email...
-                  </>
-                ) : (
-                  <>
-                    <Send size={14} />
-                    Kirim Sekarang
-                  </>
-                )}
-              </button>
+            {/* Hidden file & image inputs */}
+            <input
+              type="file"
+              multiple
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              ref={imageInputRef}
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+
+            {/* Attached files preview chips */}
+            {composeForm.attachments?.length > 0 && (
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between text-xs text-slate-600 font-semibold px-1">
+                  <span>Lampiran ({composeForm.attachments.length} file)</span>
+                  <span className="text-[11px] text-slate-400 font-normal">
+                    Total: {formatFileSize(composeForm.attachments.reduce((acc, a) => acc + (a.size || 0), 0))}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2.5 p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
+                  {composeForm.attachments.map((att, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2.5 bg-white border border-slate-200/90 rounded-xl p-2 pr-2.5 shadow-xs hover:border-slate-300 transition-colors"
+                    >
+                      {att.previewUrl ? (
+                        <img
+                          src={att.previewUrl}
+                          alt={att.filename}
+                          className="w-9 h-9 rounded-lg object-cover border border-slate-200 flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-lg bg-sky-50 border border-sky-100 flex items-center justify-center text-sky-600 flex-shrink-0">
+                          <FileText size={18} />
+                        </div>
+                      )}
+                      <div className="max-w-[170px] sm:max-w-[210px] min-w-0">
+                        <p className="font-semibold text-slate-800 truncate text-xs" title={att.filename}>
+                          {att.filename}
+                        </p>
+                        <p className="text-[10px] text-slate-400 font-medium">
+                          {formatFileSize(att.size)}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveAttachment(idx)}
+                        className="ml-1 p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors flex-shrink-0"
+                        title="Hapus lampiran ini"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Bottom action bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 rounded-xl flex items-center gap-1.5 transition-all border border-slate-200/80 shadow-xs"
+                >
+                  <Paperclip size={14} className="text-slate-500" />
+                  Lampirkan File
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => imageInputRef.current?.click()}
+                  className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 hover:text-slate-900 rounded-xl flex items-center gap-1.5 transition-all border border-slate-200/80 shadow-xs"
+                >
+                  <ImageIcon size={14} className="text-sky-600" />
+                  Tambah Gambar
+                </button>
+              </div>
+
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setActiveView('inbox')}
+                  className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-xl"
+                >
+                  Kembali
+                </button>
+                <button
+                  type="submit"
+                  disabled={sending}
+                  className="px-6 py-2.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl shadow-md shadow-sky-600/20 flex items-center gap-2 transition-all disabled:opacity-50"
+                >
+                  {sending ? (
+                    <>
+                      <RefreshCw size={14} className="animate-spin" />
+                      Mengirim Email...
+                    </>
+                  ) : (
+                    <>
+                      <Send size={14} />
+                      Kirim Sekarang
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </form>
         </div>

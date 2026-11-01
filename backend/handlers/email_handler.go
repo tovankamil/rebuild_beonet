@@ -161,7 +161,7 @@ func (h *EmailHandler) SendEmail(c *gin.Context) {
 		stringsReplaceNewlines(req.Body) +
 		`</div>`
 
-	err := services.GlobalEmailService.SendEmail(userID, req.To, req.Subject, htmlBody, textBody, req.InReplyTo)
+	err := services.GlobalEmailService.SendEmail(userID, req.To, req.Subject, htmlBody, textBody, req.InReplyTo, req.Attachments)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal mengirim email: " + err.Error()})
 		return

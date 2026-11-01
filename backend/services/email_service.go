@@ -46,7 +46,7 @@ func (s *EmailService) SaveConfig(cfg *models.EmailConfig) error {
 }
 
 // SendEmail mengirim email lewat SMTP (Mendukung Gmail Port 587/465 & Custom Domain)
-func (s *EmailService) SendEmail(userID string, to, subject, htmlBody, textBody, inReplyTo string) error {
+func (s *EmailService) SendEmail(userID string, to, subject, htmlBody, textBody, inReplyTo string, attachments []models.EmailAttachment) error {
 	cfg, err := s.GetActiveConfig(userID)
 	if err != nil {
 		return errors.New("pengaturan email belum dikonfigurasi. Silakan atur akun Gmail atau Custom Domain Anda terlebih dahulu")
@@ -57,45 +57,108 @@ func (s *EmailService) SendEmail(userID string, to, subject, htmlBody, textBody,
 		fromHeader = cfg.EmailAddress
 	}
 
-	headers := make(map[string]string)
-	headers["From"] = fromHeader
-	headers["To"] = to
-	headers["Subject"] = subject
-	headers["MIME-Version"] = "1.0"
-	headers["Date"] = time.Now().Format(time.RFC1123Z)
+	var msgBuilder strings.Builder
+	msgBuilder.WriteString(fmt.Sprintf("From: %s\r\n", fromHeader))
+	msgBuilder.WriteString(fmt.Sprintf("To: %s\r\n", to))
+	msgBuilder.WriteString(fmt.Sprintf("Subject: %s\r\n", subject))
+	msgBuilder.WriteString(fmt.Sprintf("Date: %s\r\n", time.Now().Format(time.RFC1123Z)))
+	msgBuilder.WriteString("MIME-Version: 1.0\r\n")
 
 	if inReplyTo != "" {
-		headers["In-Reply-To"] = inReplyTo
-		headers["References"] = inReplyTo
+		msgBuilder.WriteString(fmt.Sprintf("In-Reply-To: %s\r\n", inReplyTo))
+		msgBuilder.WriteString(fmt.Sprintf("References: %s\r\n", inReplyTo))
 	}
 
-	boundary := fmt.Sprintf("bionet_boundary_%d", time.Now().UnixNano())
-	headers["Content-Type"] = fmt.Sprintf("multipart/alternative; boundary=\"%s\"", boundary)
+	if len(attachments) == 0 {
+		boundary := fmt.Sprintf("bionet_boundary_%d", time.Now().UnixNano())
+		msgBuilder.WriteString(fmt.Sprintf("Content-Type: multipart/alternative; boundary=\"%s\"\r\n\r\n", boundary))
 
-	var msgBuilder strings.Builder
-	for k, v := range headers {
-		msgBuilder.WriteString(fmt.Sprintf("%s: %s\r\n", k, v))
-	}
-	msgBuilder.WriteString("\r\n")
+		// Plain text part
+		if textBody != "" {
+			msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", boundary))
+			msgBuilder.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n")
+			msgBuilder.WriteString("Content-Transfer-Encoding: 7bit\r\n\r\n")
+			msgBuilder.WriteString(textBody)
+			msgBuilder.WriteString("\r\n\r\n")
+		}
 
-	// Plain text part
-	if textBody != "" {
-		msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", boundary))
-		msgBuilder.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n")
-		msgBuilder.WriteString("Content-Transfer-Encoding: 7bit\r\n\r\n")
-		msgBuilder.WriteString(textBody)
-		msgBuilder.WriteString("\r\n\r\n")
-	}
+		// HTML part
+		if htmlBody != "" {
+			msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", boundary))
+			msgBuilder.WriteString("Content-Type: text/html; charset=\"UTF-8\"\r\n")
+			msgBuilder.WriteString("Content-Transfer-Encoding: 7bit\r\n\r\n")
+			msgBuilder.WriteString(htmlBody)
+			msgBuilder.WriteString("\r\n\r\n")
+		}
+		msgBuilder.WriteString(fmt.Sprintf("--%s--\r\n", boundary))
+	} else {
+		mixedBoundary := fmt.Sprintf("bionet_mixed_%d", time.Now().UnixNano())
+		altBoundary := fmt.Sprintf("bionet_alt_%d", time.Now().UnixNano())
+		msgBuilder.WriteString(fmt.Sprintf("Content-Type: multipart/mixed; boundary=\"%s\"\r\n\r\n", mixedBoundary))
 
-	// HTML part
-	if htmlBody != "" {
-		msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", boundary))
-		msgBuilder.WriteString("Content-Type: text/html; charset=\"UTF-8\"\r\n")
-		msgBuilder.WriteString("Content-Transfer-Encoding: 7bit\r\n\r\n")
-		msgBuilder.WriteString(htmlBody)
-		msgBuilder.WriteString("\r\n\r\n")
+		// Nested multipart/alternative for body
+		msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", mixedBoundary))
+		msgBuilder.WriteString(fmt.Sprintf("Content-Type: multipart/alternative; boundary=\"%s\"\r\n\r\n", altBoundary))
+
+		// Plain text part
+		if textBody != "" {
+			msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", altBoundary))
+			msgBuilder.WriteString("Content-Type: text/plain; charset=\"UTF-8\"\r\n")
+			msgBuilder.WriteString("Content-Transfer-Encoding: 7bit\r\n\r\n")
+			msgBuilder.WriteString(textBody)
+			msgBuilder.WriteString("\r\n\r\n")
+		}
+
+		// HTML part
+		if htmlBody != "" {
+			msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", altBoundary))
+			msgBuilder.WriteString("Content-Type: text/html; charset=\"UTF-8\"\r\n")
+			msgBuilder.WriteString("Content-Transfer-Encoding: 7bit\r\n\r\n")
+			msgBuilder.WriteString(htmlBody)
+			msgBuilder.WriteString("\r\n\r\n")
+		}
+		msgBuilder.WriteString(fmt.Sprintf("--%s--\r\n\r\n", altBoundary))
+
+		// Attachments
+		for _, att := range attachments {
+			contentType := att.ContentType
+			if contentType == "" {
+				contentType = "application/octet-stream"
+			}
+			filename := att.Filename
+			if filename == "" {
+				filename = "attachment"
+			}
+
+			// Clean base64 data
+			data := att.Data
+			if idx := strings.Index(data, ","); idx != -1 {
+				data = data[idx+1:]
+			}
+			data = strings.ReplaceAll(data, " ", "")
+			data = strings.ReplaceAll(data, "\r", "")
+			data = strings.ReplaceAll(data, "\n", "")
+
+			// Wrap base64 at 76 chars
+			var wrapped strings.Builder
+			for i := 0; i < len(data); i += 76 {
+				end := i + 76
+				if end > len(data) {
+					end = len(data)
+				}
+				wrapped.WriteString(data[i:end])
+				wrapped.WriteString("\r\n")
+			}
+
+			msgBuilder.WriteString(fmt.Sprintf("--%s\r\n", mixedBoundary))
+			msgBuilder.WriteString(fmt.Sprintf("Content-Type: %s; name=\"%s\"\r\n", contentType, filename))
+			msgBuilder.WriteString(fmt.Sprintf("Content-Disposition: attachment; filename=\"%s\"\r\n", filename))
+			msgBuilder.WriteString("Content-Transfer-Encoding: base64\r\n\r\n")
+			msgBuilder.WriteString(wrapped.String())
+			msgBuilder.WriteString("\r\n")
+		}
+		msgBuilder.WriteString(fmt.Sprintf("--%s--\r\n", mixedBoundary))
 	}
-	msgBuilder.WriteString(fmt.Sprintf("--%s--\r\n", boundary))
 
 	rawMsg := []byte(msgBuilder.String())
 	addr := fmt.Sprintf("%s:%d", cfg.SMTPHost, cfg.SMTPPort)
@@ -510,7 +573,7 @@ func (s *EmailService) SendWelcomeEmail(toEmail, username, fullName string) erro
 
 	// Kirim email asinkron lewat goroutine agar proses registrasi tetap instan
 	go func() {
-		err := s.SendEmail("system", toEmail, subject, htmlBody, textBody, "")
+		err := s.SendEmail("system", toEmail, subject, htmlBody, textBody, "", nil)
 		if err != nil {
 			log.Printf("[EmailService] Info: Pengiriman welcome email ke %s: %v", toEmail, err)
 		} else {

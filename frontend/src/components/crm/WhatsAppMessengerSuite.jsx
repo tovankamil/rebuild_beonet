@@ -158,8 +158,8 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
           ? `📹 Panggilan Video Selesai (Durasi: ${formattedDuration})`
           : `📞 Panggilan Suara Berakhir (Durasi: ${formattedDuration})`
         : isVideo
-        ? `📹 Panggilan Video Tak Terjawab`
-        : `📞 Panggilan Suara Tak Terjawab`;
+          ? `📹 Panggilan Video Tak Terjawab`
+          : `📞 Panggilan Suara Tak Terjawab`;
 
     const targetThreadId =
       activeThreadId || (callModalData.contact?.id || callModalData.contact?.ID);
@@ -648,7 +648,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
           if (res.data?.data) {
             setMessages(res.data.data);
           }
-        }).catch(() => {});
+        }).catch(() => { });
       }
     }, 2500);
     return () => clearInterval(interval);
@@ -1197,11 +1197,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
         <div className="mt-5 pt-4 border-t border-white/10 flex items-center space-x-1.5 overflow-x-auto">
           <button
             onClick={() => setActiveTab('chat')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
-              activeTab === 'chat'
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${activeTab === 'chat'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
                 : 'text-emerald-200 hover:bg-white/10'
-            }`}
+              }`}
           >
             <MessageSquare className="w-4 h-4" />
             <span>Live Web Messenger</span>
@@ -1212,11 +1211,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
           <button
             onClick={() => setActiveTab('broadcast')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
-              activeTab === 'broadcast'
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${activeTab === 'broadcast'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
                 : 'text-emerald-200 hover:bg-white/10'
-            }`}
+              }`}
           >
             <Zap className="w-4 h-4" />
             <span>Broadcast &amp; Blast</span>
@@ -1224,11 +1222,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
           <button
             onClick={() => setActiveTab('bot')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
-              activeTab === 'bot'
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${activeTab === 'bot'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
                 : 'text-emerald-200 hover:bg-white/10'
-            }`}
+              }`}
           >
             <Sparkles className="w-4 h-4 text-amber-300" />
             <span>Chatbot &amp; Auto-Responder</span>
@@ -1236,11 +1233,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
           <button
             onClick={() => setActiveTab('contacts')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
-              activeTab === 'contacts'
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${activeTab === 'contacts'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
                 : 'text-emerald-200 hover:bg-white/10'
-            }`}
+              }`}
           >
             <Users className="w-4 h-4" />
             <span>Buku Kontak &amp; .vcf</span>
@@ -1248,11 +1244,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
           <button
             onClick={() => setActiveTab('device')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
-              activeTab === 'device'
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${activeTab === 'device'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
                 : 'text-emerald-200 hover:bg-white/10'
-            }`}
+              }`}
           >
             <QrCode className="w-4 h-4" />
             <span>Perangkat &amp; QR Code</span>
@@ -1260,11 +1255,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
           <button
             onClick={() => setActiveTab('logs')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
-              activeTab === 'logs'
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${activeTab === 'logs'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
                 : 'text-emerald-200 hover:bg-white/10'
-            }`}
+              }`}
           >
             <Radio className="w-4 h-4" />
             <span>Log Telemetri Delivery</span>
@@ -1296,33 +1290,29 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
               <div className="flex items-center space-x-1 overflow-x-auto pb-0.5 text-[11px]">
                 <button
                   onClick={() => setThreadFilter('all')}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition ${
-                    threadFilter === 'all' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-200'
-                  }`}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition ${threadFilter === 'all' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-200'
+                    }`}
                 >
                   Semua
                 </button>
                 <button
                   onClick={() => setThreadFilter('unread')}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition ${
-                    threadFilter === 'unread' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-200'
-                  }`}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition ${threadFilter === 'unread' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-200'
+                    }`}
                 >
                   Belum Dibaca
                 </button>
                 <button
                   onClick={() => setThreadFilter('new')}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition ${
-                    threadFilter === 'new' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-200'
-                  }`}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition ${threadFilter === 'new' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-200'
+                    }`}
                 >
                   Baru
                 </button>
                 <button
                   onClick={() => setThreadFilter('health_journey')}
-                  className={`px-2.5 py-1 rounded-lg font-bold transition ${
-                    threadFilter === 'health_journey' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-200'
-                  }`}
+                  className={`px-2.5 py-1 rounded-lg font-bold transition ${threadFilter === 'health_journey' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-200'
+                    }`}
                 >
                   Siklus RO
                 </button>
@@ -1352,11 +1342,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                     <div
                       key={tId}
                       onClick={() => setActiveThreadId(tId)}
-                      className={`p-3.5 flex items-start space-x-3 cursor-pointer transition select-none ${
-                        isActive
+                      className={`p-3.5 flex items-start space-x-3 cursor-pointer transition select-none ${isActive
                           ? 'bg-emerald-50/90 border-l-4 border-l-emerald-600 shadow-xs'
                           : 'hover:bg-slate-100/80'
-                      }`}
+                        }`}
                     >
                       {/* Avatar with Online Badge */}
                       <div className="relative flex-shrink-0">
@@ -1379,9 +1368,9 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                           <span className="text-[10px] text-slate-400 font-mono">
                             {thread.last_message_time
                               ? new Date(thread.last_message_time).toLocaleTimeString('id-ID', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })
                               : 'Baru'}
                           </span>
                         </div>
@@ -1506,13 +1495,12 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                     <button
                       onClick={handleAnalyzeLeadScore}
                       disabled={aiScoring}
-                      className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition ${
-                        (activeThread.ai_score || 0) >= 80
+                      className={`px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition ${(activeThread.ai_score || 0) >= 80
                           ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
                           : (activeThread.ai_score || 0) >= 60
-                          ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                          : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                      }`}
+                            ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                            : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                        }`}
                       title="Analisis Skor Closing & Prediksi Repeat Order via AI"
                     >
                       <Sparkles className={`w-3.5 h-3.5 ${aiScoring ? 'animate-spin text-amber-500' : 'text-amber-600'}`} />
@@ -1634,11 +1622,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                           className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in duration-200`}
                         >
                           <div
-                            className={`max-w-[78%] sm:max-w-[65%] rounded-2xl px-3.5 py-2.5 shadow-xs text-xs relative ${
-                              isMe
+                            className={`max-w-[78%] sm:max-w-[65%] rounded-2xl px-3.5 py-2.5 shadow-xs text-xs relative ${isMe
                                 ? 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-tr-none'
                                 : 'bg-white text-slate-800 rounded-tl-none border border-slate-200/80'
-                            }`}
+                              }`}
                           >
                             {/* Media Attachment Display */}
                             {msg.media_url && (
@@ -1669,11 +1656,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     download
-                                    className={`flex items-center space-x-3 p-2.5 rounded-xl border transition ${
-                                      isMe
+                                    className={`flex items-center space-x-3 p-2.5 rounded-xl border transition ${isMe
                                         ? 'bg-emerald-700/60 hover:bg-emerald-700/90 border-emerald-400/30 text-white'
                                         : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800'
-                                    }`}
+                                      }`}
                                   >
                                     <div className={`p-2 rounded-lg flex-shrink-0 ${isMe ? 'bg-emerald-800 text-emerald-100' : 'bg-indigo-50 text-indigo-600'}`}>
                                       <FileText className="w-5 h-5" />
@@ -1696,9 +1682,8 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                             {msg.media_type === 'call_log' || (msg.text && (msg.text.includes('Panggilan Suara') || msg.text.includes('Panggilan Video'))) ? (
                               <div className="flex items-center space-x-2.5 py-1">
                                 <div
-                                  className={`p-2 rounded-xl flex-shrink-0 ${
-                                    isMe ? 'bg-emerald-700/80 text-white' : 'bg-emerald-50 text-emerald-700'
-                                  }`}
+                                  className={`p-2 rounded-xl flex-shrink-0 ${isMe ? 'bg-emerald-700/80 text-white' : 'bg-emerald-50 text-emerald-700'
+                                    }`}
                                 >
                                   {msg.text?.includes('Video') ? (
                                     <Video className="w-4 h-4" />
@@ -1717,9 +1702,8 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                                         msg.text?.includes('Video') ? 'video' : 'voice'
                                       )
                                     }
-                                    className={`text-[10px] font-semibold underline mt-0.5 hover:opacity-80 transition inline-block ${
-                                      isMe ? 'text-emerald-100' : 'text-emerald-700'
-                                    }`}
+                                    className={`text-[10px] font-semibold underline mt-0.5 hover:opacity-80 transition inline-block ${isMe ? 'text-emerald-100' : 'text-emerald-700'
+                                      }`}
                                   >
                                     Panggil Balik
                                   </button>
@@ -1732,16 +1716,15 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                             ) : null}
 
                             <div
-                              className={`flex items-center justify-end space-x-1 mt-1 text-[10px] ${
-                                isMe ? 'text-emerald-100/80' : 'text-slate-400'
-                              }`}
+                              className={`flex items-center justify-end space-x-1 mt-1 text-[10px] ${isMe ? 'text-emerald-100/80' : 'text-slate-400'
+                                }`}
                             >
                               <span>
                                 {msg.sent_at
                                   ? new Date(msg.sent_at).toLocaleTimeString('id-ID', {
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                    })
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })
                                   : ''}
                               </span>
                               {isMe && getDeliveryStatusIcon(msg.status)}
@@ -2192,11 +2175,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                       <div className="flex items-center space-x-1.5">
                         <button
                           onClick={() => handleToggleBotRule(rId)}
-                          className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition ${
-                            rule.is_active
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold transition ${rule.is_active
                               ? 'bg-emerald-600 text-white'
                               : 'bg-slate-100 text-slate-500'
-                          }`}
+                            }`}
                         >
                           {rule.is_active ? 'ON' : 'OFF'}
                         </button>
@@ -2646,11 +2628,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                       <button
                         key={p}
                         onClick={() => setContactPage(p)}
-                        className={`px-2.5 py-1 rounded-lg font-bold text-xs transition ${
-                          isActive
+                        className={`px-2.5 py-1 rounded-lg font-bold text-xs transition ${isActive
                             ? 'bg-emerald-600 text-white shadow-xs'
                             : 'border border-slate-200 text-slate-600 hover:bg-slate-100'
-                        }`}
+                          }`}
                       >
                         {p}
                       </button>
@@ -2841,8 +2822,8 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                 <div className="text-[11px] font-bold text-slate-500 flex items-center justify-center space-x-1.5">
                   <span className={`w-2 h-2 rounded-full ${deviceSession?.status === 'connected' ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
                   <span>
-                    {deviceSession?.status === 'connected' 
-                      ? '✓ Perangkat Terhubung & Siap Kirim Pesan' 
+                    {deviceSession?.status === 'connected'
+                      ? '✓ Perangkat Terhubung & Siap Kirim Pesan'
                       : 'Buka WhatsApp di HP > Perangkat Tertaut > Tautkan Perangkat'}
                   </span>
                 </div>
@@ -2896,7 +2877,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   <Sparkles className="w-4 h-4 text-emerald-600" />
                   <span>2 Cara Menggunakan Nomor WhatsApp Anda</span>
                 </h4>
-                
+
                 <div className="space-y-2.5 text-slate-700">
                   <div className="p-3 bg-white rounded-2xl border border-emerald-100 shadow-xs">
                     <div className="font-bold text-emerald-800 flex items-center space-x-1 mb-0.5">
@@ -3087,11 +3068,10 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                         </td>
                         <td className="py-2.5 px-3">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              l.direction === 'inbound'
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${l.direction === 'inbound'
                                 ? 'bg-amber-100 text-amber-800'
                                 : 'bg-blue-100 text-blue-800'
-                            }`}
+                              }`}
                           >
                             {l.direction === 'inbound' ? 'Masuk' : 'Keluar'}
                           </span>
@@ -3371,18 +3351,16 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
               <button
                 type="button"
                 onClick={() => setImportMode('paste')}
-                className={`px-3 py-1.5 rounded-xl font-bold text-xs transition ${
-                  importMode === 'paste' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
+                className={`px-3 py-1.5 rounded-xl font-bold text-xs transition ${importMode === 'paste' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
               >
                 📋 Copy-Paste Teks
               </button>
               <button
                 type="button"
                 onClick={() => setImportMode('file')}
-                className={`px-3 py-1.5 rounded-xl font-bold text-xs transition ${
-                  importMode === 'file' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
+                className={`px-3 py-1.5 rounded-xl font-bold text-xs transition ${importMode === 'file' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
               >
                 📁 Upload File (CSV / .vcf)
               </button>

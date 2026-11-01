@@ -20,6 +20,7 @@ import {
   Volume2,
   CreditCard,
   Calculator,
+  Award,
 } from 'lucide-react';
 import api from '../services/api';
 import { playCoinChime } from '../utils/soundNotification';
@@ -35,6 +36,8 @@ export default function Header({
   onOpenProspectCalculator,
   onOpenDigitalCard,
   onOpenCertificate,
+  onOpenRankRewards,
+  onOpenMidtrans,
 }) {
   const [copied, setCopied] = useState(false);
   const [chimePlayed, setChimePlayed] = useState(false);
@@ -445,6 +448,19 @@ export default function Header({
           >
             <CreditCard size={13} className="text-emerald-600" />
             <span>KTA Digital</span>
+          </button>
+        )}
+
+        {/* Module 8 Quick Trigger: Jenjang Karir & Reward Kemitraan */}
+        {onOpenRankRewards && (
+          <button
+            type="button"
+            onClick={onOpenRankRewards}
+            title="Jenjang Karir & Klaim Reward Bionet (Bronze s/d Crown Diamond)"
+            className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-50 to-emerald-50 hover:from-amber-100/80 hover:to-emerald-100/80 text-amber-900 border border-amber-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
+          >
+            <Award size={13} className="text-amber-600" />
+            <span>Karir &amp; Reward</span>
           </button>
         )}
 

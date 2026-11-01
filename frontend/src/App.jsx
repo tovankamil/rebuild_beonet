@@ -37,6 +37,8 @@ import ProspectingCalculatorModal from './components/prospecting/ProspectingCalc
 import DigitalMemberCardModal from './components/credentials/DigitalMemberCardModal';
 import ECertificateModal from './components/credentials/ECertificateModal';
 import BionetLuckyWheelModal from './components/gamification/BionetLuckyWheelModal';
+import BionetRankRewardsModal from './components/gamification/BionetRankRewardsModal';
+import MidtransSnapModal from './components/payment/MidtransSnapModal';
 import PwaInstallBanner from './components/pwa/PwaInstallBanner';
 import LoginPage from './pages/LoginPage';
 import PublicStorefrontPage from './components/store/PublicStorefrontPage';
@@ -83,16 +85,35 @@ export default function App() {
   const [digitalCardOpen, setDigitalCardOpen] = useState(false);
   const [certificateOpen, setCertificateOpen] = useState(false);
   const [luckyWheelOpen, setLuckyWheelOpen] = useState(false);
+  const [rankRewardsOpen, setRankRewardsOpen] = useState(false);
+  const [midtransModalOpen, setMidtransModalOpen] = useState(false);
+  const [midtransPaymentData, setMidtransPaymentData] = useState(null);
 
   useEffect(() => {
     const handleOpenWheel = () => setLuckyWheelOpen(true);
+    const handleOpenRanks = () => setRankRewardsOpen(true);
+    const handleOpenMidtrans = (e) => {
+      setMidtransPaymentData(e?.detail || null);
+      setMidtransModalOpen(true);
+    };
+
     window.addEventListener('bionet:open-wheel', handleOpenWheel);
-    return () => window.removeEventListener('bionet:open-wheel', handleOpenWheel);
+    window.addEventListener('bionet:open-ranks', handleOpenRanks);
+    window.addEventListener('bionet:open-midtrans', handleOpenMidtrans);
+
+    return () => {
+      window.removeEventListener('bionet:open-wheel', handleOpenWheel);
+      window.removeEventListener('bionet:open-ranks', handleOpenRanks);
+      window.removeEventListener('bionet:open-midtrans', handleOpenMidtrans);
+    };
   }, []);
 
   useEffect(() => {
     if (activeTab === 'lucky-wheel') {
       setLuckyWheelOpen(true);
+      setActiveTab('overview');
+    } else if (activeTab === 'rank-rewards') {
+      setRankRewardsOpen(true);
       setActiveTab('overview');
     }
   }, [activeTab]);
@@ -321,6 +342,8 @@ export default function App() {
         onOpenProspectCalculator={() => setProspectCalculatorOpen(true)}
         onOpenDigitalCard={() => setDigitalCardOpen(true)}
         onOpenCertificate={() => setCertificateOpen(true)}
+        onOpenRankRewards={() => setRankRewardsOpen(true)}
+        onOpenMidtrans={(data) => { setMidtransPaymentData(data || null); setMidtransModalOpen(true); }}
       />
 
       {/* 2. Main Content Wrapper */}
@@ -336,6 +359,8 @@ export default function App() {
           onOpenProspectCalculator={() => setProspectCalculatorOpen(true)}
           onOpenDigitalCard={() => setDigitalCardOpen(true)}
           onOpenCertificate={() => setCertificateOpen(true)}
+          onOpenRankRewards={() => setRankRewardsOpen(true)}
+          onOpenMidtrans={(data) => { setMidtransPaymentData(data || null); setMidtransModalOpen(true); }}
         />
 
         {/* 3. Fluid Full-Width Page Content Area with Seamless Edge-to-Edge Grid Alignment */}
@@ -557,6 +582,27 @@ export default function App() {
         isOpen={luckyWheelOpen}
         onClose={() => setLuckyWheelOpen(false)}
         currentUser={user}
+      />
+
+      {/* Module 8: Sistem Peringkat & Klaim Reward Karir Bionet */}
+      <BionetRankRewardsModal
+        isOpen={rankRewardsOpen}
+        onClose={() => setRankRewardsOpen(false)}
+        currentUser={user}
+        onRewardClaimed={() => {
+          fetchStats();
+        }}
+      />
+
+      {/* Module 9: Pembayaran Otomatis Midtrans Snap QRIS & VA */}
+      <MidtransSnapModal
+        isOpen={midtransModalOpen}
+        onClose={() => setMidtransModalOpen(false)}
+        orderData={midtransPaymentData}
+        currentUser={user}
+        onPaymentSuccess={(result) => {
+          fetchStats();
+        }}
       />
 
       {/* Floating AI Copilot Widget */}

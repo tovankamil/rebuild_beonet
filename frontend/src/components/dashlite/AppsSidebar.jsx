@@ -237,6 +237,22 @@ function getRoleMenuModules(role) {
           },
         ],
       },
+      {
+        id: 'rank-rewards',
+        title: 'Jenjang Karir & Reward',
+        icon: Award,
+        badge: 'Rp 300 Jt',
+        action: 'open_rank_rewards',
+        submenus: [
+          {
+            id: 'rank-rewards',
+            title: '🏆 Jenjang Karir & Reward',
+            desc: 'Katalog reward & kualifikasi PV Bronze s/d Crown',
+            icon: Award,
+            action: 'open_rank_rewards',
+          },
+        ],
+      },
     ];
   }
 
@@ -426,6 +442,22 @@ function getRoleMenuModules(role) {
       ],
     },
     {
+      id: 'rank-rewards',
+      title: 'Jenjang Karir & Reward',
+      icon: Award,
+      badge: 'Rp 300 Jt',
+      action: 'open_rank_rewards',
+      submenus: [
+        {
+          id: 'rank-rewards',
+          title: '🏆 Jenjang Karir & Reward',
+          desc: 'Kualifikasi PV Kiri/Kanan & Klaim Hadiah Tunai/Kendaraan',
+          icon: Award,
+          action: 'open_rank_rewards',
+        },
+      ],
+    },
+    {
       id: 'genealogy',
       title: 'Jaringan & Pohon Binary',
       icon: GitFork,
@@ -554,6 +586,8 @@ export default function AppsSidebar({
   onOpenProspectCalculator,
   onOpenDigitalCard,
   onOpenCertificate,
+  onOpenRankRewards,
+  onOpenMidtrans,
 }) {
   const { branding } = useBranding();
   const [hoveredMenu, setHoveredMenu] = useState(null);
@@ -640,6 +674,11 @@ export default function AppsSidebar({
       window.dispatchEvent(new Event('bionet:open-wheel'));
       return;
     }
+    if (item.action === 'open_rank_rewards' || item.id === 'rank-rewards') {
+      if (onOpenRankRewards) onOpenRankRewards();
+      else window.dispatchEvent(new Event('bionet:open-ranks'));
+      return;
+    }
     if (item.id === 'profile') {
       if (onOpenProfile) onOpenProfile('profile');
       return;
@@ -675,6 +714,9 @@ export default function AppsSidebar({
       if (onOpenCertificate) onOpenCertificate();
     } else if (sub.action === 'open_lucky_wheel' || sub.id === 'lucky-wheel') {
       window.dispatchEvent(new Event('bionet:open-wheel'));
+    } else if (sub.action === 'open_rank_rewards' || sub.id === 'rank-rewards') {
+      if (onOpenRankRewards) onOpenRankRewards();
+      else window.dispatchEvent(new Event('bionet:open-ranks'));
     } else if (sub.id) {
       setActiveTab(sub.id);
       if (sub.subView) {
@@ -748,6 +790,9 @@ export default function AppsSidebar({
       if (onOpenCertificate) onOpenCertificate();
     } else if (sub.action === 'open_lucky_wheel' || sub.id === 'lucky-wheel') {
       window.dispatchEvent(new Event('bionet:open-wheel'));
+    } else if (sub.action === 'open_rank_rewards' || sub.id === 'rank-rewards') {
+      if (onOpenRankRewards) onOpenRankRewards();
+      else window.dispatchEvent(new Event('bionet:open-ranks'));
     } else if (sub.id) {
       setActiveTab(sub.id);
       if (sub.subView) {

@@ -628,6 +628,10 @@ func main() {
 		&models.TikTokConfig{},
 		&models.TikTokVideo{},
 		&models.TikTokComment{},
+		&models.PaymentTransaction{},
+		&models.RankDefinition{},
+		&models.UserRank{},
+		&models.RankRewardClaim{},
 	}
 	for _, m := range allModels {
 		if err := config.DB.AutoMigrate(m); err != nil {
@@ -678,6 +682,9 @@ func main() {
 	aiHandler := handlers.NewAIHandler()
 	securityHandler := handlers.NewSecurityHandler()
 	brandingHandler := handlers.NewBrandingHandler("./uploads")
+	midtransService := services.NewMidtransService()
+	paymentHandler := handlers.NewPaymentHandler(midtransService)
+	rankHandler := handlers.NewRankHandler()
 
 	// Initialize Google Gemini AI Service
 	if _, err := services.NewGeminiService(); err != nil {
@@ -709,9 +716,18 @@ func main() {
 	// Native WebRTC Video Conference Signaling WebSocket Hub
 	r.GET("/ws/meetings/:room_id", meetingHandler.MeetingSignalingHandler)
 
+	// Midtrans Public Webhook & Payment Configuration
+	r.POST("/api/public/midtrans/webhook", paymentHandler.HandleMidtransWebhook)
+	r.GET("/api/public/payment/config", paymentHandler.GetPaymentConfig)
+
 	// Public Routes
 	api := r.Group("/api")
 	{
+		// Protected Midtrans Payment Gateway Group
+		paymentGroup := api.Group("/payment", middleware.AuthMiddleware())
+		{
+			paymentGroup.POST("/midtrans/token", paymentHandler.CreateSnapToken)
+		}
 		api.GET("/ping", func(c *gin.Context) {
 			c.JSON(200, gin.H{
 				"status":  "success",
@@ -747,6 +763,7 @@ func main() {
 		// Public Verification (Module 5: Digital ID & Certificate Verification)
 		api.GET("/public/verify/member/:id", verificationHandler.VerifyMember)
 		api.GET("/public/verify/certificate/:cert_no", verificationHandler.VerifyCertificate)
+		api.GET("/ranks/catalog", rankHandler.GetStandardRanks)
 
 		// Public Prospecting Simulation (Module 4)
 		api.POST("/prospecting/simulate", prospectingHandler.Simulate)
@@ -829,6 +846,11 @@ func main() {
 
 			// Products
 			protected.GET("/products", dashboardHandler.GetProducts)
+
+			// Jenjang Karir & Klaim Reward (Module 8)
+			protected.GET("/ranks/my-progress", rankHandler.GetMyRankProgress)
+			protected.POST("/ranks/claim", rankHandler.ClaimReward)
+			protected.GET("/ranks/catalog", rankHandler.GetStandardRanks)
 
 			// Dynamic RBAC Menu for Current User
 			protected.GET("/rbac/my-menus", rbacHandler.GetMyMenus)
@@ -1022,9 +1044,10 @@ func main() {
 				adminGroup.GET("/orders", adminHandler.GetOrders)
 				adminGroup.PATCH("/orders/:id/status", middleware.RequireRole("admin", "gudang", "keuangan"), adminHandler.UpdateOrderStatus)
 
-				// Withdrawals Approval (Admin & Keuangan)
+				// Withdrawals Approval & Automated Disbursement (Admin & Keuangan)
 				adminGroup.GET("/withdrawals", middleware.RequireRole("admin", "keuangan"), adminHandler.GetWithdrawals)
 				adminGroup.PATCH("/withdrawals/:id/status", middleware.RequireRole("admin", "keuangan"), adminHandler.UpdateWithdrawalStatus)
+				adminGroup.POST("/withdrawals/:id/payout", paymentHandler.ProcessAutoDisbursement)
 
 				// Fraud Control & Risk Monitoring (Admin & Keuangan)
 				adminGroup.GET("/fraud/overview", middleware.RequireRole("admin", "keuangan"), fraudHandler.GetFraudOverview)

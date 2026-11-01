@@ -253,6 +253,22 @@ function getRoleMenuModules(role) {
           },
         ],
       },
+      {
+        id: 'herbal-farm',
+        title: 'Kebun Herbal & Lebah',
+        icon: Droplets,
+        badge: 'Farm',
+        action: 'open_herbal_farm',
+        submenus: [
+          {
+            id: 'herbal-farm',
+            title: '🏡 Kebun Herbal & Lebah Trigona',
+            desc: 'Simulasi kebun herbal, rawat lebah & panen madu',
+            icon: Droplets,
+            action: 'open_herbal_farm',
+          },
+        ],
+      },
     ];
   }
 
@@ -458,6 +474,22 @@ function getRoleMenuModules(role) {
       ],
     },
     {
+      id: 'herbal-farm',
+      title: 'Kebun Herbal & Lebah',
+      icon: Droplets,
+      badge: 'Farm',
+      action: 'open_herbal_farm',
+      submenus: [
+        {
+          id: 'herbal-farm',
+          title: '🏡 Kebun Herbal & Lebah Trigona',
+          desc: 'Rawat tanaman herbal & lebah klanceng, panen madu & voucher RO!',
+          icon: Droplets,
+          action: 'open_herbal_farm',
+        },
+      ],
+    },
+    {
       id: 'genealogy',
       title: 'Jaringan & Pohon Binary',
       icon: GitFork,
@@ -587,6 +619,7 @@ export default function AppsSidebar({
   onOpenDigitalCard,
   onOpenCertificate,
   onOpenRankRewards,
+  onOpenHerbalFarm,
   onOpenMidtrans,
 }) {
   const { branding } = useBranding();
@@ -679,6 +712,11 @@ export default function AppsSidebar({
       else window.dispatchEvent(new Event('bionet:open-ranks'));
       return;
     }
+    if (item.action === 'open_herbal_farm' || item.id === 'herbal-farm') {
+      if (onOpenHerbalFarm) onOpenHerbalFarm();
+      else window.dispatchEvent(new Event('bionet:open-farm'));
+      return;
+    }
     if (item.id === 'profile') {
       if (onOpenProfile) onOpenProfile('profile');
       return;
@@ -717,6 +755,9 @@ export default function AppsSidebar({
     } else if (sub.action === 'open_rank_rewards' || sub.id === 'rank-rewards') {
       if (onOpenRankRewards) onOpenRankRewards();
       else window.dispatchEvent(new Event('bionet:open-ranks'));
+    } else if (sub.action === 'open_herbal_farm' || sub.id === 'herbal-farm') {
+      if (onOpenHerbalFarm) onOpenHerbalFarm();
+      else window.dispatchEvent(new Event('bionet:open-farm'));
     } else if (sub.id) {
       setActiveTab(sub.id);
       if (sub.subView) {
@@ -793,6 +834,9 @@ export default function AppsSidebar({
     } else if (sub.action === 'open_rank_rewards' || sub.id === 'rank-rewards') {
       if (onOpenRankRewards) onOpenRankRewards();
       else window.dispatchEvent(new Event('bionet:open-ranks'));
+    } else if (sub.action === 'open_herbal_farm' || sub.id === 'herbal-farm') {
+      if (onOpenHerbalFarm) onOpenHerbalFarm();
+      else window.dispatchEvent(new Event('bionet:open-farm'));
     } else if (sub.id) {
       setActiveTab(sub.id);
       if (sub.subView) {

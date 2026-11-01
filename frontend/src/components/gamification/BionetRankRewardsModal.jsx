@@ -413,3 +413,4 @@ export default function BionetRankRewardsModal({ isOpen, onClose, currentUser })
     </ModalPortal>
   );
 }
+

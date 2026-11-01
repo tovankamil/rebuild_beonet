@@ -38,6 +38,7 @@ import DigitalMemberCardModal from './components/credentials/DigitalMemberCardMo
 import ECertificateModal from './components/credentials/ECertificateModal';
 import BionetLuckyWheelModal from './components/gamification/BionetLuckyWheelModal';
 import BionetRankRewardsModal from './components/gamification/BionetRankRewardsModal';
+import BionetHerbalFarmModal from './components/gamification/BionetHerbalFarmModal';
 import MidtransSnapModal from './components/payment/MidtransSnapModal';
 import PwaInstallBanner from './components/pwa/PwaInstallBanner';
 import LoginPage from './pages/LoginPage';
@@ -86,12 +87,14 @@ export default function App() {
   const [certificateOpen, setCertificateOpen] = useState(false);
   const [luckyWheelOpen, setLuckyWheelOpen] = useState(false);
   const [rankRewardsOpen, setRankRewardsOpen] = useState(false);
+  const [herbalFarmOpen, setHerbalFarmOpen] = useState(false);
   const [midtransModalOpen, setMidtransModalOpen] = useState(false);
   const [midtransPaymentData, setMidtransPaymentData] = useState(null);
 
   useEffect(() => {
     const handleOpenWheel = () => setLuckyWheelOpen(true);
     const handleOpenRanks = () => setRankRewardsOpen(true);
+    const handleOpenFarm = () => setHerbalFarmOpen(true);
     const handleOpenMidtrans = (e) => {
       setMidtransPaymentData(e?.detail || null);
       setMidtransModalOpen(true);
@@ -99,11 +102,13 @@ export default function App() {
 
     window.addEventListener('bionet:open-wheel', handleOpenWheel);
     window.addEventListener('bionet:open-ranks', handleOpenRanks);
+    window.addEventListener('bionet:open-farm', handleOpenFarm);
     window.addEventListener('bionet:open-midtrans', handleOpenMidtrans);
 
     return () => {
       window.removeEventListener('bionet:open-wheel', handleOpenWheel);
       window.removeEventListener('bionet:open-ranks', handleOpenRanks);
+      window.removeEventListener('bionet:open-farm', handleOpenFarm);
       window.removeEventListener('bionet:open-midtrans', handleOpenMidtrans);
     };
   }, []);
@@ -114,6 +119,9 @@ export default function App() {
       setActiveTab('overview');
     } else if (activeTab === 'rank-rewards') {
       setRankRewardsOpen(true);
+      setActiveTab('overview');
+    } else if (activeTab === 'herbal-farm') {
+      setHerbalFarmOpen(true);
       setActiveTab('overview');
     }
   }, [activeTab]);
@@ -343,6 +351,7 @@ export default function App() {
         onOpenDigitalCard={() => setDigitalCardOpen(true)}
         onOpenCertificate={() => setCertificateOpen(true)}
         onOpenRankRewards={() => setRankRewardsOpen(true)}
+        onOpenHerbalFarm={() => setHerbalFarmOpen(true)}
         onOpenMidtrans={(data) => { setMidtransPaymentData(data || null); setMidtransModalOpen(true); }}
       />
 
@@ -360,6 +369,7 @@ export default function App() {
           onOpenDigitalCard={() => setDigitalCardOpen(true)}
           onOpenCertificate={() => setCertificateOpen(true)}
           onOpenRankRewards={() => setRankRewardsOpen(true)}
+          onOpenHerbalFarm={() => setHerbalFarmOpen(true)}
           onOpenMidtrans={(data) => { setMidtransPaymentData(data || null); setMidtransModalOpen(true); }}
         />
 
@@ -588,6 +598,16 @@ export default function App() {
       <BionetRankRewardsModal
         isOpen={rankRewardsOpen}
         onClose={() => setRankRewardsOpen(false)}
+        currentUser={user}
+        onRewardClaimed={() => {
+          fetchStats();
+        }}
+      />
+
+      {/* Module 10: Game Intermezo Kebun Herbal & Peternakan Lebah (Ala Shopee Farm) */}
+      <BionetHerbalFarmModal
+        isOpen={herbalFarmOpen}
+        onClose={() => setHerbalFarmOpen(false)}
         currentUser={user}
         onRewardClaimed={() => {
           fetchStats();

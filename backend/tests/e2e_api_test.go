@@ -174,6 +174,7 @@ func setupTestServer() *gin.Engine {
 	aiHandler := handlers.NewAIHandler()
 	securityHandler := handlers.NewSecurityHandler()
 	brandingHandler := handlers.NewBrandingHandler("./uploads")
+	farmHandler := handlers.NewFarmHandler(nil)
 
 	r := gin.New()
 	r.Use(middleware.CORSMiddleware())
@@ -294,6 +295,19 @@ func setupTestServer() *gin.Engine {
 			protected.GET("/academy/modules", gamificationHandler.GetAcademyModules)
 			protected.POST("/academy/complete", gamificationHandler.CompleteAcademyModule)
 			protected.GET("/gamification/inactivity-alerts", gamificationHandler.GetInactivityAlerts)
+
+			// Kebun Herbal & Peternakan Lebah Bionet
+			farmGroup := protected.Group("/farm")
+			{
+				farmGroup.GET("/state", farmHandler.GetFarmState)
+				farmGroup.POST("/plant", farmHandler.PlantSeed)
+				farmGroup.POST("/water", farmHandler.WaterPlant)
+				farmGroup.POST("/harvest", farmHandler.HarvestPlant)
+				farmGroup.POST("/feed-pet", farmHandler.FeedPet)
+				farmGroup.GET("/friends", farmHandler.GetFarmFriends)
+				farmGroup.POST("/help-water/:friend_id", farmHandler.HelpWaterFriend)
+				farmGroup.POST("/daily-bonus", farmHandler.ClaimDailyWaterBonus)
+			}
 
 			// Admin Enterprise Security Routes (STRICT RequireRole("admin"))
 			adminGroup := protected.Group("/admin")

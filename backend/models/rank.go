@@ -47,3 +47,4 @@ type RankRewardClaim struct {
 	CreatedAt   time.Time `json:"created_at"`
 	User        *User     `gorm:"foreignKey:UserID" json:"user,omitempty"`
 }
+

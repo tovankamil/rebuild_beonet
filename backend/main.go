@@ -435,6 +435,31 @@ func seedDefaultData() {
 				})
 			}
 		}
+
+		// Ensure farm gamification menu & permissions exist
+		var farmMenu models.AppMenu
+		if err := config.DB.Where("menu_key = ?", "farm").First(&farmMenu).Error; err != nil {
+			config.DB.Create(&models.AppMenu{
+				ID:          uuid.New().String(),
+				MenuKey:     "farm",
+				Title:       "Kebun Herbal & Peternakan",
+				Description: "Gamifikasi siram tanaman herbal, lebah trigona & panen bonus",
+				Category:    "Bisnis",
+				IconName:    "Sprout",
+				OrderIndex:  14,
+			})
+		}
+		for _, r := range []string{"admin", "member", "cs", "keuangan"} {
+			var p models.RoleMenuPermission
+			if err := config.DB.Where("role = ? AND menu_key = ?", r, "farm").First(&p).Error; err != nil {
+				config.DB.Create(&models.RoleMenuPermission{
+					ID:        uuid.New().String(),
+					Role:      r,
+					MenuKey:   "farm",
+					IsEnabled: true,
+				})
+			}
+		}
 	}
 
 	// Seed demo notifications & chats for rich first experience across roles
@@ -632,6 +657,11 @@ func main() {
 		&models.RankDefinition{},
 		&models.UserRank{},
 		&models.RankRewardClaim{},
+		&models.UserFarmPlot{},
+		&models.FarmPet{},
+		&models.FarmWaterTank{},
+		&models.FarmFriendVisit{},
+		&models.FarmHarvestLog{},
 	}
 	for _, m := range allModels {
 		if err := config.DB.AutoMigrate(m); err != nil {
@@ -685,6 +715,8 @@ func main() {
 	midtransService := services.NewMidtransService()
 	paymentHandler := handlers.NewPaymentHandler(midtransService)
 	rankHandler := handlers.NewRankHandler()
+	farmService := services.GetFarmService()
+	farmHandler := handlers.NewFarmHandler(farmService)
 
 	// Initialize Google Gemini AI Service
 	if _, err := services.NewGeminiService(); err != nil {
@@ -958,6 +990,19 @@ func main() {
 			protected.GET("/gamification/inactivity-alerts", gamificationHandler.GetInactivityAlerts)
 			protected.GET("/gamification/wheel/status", gamificationHandler.GetWheelStatus)
 			protected.POST("/gamification/wheel/spin", gamificationHandler.SpinWheel)
+
+			// Kebun Herbal & Peternakan Lebah Bionet (Shopee Farm Gamification Engine)
+			farmGroup := protected.Group("/farm")
+			{
+				farmGroup.GET("/state", farmHandler.GetFarmState)
+				farmGroup.POST("/plant", farmHandler.PlantSeed)
+				farmGroup.POST("/water", farmHandler.WaterPlant)
+				farmGroup.POST("/harvest", farmHandler.HarvestPlant)
+				farmGroup.POST("/feed-pet", farmHandler.FeedPet)
+				farmGroup.GET("/friends", farmHandler.GetFarmFriends)
+				farmGroup.POST("/help-water/:friend_id", farmHandler.HelpWaterFriend)
+				farmGroup.POST("/daily-bonus", farmHandler.ClaimDailyWaterBonus)
+			}
 
 			// PWA Web Push Notification (Module 7)
 			protected.POST("/notifications/push-subscribe", prospectingHandler.SubscribePush)

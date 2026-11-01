@@ -87,3 +87,4 @@ func (h *RankHandler) GetStandardRanks(c *gin.Context) {
 		"data":   services.StandardRanks,
 	})
 }
+

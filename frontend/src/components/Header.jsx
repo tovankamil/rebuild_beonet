@@ -37,6 +37,7 @@ export default function Header({
   onOpenDigitalCard,
   onOpenCertificate,
   onOpenRankRewards,
+  onOpenHerbalFarm,
   onOpenMidtrans,
 }) {
   const [copied, setCopied] = useState(false);
@@ -461,6 +462,19 @@ export default function Header({
           >
             <Award size={13} className="text-amber-600" />
             <span>Karir &amp; Reward</span>
+          </button>
+        )}
+
+        {/* Module 10 Quick Trigger: Kebun Herbal & Peternakan Lebah Bionet */}
+        {onOpenHerbalFarm && (
+          <button
+            type="button"
+            onClick={onOpenHerbalFarm}
+            title="Game Intermezo: Kebun Herbal & Peternakan Lebah Bionet (Ala Shopee Farm)"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-teal-50 to-emerald-50 hover:from-teal-100/80 hover:to-emerald-100/80 text-teal-900 border border-teal-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
+          >
+            <span className="text-sm">🏡</span>
+            <span className="hidden xl:inline">Kebun Herbal</span>
           </button>
         )}
 

@@ -37,6 +37,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import api from '../services/api';
+import HeroShowcaseSlideshow from '../components/HeroShowcaseSlideshow';
 
 /**
  * Web Audio API Synthesizer (Native Zero-Asset Audio)
@@ -408,15 +409,15 @@ export default function LandingPage({ onGoToLogin }) {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-emerald-600/10 blur-[130px] rounded-full pointer-events-none" />
         <div className="absolute top-1/3 right-10 w-[300px] h-[300px] bg-cyan-600/10 blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center relative z-10">
           {/* Left Column (Copywriting Hooks) */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-5 xl:col-span-5 space-y-6">
             <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-bold shadow-inner">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               <span>SYNETIQ ENTERPRISE NETWORK OS • V3.2 LIVE</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12]">
+            <h1 className="text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight text-white leading-[1.12]">
               Otomasi Jaringan. <br />
               <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
                 Cerdas Menjual.
@@ -470,88 +471,16 @@ export default function LandingPage({ onGoToLogin }) {
             </div>
           </div>
 
-          {/* Right Column (Hero Interactive Canvas: Mini Genealogy Tree & Live Wallet) */}
-          <div className="lg:col-span-5">
-            <div className="bg-[#0e1726]/90 border border-white/10 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-              {/* Card Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-white/10">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs font-mono font-bold text-slate-300">Live Binary Tree &amp; E-Wallet Pulse</span>
-                </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
-                  SINKRON REAL-TIME
-                </span>
-              </div>
-
-              {/* Wallet Counter Card */}
-              <div
-                className={`my-4 p-4 rounded-2xl border transition-all duration-300 ${
-                  heroPulseActive
-                    ? 'bg-emerald-950/80 border-emerald-400 scale-[1.02] shadow-lg shadow-emerald-500/30'
-                    : 'bg-[#03060a]/70 border-white/5'
-                }`}
-              >
-                <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-                  <span>Saldo Kas E-Wallet (Mitra Mahkota)</span>
-                  <Wallet className="w-4 h-4 text-emerald-400" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-black font-mono text-emerald-400 tracking-tight">
-                  Rp {heroWalletBalance.toLocaleString('id-ID')}
-                </div>
-                <div className="text-[11px] text-slate-400 mt-1 flex items-center space-x-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>+Rp 350.000 dari bonus pasangan baru</span>
-                </div>
-              </div>
-
-              {/* Mini Interactive Tree Visualizer */}
-              <div className="bg-[#03060a]/90 rounded-2xl p-4 border border-white/5 relative">
-                {/* Root Node */}
-                <div className="flex justify-center mb-3">
-                  <div className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-xs shadow-md shadow-emerald-950 flex items-center space-x-1.5">
-                    <Award className="w-3.5 h-3.5 text-amber-300" />
-                    <span>Anda (Top Leader)</span>
-                  </div>
-                </div>
-
-                {/* Tree Branches (SVG) */}
-                <div className="h-6 flex justify-center items-center">
-                  <svg className="w-48 h-6">
-                    <line x1="96" y1="0" x2="36" y2="24" stroke="rgba(16,185,129,0.5)" strokeWidth="2" />
-                    <line x1="96" y1="0" x2="156" y2="24" stroke="rgba(6,182,212,0.5)" strokeWidth="2" />
-                  </svg>
-                </div>
-
-                {/* Binary Left & Right Nodes */}
-                <div className="grid grid-cols-2 gap-3 text-center">
-                  <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30">
-                    <div className="text-[10px] text-emerald-400 font-bold">Kaki Kiri (Omzet)</div>
-                    <div className="text-xs font-mono font-black text-white">124.500 BV</div>
-                    <div className="text-[9px] text-slate-400">14 Mitra Aktif</div>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30">
-                    <div className="text-[10px] text-cyan-400 font-bold">Kaki Kanan (Omzet)</div>
-                    <div className="text-xs font-mono font-black text-white">118.200 BV</div>
-                    <div className="text-[9px] text-slate-400">{heroMitraCount} Mitra Aktif</div>
-                  </div>
-                </div>
-
-                {/* Interactive Action Button inside Canvas */}
-                <div className="mt-4 pt-3 border-t border-white/10 text-center">
-                  <button
-                    onClick={handleAddHeroMitra}
-                    className="w-full py-2.5 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-300 hover:text-white text-xs font-extrabold transition active:scale-95 flex items-center justify-center space-x-2"
-                  >
-                    <Users className="w-4 h-4 text-emerald-400" />
-                    <span>+ Simulasi Tambah Mitra (Klik untuk Test Pairing)</span>
-                  </button>
-                  <p className="text-[10px] text-slate-400 mt-1.5">
-                    Klik tombol di atas untuk melihat respon pairing bonus seketika.
-                  </p>
-                </div>
-              </div>
-            </div>
+          {/* Right Column (Hero Slideshow Showcase: Ultra-Modern Glassmorphic Device Frame) */}
+          <div className="lg:col-span-7 xl:col-span-7">
+            <HeroShowcaseSlideshow
+              audioEnabled={audioEnabled}
+              triggerSound={triggerSound}
+              heroMitraCount={heroMitraCount}
+              setHeroMitraCount={setHeroMitraCount}
+              heroWalletBalance={heroWalletBalance}
+              setHeroWalletBalance={setHeroWalletBalance}
+            />
           </div>
         </div>
       </section>
@@ -1521,3 +1450,4 @@ export default function LandingPage({ onGoToLogin }) {
     </div>
   );
 }
+

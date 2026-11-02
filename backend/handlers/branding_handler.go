@@ -12,6 +12,7 @@ import (
 
 	"bionet-backend/config"
 	"bionet-backend/models"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -247,4 +248,3 @@ func (h *BrandingHandler) UploadLogo(c *gin.Context) {
 		"data":     current,
 	})
 }
-

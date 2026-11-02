@@ -315,9 +315,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Universal Form Input Baseline - Ensures readable white surface & dark text across all browsers and OS dark themes */
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-textarea,
-select {
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.glass-input-frosted),
+textarea:not(.glass-input-frosted),
+select:not(.glass-input-frosted) {
   color-scheme: light !important;
   background-color: #ffffff;
   color: #0f172a;
@@ -431,6 +431,150 @@ textarea::placeholder {
   background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);
   background-size: 200% 100%;
   animation: shimmerSlow 3s infinite;
+}
+
+/* ==========================================================================
+   GLOSSY MODERN GLASSMORPHISM & HOLOGRAPHIC ANIMATIONS (Create360 / Apple Ref)
+   ========================================================================== */
+@keyframes orbitRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbitRotateReverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.94);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.94);
+    opacity: 0.75;
+  }
+}
+
+@keyframes borderBeamMove {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-orbit-slow {
+  animation: orbitRotate 24s linear infinite;
+  transform-origin: center center;
+}
+
+.animate-orbit-reverse {
+  animation: orbitRotateReverse 18s linear infinite;
+  transform-origin: center center;
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 4.5s ease-in-out infinite;
+}
+
+.glass-glossy-card {
+  background: rgba(2, 6, 23, 0.40);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    0 30px 100px -20px rgba(0, 0, 0, 0.85),
+    0 0 50px rgba(16, 185, 129, 0.12);
+}
+
+input.glass-input-frosted,
+.glass-input-frosted {
+  color-scheme: dark !important;
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  color: #ffffff !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+input.glass-input-frosted:hover,
+.glass-input-frosted:hover {
+  background-color: rgba(15, 23, 42, 0.65) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+input.glass-input-frosted:focus,
+.glass-input-frosted:focus {
+  background-color: rgba(2, 6, 23, 0.85) !important;
+  border-color: #34d399 !important;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(16, 185, 129, 0.28),
+    0 0 0 4px rgba(16, 185, 129, 0.18) !important;
+  color: #ffffff !important;
+}
+
+input.glass-input-frosted::placeholder,
+.glass-input-frosted::placeholder {
+  color: #94a3b8 !important;
+}
+
+input.glass-input-frosted:-webkit-autofill,
+input.glass-input-frosted:-webkit-autofill:hover,
+input.glass-input-frosted:-webkit-autofill:focus,
+input.glass-input-frosted:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(15, 23, 42, 0.95) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.glass-liquid-cta {
+  background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.6),
+    0 12px 30px -5px rgba(16, 185, 129, 0.45),
+    0 0 20px rgba(6, 182, 212, 0.25);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-liquid-cta:hover {
+  background: linear-gradient(135deg, #34d399 0%, #2dd4bf 50%, #22d3ee 100%);
+  box-shadow: 
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.8),
+    0 16px 36px -5px rgba(16, 185, 129, 0.6),
+    0 0 30px rgba(6, 182, 212, 0.4);
+}
+
+.glass-demo-pill {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-demo-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 

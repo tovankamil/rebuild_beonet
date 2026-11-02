@@ -790,7 +790,7 @@ export default function HeroShowcaseSlideshow({
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="h-full flex flex-col justify-between space-y-2.5 sm:space-y-3.5"
+                  className="h-full flex flex-col justify-between space-y-2 sm:space-y-3"
                 >
                   <div className="flex items-center justify-between pb-2 border-b border-white/10">
                     <div>
@@ -801,7 +801,7 @@ export default function HeroShowcaseSlideshow({
                         </span>
                       </div>
                       <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5">
-                        Terima pembayaran dari semua bank dan e-wallet. Uang langsung masuk kas tanpa upload bukti transfer.
+                        Terima pembayaran dari semua bank dan e-wallet. Uang langsung masuk kas tanpa upload bukti transfer manual.
                       </p>
                     </div>
 
@@ -813,43 +813,83 @@ export default function HeroShowcaseSlideshow({
                     </div>
                   </div>
 
-                  {/* QRIS Visual Card */}
-                  <div className="p-3 sm:p-4 rounded-2xl bg-[#050a12] border border-amber-500/30 flex items-center justify-between">
-                    <div className="flex items-center space-x-3.5">
-                      <div
-                        className={`w-16 sm:w-24 h-16 sm:h-24 rounded-2xl bg-white p-2 flex items-center justify-center transition-all ${
-                          qrisFlashed ? 'ring-4 ring-emerald-400 scale-105' : ''
-                        }`}
-                      >
-                        <QrCode className="w-full h-full text-slate-950" />
-                      </div>
-                      <div>
-                        <div className="text-xs sm:text-sm font-bold text-white">QRIS Standar Nasional</div>
-                        <div className="text-[9px] sm:text-xs text-amber-300 font-mono">NMID: {qrisNmid}</div>
-                        <div className="text-[8px] sm:text-[10px] text-slate-400 mt-1">
-                          BCA • Mandiri • BRI • BNI • GoPay • OVO • Dana • ShopeePay
+                  {/* 2-Column Grid: Left QRIS Card + Right FinTech Live Ledger */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-3 flex-1 items-center">
+                    {/* Left: QRIS Visual Card */}
+                    <div className="md:col-span-7 p-3 sm:p-4 rounded-2xl bg-[#050a12] border border-amber-500/30 flex flex-col justify-between space-y-2">
+                      <div className="flex items-center space-x-3.5">
+                        <div
+                          className={`w-14 sm:w-16 md:w-20 h-14 sm:h-16 md:h-20 rounded-2xl bg-white p-2 flex items-center justify-center shrink-0 transition-all ${
+                            qrisFlashed ? 'ring-4 ring-emerald-400 scale-105 shadow-lg shadow-emerald-500/50' : ''
+                          }`}
+                        >
+                          <QrCode className="w-full h-full text-slate-950" />
                         </div>
+                        <div className="min-w-0">
+                          <div className="text-xs sm:text-sm font-bold text-white truncate">QRIS Standar Nasional</div>
+                          <div className="text-[9px] sm:text-xs text-amber-300 font-mono">NMID: {qrisNmid}</div>
+                          <div className="text-[8px] sm:text-[10px] text-slate-400 mt-0.5 leading-tight">
+                            BCA • Mandiri • BRI • BNI • GoPay • OVO • Dana • ShopeePay
+                          </div>
+                          <div className="text-[8px] sm:text-[10px] text-emerald-400 font-bold mt-1">
+                            ✓ Konfirmasi 0.8 Detik • Saldo Kas Langsung Masuk
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
+                        <span className="text-[10px] text-slate-400">Nominal Simulasi:</span>
+                        <span className="text-sm sm:text-base font-black text-emerald-400 font-mono">Rp 250.000</span>
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <div className="text-[9px] sm:text-xs text-slate-400">Nominal Transaksi</div>
-                      <div className="text-sm sm:text-xl font-black text-emerald-400 font-mono">Rp 250.000</div>
-                      <div className="text-[8px] sm:text-[10px] text-emerald-300 font-medium">Konfirmasi 0.8 Detik</div>
+                    {/* Right: Real-time Double-Entry Ledger Card */}
+                    <div className="md:col-span-5 p-3 rounded-2xl bg-[#030710] border border-white/10 flex flex-col justify-between space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-slate-300 pb-1.5 border-b border-white/10">
+                        <span className="flex items-center space-x-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Buku Kas Double-Entry</span>
+                        </span>
+                        <span className="text-[9px] font-mono text-emerald-400 px-1.5 py-0.2 rounded bg-emerald-500/20">
+                          MATCHED
+                        </span>
+                      </div>
+
+                      <div className="space-y-1.5 text-[9px] sm:text-[10px] font-mono">
+                        <div className="flex justify-between items-center text-slate-300">
+                          <span className="truncate">TX-8921 • BCA VA</span>
+                          <span className="text-emerald-400 font-bold">+Rp 250.000</span>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-300">
+                          <span className="truncate">TX-8920 • GoPay QRIS</span>
+                          <span className="text-emerald-400 font-bold">+Rp 150.000</span>
+                        </div>
+                        <div className="flex justify-between items-center text-slate-300">
+                          <span className="truncate">TX-8919 • Mandiri Instant</span>
+                          <span className="text-emerald-400 font-bold">+Rp 500.000</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-1.5 border-t border-white/10 flex justify-between text-[10px]">
+                        <span className="text-slate-400">Total Kas Terverifikasi:</span>
+                        <span className="text-amber-400 font-bold font-mono">
+                          Rp {(heroWalletBalance || 4850000).toLocaleString('id-ID')}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Interactive Button */}
-                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-2">
                     <span className="text-[9px] sm:text-xs text-slate-300 truncate">
                       {qrisToast || 'Coba bayar via QRIS simulasi dan saksikan uang langsung masuk:'}
                     </span>
                     <button
                       type="button"
                       onClick={handleSimulateQrisPayment}
-                      className="px-3 sm:px-4 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-[10px] sm:text-xs transition shadow-md shadow-amber-950 flex items-center space-x-1.5 active:scale-95 shrink-0"
+                      className="px-3 sm:px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-extrabold text-[10px] sm:text-xs transition shadow-md shadow-amber-950 flex items-center space-x-1.5 active:scale-95 shrink-0"
                     >
-                      <QrCode className="w-3.5 h-3.5 text-amber-200" />
+                      <QrCode className="w-3.5 h-3.5 text-slate-950" />
                       <span>Simulasi Bayar QRIS</span>
                     </button>
                   </div>

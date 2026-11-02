@@ -41,6 +41,7 @@ import {
   PhoneCall,
   RefreshCw,
   BadgeCheck,
+  Clock,
 } from 'lucide-react';
 import api from '../services/api';
 import HeroShowcaseSlideshow from '../components/HeroShowcaseSlideshow';
@@ -139,7 +140,7 @@ export default function LandingPage({ onGoToLogin }) {
   // =========================================================================
   // HERO SHOWCASE STATE (Synchronized with HeroShowcaseSlideshow)
   // =========================================================================
-  const [heroMitraCount, setHeroMitraCount] = useState(14);
+  const [heroMitraCount, setHeroMitraCount] = useState(1420);
   const [heroWalletBalance, setHeroWalletBalance] = useState(4850000);
 
   // =========================================================================
@@ -150,7 +151,7 @@ export default function LandingPage({ onGoToLogin }) {
   // Tab 1: Calculator State
   const [downlines, setDownlines] = useState(12);
   const [packageTier, setPackageTier] = useState('gold'); // 'silver' | 'gold' | 'platinum'
-  const [roPerMonth, setRoPerMonth] = useState(4); // Repeat Order Box per downline
+  const [roPerMonth, setRoPerMonth] = useState(4); // Repeat Order Paket per downline
 
   const packageSpecs = {
     silver: { name: 'Silver', price: 1500000, sponsorBonus: 300000, bv: 1 },
@@ -163,14 +164,14 @@ export default function LandingPage({ onGoToLogin }) {
     const sponsorTotal = downlines * pkg.sponsorBonus;
     const pairs = Math.floor(downlines / 2);
     const pairingBonus = pairs * (pkg.bv * 150000);
-    const beeFarmStaking = downlines * roPerMonth * 35000;
-    const totalCashflow = sponsorTotal + pairingBonus + beeFarmStaking;
+    const repeatOrderBonus = downlines * roPerMonth * 35000;
+    const totalCashflow = sponsorTotal + pairingBonus + repeatOrderBonus;
 
     return {
       sponsorTotal,
       pairs,
       pairingBonus,
-      beeFarmStaking,
+      repeatOrderBonus,
       totalCashflow,
     };
   }, [downlines, packageTier, roPerMonth]);
@@ -385,18 +386,83 @@ export default function LandingPage({ onGoToLogin }) {
   };
 
   // =========================================================================
-  // BEE FARM INTERACTIVE HARVEST WIDGET STATE
+  // 07: TRIOLLA-GRADE IMPLEMENTATION PROCESS STATE (Inspired by triolla.io)
   // =========================================================================
-  const [beeHoneyLiters, setBeeHoneyLiters] = useState(14.8);
-  const [beeHarvestToast, setBeeHarvestToast] = useState(null);
-
-  const handleHarvestBeeHoney = () => {
-    triggerSound('success');
-    setBeeHoneyLiters((prev) => Number((prev + 2.5).toFixed(1)));
-    setHeroWalletBalance((prev) => prev + 87500);
-    setBeeHarvestToast('🍯 Klaim Berhasil! +2.5k Digital Nectar (+Rp 87.500 Cair ke Saldo E-Wallet)');
-    setTimeout(() => setBeeHarvestToast(null), 3800);
-  };
+  const [activeProcessStep, setActiveProcessStep] = useState(1);
+  const processSteps = [
+    {
+      id: 1,
+      badge: 'LANGKAH 01',
+      title: 'Kickoff Meeting',
+      subtitle: 'Diskusi Visi & Skema Bisnis',
+      desc: 'Pertemuan langsung (online/offline) untuk memetakan model bisnis MLM Anda, skema reward, profil target member, dan proyeksi omset.',
+      deliverables: ['Dokumen Notulensi Visi Bisnis', 'Matriks Kebutuhan Sistem & Modul', 'Timeline Pengerjaan Transparan'],
+      duration: 'Hari ke-1',
+    },
+    {
+      id: 2,
+      badge: 'LANGKAH 02',
+      title: 'Audit Marketing Plan',
+      subtitle: 'Bedah Logika Komisi Anti-Jebol',
+      desc: 'Simulasi mendalam atas rumus bonus sponsor, pairing binary, reward omset, dan batas payout maksimal agar sistem bisnis Anda aman jangka panjang.',
+      deliverables: ['Simulasi Stres Keuangan Sistem', 'Rumus Binary & Pairing Terverifikasi', 'Aturan Flush Out & Safety Net'],
+      duration: 'Hari ke-2 s/d 3',
+    },
+    {
+      id: 3,
+      badge: 'LANGKAH 03',
+      title: 'User Experience & Flow',
+      subtitle: 'Kemudahan Pengalaman Member',
+      desc: 'Merancang perjalanan calon mitra: dari klik link iklan atau website replika, registrasi otomatis, pilih paket produk digital, hingga terima akses login.',
+      deliverables: ['Wireframe Alur Prospek ke Mitra', 'Skema Auto-Spillover Binary', 'Desain Formulir Pendaftaran Singkat'],
+      duration: 'Hari ke-4',
+    },
+    {
+      id: 4,
+      badge: 'LANGKAH 04',
+      title: 'Arsitektur Sistem & Database',
+      subtitle: 'Mesin Hitung Kilat (Sub-12ms)',
+      desc: 'Setup infrastruktur cloud berkecepatan tinggi dengan database anti-lag, menjamin perhitungan bonus ribuan member selesai dalam 1 detik tanpa antre.',
+      deliverables: ['High-Performance Go Engine', 'Double-Entry FinTech Ledger', 'Auto-Backup Database Harian'],
+      duration: 'Hari ke-5 s/d 7',
+    },
+    {
+      id: 5,
+      badge: 'LANGKAH 05',
+      title: 'Kustomisasi Brand & UI',
+      subtitle: 'Logo & Desain Web Replika',
+      desc: 'Penerapan identitas merek Anda: nama aplikasi, logo, palet warna elegan, dan website replika otomatis untuk setiap member yang bergabung.',
+      deliverables: ['Domain Kustom (app.brandanda.com)', 'Template Web Replika Member Ber-nama', 'Dashboard Admin & Member Eksklusif'],
+      duration: 'Hari ke-8 s/d 10',
+    },
+    {
+      id: 6,
+      badge: 'LANGKAH 06',
+      title: 'Integrasi QRIS & Robot WA',
+      subtitle: 'Otomasi Terima Uang & Closing 24/7',
+      desc: 'Menghubungkan gerbang pembayaran QRIS dinamis seluruh bank dan dompet digital, plus robot WhatsApp AI yang melayani tanya-jawab konsumen tanpa admin.',
+      deliverables: ['QRIS Standar Nasional Otomatis Masuk Kas', 'Robot WhatsApp AI Objection Handler', 'Notifikasi SMS / WA Real-Time'],
+      duration: 'Hari ke-11 s/d 13',
+    },
+    {
+      id: 7,
+      badge: 'LANGKAH 07',
+      title: 'Simulasi Transaksi & Uji Beban',
+      subtitle: 'Pengujian Menyeluruh (Anti-Fraud)',
+      desc: 'Uji coba beban sistem hingga puluhan ribu transaksi serentak, simulasi penarikan komisi e-wallet, dan verifikasi proteksi keamanan siber SOC DEFCON 1.',
+      deliverables: ['Laporan Uji Beban 10.000 Transaksi', 'Audit Keamanan Data & Anti-Manipulasi', 'Verifikasi Rekonsiliasi Kas 100%'],
+      duration: 'Hari ke-14',
+    },
+    {
+      id: 8,
+      badge: 'LANGKAH 08',
+      title: 'Peluncuran Resmi & Support 24/7',
+      subtitle: 'Go-Live & Pendampingan Nonstop',
+      desc: 'Sistem resmi beroperasi. Kami memberikan pelatihan lengkap kepada manajemen admin dan pendampingan teknis prioritas 24 jam setiap hari.',
+      deliverables: ['Peluncuran Sistem Siap Pakai', 'Video Panduan & SOP Operasional Admin', 'Garansi & Support Teknis Siaga 24/7'],
+      duration: 'Hari ke-15 & Seterusnya',
+    },
+  ];
 
   // =========================================================================
   // LEAD REGISTRATION & CONSULTATION FORM STATE (Human-Friendly Consultation)
@@ -484,7 +550,7 @@ export default function LandingPage({ onGoToLogin }) {
           </div>
 
           {/* Nav Links (Desktop) - Smooth Scroll, Generous Width, Absolutely ZERO Scrollbar */}
-          <div className="hidden lg:flex items-center space-x-6 xl:space-x-8 text-[13px] font-medium text-slate-300">
+          <div className="hidden lg:flex items-center space-x-5 xl:space-x-7 text-[13px] font-medium text-slate-300">
             <button
               type="button"
               onClick={() => scrollToSection('features')}
@@ -513,6 +579,14 @@ export default function LandingPage({ onGoToLogin }) {
               className="whitespace-nowrap hover:text-teal-400 transition focus:outline-none shrink-0"
             >
               Hitung Potensi Cuan
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection('process')}
+              className="whitespace-nowrap hover:text-pink-400 transition focus:outline-none flex items-center space-x-1 shrink-0"
+            >
+              <span>⚡</span>
+              <span>Alur Kerja</span>
             </button>
             <button
               type="button"
@@ -905,7 +979,7 @@ export default function LandingPage({ onGoToLogin }) {
                       <span>Simulasikan Skala Jaringan Anda</span>
                     </h3>
                     <p className="text-xs text-slate-400 mt-1">
-                      Geser parameter di bawah untuk melihat proyeksi bonus sponsor, pasangan binary sub-12ms, dan staking nektar lebah.
+                      Geser parameter di bawah untuk melihat proyeksi bonus sponsor, pasangan binary kilat, dan bonus repeat order produk digital Anda.
                     </p>
                   </div>
 
@@ -1024,9 +1098,9 @@ export default function LandingPage({ onGoToLogin }) {
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-300">3. Digital Staking (Reward Poin Nektar):</span>
+                        <span className="text-slate-300">3. Bonus Repeat Order &amp; Lisensi Cloud:</span>
                         <span className="font-mono font-bold text-amber-300">
-                          Rp {calculatedFinances.beeFarmStaking.toLocaleString('id-ID')}
+                          Rp {calculatedFinances.repeatOrderBonus.toLocaleString('id-ID')}
                         </span>
                       </div>
                     </div>
@@ -1558,7 +1632,7 @@ export default function LandingPage({ onGoToLogin }) {
                 </h3>
                 <p className="text-slate-300 text-sm leading-relaxed">
                   Salah satu momok terbesar pemilik bisnis jaringan adalah saldo e-wallet dibobol peretas atau sistem down di saat closing
-                  akhir bulan. SYNETIQ dilengkapi dashboard pemantauan ancaman siber real-time dengan penangkal DDoS, honeypot otomatis,
+                  akhir bulan. SYNETIQ dilengkapi dashboard pemantauan ancaman siber real-time dengan penangkal DDoS, proteksi anti-fraud otomatis,
                   dan enkripsi perbankan ISO-27001 standard.
                 </p>
 
@@ -1593,7 +1667,7 @@ export default function LandingPage({ onGoToLogin }) {
                 <div className="space-y-2 mt-4 text-slate-300 text-[11px] leading-relaxed">
                   <div className="text-emerald-400">[00:14:02] GeoIP tracing Frankfurt Hub: 0 malicious anomalies detected.</div>
                   <div className="text-cyan-300">[00:14:05] Rate limiter WAF: 4,812 requests/min processed normally.</div>
-                  <div className="text-amber-300">[00:14:09] Honeypot telemetry: Inbound brute-force payload auto-blacklisted.</div>
+                  <div className="text-amber-300">[00:14:09] Anti-BruteForce telemetry: Inbound unauthorized attempt auto-blacklisted.</div>
                   <div className="text-slate-200">[00:14:12] Double-entry reconciliation: Ledger debits/credits match perfectly.</div>
                   <div className="text-rose-400 font-bold">[00:14:15] Threat Mitigation: 983 attack vectors neutralized globally.</div>
                   <div className="pt-2 text-emerald-400 font-bold border-t border-white/10 flex items-center justify-between">
@@ -1608,128 +1682,250 @@ export default function LandingPage({ onGoToLogin }) {
       </section>
 
       {/* ========================================================================= */}
-      {/* 07: GAMIFIKASI BEE FARM (Theme: Honeycomb Amber / Golden Obsidian #140c03) */}
+      {/* 07: OUR UNIQUE IMPLEMENTATION PROCESS (Triolla-Style High-Contrast White) */}
       {/* ========================================================================= */}
       <section
-        id="beefarm"
-        className="py-24 px-4 bg-gradient-to-b from-[#140c03] via-[#221605] to-[#140c03] border-t border-amber-500/30 relative overflow-hidden"
+        id="process"
+        className="py-24 px-4 bg-gradient-to-b from-white via-slate-50 to-white text-slate-900 border-t border-slate-200 relative overflow-hidden"
       >
-        {/* Golden Ambient Lights */}
-        <div className="absolute top-1/3 left-1/3 w-[500px] h-[500px] bg-amber-500/10 blur-[140px] rounded-full pointer-events-none" />
+        {/* Subtle decorative ambient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none opacity-40">
+          <div className="absolute top-12 left-10 w-96 h-96 bg-pink-100 rounded-full blur-3xl" />
+          <div className="absolute top-40 right-10 w-96 h-96 bg-amber-100 rounded-full blur-3xl" />
+        </div>
 
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-400 text-xs font-bold">
-              <span>🍯</span>
-              <span>DIGITAL STAKING &amp; GAMIFIKASI REWARD POIN</span>
+          {/* Section Header (Triolla Aesthetic with Vibrant Gradient Text) */}
+          <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-300/80 text-slate-700 text-xs font-bold shadow-sm">
+              <Sparkles className="w-4 h-4 text-pink-500" />
+              <span>PROSES IMPLEMENTASI TERUJI &amp; TERSTRUKTUR</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-              Gamifikasi Digital Bee Farm: Staking Poin &amp; Anti-Churn Otomatis
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+              Alur Kerja &amp;{' '}
+              <span className="bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 bg-clip-text text-transparent">
+                Proses Implementasi
+              </span>
             </h2>
-            <p className="text-amber-200/80 text-sm sm:text-base leading-relaxed">
-              Inovasi retensi jaringan modern: Digital Staking poin nektar dari setiap transaksi lisensi software dan repeat order yang
-              menghasilkan reward cuan harian, terbukti menekan angka churn anggota hingga 70%.
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+              Proses teruji kami menggabungkan pemahaman mendalam atas marketing plan MLM Anda dengan teknologi cloud mutakhir untuk menghasilkan aplikasi bisnis jaringan yang siap pakai, cepat, dan bebas pusing hitung komisi.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left: Honey Staking Interactive Card */}
-            <div className="lg:col-span-7 bg-[#0b0601] border border-amber-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-              <div className="flex items-center justify-between pb-4 border-b border-amber-500/20">
-                <div className="flex items-center space-x-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-lg">
-                    🐝
-                  </div>
-                  <div>
-                    <h4 className="text-base font-bold text-white">Royal Nectar Digital Staking Engine</h4>
-                    <p className="text-[11px] text-amber-300 font-mono">Tingkat Retensi Downline 98.4%</p>
-                  </div>
-                </div>
+          {/* TRIOLLA-STYLE HORIZONTAL 8-MILESTONE TIMELINE (Directly from media_1793648922672_0da6ef55.png) */}
+          <div className="mb-14 relative">
+            {/* Desktop Horizontal Milestone Line */}
+            <div className="hidden lg:block relative py-6">
+              {/* Connecting Horizontal Line */}
+              <div className="absolute top-[42px] left-[5%] right-[5%] h-0.5 bg-slate-200 z-0" />
+              
+              <div className="grid grid-cols-8 gap-2 relative z-10">
+                {processSteps.map((step) => {
+                  const isCurrent = activeProcessStep === step.id;
+                  const isPast = activeProcessStep > step.id;
+                  return (
+                    <button
+                      key={step.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveProcessStep(step.id);
+                        triggerSound('click');
+                      }}
+                      className="group flex flex-col items-center text-center focus:outline-none transition"
+                    >
+                      {/* Step Indicator Dot */}
+                      <div
+                        className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 shadow-md ${
+                          isCurrent
+                            ? 'bg-slate-900 text-white ring-4 ring-pink-500/30 scale-110'
+                            : isPast
+                            ? 'bg-emerald-500 text-white ring-2 ring-emerald-400/20'
+                            : 'bg-white border-2 border-slate-300 text-slate-600 group-hover:border-slate-500 group-hover:scale-105'
+                        }`}
+                      >
+                        {isPast ? <Check className="w-4 h-4 stroke-[3]" /> : step.id}
+                      </div>
 
-                <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-mono text-xs font-bold border border-amber-500/30">
-                  MULTIPLIER 2.4X
-                </span>
-              </div>
-
-              {/* Honey Hive Stats Visual */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
-                <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/30">
-                  <div className="text-[11px] text-amber-200/80">Stok Poin Nektar Siap Klaim:</div>
-                  <div className="text-2xl font-black font-mono text-amber-400 mt-0.5">
-                    {beeHoneyLiters}k Poin
-                  </div>
-                  <div className="text-[10px] text-slate-400 mt-1 font-mono">
-                    ≈ Rp {Math.round(beeHoneyLiters * 35000).toLocaleString('id-ID')} Nilai Saldo E-Wallet
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/30">
-                  <div className="text-[11px] text-amber-200/80">Status Koloni Staking:</div>
-                  <div className="text-base font-bold text-emerald-400 mt-1">👑 Royal Queen Hive</div>
-                  <div className="text-[10px] text-slate-400 mt-1">Level 5 (Maksimal Koloni)</div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/30">
-                  <div className="text-[11px] text-amber-200/80">Notifikasi Wake-Up Bot:</div>
-                  <div className="text-base font-bold text-cyan-400 mt-1">Otomatis Aktif</div>
-                  <div className="text-[10px] text-slate-400 mt-1">Ping WhatsApp Downline Inaktif</div>
-                </div>
-              </div>
-
-              {/* Interactive Harvest Button */}
-              <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-amber-500/20">
-                <div className="text-xs text-amber-200/90 text-center sm:text-left">
-                  {beeHarvestToast ? (
-                    <span className="text-amber-400 font-bold">{beeHarvestToast}</span>
-                  ) : (
-                    'Klik klaim untuk mencairkan royalti reward poin nektar harian Anda langsung ke saldo kas e-wallet.'
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleHarvestBeeHoney}
-                  className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-950 flex items-center justify-center space-x-2 transition"
-                >
-                  <Sparkles className="w-4 h-4 text-slate-950" />
-                  <span>🍯 Klaim Poin Nektar Hari Ini (+2.5k Poin / +Rp 87.500)</span>
-                </button>
+                      {/* Step Label below dot (Triolla style) */}
+                      <div className="mt-3.5 space-y-0.5">
+                        <div
+                          className={`text-xs font-bold leading-tight transition ${
+                            isCurrent
+                              ? 'text-slate-950 font-black'
+                              : 'text-slate-700 group-hover:text-slate-900'
+                          }`}
+                        >
+                          {step.title}
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-medium line-clamp-2">
+                          {step.subtitle}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Right: Bee Farm Feature List */}
-            <div className="lg:col-span-5 space-y-4">
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-amber-500/20">
-                <h5 className="text-sm font-bold text-amber-300 flex items-center space-x-2 mb-1.5">
-                  <Check className="w-4 h-4 text-amber-400" />
-                  <span>1. Anti-Churn Inactive Downline Radar</span>
-                </h5>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Jika ada anggota tim yang tidak aktif selama 7 hari, bot WhatsApp otomatis mengirimkan notifikasi klaim reward poin nektar
-                  agar mereka kembali membuka aplikasi dan login.
-                </p>
-              </div>
+            {/* Mobile / Tablet Horizontal Scroll Pills */}
+            <div className="lg:hidden flex items-center space-x-2 overflow-x-auto pb-3 pt-1 scrollbar-none">
+              {processSteps.map((step) => {
+                const isCurrent = activeProcessStep === step.id;
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveProcessStep(step.id);
+                      triggerSound('click');
+                    }}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition flex items-center space-x-1.5 shrink-0 ${
+                      isCurrent
+                        ? 'bg-slate-900 text-white shadow-md'
+                        : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="w-4 h-4 rounded-full bg-pink-500/20 text-pink-600 text-[10px] font-mono flex items-center justify-center font-bold">
+                      {step.id}
+                    </span>
+                    <span>{step.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-amber-500/20">
-                <h5 className="text-sm font-bold text-amber-300 flex items-center space-x-2 mb-1.5">
-                  <Check className="w-4 h-4 text-amber-400" />
-                  <span>2. Konversi Riil ke Kas E-Wallet</span>
-                </h5>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Bukan koin bodong tanpa nilai. Hasil klaim poin nektar digital dihitung dari alokasi margin riil ekosistem software
-                  dan dapat ditarik tunai ke e-wallet kapan saja.
-                </p>
-              </div>
+          {/* ACTIVE MILESTONE DETAIL INSPECTION CARD */}
+          {(() => {
+            const currentStepData = processSteps.find((s) => s.id === activeProcessStep) || processSteps[0];
+            return (
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-xl shadow-slate-200/60 transition-all duration-300">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  {/* Left Column: Detailed Step Explanation */}
+                  <div className="lg:col-span-7 space-y-4">
+                    <div className="flex items-center space-x-2.5">
+                      <span className="px-3 py-1 rounded-full bg-pink-500/10 text-pink-600 font-mono text-xs font-bold border border-pink-500/20">
+                        {currentStepData.badge}
+                      </span>
+                      <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 font-mono text-xs font-semibold">
+                        {currentStepData.duration}
+                      </span>
+                    </div>
 
-              <div className="p-4 rounded-2xl bg-white/[0.03] border border-amber-500/20">
-                <h5 className="text-sm font-bold text-amber-300 flex items-center space-x-2 mb-1.5">
-                  <Check className="w-4 h-4 text-amber-400" />
-                  <span>3. Edukasi Sistem &amp; Bisnis Digital</span>
-                </h5>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Setiap siklus klaim poin menyajikan tips optimasi bisnis SaaS, strategi closing WhatsApp, dan tips skalabilitas jaringan secara konsisten.
-                </p>
+                    <div>
+                      <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
+                        {currentStepData.title}
+                      </h3>
+                      <p className="text-sm sm:text-base font-bold text-pink-600 mt-1">
+                        {currentStepData.subtitle}
+                      </p>
+                      <p className="text-sm text-slate-600 mt-3 leading-relaxed">
+                        {currentStepData.desc}
+                      </p>
+                    </div>
+
+                    {/* Deliverables Checklist */}
+                    <div className="pt-3 border-t border-slate-100">
+                      <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5">
+                        Yang Anda Terima di Tahap Ini:
+                      </div>
+                      <div className="space-y-2">
+                        {currentStepData.deliverables.map((item, idx) => (
+                          <div key={idx} className="flex items-start space-x-2.5 text-xs sm:text-sm text-slate-700">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                            <span className="font-medium">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Action & Consultation Card */}
+                  <div className="lg:col-span-5 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 rounded-2xl p-6 sm:p-7 text-white shadow-2xl relative overflow-hidden flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono text-emerald-400 px-2 py-0.5 rounded bg-emerald-500/20 font-bold">
+                          GARANSI KEPUASAN &amp; KELANCARAN
+                        </span>
+                        <span className="text-xs text-slate-400 font-mono">Tahap {activeProcessStep} dari 8</span>
+                      </div>
+                      <h4 className="text-lg font-bold text-white leading-snug">
+                        Ingin Memulai {currentStepData.title}?
+                      </h4>
+                      <p className="text-xs text-slate-300 leading-relaxed">
+                        Tim teknis dan konsultan bisnis kami siap mendampingi Anda langsung via WhatsApp untuk diskusi tahap ini tanpa dipungut biaya.
+                      </p>
+                    </div>
+
+                    <div className="pt-6 mt-6 border-t border-white/10 space-y-3">
+                      <a
+                        href={`https://wa.me/6281234567890?text=${encodeURIComponent(
+                          `Halo Admin SYNETIQ, saya tertarik dengan alur kerja "${currentStepData.title}" (${currentStepData.subtitle}) untuk pembuatan aplikasi bisnis jaringan saya. Mohon informasi dan konsultasinya.`
+                        )}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={() => triggerSound('success')}
+                        className="w-full py-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-extrabold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-emerald-950/40 transition active:scale-95"
+                      >
+                        <MessageSquare className="w-4 h-4 text-slate-950 fill-current" />
+                        <span>Konsultasikan via WhatsApp</span>
+                      </a>
+
+                      {activeProcessStep < 8 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveProcessStep((prev) => Math.min(8, prev + 1));
+                            triggerSound('click');
+                          }}
+                          className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-bold transition flex items-center justify-center space-x-1.5"
+                        >
+                          <span>Lihat Langkah Berikutnya</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
+            );
+          })()}
+
+          {/* Bottom Conversion Banner Inside Process Section */}
+          <div className="mt-12 rounded-3xl bg-slate-900 p-6 sm:p-8 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+            <div className="space-y-1.5 text-center md:text-left">
+              <div className="inline-flex items-center space-x-2 text-xs font-mono text-emerald-400 font-bold">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>KONSULTASI GRATIS &amp; DEMO SISTEM LANGSUNG</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-white">
+                Siap Mengotomatiskan Bisnis Jaringan Anda Sekarang?
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                Ceritakan rencana bisnis dan skema reward komisi Anda. Kami bantu buatkan estimasi arsitektur dan jadwalkan sesi demo interaktif.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0 w-full md:w-auto">
+              <a
+                href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20ingin%20jadwalkan%20Kickoff%20Meeting%20dan%20konsultasi%20pembuatan%20aplikasi%20bisnis%20jaringan"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => triggerSound('success')}
+                className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-black text-xs shadow-lg flex items-center justify-center space-x-2 transition active:scale-95"
+              >
+                <MessageSquare className="w-4 h-4 text-slate-950 fill-current" />
+                <span>Jadwalkan Kickoff via WhatsApp</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => scrollToSection('consultation')}
+                className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition flex items-center justify-center space-x-1.5"
+              >
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span>Coba Demo Sistem</span>
+              </button>
             </div>
           </div>
         </div>
@@ -1872,18 +2068,18 @@ export default function LandingPage({ onGoToLogin }) {
               <div className="pt-4 border-t border-white/10 space-y-2 text-xs text-emerald-200">
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>GeoIP Worldwide Threat Radar Matrix</span>
+                  <span>Proteksi Keamanan Siber &amp; Pemantauan Server 24/7</span>
                 </div>
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>WAF Rate-Limiter &amp; Honeypot Telemetri</span>
+                  <span>Sistem Anti-Hacker &amp; Blokir Serangan Jahat Otomatis</span>
                 </div>
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Enkripsi AES-256 GCM &amp; Idempotency Ledger</span>
+                  <span>Pencatatan Keuangan Ganda &amp; Nol Selisih Saldo Kas</span>
                 </div>
                 <div className="mt-3 pt-2 border-t border-white/5 text-[11px] font-mono text-cyan-400 font-bold">
-                  Zero Security Breaches • 99.999% SLA
+                  Zero Security Breaches • Garansi Server Stabil
                 </div>
               </div>
             </div>

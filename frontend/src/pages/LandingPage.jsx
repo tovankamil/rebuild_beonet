@@ -1005,25 +1005,105 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       {/* 03: LIVE ARCHITECTURE TELEMETRY BAR (Theme: Cyber Carbon #080d16)        */}
       {/* ========================================================================= */}
-      <section className="border-y border-white/10 bg-[#080d16] py-3.5 px-4 overflow-x-auto w-full max-w-full">
-        <div className="max-w-7xl mx-auto flex items-center justify-between min-w-[760px] text-xs font-mono text-slate-400">
-          <div className="flex items-center space-x-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+      <section className="border-y border-white/10 bg-[#080d16] py-3 relative overflow-hidden w-full max-w-full select-none">
+        {/* Subtle Edge Fade Masks for High-End Cinematic Polish */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-16 bg-gradient-to-r from-[#080d16] to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-16 bg-gradient-to-l from-[#080d16] to-transparent z-10" />
+
+        {/* MOBILE & TABLET: Seamless Infinite Right-to-Left Marquee (<xl: screens under 1280px) */}
+        <div className="xl:hidden flex w-full overflow-hidden">
+          <div className="animate-marquee-left flex shrink-0 items-center text-xs font-mono text-slate-400">
+            {/* Set 1 */}
+            <div className="flex items-center space-x-6 sm:space-x-8 shrink-0 pr-6 sm:pr-8">
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                <span className="font-bold text-emerald-400">SISTEM AKTIF 24/7</span>
+                <span className="text-slate-600">|</span>
+                <span className="text-slate-200">Zero Error Komisi</span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <Radio className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <span>PEMBAYARAN OTOMATIS: <strong className="text-cyan-300 font-bold">QRIS • BCA • MANDIRI • BRI • BNI • GOPAY</strong></span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <Server className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>ROBOT WHATSAPP: <strong className="text-amber-300 font-bold">24/7 BALAS PROSPEK NONSTOP</strong></span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <Zap className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                <span>HITUNG KOMISI: <strong className="text-teal-300 font-bold">SUB-12MS REAL-TIME (KOMPETITOR 24 JAM+)</strong></span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>KEAMANAN SALDO KAS: <strong className="text-emerald-400 font-bold">TERJAMIN 100% (DEFCON 1)</strong></span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <Sparkles className="w-3.5 h-3.5 text-pink-400 shrink-0" />
+                <span>WEB REPLIKA MEMBER: <strong className="text-pink-300 font-bold">OTOMATIS AKTIF 1 DETIK</strong></span>
+              </div>
+            </div>
+
+            {/* Set 2 (Identical Clone for 100% Continuous Loop with Zero Jeda / Gap) */}
+            <div className="flex items-center space-x-6 sm:space-x-8 shrink-0 pr-6 sm:pr-8" aria-hidden="true">
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                <span className="font-bold text-emerald-400">SISTEM AKTIF 24/7</span>
+                <span className="text-slate-600">|</span>
+                <span className="text-slate-200">Zero Error Komisi</span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <Radio className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <span>PEMBAYARAN OTOMATIS: <strong className="text-cyan-300 font-bold">QRIS • BCA • MANDIRI • BRI • BNI • GOPAY</strong></span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <Server className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>ROBOT WHATSAPP: <strong className="text-amber-300 font-bold">24/7 BALAS PROSPEK NONSTOP</strong></span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <Zap className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                <span>HITUNG KOMISI: <strong className="text-teal-300 font-bold">SUB-12MS REAL-TIME (KOMPETITOR 24 JAM+)</strong></span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span>KEAMANAN SALDO KAS: <strong className="text-emerald-400 font-bold">TERJAMIN 100% (DEFCON 1)</strong></span>
+              </div>
+              <span className="text-slate-700 select-none">•</span>
+              <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+                <Sparkles className="w-3.5 h-3.5 text-pink-400 shrink-0" />
+                <span>WEB REPLIKA MEMBER: <strong className="text-pink-300 font-bold">OTOMATIS AKTIF 1 DETIK</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* DESKTOP (xl: 1280px+): High-Density Spanned Telemetry Grid */}
+        <div className="hidden xl:flex max-w-7xl mx-auto items-center justify-between text-xs font-mono text-slate-400 px-4">
+          <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
             <span className="font-bold text-emerald-400">SISTEM AKTIF 24/7</span>
             <span className="text-slate-600">|</span>
-            <span>Zero Error Komisi</span>
+            <span className="text-slate-200">Zero Error Komisi</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Radio className="w-3.5 h-3.5 text-cyan-400" />
-            <span>PEMBAYARAN OTOMATIS: QRIS • BCA • MANDIRI • BRI • BNI • GOPAY</span>
+          <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+            <Radio className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+            <span>PEMBAYARAN OTOMATIS: <strong className="text-cyan-300 font-bold">QRIS • BCA • MANDIRI • BRI • BNI • GOPAY</strong></span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Server className="w-3.5 h-3.5 text-amber-400" />
-            <span>ROBOT WHATSAPP: 24/7 BALAS PROSPEK NONSTOP</span>
+          <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+            <Server className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>ROBOT WHATSAPP: <strong className="text-amber-300 font-bold">24/7 BALAS PROSPEK NONSTOP</strong></span>
           </div>
-          <div className="flex items-center space-x-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>KEAMANAN SALDO KAS TERJAMIN 100%</span>
+          <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span>KEAMANAN SALDO KAS: <strong className="text-emerald-400 font-bold">TERJAMIN 100%</strong></span>
           </div>
         </div>
       </section>

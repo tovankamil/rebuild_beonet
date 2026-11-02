@@ -72,6 +72,37 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+/* ==========================================================================
+   SEAMLESS INFINITE MARQUEE (Right-to-Left • Zero Jeda • Zero White Space)
+   ========================================================================== */
+@keyframes marquee-scroll-left {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll-left 25s linear infinite;
+  will-change: transform;
+}
+
+@media (hover: hover) {
+  .animate-marquee-left:hover {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-left {
+    animation-duration: 60s;
+  }
+}
+
 /* Prevent accidental text selection and callouts on interactive button controls */
 button,
 [role="button"],

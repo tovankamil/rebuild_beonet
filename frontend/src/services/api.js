@@ -9,7 +9,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('bionet_token');
+    const token = localStorage.getItem('synetiq_token') || localStorage.getItem('bionet_token');
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -23,7 +23,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       // Sesi berakhir
+      localStorage.removeItem('synetiq_token');
       localStorage.removeItem('bionet_token');
+      localStorage.removeItem('synetiq_user');
       localStorage.removeItem('bionet_user');
       window.dispatchEvent(new Event('auth:unauthorized'));
     }

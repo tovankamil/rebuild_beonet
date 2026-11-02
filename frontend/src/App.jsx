@@ -231,7 +231,7 @@ export const parseSearchTab = () => {
 
 export const parseStorageTab = () => {
   try {
-    const t = localStorage.getItem('bionet_active_tab');
+    const t = localStorage.getItem('synetiq_active_tab') || localStorage.getItem('bionet_active_tab');
     return t ? t.trim().toLowerCase() : null;
   } catch {
     return null;
@@ -257,7 +257,7 @@ export const parseTargetTab = (role) => {
     return searchCandidate;
   }
 
-  // d) localStorage.getItem('bionet_active_tab')
+  // d) localStorage.getItem('synetiq_active_tab') / fallback bionet_active_tab
   const storageCandidate = parseStorageTab();
   if (storageCandidate && isValidTabName(storageCandidate) && isTabAllowedForRole(storageCandidate, role)) {
     return storageCandidate;
@@ -270,18 +270,19 @@ export const parseTargetTab = (role) => {
 export default function App() {
   const [token, setToken] = useState(() => {
     try {
-      return localStorage.getItem('bionet_token');
+      return localStorage.getItem('synetiq_token') || localStorage.getItem('bionet_token');
     } catch {
       return null;
     }
   });
   const [user, setUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('bionet_user');
+      const saved = localStorage.getItem('synetiq_user') || localStorage.getItem('bionet_user');
       return saved ? JSON.parse(saved) : null;
     } catch (e) {
-      console.warn('Invalid bionet_user in localStorage, clearing:', e);
+      console.warn('Invalid user in localStorage, clearing:', e);
       try {
+        localStorage.removeItem('synetiq_user');
         localStorage.removeItem('bionet_user');
       } catch {}
       return null;
@@ -322,15 +323,23 @@ export default function App() {
       setMidtransModalOpen(true);
     };
 
+    window.addEventListener('synetiq:open-wheel', handleOpenWheel);
     window.addEventListener('bionet:open-wheel', handleOpenWheel);
+    window.addEventListener('synetiq:open-ranks', handleOpenRanks);
     window.addEventListener('bionet:open-ranks', handleOpenRanks);
+    window.addEventListener('synetiq:open-farm', handleOpenFarm);
     window.addEventListener('bionet:open-farm', handleOpenFarm);
+    window.addEventListener('synetiq:open-midtrans', handleOpenMidtrans);
     window.addEventListener('bionet:open-midtrans', handleOpenMidtrans);
 
     return () => {
+      window.removeEventListener('synetiq:open-wheel', handleOpenWheel);
       window.removeEventListener('bionet:open-wheel', handleOpenWheel);
+      window.removeEventListener('synetiq:open-ranks', handleOpenRanks);
       window.removeEventListener('bionet:open-ranks', handleOpenRanks);
+      window.removeEventListener('synetiq:open-farm', handleOpenFarm);
       window.removeEventListener('bionet:open-farm', handleOpenFarm);
+      window.removeEventListener('synetiq:open-midtrans', handleOpenMidtrans);
       window.removeEventListener('bionet:open-midtrans', handleOpenMidtrans);
     };
   }, [user?.role]);
@@ -366,6 +375,7 @@ export default function App() {
       const fallbackTab = getInitialTab(user.role);
       setActiveTab(fallbackTab);
       try {
+        localStorage.setItem('synetiq_active_tab', fallbackTab);
         localStorage.setItem('bionet_active_tab', fallbackTab);
       } catch {}
     }
@@ -378,9 +388,10 @@ export default function App() {
 
     // 1. Persist to localStorage
     try {
+      localStorage.setItem('synetiq_active_tab', activeTab);
       localStorage.setItem('bionet_active_tab', activeTab);
     } catch (e) {
-      console.warn('Failed to save bionet_active_tab to localStorage:', e);
+      console.warn('Failed to save active_tab to localStorage:', e);
     }
 
     // 2. Synchronize URL hash and browser history stack
@@ -448,7 +459,10 @@ export default function App() {
   }, [activeTab, user?.role]);
   const [securityAlertAcknowledged, setSecurityAlertAcknowledged] = useState(() => {
     try {
-      return sessionStorage.getItem('bionet_security_alert_ack') === 'true';
+      return (
+        sessionStorage.getItem('synetiq_security_alert_ack') === 'true' ||
+        sessionStorage.getItem('bionet_security_alert_ack') === 'true'
+      );
     } catch {
       return false;
     }
@@ -457,6 +471,7 @@ export default function App() {
   const handleAcknowledgeAlert = () => {
     setSecurityAlertAcknowledged(true);
     try {
+      sessionStorage.setItem('synetiq_security_alert_ack', 'true');
       sessionStorage.setItem('bionet_security_alert_ack', 'true');
     } catch {}
   };
@@ -475,6 +490,7 @@ export default function App() {
         setStats(res.data.data);
         if (res.data.data.user) {
           setUser(res.data.data.user);
+          localStorage.setItem('synetiq_user', JSON.stringify(res.data.data.user));
           localStorage.setItem('bionet_user', JSON.stringify(res.data.data.user));
         }
       }
@@ -497,6 +513,7 @@ export default function App() {
           }
           return freshUser;
         });
+        localStorage.setItem('synetiq_user', JSON.stringify(freshUser));
         localStorage.setItem('bionet_user', JSON.stringify(freshUser));
       }
     } catch (err) {
@@ -599,7 +616,7 @@ export default function App() {
   }, [token, user?.id, activeTab]);
 
   const handleLoginSuccess = (userData) => {
-    setToken(localStorage.getItem('bionet_token'));
+    setToken(localStorage.getItem('synetiq_token') || localStorage.getItem('bionet_token'));
     setUser(userData);
     const target = parseTargetTab(userData?.role);
     setActiveTab(target);
@@ -609,8 +626,11 @@ export default function App() {
     try {
       await api.post('/user/logout-ping');
     } catch (e) {}
+    localStorage.removeItem('synetiq_token');
     localStorage.removeItem('bionet_token');
+    localStorage.removeItem('synetiq_user');
     localStorage.removeItem('bionet_user');
+    localStorage.removeItem('synetiq_active_tab');
     localStorage.removeItem('bionet_active_tab');
     setToken(null);
     setUser(null);
@@ -767,7 +787,7 @@ export default function App() {
                     </h3>
                   </div>
                   <p className="text-[11px] text-rose-200/80 mt-0.5">
-                    WAF Bionet telah memblokir 8 percobaan Distributed SYN Flooding &amp; injeksi SQL dari cluster IP asing.
+                    WAF SYNETIQ telah memblokir 8 percobaan Distributed SYN Flooding &amp; injeksi SQL dari cluster IP asing.
                   </p>
                 </div>
               </div>
@@ -920,7 +940,7 @@ export default function App() {
         {/* DashLite Standard Footer */}
         <footer className="py-4 px-6 sm:px-8 border-t border-slate-200 bg-white text-xs text-slate-400 flex flex-col sm:flex-row justify-between items-center gap-2">
           <div>
-            &copy; {new Date().getFullYear()} <strong className="text-slate-600">Bionet Network System</strong>. DashLite Demo 3 Architecture.
+            &copy; {new Date().getFullYear()} <strong className="text-slate-600">SYNETIQ Network System</strong>. DashLite Demo 3 Architecture.
           </div>
           <div className="flex items-center gap-4 text-[11px] text-slate-500">
             <span>Role: <strong className="uppercase text-slate-700">{role}</strong></span>
@@ -979,7 +999,7 @@ export default function App() {
         />
       )}
 
-      {/* Module 8: Sistem Peringkat & Klaim Reward Karir Bionet (Member Only) */}
+      {/* Module 8: Sistem Peringkat & Klaim Reward Karir SYNETIQ (Member Only) */}
       {role === 'member' && (
         <BionetRankRewardsModal
           isOpen={rankRewardsOpen}
@@ -1019,7 +1039,7 @@ export default function App() {
       {/* Floating AI Copilot Widget (Member Only) */}
       {role === 'member' && <AIAssistantWidget currentUser={user} hideFab={true} />}
 
-      {/* Luxury Bionet AI Intelligence Suite Floating Hub (Member Only) */}
+      {/* Luxury SYNETIQ AI Intelligence Suite Floating Hub (Member Only) */}
       {role === 'member' && (
         <BionetAIFloatingHub
           currentUser={user}

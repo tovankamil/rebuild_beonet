@@ -213,7 +213,7 @@ export default function LandingPage({ onGoToLogin }) {
         script = {
           empathy: 'Saya sangat mengerti kekhawatiran Kakak, apalagi marak skema piramida bodong tanpa produk atau nilai riil.',
           reframe:
-            'Di SYNETIQ, apa yang Anda beli dan pasarkan adalah 100% Produk Digital & Lisensi Software Cloud SaaS nyata berteknologi tinggi. Anda mendapatkan tools otomatisasi bisnis berstandar enterprise: Bot WhatsApp WAHA Docker, Double-Entry Ledger FinTech, dan sistem pohon biner otonom. Tidak ada biaya hangus, tidak ada barang numpuk di gudang, dan komisi cair instan sub-12ms ke rekening bank Anda.',
+            'Di SYNETIQ, apa yang Anda beli dan pasarkan adalah 100% Produk Digital & Lisensi Software Cloud SaaS nyata berteknologi tinggi. Anda mendapatkan tools otomatisasi bisnis berstandar enterprise: Bot WhatsApp AI Closer, Double-Entry Ledger FinTech, dan sistem pohon biner otonom. Tidak ada biaya hangus, tidak ada barang numpuk di gudang, dan komisi cair instan sub-12ms ke rekening bank Anda.',
           ctaButtons: [
             { id: 1, label: '💻 Lihat Paket Lisensi Digital Cloud', reply: 'Katalog Lisensi: Core Binary SaaS, Bot WhatsApp AI Closer, dan SOC DEFCON 1 Enterprise Cyber Defense.' },
             { id: 2, label: '🛡️ Audit Keamanan & Kepatuhan FinTech', reply: 'Sistem cloud bersertifikasi ISO-27001 standard, enkripsi AES-256 GCM, dan kepatuhan pembayaran QRIS Bank Indonesia.' },
@@ -267,7 +267,7 @@ export default function LandingPage({ onGoToLogin }) {
         gatewayStatus: 'Menunggu Pemilihan Paket SaaS',
         commissionValue: 'Potensi Rp 1.350.000',
         digitalDelivery: 'Lisensi Digital Cloud: Siap Aktivasi Instan',
-        stepHighlight: 'Nomor WhatsApp berhasil divalidasi ke database WAHA dalam 0.3 detik',
+        stepHighlight: 'Nomor WhatsApp berhasil divalidasi ke database AI WhatsApp dalam 0.3 detik',
         statusColor: 'emerald',
         badge: 'LEAD CAPTURED',
         details: 'Data prospek langsung tersinkronisasi ke CRM Pipeline tanpa input admin manual.',
@@ -277,7 +277,7 @@ export default function LandingPage({ onGoToLogin }) {
       id: 2,
       title: 'WhatsApp Store Bot',
       subtitle: 'Katalog Tombol Otonom',
-      desc: 'Bot WAHA langsung mengirim menu lisensi digital bertingkat otomatis dalam 1.2 detik tanpa jeda.',
+      desc: 'Bot WhatsApp AI langsung mengirim menu lisensi digital bertingkat otomatis dalam 1.2 detik tanpa jeda.',
       businessData: {
         prospectName: 'Budi Santoso',
         phone: '0812-8899-2211',
@@ -287,7 +287,7 @@ export default function LandingPage({ onGoToLogin }) {
         digitalDelivery: 'Paket Terpilih: Lisensi Digital Core SaaS + AI Bot',
         stepHighlight: 'Bot mengirimkan pesan interaktif dengan tombol pilihan paket lisensi software instan',
         statusColor: 'teal',
-        badge: 'WAHA BOT ACTIVE',
+        badge: 'WHATSAPP AI ACTIVE',
         details: 'Calon pembeli cukup menekan tombol pada WhatsApp untuk memilih paket lisensi software digital SYNETIQ.',
       },
     },
@@ -379,7 +379,7 @@ export default function LandingPage({ onGoToLogin }) {
     triggerSound('success');
     const currentNode = workflowSteps[activeWorkflowNode - 1];
     setSimulatedWaToast(
-      `📲 [WAHA Bot] Notifikasi terkirim ke 0812-8899-2211: "${currentNode.title} berhasil diproses dalam 0.4s!"`
+      `📲 [WhatsApp AI Bot] Notifikasi terkirim ke 0812-8899-2211: "${currentNode.title} berhasil diproses dalam 0.4s!"`
     );
     setTimeout(() => setSimulatedWaToast(null), 4000);
   };
@@ -443,10 +443,10 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       {/* 01: DYNAMIC ISLAND FLOATING NAVBAR (Buttons without URL hash changes)     */}
       {/* ========================================================================= */}
-      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-6xl">
-        <div className="bg-[#0e1726]/85 backdrop-blur-xl border border-white/10 rounded-2xl px-4 sm:px-5 py-2.5 shadow-2xl shadow-emerald-950/40 flex items-center justify-between">
+      <nav className="fixed top-3.5 left-1/2 -translate-x-1/2 z-50 w-[96%] max-w-7xl">
+        <div className="bg-[#0e1726]/90 backdrop-blur-2xl border border-white/10 rounded-2xl px-4 sm:px-6 py-2.5 shadow-2xl shadow-emerald-950/40 flex items-center justify-between gap-4">
           {/* Brand Logo */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 shrink-0">
             <button
               type="button"
               onClick={() => scrollToSection('hero')}
@@ -470,26 +470,26 @@ export default function LandingPage({ onGoToLogin }) {
             </button>
           </div>
 
-          {/* Nav Links (Desktop) - Smooth Scroll via scrollToSection */}
-          <div className="hidden lg:flex items-center space-x-6 text-xs font-semibold text-slate-300">
+          {/* Nav Links (Desktop) - Smooth Scroll via scrollToSection with crisp single-line layout */}
+          <div className="hidden lg:flex items-center space-x-4 xl:space-x-7 text-[13px] font-medium text-slate-300 overflow-x-auto no-scrollbar">
             <button
               type="button"
               onClick={() => scrollToSection('brainstorming')}
-              className="hover:text-emerald-400 transition focus:outline-none"
+              className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none shrink-0"
             >
               Studio Brainstorming
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('features')}
-              className="hover:text-emerald-400 transition focus:outline-none"
+              className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none shrink-0"
             >
               8 Sistem Utama
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('security')}
-              className="hover:text-rose-400 transition focus:outline-none flex items-center space-x-1"
+              className="whitespace-nowrap hover:text-rose-400 transition focus:outline-none flex items-center space-x-1.5 shrink-0"
             >
               <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
               <span>SOC DEFCON 1</span>
@@ -497,7 +497,7 @@ export default function LandingPage({ onGoToLogin }) {
             <button
               type="button"
               onClick={() => scrollToSection('beefarm')}
-              className="hover:text-amber-400 transition focus:outline-none flex items-center space-x-1"
+              className="whitespace-nowrap hover:text-amber-400 transition focus:outline-none flex items-center space-x-1.5 shrink-0"
             >
               <span>🍯</span>
               <span>Gamifikasi Lebah</span>
@@ -505,7 +505,7 @@ export default function LandingPage({ onGoToLogin }) {
             <button
               type="button"
               onClick={() => scrollToSection('digital-products')}
-              className="hover:text-emerald-400 transition focus:outline-none flex items-center space-x-1"
+              className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none flex items-center space-x-1.5 shrink-0"
             >
               <BadgeCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>Produk Digital</span>
@@ -513,14 +513,14 @@ export default function LandingPage({ onGoToLogin }) {
             <button
               type="button"
               onClick={() => scrollToSection('consultation')}
-              className="hover:text-cyan-400 transition focus:outline-none"
+              className="whitespace-nowrap hover:text-cyan-400 transition focus:outline-none shrink-0"
             >
               Konsultasi &amp; Demo
             </button>
           </div>
 
           {/* Right Action Controls */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 shrink-0">
             {/* Audio Toggle */}
             <button
               type="button"
@@ -633,7 +633,7 @@ export default function LandingPage({ onGoToLogin }) {
             <div className="text-center">
               <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono tracking-tight">24 / 7</div>
               <div className="text-xs text-slate-300 font-bold mt-0.5">WhatsApp Bot Closing</div>
-              <div className="text-[10px] text-slate-400 font-medium">WAHA Docker Multisesi</div>
+              <div className="text-[10px] text-slate-400 font-medium">Multi-Session Cloud Bot</div>
             </div>
           </div>
         </div>
@@ -668,7 +668,7 @@ export default function LandingPage({ onGoToLogin }) {
           </div>
           <div className="flex items-center space-x-2">
             <Server className="w-3.5 h-3.5 text-amber-400" />
-            <span>WAHA BOT DOCKER: 24/7 AUTO-RESPONDER READY</span>
+            <span>WHATSAPP AI BOT: 24/7 AUTO-RESPONDER READY</span>
           </div>
           <div className="flex items-center space-x-2">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -990,7 +990,7 @@ export default function LandingPage({ onGoToLogin }) {
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       </div>
                       <div className="text-[10px] text-slate-400 font-mono">
-                        Powered by WAHA Docker Engine • Sub-1.2s Response
+                        Powered by WhatsApp Cloud AI Engine • Sub-1.2s Response
                       </div>
                     </div>
                   </div>
@@ -1002,7 +1002,7 @@ export default function LandingPage({ onGoToLogin }) {
                         <MessageSquare className="w-8 h-8 text-slate-600 mb-2" />
                         <div className="text-xs font-medium">Klik tombol "Generate Reframe" di sebelah kiri</div>
                         <div className="text-[11px] text-slate-600 mt-1">
-                          Simulasi balasan bot WAHA beserta tombol pilihan interaktif akan tampil di sini.
+                          Simulasi balasan bot WhatsApp AI beserta tombol pilihan interaktif akan tampil di sini.
                         </div>
                       </div>
                     ) : (
@@ -1184,7 +1184,7 @@ export default function LandingPage({ onGoToLogin }) {
                       <div className="text-base font-mono font-extrabold text-teal-300 mt-1">
                         {activeNodeData.businessData.phone}
                       </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">Terhubung ke Multi-Session WAHA</div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">Terhubung ke Multi-Session Cloud</div>
                     </div>
 
                     {/* 3. Sumber Iklan */}
@@ -1312,14 +1312,14 @@ export default function LandingPage({ onGoToLogin }) {
               </p>
             </div>
 
-            {/* Card 2: WAHA Docker Bot */}
+            {/* Card 2: WhatsApp Cloud Bot */}
             <div className="bg-[#0e1726]/80 border border-white/10 rounded-3xl p-6 hover:border-emerald-500/40 hover:shadow-xl transition group">
               <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition">
                 <MessageSquare className="w-5 h-5" />
               </div>
               <h4 className="text-base font-bold text-white mb-2">WhatsApp Store Bot Otonom</h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Robot WhatsApp multi-session berbasis Docker yang melayani prospek 24/7 dengan katalog bertombol dan QRIS instan.
+                Robot WhatsApp multi-session otonom yang melayani prospek 24/7 dengan katalog bertombol dan QRIS instan.
               </p>
             </div>
 
@@ -1677,7 +1677,7 @@ export default function LandingPage({ onGoToLogin }) {
                 </div>
                 <div className="flex items-center space-x-2 mb-2">
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                    PAKET 02 • WAHA DOCKER
+                    PAKET 02 • WHATSAPP AI CLOSER
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-bold">
                     AI CLOSING 24/7
@@ -1685,14 +1685,14 @@ export default function LandingPage({ onGoToLogin }) {
                 </div>
                 <h4 className="text-lg font-bold text-white mb-2">WhatsApp AI Closer &amp; Bot Multisesi</h4>
                 <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                  Mesin closing 24/7 otomatis tanpa admin. Robot WAHA Docker melayani prospek otonom, menjawab keberatan konsumen, menyajikan tombol menu paket, dan menerbitkan link pembayaran otomatis.
+                  Mesin closing 24/7 otomatis tanpa admin. Robot WhatsApp AI melayani prospek otonom, menjawab keberatan konsumen, menyajikan tombol menu paket, dan menerbitkan link pembayaran otomatis.
                 </p>
               </div>
 
               <div className="pt-4 border-t border-white/10 space-y-2 text-xs text-emerald-200">
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Multi-Session WhatsApp Docker Engine</span>
+                  <span>Multi-Session WhatsApp Cloud Engine</span>
                 </div>
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />

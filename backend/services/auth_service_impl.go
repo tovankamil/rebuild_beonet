@@ -27,8 +27,12 @@ func (s *authServiceImpl) Login(req models.LoginRequest) (*models.LoginResponse,
 	// Cek password hash
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
 	if err != nil {
-		// Fallback jika password masih plain text (data lama/testing)
-		if user.PasswordHash != req.Password {
+		// Dual alias compatibility for demo seed (synetiq123 <-> bionet123)
+		if (req.Password == "synetiq123" && bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte("bionet123")) == nil) ||
+			(req.Password == "bionet123" && bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte("synetiq123")) == nil) {
+			err = nil
+		} else if user.PasswordHash != req.Password {
+			// Fallback jika password masih plain text (data lama/testing)
 			return nil, errors.New("username atau password salah")
 		}
 	}

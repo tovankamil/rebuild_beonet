@@ -79,10 +79,10 @@ export default function HeroShowcaseSlideshow({
       accent: 'emerald',
     },
     {
-      id: 'waha',
+      id: 'whatsapp',
       tabTitle: 'WhatsApp Bot',
-      route: 'waha.synetiq.internal/bot-engine',
-      badge: 'WAHA DOCKER LIVE',
+      route: 'bot.synetiq.internal/ai-engine',
+      badge: 'WHATSAPP AI LIVE',
       icon: MessageSquare,
       accent: 'teal',
     },
@@ -290,7 +290,7 @@ export default function HeroShowcaseSlideshow({
       <div className="hidden lg:flex absolute -bottom-5 -left-4 items-center space-x-2.5 px-3 py-2 rounded-2xl bg-[#0e1726]/90 backdrop-blur-xl border border-teal-500/30 text-xs shadow-2xl shadow-teal-950/60 animate-float-reverse z-30 pointer-events-none">
         <Bot className="w-4 h-4 text-teal-400" />
         <div>
-          <div className="font-extrabold text-white text-[11px] leading-tight">WAHA AI Closer</div>
+          <div className="font-extrabold text-white text-[11px] leading-tight">WhatsApp AI Closer</div>
           <div className="text-[10px] text-slate-400 font-mono">24/7 Multi-Session Bot</div>
         </div>
       </div>
@@ -538,7 +538,7 @@ export default function HeroShowcaseSlideshow({
             {/* =================================================================== */}
             {currentSlide === 1 && (
               <motion.div
-                key="slide-waha"
+                key="slide-whatsapp"
                 custom={direction}
                 variants={slideVariants}
                 initial="enter"
@@ -556,7 +556,7 @@ export default function HeroShowcaseSlideshow({
                       <div className="text-xs font-bold text-white flex items-center space-x-1.5">
                         <span>WHATSAPP INTERACTIVE STORE BOT</span>
                         <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-teal-500/20 text-teal-300 font-bold border border-teal-500/30">
-                          WAHA DOCKER
+                          WHATSAPP AI ENGINE
                         </span>
                       </div>
                       <div className="text-[10px] text-slate-400">Nested Buttons &amp; Automated AI Closing</div>

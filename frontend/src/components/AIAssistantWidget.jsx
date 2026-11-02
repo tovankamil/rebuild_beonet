@@ -20,7 +20,7 @@ export default function AIAssistantWidget({ currentUser, hideFab = false }) {
     {
       id: 1,
       sender: 'ai',
-      text: `Halo ${currentUser?.full_name ? currentUser.full_name.split(' ')[0] : 'Mitra'}! 👋 Saya adalah Asisten AI Bionet (didukung Google Gemini).\n\nAda yang bisa saya bantu seputar bonus pasangan, pohon jaringan binary, aktivasi PIN, atau produk herbal Repeat Order?`,
+      text: `Halo ${currentUser?.full_name ? currentUser.full_name.split(' ')[0] : 'Mitra'}! 👋 Saya adalah Asisten AI SYNETIQ (didukung Google Gemini).\n\nAda yang bisa saya bantu seputar bonus pasangan, pohon jaringan binary, aktivasi PIN, atau ekosistem SYNETIQ?`,
       time: 'Baru saja',
     },
   ]);
@@ -47,9 +47,11 @@ export default function AIAssistantWidget({ currentUser, hideFab = false }) {
       }
     };
 
+    window.addEventListener('synetiq:open-copilot', handleOpen);
     window.addEventListener('bionet:open-copilot', handleOpen);
     window.addEventListener('keydown', handleKeyDown);
     return () => {
+      window.removeEventListener('synetiq:open-copilot', handleOpen);
       window.removeEventListener('bionet:open-copilot', handleOpen);
       window.removeEventListener('keydown', handleKeyDown);
     };
@@ -117,13 +119,13 @@ export default function AIAssistantWidget({ currentUser, hideFab = false }) {
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onClick={() => setIsOpen(true)}
             className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom,0px))] right-4 sm:right-6 z-40 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white px-4 py-3 rounded-full shadow-[0_10px_25px_rgba(5,150,105,0.4)] flex items-center gap-2.5 transition-colors border border-emerald-400/30 group"
-            aria-label="Tanya Asisten AI Bionet"
+            aria-label="Tanya Asisten AI SYNETIQ"
           >
             <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
               <Sparkles size={16} className="text-emerald-200 group-hover:rotate-12 transition-transform" />
             </div>
             <div className="text-left hidden sm:block">
-              <div className="text-[11px] font-bold tracking-wide uppercase text-emerald-100">Bionet AI</div>
+              <div className="text-[11px] font-bold tracking-wide uppercase text-emerald-100">SYNETIQ AI</div>
               <div className="text-xs font-extrabold text-white">Tanya Asisten</div>
             </div>
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse sm:hidden" />
@@ -150,14 +152,14 @@ export default function AIAssistantWidget({ currentUser, hideFab = false }) {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h4 className="font-heading font-extrabold text-xs text-white">Bionet AI Copilot</h4>
+                  <h4 className="font-heading font-extrabold text-xs text-white">SYNETIQ AI Copilot</h4>
                   <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
                     Gemini 3.1
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-[10px] text-emerald-200/80">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                  <span>Online • Terhubung ke Database Bionet</span>
+                  <span>Online • Terhubung ke Database SYNETIQ</span>
                 </div>
               </div>
             </div>
@@ -232,7 +234,7 @@ export default function AIAssistantWidget({ currentUser, hideFab = false }) {
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-bounce" />
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-bounce [animation-delay:0.2s]" />
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-bounce [animation-delay:0.4s]" />
-                  <span className="text-[11px] font-medium ml-1">Menganalisa data Bionet...</span>
+                  <span className="text-[11px] font-medium ml-1">Menganalisa data SYNETIQ...</span>
                 </div>
               </div>
             )}
@@ -267,7 +269,7 @@ export default function AIAssistantWidget({ currentUser, hideFab = false }) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Tanya apa saja seputar Bionet..."
+              placeholder="Tanya apa saja seputar SYNETIQ..."
               disabled={loading}
               className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 shadow-2xs"
               style={{

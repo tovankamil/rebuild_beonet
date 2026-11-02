@@ -46,7 +46,7 @@ export default function LoginPage({ onLoginSuccess }) {
     },
     {
       title: 'Kemitraan Terpercaya & Berkelanjutan',
-      desc: 'Sistem kemitraan adil, transparan, dan terpercaya untuk seluruh keluarga besar mitra Bionet Indonesia.',
+      desc: 'Sistem kemitraan adil, transparan, dan terpercaya untuk seluruh keluarga besar mitra SYNETIQ Indonesia.',
     },
   ];
 
@@ -65,11 +65,15 @@ export default function LoginPage({ onLoginSuccess }) {
     try {
       const res = await api.post('/auth/login', { username, password });
       if (res.data && res.data.data) {
+        localStorage.setItem('synetiq_token', res.data.data.token);
         localStorage.setItem('bionet_token', res.data.data.token);
+        localStorage.setItem('synetiq_user', JSON.stringify(res.data.data.user));
         localStorage.setItem('bionet_user', JSON.stringify(res.data.data.user));
         if (rememberMe) {
+          localStorage.setItem('synetiq_saved_username', username);
           localStorage.setItem('bionet_saved_username', username);
         } else {
+          localStorage.removeItem('synetiq_saved_username');
           localStorage.removeItem('bionet_saved_username');
         }
         onLoginSuccess(res.data.data.user);
@@ -85,13 +89,13 @@ export default function LoginPage({ onLoginSuccess }) {
   const handleUseDemo = (role = 'member') => {
     if (role === 'admin') {
       setUsername('admin01');
-      setPassword('bionet123');
+      setPassword('synetiq123');
     } else if (role === 'gudang') {
       setUsername('gudang01');
-      setPassword('bionet123');
+      setPassword('synetiq123');
     } else {
       setUsername('mitra01');
-      setPassword('bionet123');
+      setPassword('synetiq123');
     }
     setError('');
   };
@@ -119,7 +123,7 @@ export default function LoginPage({ onLoginSuccess }) {
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <img
                   src="/assets/bionet_biotech_hero.jpg"
-                  alt="Bionet 3D Biotech Planet with Binary Nodes"
+                  alt="SYNETIQ 3D Biotech Planet with Binary Nodes"
                   className="w-full h-full object-cover object-center opacity-85 group-hover:scale-105 transition-transform duration-1000"
                 />
                 {/* Soft gradient scrims for maximum text readability */}
@@ -136,7 +140,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
                 <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-400 px-2.5 py-0.5 rounded-full bg-black/40 border border-white/10 backdrop-blur-md">
                   <Activity size={11} className="text-teal-400" />
-                  <span>Bionet Intelligence v6</span>
+                  <span>SYNETIQ Intelligence v6</span>
                 </div>
               </div>
 
@@ -237,7 +241,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 {/* Heading & Subtitle */}
                 <div className="mt-5 mb-4">
                   <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-emerald-300 bg-clip-text text-transparent">
-                    Portal Mitra {branding?.app_name || 'Bionet'}
+                    Portal Mitra {branding?.app_name || 'SYNETIQ'}
                   </h1>
                   <p className="text-xs text-slate-400 mt-1">
                     Masuk untuk memantau omset tim, struktur jaringan, dan bonus harian Anda
@@ -413,17 +417,17 @@ export default function LoginPage({ onLoginSuccess }) {
                       <img
                         className="inline-block h-8 w-8 rounded-full ring-2 ring-emerald-500/40 object-cover"
                         src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80"
-                        alt="Mitra Bionet 1"
+                        alt="Mitra SYNETIQ 1"
                       />
                       <img
                         className="inline-block h-8 w-8 rounded-full ring-2 ring-teal-500/40 object-cover"
                         src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop&q=80"
-                        alt="Mitra Bionet 2"
+                        alt="Mitra SYNETIQ 2"
                       />
                       <img
                         className="inline-block h-8 w-8 rounded-full ring-2 ring-amber-500/40 object-cover"
                         src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=80&auto=format&fit=crop&q=80"
-                        alt="Mitra Bionet 3"
+                        alt="Mitra SYNETIQ 3"
                       />
                     </div>
                     <div>
@@ -451,7 +455,7 @@ export default function LoginPage({ onLoginSuccess }) {
 
       {/* 4. Elegant Page Footer */}
       <footer className="relative z-10 text-center py-2 text-xs text-slate-400 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-        <span>&copy; {new Date().getFullYear()} Bionet Juara Perkasa. All rights reserved.</span>
+        <span>&copy; {new Date().getFullYear()} SYNETIQ Enterprise Platform. All rights reserved.</span>
         <span className="hidden sm:inline">&bull;</span>
         <span className="text-emerald-400">MLM Binary System &bull; Flip.id Instant Payout &bull; Kemendagri API</span>
       </footer>
@@ -479,7 +483,7 @@ export default function LoginPage({ onLoginSuccess }) {
             </div>
             <h3 className="font-heading font-bold text-lg text-white">Bantuan Reset Sandi</h3>
             <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-              Untuk menjaga keamanan saldo dompet komisi Flip.id Anda, reset sandi akun mitra diverifikasi langsung melalui administrator stokis atau CS resmi Bionet.
+              Untuk menjaga keamanan saldo dompet komisi Flip.id Anda, reset sandi akun mitra diverifikasi langsung melalui administrator stokis atau CS resmi SYNETIQ.
             </p>
             <div className="mt-4 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-2">
               <div className="flex items-center gap-2">

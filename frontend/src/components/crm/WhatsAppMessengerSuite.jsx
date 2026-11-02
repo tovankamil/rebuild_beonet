@@ -46,10 +46,12 @@ import {
   PhoneOutgoing,
   Video,
   VideoOff,
+  ShoppingBag,
 } from 'lucide-react';
 import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
 import { downloadVCardContact, downloadBatchVCard } from '../../utils/vCardGenerator';
+import WhatsAppInteractiveStoreView from './WhatsAppInteractiveStoreView';
 
 
 export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
@@ -1163,6 +1165,17 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
           >
             <Sparkles className="w-4 h-4 text-amber-300" />
             <span>Chatbot &amp; Auto-Responder</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('store-catalog')}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${activeTab === 'store-catalog'
+                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
+                : 'text-emerald-200 hover:bg-white/10'
+              }`}
+          >
+            <ShoppingBag className="w-4 h-4 text-pink-300" />
+            <span>Katalog Toko (Bot Menu)</span>
           </button>
 
           <button
@@ -3010,6 +3023,13 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
             </div>
           )}
         </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUB-VIEW 7: INTERACTIVE STORE CATALOG BOT (BLUEPRINT BUTTON MENU) */}
+      {/* ========================================================================= */}
+      {activeTab === 'store-catalog' && (
+        <WhatsAppInteractiveStoreView />
       )}
 
       {/* ========================================================================= */}

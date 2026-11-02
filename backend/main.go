@@ -759,6 +759,7 @@ func main() {
 		&models.FarmWaterTank{},
 		&models.FarmFriendVisit{},
 		&models.FarmHarvestLog{},
+		&models.WhatsAppInteractiveStoreConfig{},
 	}
 	for _, m := range allModels {
 		if err := config.DB.AutoMigrate(m); err != nil {
@@ -1064,6 +1065,11 @@ func main() {
 			protected.POST("/crm/whatsapp/device/pair", crmHandler.PairWhatsAppDevice)
 			protected.POST("/crm/whatsapp/device/disconnect", crmHandler.DisconnectWhatsAppDevice)
 			protected.POST("/crm/whatsapp/device/toggle-bot", crmHandler.ToggleWhatsAppAutoResponder)
+
+			// WhatsApp Interactive Store Catalog Bot (24/7 Button Menu)
+			protected.GET("/crm/whatsapp/store-catalog", crmHandler.GetWhatsAppStoreCatalog)
+			protected.POST("/crm/whatsapp/store-catalog", crmHandler.SaveWhatsAppStoreCatalog)
+			protected.POST("/crm/whatsapp/store-catalog/send", crmHandler.SendWhatsAppStoreCatalog)
 
 			// Pilar 3: WhatsApp CRM Lanjutan (WAHA Docker Expansion & File Upload)
 			protected.POST("/crm/whatsapp/upload", crmHandler.UploadWhatsAppAttachment)

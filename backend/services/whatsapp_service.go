@@ -2323,3 +2323,207 @@ func (s *WhatsAppService) AnalyzeLeadScoreAndIntent(ctx context.Context, threadI
 		"analyzed_at":    time.Now(),
 	}, nil
 }
+
+// =========================================================================
+// WHATSAPP INTERACTIVE STORE & CATALOG BOT (Button Menu Store 24/7)
+// =========================================================================
+
+// GetInteractiveStoreConfig mengambil konfigurasi katalog interaktif bot dengan stok riil dari database
+func (s *WhatsAppService) GetInteractiveStoreConfig() models.WhatsAppInteractiveStoreConfig {
+	var cfg models.WhatsAppInteractiveStoreConfig
+
+	// Cek apakah sudah tersimpan di database
+	if config.DB != nil {
+		if err := config.DB.First(&cfg).Error; err == nil && cfg.RawJSON != "" {
+			_ = json.Unmarshal([]byte(cfg.RawJSON), &cfg.Categories)
+		}
+	}
+
+	// Hitung ketersediaan paket join dan produk herbal langsung dari database riil
+	var activeProductCount int64 = 4
+	var activePackageCount int64 = 3
+	if config.DB != nil {
+		config.DB.Model(&models.Product{}).Where("is_active = ?", true).Count(&activeProductCount)
+		config.DB.Model(&models.PinPackage{}).Where("is_active = ?", true).Count(&activePackageCount)
+	}
+
+	if cfg.StoreName == "" {
+		cfg.StoreName = "🌸 BIONET OFFICIAL HERBAL & PARTNER STORE 🌸"
+	}
+	if cfg.GreetingText == "" {
+		cfg.GreetingText = "👋 *Pilih Kategori Produk & Kemitraan*\nProduk herbal BPOM & paket join ready, dapat langsung dipesan otomatis 24/7."
+	}
+	if cfg.FooterText == "" {
+		cfg.FooterText = "⚡ Proses Otomatis 24/7 • 🛡️ Transaksi Aman & BPOM Resmi"
+	}
+
+	// Jika kategori kosong, buat default kategori bisnis Bionet yang elegan
+	if len(cfg.Categories) == 0 {
+		cfg.Categories = []models.WhatsAppStoreCategory{
+			{
+				ID:         "cat-packages",
+				Icon:       "📦",
+				Title:      "Paket Join Kemitraan",
+				Subtitle:   fmt.Sprintf("%d/%d paket ready", activePackageCount, activePackageCount),
+				ActionType: "package_list",
+				ReplyText: "📦 *PILIHAN PAKET JOIN KEMITRAAN BIONET*\n\n" +
+					"1. *Paket Gold (Favorit Mitra)* 🥇\n" +
+					"   • Harga: *Rp 500.000*\n" +
+					"   • Kuota Produk: 3 Poin / 3 Produk Herbal Pilihan\n" +
+					"   • Bonus Sponsor: *Rp 200.000* per mitra baru!\n" +
+					"   • Potensi Bonus Pasangan: Hingga Rp 1.500.000/hari\n\n" +
+					"2. *Paket Silver (Mulai Usaha)* 🥈\n" +
+					"   • Harga: *Rp 250.000*\n" +
+					"   • Kuota Produk: 1 Poin / 1 Produk Herbal Pilihan\n" +
+					"   • Bonus Sponsor: *Rp 100.000*\n\n" +
+					"3. *Paket Platinum (Distributor Eksekutif)* 💎\n" +
+					"   • Harga: *Rp 1.500.000*\n" +
+					"   • Kuota Produk: 10 Poin / 10 Produk Herbal Pilihan\n" +
+					"   • Bonus Sponsor: *Rp 600.000*\n\n" +
+					"📲 _Ketik *GOLD* atau *DAFTAR* untuk registrasi kemitraan langsung!_",
+				IsActive:  true,
+				SortOrder: 1,
+			},
+			{
+				ID:         "cat-products",
+				Icon:       "🌿",
+				Title:      "Produk Herbal BPOM",
+				Subtitle:   fmt.Sprintf("%d/%d produk ready", activeProductCount, activeProductCount),
+				ActionType: "product_list",
+				ReplyText: "🌿 *KATALOG PRODUK HERBAL UNGGULAN BIONET*\n\n" +
+					"1. *Bio-Propolis Trigona 30ml*\n" +
+					"   • BPOM RI: POM TR 226012891\n" +
+					"   • Manfaat: Imunitas, regenerasi sel, atasi radang & kolesterol\n" +
+					"   • Harga Konsumen: Rp 250.000 (Harga Mitra: Rp 166.000)\n\n" +
+					"2. *Madu Herbal Bio-Glucan 250gr*\n" +
+					"   • BPOM RI: POM TR 213600121\n" +
+					"   • Manfaat: Lambung sehat, stamina harian, booster nutrisi\n" +
+					"   • Harga Konsumen: Rp 200.000\n\n" +
+					"3. *Bio Moringa Plus*\n" +
+					"   • BPOM RI: POM TR 203341231\n" +
+					"   • Manfaat: Stabilkan gula darah & tekanan darah\n" +
+					"   • Harga Konsumen: Rp 180.000\n\n" +
+					"📦 _Semua produk 100% Herbal Alami bersertifikat Halal MUI._",
+				IsActive:  true,
+				SortOrder: 2,
+			},
+			{
+				ID:         "cat-bonus",
+				Icon:       "💰",
+				Title:      "Bonus & Komisi Harian",
+				Subtitle:   "Sponsor & Pasangan Aktif",
+				ActionType: "bonus_info",
+				ReplyText: "💰 *SISTEM BONUS & PENGHASILAN HARIAN BIONET*\n\n" +
+					"1. *Bonus Sponsor Kilat (40%)*:\n" +
+					"   • Ajak mitra join Gold Rp 500rb -> Anda dapat *Rp 200.000* langsung!\n\n" +
+					"2. *Bonus Pasangan (Binary 1:1)*:\n" +
+					"   • Setiap terjadi 1 pasang kiri & kanan -> Anda dapat *Rp 50.000* / pasang.\n" +
+					"   • Maksimal potensi: Rp 1.500.000 per hari!\n\n" +
+					"3. *Poin Reward Peringkat*:\n" +
+					"   • Kumpulkan poin kaki kiri & kanan untuk reward Umroh, Mobil, dan Rumah Impian.\n\n" +
+					"⚡ _Pencairan bonus harian otomatis masuk rekening tanpa potongan tersembunyi._",
+				IsActive:  true,
+				SortOrder: 3,
+			},
+			{
+				ID:         "cat-legal",
+				Icon:       "📋",
+				Title:      "Legalitas & Sertifikasi BPOM",
+				Subtitle:   "100% Legal & Terdaftar",
+				ActionType: "legality",
+				ReplyText: "📋 *LEGALITAS RESMI PT BIONET NETWORK INDONESIA*\n\n" +
+					"• *Izin Operasional*: NIB 1289000192312 (KBLI Penjualan Langsung)\n" +
+					"• *Sertifikasi BPOM*: Seluruh produk memiliki izin edar resmi BPOM RI\n" +
+					"• *Sertifikasi Halal*: ID321100001234 (Kemenag RI & MUI)\n" +
+					"• *Asosiasi*: Anggota resmi AP2LI / APLI\n\n" +
+					"🔍 _Dapat diverifikasi secara online di situs resmi cekbpom.pom.go.id_",
+				IsActive:  true,
+				SortOrder: 4,
+			},
+			{
+				ID:         "cat-cs",
+				Icon:       "👤",
+				Title:      "Live Chat Customer Service",
+				Subtitle:   "Respon Cepat 24 Jam",
+				ActionType: "contact_cs",
+				ReplyText: "👤 *LAYANAN BANTUAN CUSTOMER SERVICE BIONET*\n\n" +
+					"Halo kak! Tim Customer Care kami siap membantu konsultasi produk, kendala sistem, atau panduan pendaftaran mitra:\n\n" +
+					"• CS Pendaftaran & Kemitraan: 0812-3456-7890\n" +
+					"• CS Pengiriman & Stok Produk: 0813-9876-5432\n" +
+					"• Jam Layanan: 24 Jam Non-Stop\n\n" +
+					"💬 _Atau silakan tuliskan pertanyaan Anda langsung di room chat ini._",
+				IsActive:  true,
+				SortOrder: 5,
+			},
+			{
+				ID:         "cat-home",
+				Icon:       "🔙",
+				Title:      "Home / Menu Utama",
+				Subtitle:   "Kembali ke Menu Awal",
+				ActionType: "home",
+				ReplyText:  "Ketik *MENU* atau *TOKO* kapan saja untuk menampilkan kembali daftar kategori produk & kemitraan Bionet.",
+				IsActive:   true,
+				SortOrder:  6,
+			},
+		}
+	}
+
+	return cfg
+}
+
+// SaveInteractiveStoreConfig menyimpan perubahan pengaturan katalog bot ke DB
+func (s *WhatsAppService) SaveInteractiveStoreConfig(cfg models.WhatsAppInteractiveStoreConfig) error {
+	raw, _ := json.Marshal(cfg.Categories)
+	cfg.RawJSON = string(raw)
+
+	if config.DB == nil {
+		return nil
+	}
+
+	var existing models.WhatsAppInteractiveStoreConfig
+	if err := config.DB.First(&existing).Error; err == nil {
+		return config.DB.Model(&existing).Updates(map[string]interface{}{
+			"store_name":    cfg.StoreName,
+			"greeting_text": cfg.GreetingText,
+			"footer_text":   cfg.FooterText,
+			"is_active":     cfg.IsActive,
+			"auto_reply_on": cfg.AutoReplyOn,
+			"raw_json":      cfg.RawJSON,
+			"updated_at":    time.Now(),
+		}).Error
+	}
+
+	return config.DB.Create(&cfg).Error
+}
+
+// FormatStoreCatalogMessage meracik format teks katalog yang cantik identik dengan screenshot referensi
+func (s *WhatsAppService) FormatStoreCatalogMessage(cfg models.WhatsAppInteractiveStoreConfig) string {
+	var categoryLines []string
+	for _, cat := range cfg.Categories {
+		if !cat.IsActive {
+			continue
+		}
+		categoryLines = append(categoryLines, fmt.Sprintf("%s *%s*: %s", cat.Icon, cat.Title, cat.Subtitle))
+	}
+
+	catBody := strings.Join(categoryLines, "\n")
+
+	return fmt.Sprintf(
+		"╭──「 %s 」──╮\n\n"+
+			"%s\n\n"+
+			"%s\n"+
+			"─────────────────────\n"+
+			"⚡ %s",
+		cfg.StoreName,
+		cfg.GreetingText,
+		catBody,
+		cfg.FooterText,
+	)
+}
+
+// SendInteractiveStoreCatalog mengirimkan pesan katalog toko ke nomor tujuan via WAHA / WhatsApp Engine
+func (s *WhatsAppService) SendInteractiveStoreCatalog(targetPhone string) error {
+	cfg := s.GetInteractiveStoreConfig()
+	msg := s.FormatStoreCatalogMessage(cfg)
+	return s.SendCustomMessage(targetPhone, "Pelanggan Bionet", msg)
+}

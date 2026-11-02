@@ -1369,15 +1369,43 @@ func (h *CRMHandler) WhatsAppWebhookListener(c *gin.Context) {
 
 					if from != "" && text != "" {
 						waService.RecordInboundMessage(from, senderName, text)
-						// Check auto responder bot
-						if waService.GetDeviceSession().AutoResponderOn {
-							rules := waService.GetBotRules()
-							lowerText := strings.ToLower(text)
-							for _, r := range rules {
-								if r.IsActive && strings.Contains(lowerText, strings.ToLower(r.Keyword)) {
-									// Send auto reply via WAHA
-									go waService.SendCustomMessage(from, senderName, r.Reply)
+						lowerText := strings.TrimSpace(strings.ToLower(text))
+
+						// 1. Cek Auto-Responder Katalog Toko Interaktif 24/7
+						storeCfg := waService.GetInteractiveStoreConfig()
+						isStoreTrigger := lowerText == "menu" || lowerText == "toko" || lowerText == "store" ||
+							lowerText == "katalog" || lowerText == "produk" || lowerText == "paket" ||
+							lowerText == "halo" || lowerText == "hai" || lowerText == "p" || lowerText == "help"
+
+						if storeCfg.IsActive && storeCfg.AutoReplyOn && isStoreTrigger {
+							go func() {
+								replyMsg := waService.FormatStoreCatalogMessage(storeCfg)
+								_ = waService.SendCustomMessage(from, senderName, replyMsg)
+							}()
+						} else {
+							// 2. Cek apakah pesan memilih salah satu kategori tombol / nomor menu
+							matchedCat := false
+							for idx, cat := range storeCfg.Categories {
+								catNum := fmt.Sprintf("%d", idx+1)
+								cleanCatTitle := strings.ToLower(cat.Title)
+								if cat.IsActive && (lowerText == catNum || lowerText == cleanCatTitle || strings.Contains(lowerText, cleanCatTitle)) {
+									go func(c models.WhatsAppStoreCategory) {
+										_ = waService.SendCustomMessage(from, senderName, c.ReplyText)
+									}(cat)
+									matchedCat = true
 									break
+								}
+							}
+
+							// 3. Fallback ke Aturan Kata Kunci Auto-Responder Standar
+							if !matchedCat && waService.GetDeviceSession().AutoResponderOn {
+								rules := waService.GetBotRules()
+								for _, r := range rules {
+									if r.IsActive && strings.Contains(lowerText, strings.ToLower(r.Keyword)) {
+										// Send auto reply via WAHA
+										go waService.SendCustomMessage(from, senderName, r.Reply)
+										break
+									}
 								}
 							}
 						}
@@ -1772,6 +1800,66 @@ func (h *CRMHandler) DeleteWhatsAppBotRule(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"deleted": deleted,
+	})
+}
+
+// GetWhatsAppStoreCatalog mengambil konfigurasi pesan pembuka katalog interaktif & tombol menu
+func (h *CRMHandler) GetWhatsAppStoreCatalog(c *gin.Context) {
+	waService := services.InitWhatsAppService()
+	cfg := waService.GetInteractiveStoreConfig()
+	formattedText := waService.FormatStoreCatalogMessage(cfg)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":         "success",
+		"data":           cfg,
+		"formatted_text": formattedText,
+	})
+}
+
+// SaveWhatsAppStoreCatalog menyimpan konfigurasi pesan pembuka katalog interaktif & tombol menu
+func (h *CRMHandler) SaveWhatsAppStoreCatalog(c *gin.Context) {
+	var cfg models.WhatsAppInteractiveStoreConfig
+	if err := c.ShouldBindJSON(&cfg); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Format konfigurasi katalog tidak valid"})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	if err := waService.SaveInteractiveStoreConfig(cfg); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal menyimpan konfigurasi katalog: " + err.Error()})
+		return
+	}
+
+	freshCfg := waService.GetInteractiveStoreConfig()
+	formattedText := waService.FormatStoreCatalogMessage(freshCfg)
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":         "success",
+		"message":        "Katalog toko interaktif WhatsApp berhasil diperbarui",
+		"data":           freshCfg,
+		"formatted_text": formattedText,
+	})
+}
+
+// SendWhatsAppStoreCatalog mengirimkan pesan katalog toko ke nomor target
+func (h *CRMHandler) SendWhatsAppStoreCatalog(c *gin.Context) {
+	var req struct {
+		Phone string `json:"phone" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Nomor WhatsApp tujuan wajib diisi"})
+		return
+	}
+
+	waService := services.InitWhatsAppService()
+	if err := waService.SendInteractiveStoreCatalog(req.Phone); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal mengirim katalog: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": fmt.Sprintf("Katalog toko interaktif berhasil dikirimkan ke %s", req.Phone),
 	})
 }
 

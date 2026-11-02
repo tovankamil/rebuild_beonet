@@ -34,12 +34,15 @@ import {
   Sliders,
   DollarSign,
   Share2,
+  BarChart3,
+  CreditCard,
+  UserCheck,
 } from 'lucide-react';
 
 export default function HeroShowcaseSlideshow({
   audioEnabled = true,
   triggerSound = () => {},
-  heroMitraCount = 14,
+  heroMitraCount = 1420,
   setHeroMitraCount = () => {},
   heroWalletBalance = 4850000,
   setHeroWalletBalance = () => {},
@@ -57,6 +60,7 @@ export default function HeroShowcaseSlideshow({
   const [txFeed, setTxFeed] = useState([
     { id: 1, user: 'Budi Santoso (Surabaya)', action: 'Daftar Paket Bisnis', bonus: '+Rp 350.000', time: '1 mnt lalu' },
     { id: 2, user: 'Dewi Lestari (Bandung)', action: 'Repeat Order 4 Box', bonus: '+Rp 140.000', time: '3 mnt lalu' },
+    { id: 3, user: 'Agus Setiawan (Medan)', action: 'Bonus Pasangan Cair', bonus: '+Rp 350.000', time: '5 mnt lalu' },
   ]);
 
   // Slide 1: Binary Tree State
@@ -64,6 +68,7 @@ export default function HeroShowcaseSlideshow({
   const [treeToast, setTreeToast] = useState(null);
   const [leftBV, setLeftBV] = useState(850);
   const [rightBV, setRightBV] = useState(850);
+  const [pairsCount, setPairsCount] = useState(14);
 
   // Slide 2: WhatsApp Bot State
   const [waSelected, setWaSelected] = useState('catalog');
@@ -90,12 +95,12 @@ export default function HeroShowcaseSlideshow({
     {
       id: 'overview',
       tabTitle: 'Ringkasan Bisnis',
-      shortTitle: 'Ringkasan',
+      shortTitle: 'Ringkasan Bisnis',
       route: 'app.synetiq.id/dashboard/overview',
       badge: 'OMSET REAL-TIME',
       icon: TrendingUp,
       accent: 'emerald',
-      desc: 'Pantau omset harian, pertumbuhan mitra, dan mutasi saldo kas secara real-time dari satu layar.',
+      desc: 'Pantau omset harian, pertumbuhan mitra, dan mutasi saldo kas secara real-time dari satu layar tablet.',
     },
     {
       id: 'binary',
@@ -207,7 +212,7 @@ export default function HeroShowcaseSlideshow({
       time: 'Baru saja',
     };
     setTxFeed((prev) => [newTx, ...prev.slice(0, 2)]);
-    setOverviewToast('⚡ Transaksi Baru Berhasil Masuk! Omset +Rp 2.500.000 & Komisi Upline Cair');
+    setOverviewToast('⚡ Transaksi Baru Masuk! Omset +Rp 2.500.000 & Komisi Upline Cair Otomatis');
     setTimeout(() => setOverviewToast(null), 3500);
   };
 
@@ -221,6 +226,7 @@ export default function HeroShowcaseSlideshow({
     setHeroWalletBalance((prev) => prev + 350000);
     setLeftBV((prev) => prev + 100);
     setRightBV((prev) => prev + 100);
+    setPairsCount((prev) => prev + 1);
     setTreeToast('🎉 +1 Pasangan Baru Terhitung! Bonus Rp 350.000 Otomatis Cair ke Dompet');
 
     setTimeout(() => setTreePairingPulse(false), 800);
@@ -239,7 +245,7 @@ export default function HeroShowcaseSlideshow({
       setWaTyping(false);
       setWaStatusPing('Online');
       triggerSound('success');
-    }, 600);
+    }, 500);
   };
 
   // -------------------------------------------------------------
@@ -261,7 +267,7 @@ export default function HeroShowcaseSlideshow({
   const handleSimulateVisitor = () => {
     triggerSound('success');
     setReplikaVisitors((prev) => prev + 1);
-    setReplikaToast('🛒 Pengunjung Mengklik Tombol Order di Website Toko Replika Mitra!');
+    setReplikaToast('🛒 Pengunjung Mengklik Order di Website Toko Replika Mitra! Komisi Sponsor Terkunci');
     setTimeout(() => setReplikaToast(null), 3500);
   };
 
@@ -276,7 +282,7 @@ export default function HeroShowcaseSlideshow({
     const randomIP = mockIPs[Math.floor(Math.random() * mockIPs.length)];
     const time = new Date().toLocaleTimeString('id-ID');
     setRadarLog(`[${time}] Proteksi Aktif > Percobaan akses ilegal dari ${randomIP} berhasil diblokir`);
-    setRadarToast(`🛡️ Percobaan Manipulasi Data ${randomIP} Dinetralisir 100%!`);
+    setRadarToast(`🛡️ Percobaan Manipulasi Saldo ${randomIP} Dinetralisir 100%!`);
 
     setTimeout(() => setIsAttacking(false), 900);
     setTimeout(() => setRadarToast(null), 3500);
@@ -285,90 +291,90 @@ export default function HeroShowcaseSlideshow({
   // Smooth animation variants
   const slideVariants = {
     enter: (dir) => ({
-      x: dir > 0 ? 20 : -20,
+      x: dir > 0 ? 18 : -18,
       opacity: 0,
-      scale: 0.98,
+      scale: 0.985,
     }),
     center: {
       x: 0,
       opacity: 1,
       scale: 1,
       transition: {
-        x: { type: 'spring', stiffness: 300, damping: 30 },
+        x: { type: 'spring', stiffness: 320, damping: 30 },
         opacity: { duration: 0.22, ease: 'easeOut' },
         scale: { duration: 0.22, ease: 'easeOut' },
       },
     },
     exit: (dir) => ({
-      x: dir > 0 ? -20 : 20,
+      x: dir > 0 ? -18 : 18,
       opacity: 0,
-      scale: 0.98,
+      scale: 0.985,
       transition: {
-        x: { type: 'spring', stiffness: 300, damping: 30 },
+        x: { type: 'spring', stiffness: 320, damping: 30 },
         opacity: { duration: 0.18, ease: 'easeIn' },
       },
     }),
   };
 
   return (
-    <div className="relative w-full max-w-6xl mx-auto">
-      {/* Ambient Multi-Stop Light Halo behind laptop */}
-      <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-cyan-500/20 rounded-[40px] blur-3xl opacity-70 pointer-events-none -z-10" />
+    <div className="relative w-full max-w-5xl mx-auto">
+      {/* Ambient Multi-Stop Light Halo behind tablet */}
+      <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-cyan-500/20 rounded-[48px] blur-3xl opacity-75 pointer-events-none -z-10" />
 
       {/* ========================================================================= */}
-      {/* APPLE MACBOOK PRO LAPTOP ENCLOSURE (Aspect Ratio: 588 / 359 = 1.638)       */}
+      {/* APPLE iPAD PRO TABLET ENCLOSURE (Aspect Ratio: 980 / 642 = 1.526)          */}
       {/* ========================================================================= */}
       <div
-        className="relative w-full aspect-[588/359] select-none"
+        className="relative w-full aspect-[980/642] select-none"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
-        {/* INNER SCREEN DISPLAY (Directly under the MacBook Pro Bezel Cutout) */}
-        {/* Exact calculated percentage bounds: left: 11.56%, top: 3.90%, width: 77.38%, height: 83.57% */}
+        {/* INNER SCREEN DISPLAY (Under Tablet Bezel Overlay) */}
+        {/* Exact calculated percentage bounds: left: 3.06%, top: 4.67%, width: 93.88%, height: 90.65% */}
         <div
-          className="absolute overflow-hidden rounded-t-[4px] sm:rounded-t-[8px] bg-[#070d18] z-10 flex flex-col justify-between"
+          className="absolute overflow-hidden rounded-[16px] sm:rounded-[22px] bg-[#070d18] z-10 flex flex-col justify-between"
           style={{
-            left: '11.56%',
-            top: '3.90%',
-            width: '77.38%',
-            height: '83.57%',
+            left: '3.06%',
+            top: '4.67%',
+            width: '93.88%',
+            height: '90.65%',
           }}
         >
-          {/* macOS Browser Header Bar */}
-          <div className="px-2 sm:px-4 py-1.5 sm:py-2 bg-[#091120] border-b border-white/10 flex items-center justify-between shrink-0">
-            {/* Traffic Lights */}
+          {/* Tablet Browser / OS Top Navigation Bar */}
+          <div className="px-3 sm:px-5 py-2 sm:py-2.5 bg-[#091120] border-b border-white/10 flex items-center justify-between shrink-0">
+            {/* Tablet Traffic Lights & OS Name */}
             <div className="flex items-center space-x-1.5 sm:space-x-2">
-              <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#ef4444]" />
-              <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#f59e0b]" />
-              <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#10b981]" />
-              <span className="hidden sm:inline-block ml-2 text-[10px] font-mono text-slate-400 font-semibold">
-                SYNETIQ OS V3.2
+              <div className="w-2.5 h-2.5 rounded-full bg-[#ef4444]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]" />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#10b981]" />
+              <span className="hidden sm:inline-block ml-2 text-[11px] font-mono text-slate-300 font-bold">
+                SYNETIQ TABLET OS
               </span>
             </div>
 
             {/* URL Route Capsule */}
-            <div className="flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-black/60 border border-white/10 text-[9px] sm:text-[11px] font-mono text-slate-300 max-w-[180px] sm:max-w-none truncate">
-              <Lock className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+            <div className="flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-black/60 border border-white/10 text-[10px] sm:text-xs font-mono text-slate-300 max-w-[200px] sm:max-w-none truncate">
+              <Lock className="w-3 h-3 text-emerald-400 shrink-0" />
               <span className="text-emerald-400 font-semibold truncate">{slides[currentSlide].route}</span>
             </div>
 
             {/* Slide Navigation Controls & Auto-play Toggle */}
-            <div className="flex items-center space-x-1 shrink-0">
+            <div className="flex items-center space-x-1.5 shrink-0">
               <button
                 type="button"
                 onClick={handlePrevSlide}
                 title="Slide Sebelumnya"
-                className="p-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 transition"
+                className="p-1 sm:p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition"
               >
-                <ChevronLeft className="w-3 h-3" />
+                <ChevronLeft className="w-3.5 h-3.5" />
               </button>
               <button
                 type="button"
                 onClick={handleNextSlide}
                 title="Slide Selanjutnya"
-                className="p-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 transition"
+                className="p-1 sm:p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 transition"
               >
-                <ChevronRight className="w-3 h-3" />
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
               <button
                 type="button"
@@ -376,14 +382,14 @@ export default function HeroShowcaseSlideshow({
                   triggerSound('click');
                   setIsPaused(!isPaused);
                 }}
-                className={`px-1.5 py-0.5 rounded text-[8px] sm:text-[9px] font-mono font-bold border transition flex items-center space-x-1 ${
+                className={`px-2 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-mono font-bold border transition flex items-center space-x-1 ${
                   isPaused
                     ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                     : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
                 }`}
               >
-                {isPaused ? <Pause className="w-2 h-2" /> : <Play className="w-2 h-2 fill-current" />}
-                <span className="hidden md:inline">{isPaused ? 'PAUSED' : 'AUTO 5S'}</span>
+                {isPaused ? <Pause className="w-2.5 h-2.5" /> : <Play className="w-2.5 h-2.5 fill-current" />}
+                <span className="hidden sm:inline">{isPaused ? 'PAUSED' : 'AUTO 5S'}</span>
               </button>
             </div>
           </div>
@@ -396,11 +402,11 @@ export default function HeroShowcaseSlideshow({
             />
           </div>
 
-          {/* ACTIVE SCREEN CONTENT (Scaled to fit laptop screen without scrolling) */}
-          <div className="flex-1 p-2 sm:p-4 overflow-hidden relative flex flex-col justify-between">
+          {/* ACTIVE SCREEN CONTENT (Optimized to fill tablet screen without blank space) */}
+          <div className="flex-1 p-3 sm:p-5 overflow-hidden relative flex flex-col justify-between">
             <AnimatePresence mode="wait" custom={direction}>
               {/* =============================================================== */}
-              {/* SLIDE 0: RINGKASAN BISNIS & PENJUALAN (BizNext Benchmark)       */}
+              {/* SLIDE 0: RINGKASAN BISNIS & OMSET (Overview Dashboard)          */}
               {/* =============================================================== */}
               {currentSlide === 0 && (
                 <motion.div
@@ -410,102 +416,141 @@ export default function HeroShowcaseSlideshow({
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="h-full flex flex-col justify-between space-y-2 sm:space-y-3"
+                  className="h-full flex flex-col justify-between space-y-2.5 sm:space-y-3.5"
                 >
-                  {/* Top Bar: Headline & Growth Badge */}
-                  <div className="flex items-center justify-between pb-1.5 sm:pb-2 border-b border-white/10">
+                  {/* Top Header: Headline & Growth Badge */}
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
                     <div>
                       <div className="flex items-center space-x-2">
-                        <span className="text-xs sm:text-base font-extrabold text-white">
+                        <span className="text-sm sm:text-lg font-black text-white">
                           Ringkasan Bisnis &amp; Omset
                         </span>
-                        <span className="px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[8px] sm:text-[10px] font-bold border border-emerald-500/30 flex items-center space-x-1">
-                          <TrendingUp className="w-2.5 h-2.5 text-emerald-400" />
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[9px] sm:text-xs font-bold border border-emerald-500/30 flex items-center space-x-1">
+                          <TrendingUp className="w-3 h-3 text-emerald-400" />
                           <span>+{growthPercent}% Pertumbuhan</span>
                         </span>
                       </div>
-                      <p className="text-[9px] sm:text-xs text-slate-400 hidden sm:block">
+                      <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5">
                         Laporan otomatis real-time: transaksi, omset, dan pertumbuhan mitra.
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-[10px] sm:text-sm font-mono font-black text-emerald-400">
+                      <div className="text-xs sm:text-base font-mono font-black text-emerald-400">
                         Rp {omsetHarian.toLocaleString('id-ID')}
                       </div>
-                      <div className="text-[8px] sm:text-[10px] text-slate-400 font-mono">Omset Hari Ini</div>
+                      <div className="text-[9px] sm:text-[11px] text-slate-400 font-mono">Omset Hari Ini</div>
                     </div>
                   </div>
 
-                  {/* 3 Metric Cards Grid */}
-                  <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
-                    <div className="p-1.5 sm:p-2.5 rounded-xl bg-white/[0.04] border border-white/10">
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Mitra Aktif</div>
-                      <div className="text-xs sm:text-lg font-black text-white font-mono mt-0.5">
-                        {heroMitraCount.toLocaleString('id-ID')} Mitra
+                  {/* 4 Metric Cards Grid (Fills Tablet Screen Width) */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                    <div className="p-2 sm:p-3 rounded-2xl bg-white/[0.04] border border-white/10">
+                      <div className="text-[9px] sm:text-xs text-slate-400">Mitra Aktif</div>
+                      <div className="text-sm sm:text-xl font-black text-white font-mono mt-0.5">
+                        {heroMitraCount.toLocaleString('id-ID')}
                       </div>
-                      <div className="text-[7px] sm:text-[9px] text-emerald-400">+42 Baru Hari Ini</div>
+                      <div className="text-[8px] sm:text-[10px] text-emerald-400 font-medium">+42 Baru Hari Ini</div>
                     </div>
 
-                    <div className="p-1.5 sm:p-2.5 rounded-xl bg-white/[0.04] border border-white/10">
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Kas &amp; Saldo E-Wallet</div>
-                      <div className="text-xs sm:text-lg font-black text-cyan-400 font-mono mt-0.5">
+                    <div className="p-2 sm:p-3 rounded-2xl bg-white/[0.04] border border-white/10">
+                      <div className="text-[9px] sm:text-xs text-slate-400">Kas &amp; Saldo E-Wallet</div>
+                      <div className="text-sm sm:text-xl font-black text-cyan-400 font-mono mt-0.5">
                         Rp {heroWalletBalance.toLocaleString('id-ID')}
                       </div>
-                      <div className="text-[7px] sm:text-[9px] text-cyan-300">Siap Cair 1-Klik</div>
+                      <div className="text-[8px] sm:text-[10px] text-cyan-300 font-medium">Siap Cair 1-Klik</div>
                     </div>
 
-                    <div className="p-1.5 sm:p-2.5 rounded-xl bg-white/[0.04] border border-white/10">
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Status Sistem</div>
-                      <div className="text-xs sm:text-lg font-black text-emerald-400 mt-0.5 flex items-center space-x-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>100% Online</span>
+                    <div className="p-2 sm:p-3 rounded-2xl bg-white/[0.04] border border-white/10">
+                      <div className="text-[9px] sm:text-xs text-slate-400">Komisi Hari Ini</div>
+                      <div className="text-sm sm:text-xl font-black text-amber-400 font-mono mt-0.5">
+                        Rp 18.450.000
                       </div>
-                      <div className="text-[7px] sm:text-[9px] text-slate-400">Zero Error Database</div>
+                      <div className="text-[8px] sm:text-[10px] text-amber-300 font-medium">Terdistribusi Otomatis</div>
+                    </div>
+
+                    <div className="p-2 sm:p-3 rounded-2xl bg-white/[0.04] border border-white/10">
+                      <div className="text-[9px] sm:text-xs text-slate-400">Status Server</div>
+                      <div className="text-sm sm:text-xl font-black text-emerald-400 mt-0.5 flex items-center space-x-1">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <span>99.99%</span>
+                      </div>
+                      <div className="text-[8px] sm:text-[10px] text-slate-400 font-medium">Zero Error Database</div>
                     </div>
                   </div>
 
-                  {/* Live Transaction Feed */}
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#030712] border border-white/10 space-y-1">
-                    <div className="text-[8px] sm:text-[10px] font-mono text-slate-400 flex items-center justify-between">
-                      <span>FEED TRANSAKSI TERAKHIR (LIVE)</span>
-                      <span className="text-emerald-400 flex items-center space-x-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                        <span>Real-Time</span>
-                      </span>
-                    </div>
-                    {txFeed.map((tx) => (
-                      <div
-                        key={tx.id}
-                        className="flex items-center justify-between text-[8px] sm:text-[10px] text-slate-300 font-mono py-0.5 border-b border-white/5 last:border-0"
-                      >
-                        <span className="truncate max-w-[140px] sm:max-w-none">
-                          🟢 <strong>{tx.user}</strong> — {tx.action}
+                  {/* Visual Sales Growth Curve + Feed */}
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-3 items-stretch">
+                    {/* Mini Weekly Bar Chart */}
+                    <div className="sm:col-span-6 p-2.5 sm:p-3 rounded-2xl bg-[#030712] border border-white/10 flex flex-col justify-between">
+                      <div className="flex items-center justify-between text-[9px] sm:text-xs text-slate-300 font-bold mb-2">
+                        <span className="flex items-center space-x-1.5">
+                          <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Tren Omset 7 Hari Terakhir</span>
                         </span>
-                        <span className="text-emerald-400 font-bold shrink-0">{tx.bonus}</span>
+                        <span className="text-emerald-400 font-mono">+68% Minggu Ini</span>
                       </div>
-                    ))}
+
+                      {/* 7 Bars */}
+                      <div className="flex items-end justify-between h-14 sm:h-20 gap-1.5 pt-2">
+                        {[40, 52, 60, 48, 75, 88, 100].map((h, i) => (
+                          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                            <div
+                              className="w-full bg-gradient-to-t from-emerald-600/40 to-emerald-400 rounded-t-md transition-all duration-300"
+                              style={{ height: `${h}%` }}
+                            />
+                            <span className="text-[7px] sm:text-[9px] text-slate-400 font-mono">
+                              {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'][i]}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Live Feed Ticker */}
+                    <div className="sm:col-span-6 p-2.5 sm:p-3 rounded-2xl bg-[#030712] border border-white/10 flex flex-col justify-between">
+                      <div className="text-[9px] sm:text-xs font-mono text-slate-300 flex items-center justify-between mb-1.5 font-bold">
+                        <span>FEED TRANSAKSI REAL-TIME</span>
+                        <span className="text-emerald-400 flex items-center space-x-1">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                          <span>Live</span>
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {txFeed.map((tx) => (
+                          <div
+                            key={tx.id}
+                            className="flex items-center justify-between text-[8px] sm:text-[10px] text-slate-300 font-mono py-1 border-b border-white/5 last:border-0"
+                          >
+                            <span className="truncate max-w-[140px] sm:max-w-[180px]">
+                              🟢 <strong>{tx.user}</strong> — {tx.action}
+                            </span>
+                            <span className="text-emerald-400 font-bold shrink-0">{tx.bonus}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Interactive Trigger Button */}
-                  <div className="pt-1 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-[8px] sm:text-[10px] text-slate-400 truncate">
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <span className="text-[9px] sm:text-xs text-slate-300 truncate">
                       {overviewToast || 'Klik tombol di samping untuk uji coba transaksi masuk:'}
                     </span>
                     <button
                       type="button"
                       onClick={handleSimulateTransaction}
-                      className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[9px] sm:text-xs transition shadow-md shadow-emerald-950 flex items-center space-x-1 active:scale-95 shrink-0"
+                      className="px-3 sm:px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] sm:text-xs transition shadow-md shadow-emerald-950 flex items-center space-x-1.5 active:scale-95 shrink-0"
                     >
-                      <Zap className="w-3 h-3 text-amber-300" />
-                      <span>Simulasi Transaksi</span>
+                      <Zap className="w-3.5 h-3.5 text-amber-300" />
+                      <span>Simulasi Transaksi (+Rp 2.5 Jt)</span>
                     </button>
                   </div>
                 </motion.div>
               )}
 
               {/* =============================================================== */}
-              {/* SLIDE 1: POHON JARINGAN & KOMISI OTOMATIS (Binary Tree)          */}
+              {/* SLIDE 1: POHON JARINGAN & BONUS OTOMATIS (Binary Tree)          */}
               {/* =============================================================== */}
               {currentSlide === 1 && (
                 <motion.div
@@ -515,95 +560,95 @@ export default function HeroShowcaseSlideshow({
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="h-full flex flex-col justify-between space-y-2 sm:space-y-3"
+                  className="h-full flex flex-col justify-between space-y-2.5 sm:space-y-3.5"
                 >
-                  <div className="flex items-center justify-between pb-1.5 sm:pb-2 border-b border-white/10">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
                     <div>
-                      <div className="text-xs sm:text-base font-extrabold text-white flex items-center space-x-1.5">
+                      <div className="text-sm sm:text-lg font-black text-white flex items-center space-x-2">
                         <span>Pohon Jaringan &amp; Bonus Pasangan</span>
-                        <span className="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[8px] sm:text-[10px] font-mono font-bold">
-                          12ms Auto-Placement
+                        <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 text-[9px] sm:text-xs font-mono font-bold">
+                          Hitung Otomatis 1 Detik
                         </span>
                       </div>
-                      <p className="text-[9px] sm:text-xs text-slate-400 hidden sm:block">
+                      <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5">
                         Bonus sponsor &amp; pasangan langsung terhitung otomatis tanpa repot rumus Excel.
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-[10px] sm:text-sm font-mono font-black text-cyan-400">
+                      <div className="text-xs sm:text-base font-mono font-black text-cyan-400">
                         {leftBV} BV | {rightBV} BV
                       </div>
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Volume Kiri &amp; Kanan</div>
+                      <div className="text-[9px] sm:text-[11px] text-slate-400">Volume Kaki Kiri &amp; Kanan</div>
                     </div>
                   </div>
 
-                  {/* Visual Binary Tree Mini Diagram */}
-                  <div className="py-1 flex flex-col items-center justify-center space-y-1 sm:space-y-2">
+                  {/* Visual Binary Tree 3-Tier Diagram */}
+                  <div className="py-2 flex flex-col items-center justify-center space-y-2">
                     {/* Root Leader Node */}
-                    <div className="px-3 py-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-[9px] sm:text-xs shadow-md flex items-center space-x-1.5">
-                      <Users className="w-3 h-3 text-amber-300" />
-                      <span>Top Leader (Anda)</span>
+                    <div className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-xs shadow-md flex items-center space-x-1.5">
+                      <Users className="w-3.5 h-3.5 text-amber-300" />
+                      <span>Top Leader (Anda) — Level 1</span>
                     </div>
 
                     {/* Connecting Branch Line */}
-                    <div className="w-24 sm:w-40 h-[1.5px] bg-cyan-500/40 relative">
-                      <div className="absolute top-0 left-0 w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                      <div className="absolute top-0 right-0 w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                    <div className="w-36 sm:w-56 h-[2px] bg-cyan-500/50 relative">
+                      <div className="absolute top-0 left-0 w-2 h-2 -translate-y-1/2 rounded-full bg-cyan-400" />
+                      <div className="absolute top-0 right-0 w-2 h-2 -translate-y-1/2 rounded-full bg-cyan-400" />
                     </div>
 
                     {/* Left & Right Child Nodes */}
-                    <div className="flex items-center space-x-4 sm:space-x-10">
-                      <div className="p-1.5 sm:p-2 rounded-xl bg-cyan-950/70 border border-cyan-500/40 text-center min-w-[70px] sm:min-w-[110px]">
-                        <div className="text-[8px] sm:text-[10px] text-slate-300 font-bold">Jalur Kiri</div>
-                        <div className="text-[9px] sm:text-xs font-mono font-black text-cyan-400 mt-0.5">
+                    <div className="flex items-center space-x-6 sm:space-x-16">
+                      <div className="p-2 sm:p-2.5 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-center min-w-[90px] sm:min-w-[130px]">
+                        <div className="text-[9px] sm:text-xs text-slate-300 font-bold">Kaki Kiri (Tim A)</div>
+                        <div className="text-xs sm:text-sm font-mono font-black text-cyan-400 mt-0.5">
                           {leftBV} BV (Seimbang)
                         </div>
                       </div>
 
                       <div
-                        className={`p-1.5 sm:p-2 rounded-xl border text-center min-w-[70px] sm:min-w-[110px] transition-all ${
+                        className={`p-2 sm:p-2.5 rounded-xl border text-center min-w-[90px] sm:min-w-[130px] transition-all ${
                           treePairingPulse
                             ? 'bg-emerald-950 border-emerald-400 scale-105 shadow-lg shadow-emerald-500/50'
-                            : 'bg-teal-950/70 border-teal-500/40'
+                            : 'bg-teal-950/80 border-teal-500/40'
                         }`}
                       >
-                        <div className="text-[8px] sm:text-[10px] text-slate-300 font-bold">Jalur Kanan</div>
-                        <div className="text-[9px] sm:text-xs font-mono font-black text-teal-400 mt-0.5">
+                        <div className="text-[9px] sm:text-xs text-slate-300 font-bold">Kaki Kanan (Tim B)</div>
+                        <div className="text-xs sm:text-sm font-mono font-black text-teal-400 mt-0.5">
                           {rightBV} BV (Seimbang)
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Calculation Highlight */}
-                  <div className="p-2 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-between text-[8px] sm:text-[10px] font-mono text-cyan-200">
-                    <span className="flex items-center space-x-1">
-                      <Zap className="w-3 h-3 text-amber-400" />
-                      <span>Bonus Pasangan: Rp 350.000 per pasangan seimbang</span>
-                    </span>
-                    <span className="text-emerald-400 font-bold">Otomatis Cair</span>
+                    {/* Formula Calculation Banner */}
+                    <div className="w-full max-w-md p-2 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-between text-[9px] sm:text-xs font-mono text-cyan-200">
+                      <span className="flex items-center space-x-1.5">
+                        <Zap className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{pairsCount} Pasangan Terhitung = Rp {(pairsCount * 350000).toLocaleString('id-ID')}</span>
+                      </span>
+                      <span className="text-emerald-400 font-bold">Otomatis Masuk Dompet</span>
+                    </div>
                   </div>
 
                   {/* Interactive Button */}
-                  <div className="pt-1 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-[8px] sm:text-[10px] text-slate-400 truncate">
-                      {treeToast || 'Klik tombol untuk tambah mitra baru & hitung bonus live:'}
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <span className="text-[9px] sm:text-xs text-slate-300 truncate">
+                      {treeToast || 'Klik tombol di samping untuk tambah mitra baru & hitung bonus live:'}
                     </span>
                     <button
                       type="button"
                       onClick={handleAddSpillover}
-                      className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-[9px] sm:text-xs transition shadow-md shadow-cyan-950 flex items-center space-x-1 active:scale-95 shrink-0"
+                      className="px-3 sm:px-4 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-[10px] sm:text-xs transition shadow-md shadow-cyan-950 flex items-center space-x-1.5 active:scale-95 shrink-0"
                     >
-                      <Users className="w-3 h-3 text-cyan-200" />
-                      <span>+ Tambah Mitra Spillover</span>
+                      <Users className="w-3.5 h-3.5 text-cyan-200" />
+                      <span>+ Tambah Mitra Spillover (+Rp 350k)</span>
                     </button>
                   </div>
                 </motion.div>
               )}
 
               {/* =============================================================== */}
-              {/* SLIDE 2: ROBOT WHATSAPP 24 JAM (AI Sales Closer)                */}
+              {/* SLIDE 2: ROBOT WHATSAPP 24 JAM NONSTOP (AI Closer)             */}
               {/* =============================================================== */}
               {currentSlide === 2 && (
                 <motion.div
@@ -617,48 +662,48 @@ export default function HeroShowcaseSlideshow({
                 >
                   <div className="flex items-center justify-between pb-1.5 border-b border-white/10">
                     <div className="flex items-center space-x-2">
-                      <div className="w-5 sm:w-6 h-5 sm:h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-[9px]">
+                      <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-[10px]">
                         SY
                       </div>
                       <div>
-                        <div className="text-[10px] sm:text-xs font-bold text-white flex items-center space-x-1">
-                          <span>Robot WhatsApp SYNETIQ</span>
-                          <CheckCircle2 className="w-2.5 h-2.5 text-emerald-400 fill-emerald-400/20" />
+                        <div className="text-xs font-bold text-white flex items-center space-x-1">
+                          <span>Robot WhatsApp SYNETIQ (Official)</span>
+                          <CheckCircle2 className="w-3 h-3 text-emerald-400 fill-emerald-400/20" />
                         </div>
-                        <div className="text-[8px] text-emerald-400 font-mono">
-                          {waTyping ? 'Mengetik pesan...' : 'Aktif 24/7 Nonstop'}
+                        <div className="text-[9px] text-emerald-400 font-mono">
+                          {waTyping ? 'Mengetik balasan...' : 'Aktif 24/7 Nonstop • Respon 0.4 Detik'}
                         </div>
                       </div>
                     </div>
-                    <span className="text-[8px] sm:text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-                      AUTO CLOSING
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                      AUTO-CLOSING LIVE
                     </span>
                   </div>
 
                   {/* Chat Mockup */}
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#0c1317] border border-white/10 space-y-1.5 text-[9px] sm:text-[11px]">
+                  <div className="p-3 rounded-2xl bg-[#0c1317] border border-white/10 space-y-2 text-[10px] sm:text-xs">
                     {/* User Inbound message */}
                     <div className="flex justify-end">
-                      <div className="bg-[#005c4b] text-white px-2.5 py-1 rounded-xl rounded-tr-none max-w-[85%] shadow-sm">
+                      <div className="bg-[#005c4b] text-white px-3 py-1.5 rounded-2xl rounded-tr-none max-w-[85%] shadow-sm">
                         <p>Halo min, mau tanya info paket usaha dan cara daftarnya gimana ya?</p>
-                        <div className="text-[7px] text-emerald-200/80 text-right mt-0.5 font-mono">10:42 ✓✓</div>
+                        <div className="text-[8px] text-emerald-200/80 text-right mt-0.5 font-mono">10:42 ✓✓</div>
                       </div>
                     </div>
 
                     {/* Bot Response */}
                     <div className="flex justify-start">
-                      <div className="bg-[#202c33] text-slate-100 p-2 sm:p-2.5 rounded-xl rounded-tl-none max-w-[92%] space-y-1.5 shadow-sm border border-white/5">
+                      <div className="bg-[#202c33] text-slate-100 p-2.5 sm:p-3 rounded-2xl rounded-tl-none max-w-[92%] space-y-2 shadow-sm border border-white/5">
                         <p>
-                          Halo Kak! 👋 Pendaftaran &amp; pemilihan paket usaha diproses otomatis 24 jam. Silakan klik
-                          tombol di bawah:
+                          Halo Kak! 👋 Pendaftaran &amp; pemilihan paket usaha diproses otomatis 24 jam. Silakan pilih
+                          menu interaktif di bawah:
                         </p>
 
                         {/* Interactive WhatsApp Buttons Grid */}
-                        <div className="grid grid-cols-2 gap-1 pt-1">
+                        <div className="grid grid-cols-2 gap-1.5 pt-1">
                           <button
                             type="button"
                             onClick={() => handleSelectWaMenu('catalog')}
-                            className={`p-1 rounded text-[8px] sm:text-[10px] font-bold text-center border transition ${
+                            className={`p-1.5 rounded-lg text-[9px] sm:text-[11px] font-bold text-center border transition ${
                               waSelected === 'catalog'
                                 ? 'bg-emerald-500/30 border-emerald-400 text-emerald-300'
                                 : 'bg-white/5 border-white/10 text-slate-300'
@@ -669,7 +714,7 @@ export default function HeroShowcaseSlideshow({
                           <button
                             type="button"
                             onClick={() => handleSelectWaMenu('qris')}
-                            className={`p-1 rounded text-[8px] sm:text-[10px] font-bold text-center border transition ${
+                            className={`p-1.5 rounded-lg text-[9px] sm:text-[11px] font-bold text-center border transition ${
                               waSelected === 'qris'
                                 ? 'bg-amber-500/30 border-amber-400 text-amber-300'
                                 : 'bg-white/5 border-white/10 text-slate-300'
@@ -680,7 +725,7 @@ export default function HeroShowcaseSlideshow({
                           <button
                             type="button"
                             onClick={() => handleSelectWaMenu('bonus')}
-                            className={`p-1 rounded text-[8px] sm:text-[10px] font-bold text-center border transition ${
+                            className={`p-1.5 rounded-lg text-[9px] sm:text-[11px] font-bold text-center border transition ${
                               waSelected === 'bonus'
                                 ? 'bg-cyan-500/30 border-cyan-400 text-cyan-300'
                                 : 'bg-white/5 border-white/10 text-slate-300'
@@ -691,7 +736,7 @@ export default function HeroShowcaseSlideshow({
                           <button
                             type="button"
                             onClick={() => handleSelectWaMenu('owner')}
-                            className={`p-1 rounded text-[8px] sm:text-[10px] font-bold text-center border transition ${
+                            className={`p-1.5 rounded-lg text-[9px] sm:text-[11px] font-bold text-center border transition ${
                               waSelected === 'owner'
                                 ? 'bg-teal-500/30 border-teal-400 text-teal-300'
                                 : 'bg-white/5 border-white/10 text-slate-300'
@@ -705,7 +750,7 @@ export default function HeroShowcaseSlideshow({
                   </div>
 
                   {/* WhatsApp Menu Response Text */}
-                  <div className="p-1.5 rounded-lg bg-[#182229] border border-emerald-500/30 text-[8px] sm:text-[10px] text-slate-200">
+                  <div className="p-2 rounded-xl bg-[#182229] border border-emerald-500/30 text-[9px] sm:text-xs text-slate-200">
                     {waSelected === 'catalog' && (
                       <span>
                         <strong className="text-emerald-400">📦 Paket Usaha:</strong> Paket Gold Rp 4.500.000 (Bonus
@@ -745,66 +790,66 @@ export default function HeroShowcaseSlideshow({
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="h-full flex flex-col justify-between space-y-2 sm:space-y-3"
+                  className="h-full flex flex-col justify-between space-y-2.5 sm:space-y-3.5"
                 >
-                  <div className="flex items-center justify-between pb-1.5 sm:pb-2 border-b border-white/10">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
                     <div>
-                      <div className="text-xs sm:text-base font-extrabold text-white flex items-center space-x-1.5">
+                      <div className="text-sm sm:text-lg font-black text-white flex items-center space-x-2">
                         <span>Pembayaran QRIS &amp; Kas Otomatis</span>
-                        <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[8px] sm:text-[10px] font-mono font-bold">
-                          NMID Terverifikasi
+                        <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] sm:text-xs font-mono font-bold">
+                          NMID Resmi Bank Indonesia
                         </span>
                       </div>
-                      <p className="text-[9px] sm:text-xs text-slate-400 hidden sm:block">
+                      <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5">
                         Terima pembayaran dari semua bank dan e-wallet. Uang langsung masuk kas tanpa upload bukti transfer.
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-[10px] sm:text-sm font-mono font-black text-amber-400">
+                      <div className="text-xs sm:text-base font-mono font-black text-amber-400">
                         100% Otomatis
                       </div>
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Nol Selisih Pembukuan</div>
+                      <div className="text-[9px] sm:text-[11px] text-slate-400">Nol Selisih Pembukuan</div>
                     </div>
                   </div>
 
                   {/* QRIS Visual Card */}
-                  <div className="p-2 sm:p-3 rounded-2xl bg-[#050a12] border border-amber-500/30 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
+                  <div className="p-3 sm:p-4 rounded-2xl bg-[#050a12] border border-amber-500/30 flex items-center justify-between">
+                    <div className="flex items-center space-x-3.5">
                       <div
-                        className={`w-14 sm:w-20 h-14 sm:h-20 rounded-xl bg-white p-1.5 flex items-center justify-center transition-all ${
+                        className={`w-16 sm:w-24 h-16 sm:h-24 rounded-2xl bg-white p-2 flex items-center justify-center transition-all ${
                           qrisFlashed ? 'ring-4 ring-emerald-400 scale-105' : ''
                         }`}
                       >
                         <QrCode className="w-full h-full text-slate-950" />
                       </div>
                       <div>
-                        <div className="text-[10px] sm:text-xs font-bold text-white">QRIS Standar Nasional</div>
-                        <div className="text-[8px] sm:text-[10px] text-amber-300 font-mono">NMID: {qrisNmid}</div>
-                        <div className="text-[7px] sm:text-[9px] text-slate-400 mt-1">
+                        <div className="text-xs sm:text-sm font-bold text-white">QRIS Standar Nasional</div>
+                        <div className="text-[9px] sm:text-xs text-amber-300 font-mono">NMID: {qrisNmid}</div>
+                        <div className="text-[8px] sm:text-[10px] text-slate-400 mt-1">
                           BCA • Mandiri • BRI • BNI • GoPay • OVO • Dana • ShopeePay
                         </div>
                       </div>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Nominal Transaksi</div>
-                      <div className="text-xs sm:text-base font-black text-emerald-400 font-mono">Rp 250.000</div>
-                      <div className="text-[7px] sm:text-[9px] text-emerald-300">Konfirmasi 0.8 Detik</div>
+                      <div className="text-[9px] sm:text-xs text-slate-400">Nominal Transaksi</div>
+                      <div className="text-sm sm:text-xl font-black text-emerald-400 font-mono">Rp 250.000</div>
+                      <div className="text-[8px] sm:text-[10px] text-emerald-300 font-medium">Konfirmasi 0.8 Detik</div>
                     </div>
                   </div>
 
                   {/* Interactive Button */}
-                  <div className="pt-1 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-[8px] sm:text-[10px] text-slate-400 truncate">
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <span className="text-[9px] sm:text-xs text-slate-300 truncate">
                       {qrisToast || 'Coba bayar via QRIS simulasi dan saksikan uang langsung masuk:'}
                     </span>
                     <button
                       type="button"
                       onClick={handleSimulateQrisPayment}
-                      className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-[9px] sm:text-xs transition shadow-md shadow-amber-950 flex items-center space-x-1 active:scale-95 shrink-0"
+                      className="px-3 sm:px-4 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-[10px] sm:text-xs transition shadow-md shadow-amber-950 flex items-center space-x-1.5 active:scale-95 shrink-0"
                     >
-                      <QrCode className="w-3 h-3 text-amber-200" />
+                      <QrCode className="w-3.5 h-3.5 text-amber-200" />
                       <span>Simulasi Bayar QRIS</span>
                     </button>
                   </div>
@@ -822,46 +867,46 @@ export default function HeroShowcaseSlideshow({
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="h-full flex flex-col justify-between space-y-2 sm:space-y-3"
+                  className="h-full flex flex-col justify-between space-y-2.5 sm:space-y-3.5"
                 >
-                  <div className="flex items-center justify-between pb-1.5 sm:pb-2 border-b border-white/10">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
                     <div>
-                      <div className="text-xs sm:text-base font-extrabold text-white flex items-center space-x-1.5">
+                      <div className="text-sm sm:text-lg font-black text-white flex items-center space-x-2">
                         <span>Website Toko Replika Member</span>
-                        <span className="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[8px] sm:text-[10px] font-mono font-bold">
+                        <span className="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[9px] sm:text-xs font-mono font-bold">
                           Otomatis Siap Pakai
                         </span>
                       </div>
-                      <p className="text-[9px] sm:text-xs text-slate-400 hidden sm:block">
+                      <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5">
                         Setiap member dapat link website toko online pribadi. Order otomatis terdata ke sponsor.
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-[10px] sm:text-sm font-mono font-black text-indigo-400">
+                      <div className="text-xs sm:text-base font-mono font-black text-indigo-400">
                         {replikaVisitors} Pengunjung
                       </div>
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Traffic Toko Member</div>
+                      <div className="text-[9px] sm:text-[11px] text-slate-400">Traffic Toko Member</div>
                     </div>
                   </div>
 
                   {/* Member Store Card Preview */}
-                  <div className="p-2 sm:p-3 rounded-2xl bg-[#070b16] border border-indigo-500/30 flex items-center justify-between">
-                    <div className="flex items-center space-x-2.5">
-                      <div className="w-9 sm:w-12 h-9 sm:h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                  <div className="p-3 sm:p-4 rounded-2xl bg-[#070b16] border border-indigo-500/30 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 sm:w-14 h-10 sm:h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
                         BS
                       </div>
                       <div>
-                        <div className="text-[10px] sm:text-xs font-bold text-white flex items-center space-x-1">
+                        <div className="text-xs sm:text-sm font-bold text-white flex items-center space-x-1.5">
                           <span>Toko Resmi Budi Santoso</span>
-                          <span className="text-[8px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">
+                          <span className="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
                             Mitra Resmi
                           </span>
                         </div>
-                        <div className="text-[8px] sm:text-[9px] text-indigo-300 font-mono">
+                        <div className="text-[9px] sm:text-xs text-indigo-300 font-mono">
                           synetiq.id/mitra/budi-santoso
                         </div>
-                        <div className="text-[7px] sm:text-[8px] text-slate-400 mt-0.5">
+                        <div className="text-[8px] sm:text-[10px] text-slate-400 mt-0.5">
                           Referral Terkunci: Pembeli otomatis masuk downline Budi
                         </div>
                       </div>
@@ -870,24 +915,24 @@ export default function HeroShowcaseSlideshow({
                     <button
                       type="button"
                       onClick={handleSimulateVisitor}
-                      className="px-2 sm:px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[8px] sm:text-[10px] transition shrink-0"
+                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[9px] sm:text-xs transition shrink-0"
                     >
                       Buka Toko
                     </button>
                   </div>
 
                   {/* Interactive Button */}
-                  <div className="pt-1 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-[8px] sm:text-[10px] text-slate-400 truncate">
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <span className="text-[9px] sm:text-xs text-slate-300 truncate">
                       {replikaToast || 'Member cukup sebar link ini ke medsos tanpa perlu bikin website manual.'}
                     </span>
                     <button
                       type="button"
                       onClick={handleSimulateVisitor}
-                      className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[9px] sm:text-xs transition shadow-md shadow-indigo-950 flex items-center space-x-1 active:scale-95 shrink-0"
+                      className="px-3 sm:px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[10px] sm:text-xs transition shadow-md shadow-indigo-950 flex items-center space-x-1.5 active:scale-95 shrink-0"
                     >
-                      <Share2 className="w-3 h-3 text-indigo-200" />
-                      <span>Simulasi Kunjungan</span>
+                      <Share2 className="w-3.5 h-3.5 text-indigo-200" />
+                      <span>Simulasi Kunjungan (+1 Pengunjung)</span>
                     </button>
                   </div>
                 </motion.div>
@@ -904,72 +949,72 @@ export default function HeroShowcaseSlideshow({
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="h-full flex flex-col justify-between space-y-2 sm:space-y-3"
+                  className="h-full flex flex-col justify-between space-y-2.5 sm:space-y-3.5"
                 >
-                  <div className="flex items-center justify-between pb-1.5 sm:pb-2 border-b border-white/10">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
                     <div>
-                      <div className="text-xs sm:text-base font-extrabold text-white flex items-center space-x-1.5">
+                      <div className="text-sm sm:text-lg font-black text-white flex items-center space-x-2">
                         <span>Pusat Keamanan &amp; Anti-Kecurangan Saldo</span>
-                        <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[8px] sm:text-[10px] font-mono font-bold">
+                        <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[9px] sm:text-xs font-mono font-bold">
                           SOC DEFCON 1
                         </span>
                       </div>
-                      <p className="text-[9px] sm:text-xs text-slate-400 hidden sm:block">
+                      <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5">
                         Proteksi saldo kas dari manipulasi dan serangan hacker dengan enkripsi standar perbankan.
                       </p>
                     </div>
 
                     <div className="text-right">
-                      <div className="text-[10px] sm:text-sm font-mono font-black text-rose-400">
-                        {threatCount} Dineralisir
+                      <div className="text-xs sm:text-base font-mono font-black text-rose-400">
+                        {threatCount} Dinetralisir
                       </div>
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">0 Kasus Kebocoran Data</div>
+                      <div className="text-[9px] sm:text-[11px] text-slate-400">0 Kasus Kebocoran Data</div>
                     </div>
                   </div>
 
                   {/* Security Metrics Grid */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="p-2 rounded-xl bg-white/[0.04] border border-white/10">
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Proteksi Saldo Kas</div>
-                      <div className="text-[10px] sm:text-sm font-bold text-emerald-400 mt-0.5">
+                  <div className="grid grid-cols-3 gap-2.5">
+                    <div className="p-2.5 rounded-2xl bg-white/[0.04] border border-white/10">
+                      <div className="text-[9px] sm:text-xs text-slate-400">Proteksi Saldo Kas</div>
+                      <div className="text-xs sm:text-sm font-bold text-emerald-400 mt-0.5">
                         Double-Entry Ledger
                       </div>
-                      <div className="text-[7px] sm:text-[9px] text-slate-400">Nol Selisih Pembukuan</div>
+                      <div className="text-[8px] sm:text-[10px] text-slate-400">Nol Selisih Pembukuan</div>
                     </div>
 
-                    <div className="p-2 rounded-xl bg-white/[0.04] border border-white/10">
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Anti Multi-Akun Ilegal</div>
-                      <div className="text-[10px] sm:text-sm font-bold text-cyan-400 mt-0.5">
+                    <div className="p-2.5 rounded-2xl bg-white/[0.04] border border-white/10">
+                      <div className="text-[9px] sm:text-xs text-slate-400">Anti Multi-Akun Ilegal</div>
+                      <div className="text-xs sm:text-sm font-bold text-cyan-400 mt-0.5">
                         Validasi NIK &amp; WA
                       </div>
-                      <div className="text-[7px] sm:text-[9px] text-slate-400">Deteksi Kecurangan</div>
+                      <div className="text-[8px] sm:text-[10px] text-slate-400">Deteksi Kecurangan</div>
                     </div>
 
-                    <div className="p-2 rounded-xl bg-white/[0.04] border border-white/10">
-                      <div className="text-[8px] sm:text-[10px] text-slate-400">Kesiapan Server</div>
-                      <div className="text-[10px] sm:text-sm font-bold text-rose-400 mt-0.5">
+                    <div className="p-2.5 rounded-2xl bg-white/[0.04] border border-white/10">
+                      <div className="text-[9px] sm:text-xs text-slate-400">Kesiapan Server</div>
+                      <div className="text-xs sm:text-sm font-bold text-rose-400 mt-0.5">
                         99.99% Uptime
                       </div>
-                      <div className="text-[7px] sm:text-[9px] text-slate-400">Tahan Ribuan Order</div>
+                      <div className="text-[8px] sm:text-[10px] text-slate-400">Tahan Ribuan Order</div>
                     </div>
                   </div>
 
                   {/* Live Security Log */}
-                  <div className="p-1.5 sm:p-2 rounded-xl bg-[#03060d] border border-white/10 text-[8px] sm:text-[10px] font-mono text-emerald-300 truncate">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-[#03060d] border border-white/10 text-[9px] sm:text-xs font-mono text-emerald-300 truncate">
                     <span className="text-rose-400 font-bold">[SOC DEFCON 1]</span> {radarLog}
                   </div>
 
                   {/* Interactive Button */}
-                  <div className="pt-1 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-[8px] sm:text-[10px] text-slate-400 truncate">
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                    <span className="text-[9px] sm:text-xs text-slate-300 truncate">
                       {radarToast || 'Uji ketangguhan sistem keamanan data bisnis Anda:'}
                     </span>
                     <button
                       type="button"
                       onClick={handleSimulateAttack}
-                      className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-[9px] sm:text-xs transition shadow-md shadow-rose-950 flex items-center space-x-1 active:scale-95 shrink-0"
+                      className="px-3 sm:px-4 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-[10px] sm:text-xs transition shadow-md shadow-rose-950 flex items-center space-x-1.5 active:scale-95 shrink-0"
                     >
-                      <ShieldAlert className="w-3 h-3 text-rose-200" />
+                      <ShieldAlert className="w-3.5 h-3.5 text-rose-200" />
                       <span>Uji Pertahanan Siber</span>
                     </button>
                   </div>
@@ -979,17 +1024,16 @@ export default function HeroShowcaseSlideshow({
           </div>
         </div>
 
-        {/* APPLE MACBOOK PRO METALLIC FRAME & BEZEL OVERLAY */}
-        {/* Transparent inner screen cut-out with metallic deck and camera notch */}
+        {/* APPLE iPAD PRO TABLET METALLIC FRAME & BEZEL OVERLAY */}
         <img
-          src="/assets/macbook_bezel_overlay.png"
-          alt="Apple MacBook Pro SYNETIQ OS"
+          src="/assets/tablet_bezel_overlay.png"
+          alt="Apple iPad Pro SYNETIQ OS"
           className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-[0_25px_60px_rgba(0,0,0,0.85)]"
         />
       </div>
 
       {/* ========================================================================= */}
-      {/* 6 FLOATING FEATURE CARDS BELOW LAPTOP (BizNext / Triolla Style)            */}
+      {/* 6 FLOATING FEATURE CARDS BELOW TABLET (BizNext / Triolla Style)            */}
       {/* ========================================================================= */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mt-4 sm:mt-6">
         {slides.map((s, idx) => {

@@ -494,11 +494,11 @@ export default function LandingPage({ onGoToLogin }) {
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('hero')}
+              onClick={() => scrollToSection('tablet-showcase')}
               className="whitespace-nowrap hover:text-cyan-400 transition focus:outline-none flex items-center space-x-1.5 shrink-0"
             >
-              <span>💻</span>
-              <span>Demo di Laptop</span>
+              <span>📱</span>
+              <span>Demo di Tablet</span>
             </button>
             <button
               type="button"
@@ -656,8 +656,8 @@ export default function LandingPage({ onGoToLogin }) {
           </div>
         </div>
 
-        {/* FULL-WIDTH SHOWCASE SLIDESHOW (Apple MacBook Pro Frame) */}
-        <div id="laptop-showcase" className="w-full max-w-[96vw] xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-2 sm:px-4 mt-12 sm:mt-16 relative z-10">
+        {/* FULL-WIDTH SHOWCASE SLIDESHOW (Apple iPad Pro Tablet Frame) */}
+        <div id="tablet-showcase" className="w-full max-w-[96vw] xl:max-w-[1200px] 2xl:max-w-[1320px] mx-auto px-2 sm:px-4 mt-12 sm:mt-16 relative z-10">
           <HeroShowcaseSlideshow
             audioEnabled={audioEnabled}
             triggerSound={triggerSound}
@@ -1526,7 +1526,7 @@ export default function LandingPage({ onGoToLogin }) {
               </div>
               <h4 className="text-base font-bold text-white mb-2">Laporan Omset &amp; Grafik Penjualan</h4>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Pantau perkembangan bisnis, omset harian, dan keaktifan tim dari satu dashboard rapi yang bisa diakses dari HP atau laptop Anda.
+                Pantau perkembangan bisnis, omset harian, dan keaktifan tim dari satu dashboard rapi yang bisa diakses dari HP, tablet, atau komputer Anda.
               </p>
             </div>
           </div>

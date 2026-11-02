@@ -1701,11 +1701,12 @@ export default function LandingPage({ onGoToLogin }) {
               <Sparkles className="w-4 h-4 text-pink-500" />
               <span>PROSES IMPLEMENTASI TERUJI &amp; TERSTRUKTUR</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-black tracking-tight leading-tight">
               Alur Kerja &amp;{' '}
-              <span className="bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 bg-clip-text text-transparent">
-                Proses Implementasi
-              </span>
+              <span className="bg-gradient-to-r from-[#d946ef] via-[#f97316] to-[#f59e0b] bg-clip-text text-transparent">
+                Desain
+              </span>{' '}
+              Proses
             </h2>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
               Proses teruji kami menggabungkan pemahaman mendalam atas marketing plan MLM Anda dengan teknologi cloud mutakhir untuk menghasilkan aplikasi bisnis jaringan yang siap pakai, cepat, dan bebas pusing hitung komisi.
@@ -1733,26 +1734,24 @@ export default function LandingPage({ onGoToLogin }) {
                       }}
                       className="group flex flex-col items-center text-center focus:outline-none transition"
                     >
-                      {/* Step Indicator Dot */}
-                      <div
-                        className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 shadow-md ${
-                          isCurrent
-                            ? 'bg-slate-900 text-white ring-4 ring-pink-500/30 scale-110'
-                            : isPast
-                            ? 'bg-emerald-500 text-white ring-2 ring-emerald-400/20'
-                            : 'bg-white border-2 border-slate-300 text-slate-600 group-hover:border-slate-500 group-hover:scale-105'
-                        }`}
-                      >
-                        {isPast ? <Check className="w-4 h-4 stroke-[3]" /> : step.id}
+                      {/* Minimalist Solid Black Milestone Dot (Exact Triolla style in media_1793648922672_0da6ef55.png) */}
+                      <div className="h-9 flex items-center justify-center">
+                        <div
+                          className={`rounded-full transition-all duration-300 shadow-sm ${
+                            isCurrent
+                              ? 'w-5 h-5 bg-black ring-4 ring-pink-500/25 scale-125'
+                              : 'w-3.5 h-3.5 bg-black group-hover:scale-125 group-hover:bg-slate-800'
+                          }`}
+                        />
                       </div>
 
                       {/* Step Label below dot (Triolla style) */}
-                      <div className="mt-3.5 space-y-0.5">
+                      <div className="mt-2.5 space-y-0.5">
                         <div
-                          className={`text-xs font-bold leading-tight transition ${
+                          className={`text-xs font-black leading-tight transition ${
                             isCurrent
-                              ? 'text-slate-950 font-black'
-                              : 'text-slate-700 group-hover:text-slate-900'
+                              ? 'text-black'
+                              : 'text-slate-800 group-hover:text-black'
                           }`}
                         >
                           {step.title}

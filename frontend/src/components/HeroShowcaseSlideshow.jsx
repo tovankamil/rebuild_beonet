@@ -322,13 +322,19 @@ export default function HeroShowcaseSlideshow({
       <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-cyan-500/20 rounded-[48px] blur-3xl opacity-75 pointer-events-none -z-10" />
 
       {/* ========================================================================= */}
-      {/* APPLE iPAD PRO TABLET ENCLOSURE (Aspect Ratio: 980 / 642 = 1.526)          */}
+      {/* TABLET SHOWCASE CANVAS STAGE: VIBRANT YELLOW (Color-Matched to media_1793647753240_590bd423.jpg: #fed324) */}
       {/* ========================================================================= */}
-      <div
-        className="relative w-full aspect-[980/642] select-none"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-      >
+      <div className="relative w-full rounded-[30px] sm:rounded-[42px] bg-[#fed324] p-2.5 sm:p-5 md:p-7 shadow-2xl shadow-amber-500/25 border-4 border-[#ecd02b] overflow-hidden">
+        {/* Subtle Ambient Radial Lighting for Studio Depth */}
+        <div className="absolute -top-12 -right-12 w-96 h-96 bg-white/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-12 -left-12 w-96 h-96 bg-amber-600/20 rounded-full blur-3xl pointer-events-none" />
+
+        {/* APPLE iPAD PRO TABLET ENCLOSURE (Aspect Ratio: 980 / 642 = 1.526) */}
+        <div
+          className="relative w-full aspect-[980/642] select-none shadow-2xl shadow-black/70 rounded-[24px] sm:rounded-[32px]"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
         {/* INNER SCREEN DISPLAY (Under Tablet Bezel Overlay) */}
         {/* Exact calculated percentage bounds: left: 3.06%, top: 4.67%, width: 93.88%, height: 90.65% */}
         <div
@@ -448,7 +454,7 @@ export default function HeroShowcaseSlideshow({
                     <div className="p-2 sm:p-3 rounded-2xl bg-white/[0.04] border border-white/10">
                       <div className="text-[9px] sm:text-xs text-slate-400">Mitra Aktif</div>
                       <div className="text-sm sm:text-xl font-black text-white font-mono mt-0.5">
-                        {heroMitraCount.toLocaleString('id-ID')}
+                        {(heroMitraCount || 1420).toLocaleString('id-ID')}
                       </div>
                       <div className="text-[8px] sm:text-[10px] text-emerald-400 font-medium">+42 Baru Hari Ini</div>
                     </div>
@@ -456,7 +462,7 @@ export default function HeroShowcaseSlideshow({
                     <div className="p-2 sm:p-3 rounded-2xl bg-white/[0.04] border border-white/10">
                       <div className="text-[9px] sm:text-xs text-slate-400">Kas &amp; Saldo E-Wallet</div>
                       <div className="text-sm sm:text-xl font-black text-cyan-400 font-mono mt-0.5">
-                        Rp {heroWalletBalance.toLocaleString('id-ID')}
+                        Rp {(heroWalletBalance || 4850000).toLocaleString('id-ID')}
                       </div>
                       <div className="text-[8px] sm:text-[10px] text-cyan-300 font-medium">Siap Cair 1-Klik</div>
                     </div>
@@ -766,7 +772,7 @@ export default function HeroShowcaseSlideshow({
                     {waSelected === 'bonus' && (
                       <span>
                         <strong className="text-cyan-400">💰 Saldo Dompet:</strong> Rp{' '}
-                        {heroWalletBalance.toLocaleString('id-ID')} siap dicairkan ke rekening bank Anda.
+                        {(heroWalletBalance || 4850000).toLocaleString('id-ID')} siap dicairkan ke rekening bank Anda.
                       </span>
                     )}
                     {waSelected === 'owner' && (
@@ -1071,6 +1077,7 @@ export default function HeroShowcaseSlideshow({
           className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-[0_25px_60px_rgba(0,0,0,0.85)]"
         />
       </div>
+    </div>
 
       {/* ========================================================================= */}
       {/* 6 FLOATING FEATURE CARDS BELOW TABLET (BizNext / Triolla Style)            */}

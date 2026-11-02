@@ -264,7 +264,7 @@ export default function TransactionsTab({ walletBalance }) {
                       {item.description || 'Mutasi saldo sistem kemitraan'}
                     </td>
                     <td className="py-3.5 px-5 text-slate-400">
-                      {item.created_at
+                      {item?.created_at
                         ? new Date(item.created_at).toLocaleString('id-ID')
                         : 'Hari ini'}
                     </td>

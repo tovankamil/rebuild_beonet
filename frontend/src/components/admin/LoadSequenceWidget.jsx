@@ -60,7 +60,7 @@ export default function LoadSequenceWidget({
             <span className="w-1 h-1 rounded-full bg-cyan-400" />
           </div>
           <span className="font-extrabold text-sm sm:text-base text-white tracking-tight tabular-nums">
-            {requestVelocity > 0 ? requestVelocity.toLocaleString('id-ID') : '0.00'}
+            {Number(requestVelocity || 0) > 0 ? Number(requestVelocity).toLocaleString('id-ID') : '0.00'}
           </span>
           <span className="text-[11px] text-slate-400">
             {totalThreats > 0 ? 'Threat Alerts' : 'Req/Min Rate'}

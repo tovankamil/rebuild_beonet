@@ -207,7 +207,7 @@ export default function AIBinaryAdvisorModal({
                     Bonus Pasangan Sudah Cair
                   </div>
                   <div className="text-base font-extrabold text-emerald-800">
-                    Rp {alreadyCollectedBonus.toLocaleString('id-ID')}
+                    Rp {Number(alreadyCollectedBonus || 0).toLocaleString('id-ID')}
                   </div>
                   <div className="text-[10px] text-slate-400">
                     ({pairedPoints} Pasang Sukses)
@@ -224,7 +224,7 @@ export default function AIBinaryAdvisorModal({
                     Bonus Mengendap Belum Cair
                   </div>
                   <div className="text-base font-extrabold text-amber-700">
-                    Rp {uncollectedBonus.toLocaleString('id-ID')}
+                    Rp {Number(uncollectedBonus || 0).toLocaleString('id-ID')}
                   </div>
                   <div className="text-[10px] text-amber-800 font-semibold">
                     ({uncollectedPoints} PV di {strongLegSide} Menunggu Pasangan!)
@@ -318,7 +318,7 @@ export default function AIBinaryAdvisorModal({
               <div>
                 <span className="text-slate-400 block text-[11px]">Bonus Pasangan Tambahan Cair:</span>
                 <span className="text-base font-extrabold text-emerald-400">
-                  +Rp {simPairingBonus.toLocaleString('id-ID')}
+                  +Rp {Number(simPairingBonus || 0).toLocaleString('id-ID')}
                 </span>
               </div>
               <div>

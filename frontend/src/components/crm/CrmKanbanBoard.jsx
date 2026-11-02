@@ -277,7 +277,7 @@ export default function CrmKanbanBoard({
                 <div className="mt-2 flex items-center justify-between text-[10px] font-semibold text-slate-500 bg-white/70 px-2 py-1 rounded-lg border border-slate-200/60">
                   <span>Potensi Omset:</span>
                   <span className="font-mono font-bold text-slate-800">
-                    Rp {totalValue.toLocaleString('id-ID')}
+                    Rp {Number(totalValue || 0).toLocaleString('id-ID')}
                   </span>
                 </div>
               </div>
@@ -348,7 +348,7 @@ export default function CrmKanbanBoard({
                               <span>Domisili: -</span>
                             )}
                             <span className="font-mono font-bold text-slate-700">
-                              Rp {(Number(lead.estimated_value) || 250000).toLocaleString('id-ID')}
+                              Rp {Number(lead?.estimated_value || 250000).toLocaleString('id-ID')}
                             </span>
                           </div>
                         </div>

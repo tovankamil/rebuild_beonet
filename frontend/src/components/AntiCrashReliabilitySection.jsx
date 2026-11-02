@@ -287,7 +287,7 @@ export default function AntiCrashReliabilitySection({ triggerSound = () => {}, s
           </h2>
 
           <p className="text-slate-300 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-3xl mx-auto">
-            Jangan biarkan rumus Excel yang keliru dan server lemot merusak reputasi bisnis Anda. SYNETIQ dirancang khusus
+            Jangan biarkan sistem kompetitor yang lambat dan server sering down merusak reputasi bisnis Anda. SYNETIQ dirancang khusus
             mengeliminasi 3 momok fatal: <strong className="text-white">hitung bonus lambat berhari-hari</strong>,{' '}
             <strong className="text-white">sistem crash saat cut-off akhir bulan</strong>, dan{' '}
             <strong className="text-white">risiko kas jebol (overpayout)</strong> atau poin bonus yang mustahil ditembus member.
@@ -324,10 +324,10 @@ export default function AntiCrashReliabilitySection({ triggerSound = () => {}, s
                 <div className="p-3.5 rounded-2xl bg-red-950/30 border border-red-500/25 text-xs text-red-200">
                   <div className="flex items-center space-x-1.5 font-bold text-red-400 mb-1">
                     <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                    <span>CARA LAMA (EXCEL MANUAL)</span>
+                    <span>SISTEM KOMPETITOR (TUNDA 24-72 JAM)</span>
                   </div>
                   <p className="leading-relaxed text-red-300/90">
-                    Rekap akhir bulan butuh 3-7 hari. Rawan salah rumus VLOOKUP/IF ganda, komisi dobel bayar, dan member
+                    Sistem kompetitor butuh cut-off 24-72 jam di akhir bulan. Rawan server crash saat traffic puncak, komisi lambat cair, dan member
                     mengamuk di grup WhatsApp karena pencairan tertunda.
                   </p>
                 </div>
@@ -632,7 +632,7 @@ export default function AntiCrashReliabilitySection({ triggerSound = () => {}, s
                 }`}
               >
                 <Zap className="w-3.5 h-3.5 fill-current" />
-                <span>1. Uji Kecepatan (12ms vs Excel)</span>
+                <span>1. Uji Kecepatan (12ms vs Kompetitor)</span>
               </button>
 
               <button
@@ -728,41 +728,41 @@ export default function AntiCrashReliabilitySection({ triggerSound = () => {}, s
 
               {/* Side-by-Side Comparison */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Traditional Excel Way */}
+                {/* Traditional Competitor Software Way */}
                 <div className="p-6 rounded-3xl bg-[#090e18] border border-red-500/30 flex flex-col justify-between">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between pb-3 border-b border-red-500/20">
                       <div className="font-extrabold text-base text-red-400 flex items-center space-x-2">
                         <AlertTriangle className="w-4 h-4" />
-                        <span>Cara Manual (Excel &amp; Admin)</span>
+                        <span>Software MLM Kompetitor</span>
                       </div>
                       <span className="px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-400 text-[10px] font-mono font-bold">
-                        SANGAT LAMBAT
+                        CUT-OFF TERTUNDA
                       </span>
                     </div>
 
                     <div className="space-y-3 text-xs">
                       <div className="flex justify-between py-1.5 border-b border-white/5">
-                        <span className="text-slate-400">Waktu Rekap 5.000 Transaksi:</span>
-                        <span className="font-mono font-bold text-red-400">3 s/d 7 Hari Kerja</span>
+                        <span className="text-slate-400">Waktu Proses Cut-Off:</span>
+                        <span className="font-mono font-bold text-red-400">24 s/d 72 Jam (Server Freeze)</span>
                       </div>
                       <div className="flex justify-between py-1.5 border-b border-white/5">
-                        <span className="text-slate-400">Risiko Kesalahan Rumus:</span>
-                        <span className="font-mono font-bold text-red-400">Tinggi (VLOOKUP / Macro Error)</span>
+                        <span className="text-slate-400">Risiko Sistem Crash:</span>
+                        <span className="font-mono font-bold text-red-400">Tinggi saat Traffic Puncak</span>
                       </div>
                       <div className="flex justify-between py-1.5 border-b border-white/5">
                         <span className="text-slate-400">Keterlambatan Payout:</span>
-                        <span className="font-mono font-bold text-red-400">Sering Mundur (Member Marah)</span>
+                        <span className="font-mono font-bold text-red-400">Tunda 1-3 Hari (Member Protes)</span>
                       </div>
                       <div className="flex justify-between py-1.5 border-b border-white/5">
-                        <span className="text-slate-400">Biaya Gaji Tim Admin Rekap:</span>
-                        <span className="font-mono font-bold text-red-400">Rp 10.000.000+ / Bulan</span>
+                        <span className="text-slate-400">Poin Puncak Jaringan:</span>
+                        <span className="font-mono font-bold text-red-400">Sering Macet &amp; Tidak Tembus</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-6 p-3 rounded-xl bg-red-950/20 border border-red-500/20 text-[11px] text-red-300">
-                    ⚠️ Member gelisah menunggu kepastian bonus, komplain membanjiri grup WhatsApp setiap tanggal 1.
+                    ⚠️ Member gelisah menunggu kepastian bonus karena sistem kompetitor tunda 24-72 jam, dan server sering down saat tanggal cut-off.
                   </div>
                 </div>
 
@@ -825,7 +825,7 @@ export default function AntiCrashReliabilitySection({ triggerSound = () => {}, s
                   </div>
                   <div className="text-right">
                     <span className="text-2xl font-black text-cyan-400 font-mono">
-                      {trafficRps.toLocaleString()}
+                      {Number(trafficRps || 0).toLocaleString('id-ID')}
                     </span>
                     <span className="text-xs text-slate-400 font-mono ml-1.5">Req / Detik</span>
                   </div>
@@ -853,7 +853,7 @@ export default function AntiCrashReliabilitySection({ triggerSound = () => {}, s
                       }`}
                     >
                       <div className="text-xs font-bold text-white">{btn.label}</div>
-                      <div className="text-[11px] font-mono text-cyan-300 mt-0.5">{btn.rps.toLocaleString()} RPS</div>
+                      <div className="text-[11px] font-mono text-cyan-300 mt-0.5">{Number(btn?.rps || 0).toLocaleString('id-ID')} RPS</div>
                       <div className="text-[10px] text-slate-500 mt-1">{btn.desc}</div>
                     </button>
                   ))}

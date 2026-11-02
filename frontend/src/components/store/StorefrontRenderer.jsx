@@ -169,7 +169,7 @@ export default function StorefrontRenderer({
             </div>
             {isPreview && (
               <span className="text-xs text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">
-                Margin: +Rp {customMarkup.toLocaleString('id-ID')} / botol
+                Margin: +Rp {Number(customMarkup || 0).toLocaleString('id-ID')} / botol
               </span>
             )}
           </div>
@@ -202,10 +202,10 @@ export default function StorefrontRenderer({
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                       <div>
                         <div className="text-[10px] text-slate-400 line-through">
-                          Rp {(retailPrice + 45000).toLocaleString('id-ID')}
+                          Rp {Number((retailPrice || 0) + 45000).toLocaleString('id-ID')}
                         </div>
                         <div className="text-lg font-black text-emerald-700 font-mono">
-                          Rp {retailPrice.toLocaleString('id-ID')}
+                          Rp {Number(retailPrice || 0).toLocaleString('id-ID')}
                         </div>
                       </div>
 
@@ -367,7 +367,7 @@ export default function StorefrontRenderer({
             </div>
             {isPreview && (
               <span className="text-xs text-amber-300 font-bold bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full">
-                Margin: +Rp {customMarkup.toLocaleString('id-ID')} / botol
+                Margin: +Rp {Number(customMarkup || 0).toLocaleString('id-ID')} / botol
               </span>
             )}
           </div>
@@ -400,10 +400,10 @@ export default function StorefrontRenderer({
                     <div className="pt-3 border-t border-stone-800 flex items-center justify-between">
                       <div>
                         <div className="text-[10px] text-stone-500 line-through">
-                          Rp {(retailPrice + 55000).toLocaleString('id-ID')}
+                          Rp {Number((retailPrice || 0) + 55000).toLocaleString('id-ID')}
                         </div>
                         <div className="text-lg font-black text-amber-400 font-mono">
-                          Rp {retailPrice.toLocaleString('id-ID')}
+                          Rp {Number(retailPrice || 0).toLocaleString('id-ID')}
                         </div>
                       </div>
 
@@ -564,7 +564,7 @@ export default function StorefrontRenderer({
             </div>
             {isPreview && (
               <span className="text-xs text-teal-800 font-bold bg-teal-100/80 border border-teal-200 px-3 py-1 rounded-full">
-                Margin: +Rp {customMarkup.toLocaleString('id-ID')} / botol
+                Margin: +Rp {Number(customMarkup || 0).toLocaleString('id-ID')} / botol
               </span>
             )}
           </div>
@@ -597,10 +597,10 @@ export default function StorefrontRenderer({
                     <div className="pt-3 border-t border-emerald-100 flex items-center justify-between">
                       <div>
                         <div className="text-[10px] text-emerald-600/70 line-through">
-                          Rp {(retailPrice + 40000).toLocaleString('id-ID')}
+                          Rp {Number((retailPrice || 0) + 40000).toLocaleString('id-ID')}
                         </div>
                         <div className="text-lg font-black text-teal-800 font-mono">
-                          Rp {retailPrice.toLocaleString('id-ID')}
+                          Rp {Number(retailPrice || 0).toLocaleString('id-ID')}
                         </div>
                       </div>
 
@@ -779,7 +779,7 @@ export default function StorefrontRenderer({
             </div>
             {isPreview && (
               <span className="text-xs text-cyan-300 font-mono font-bold bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 rounded-full">
-                Margin: +Rp {customMarkup.toLocaleString('id-ID')} / botol
+                Margin: +Rp {Number(customMarkup || 0).toLocaleString('id-ID')} / botol
               </span>
             )}
           </div>
@@ -812,10 +812,10 @@ export default function StorefrontRenderer({
                     <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
                       <div>
                         <div className="text-[10px] text-cyan-400/50 line-through font-mono">
-                          Rp {(retailPrice + 45000).toLocaleString('id-ID')}
+                          Rp {Number((retailPrice || 0) + 45000).toLocaleString('id-ID')}
                         </div>
                         <div className="text-lg font-black text-cyan-400 font-mono">
-                          Rp {retailPrice.toLocaleString('id-ID')}
+                          Rp {Number(retailPrice || 0).toLocaleString('id-ID')}
                         </div>
                       </div>
 
@@ -913,7 +913,7 @@ export default function StorefrontRenderer({
             <h2 className="text-xs font-black uppercase tracking-wider text-slate-500">Pilihan Produk Resmi:</h2>
             {isPreview && (
               <span className="text-[11px] font-bold text-emerald-700">
-                +Rp {customMarkup.toLocaleString('id-ID')} Margin
+                +Rp {Number(customMarkup || 0).toLocaleString('id-ID')} Margin
               </span>
             )}
           </div>
@@ -943,10 +943,10 @@ export default function StorefrontRenderer({
                     <h3 className="font-bold text-slate-900 text-xs sm:text-sm mt-1 truncate">{p.name}</h3>
                     <div className="flex items-baseline space-x-2 mt-0.5">
                       <span className="text-sm font-black text-emerald-700 font-mono">
-                        Rp {retailPrice.toLocaleString('id-ID')}
+                        Rp {Number(retailPrice || 0).toLocaleString('id-ID')}
                       </span>
                       <span className="text-[10px] text-slate-400 line-through">
-                        Rp {(retailPrice + 40000).toLocaleString('id-ID')}
+                        Rp {Number((retailPrice || 0) + 40000).toLocaleString('id-ID')}
                       </span>
                     </div>
                   </div>

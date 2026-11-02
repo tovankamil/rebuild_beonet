@@ -279,7 +279,7 @@ export default function AIHealthConsultModal({
     });
 
     text += `\n--------------------------------------\n`;
-    text += `💰 *Estimasi Paket:* Rp ${calculateTotalPrice().toLocaleString('id-ID')}\n\n`;
+    text += `💰 *Estimasi Paket:* Rp ${Number(calculateTotalPrice() || 0).toLocaleString('id-ID')}\n\n`;
     text += `Halo ${partnerName}, saya ingin pesan paket resep herbal ini untuk segera dikirimkan. Bagaimana cara pemesanan dan pembayarannya?`;
 
     return text;
@@ -686,7 +686,7 @@ export default function AIHealthConsultModal({
                             {prod.badge}
                           </span>
                           <span className="text-xs font-extrabold text-emerald-700">
-                            Rp {prod.price.toLocaleString('id-ID')}
+                            Rp {Number(prod?.price || 0).toLocaleString('id-ID')}
                           </span>
                         </div>
                       </div>
@@ -746,7 +746,7 @@ export default function AIHealthConsultModal({
                 <div>
                   <div className="text-[11px] text-slate-400">Total Paket Terapi Herbal:</div>
                   <div className="text-xl font-heading font-extrabold text-emerald-400">
-                    Rp {calculateTotalPrice().toLocaleString('id-ID')}
+                    Rp {Number(calculateTotalPrice() || 0).toLocaleString('id-ID')}
                   </div>
                   <div className="text-[10px] text-emerald-200/80">
                     Gratis Konsultasi Pendampingan Rutin

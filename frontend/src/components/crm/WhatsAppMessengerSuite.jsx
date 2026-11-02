@@ -2243,7 +2243,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                 <span>
                   {filteredContacts.length === threads.length
                     ? 'Ekspor Semua (.vcf)'
-                    : `Ekspor Terfilter (${filteredContacts.length.toLocaleString('id-ID')}) (.vcf)`}
+                    : `Ekspor Terfilter (${Number(filteredContacts?.length || 0).toLocaleString('id-ID')}) (.vcf)`}
                 </span>
               </button>
             </div>
@@ -2433,20 +2433,20 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
               <div>
                 Menampilkan{' '}
                 <span className="font-bold text-slate-900">
-                  {((contactPage - 1) * contactPerPage + 1).toLocaleString('id-ID')}
+                  {Number((contactPage - 1) * contactPerPage + 1).toLocaleString('id-ID')}
                 </span>{' '}
                 -{' '}
                 <span className="font-bold text-slate-900">
-                  {Math.min(contactPage * contactPerPage, filteredContacts.length).toLocaleString('id-ID')}
+                  {Number(Math.min(contactPage * contactPerPage, filteredContacts?.length || 0)).toLocaleString('id-ID')}
                 </span>{' '}
                 dari{' '}
                 <span className="font-bold text-emerald-700">
-                  {filteredContacts.length.toLocaleString('id-ID')}
+                  {Number(filteredContacts?.length || 0).toLocaleString('id-ID')}
                 </span>{' '}
                 kontak
                 {filteredContacts.length !== allContactsList.length && (
                   <span className="text-slate-400 ml-1.5">
-                    (difilter dari total {allContactsList.length.toLocaleString('id-ID')} kontak)
+                    (difilter dari total {Number(allContactsList?.length || 0).toLocaleString('id-ID')} kontak)
                   </span>
                 )}
               </div>
@@ -2816,7 +2816,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
               </p>
             </div>
             <span className="text-xs text-slate-500 font-bold bg-slate-100 px-3 py-1 rounded-xl">
-              {filteredLogs.length.toLocaleString('id-ID')} Log Terdata
+              {Number(filteredLogs?.length || 0).toLocaleString('id-ID')} Log Terdata
             </span>
           </div>
 
@@ -2972,15 +2972,15 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
               <div>
                 Menampilkan{' '}
                 <span className="font-bold text-slate-900">
-                  {((logPage - 1) * logPerPage + 1).toLocaleString('id-ID')}
+                  {Number((logPage - 1) * logPerPage + 1).toLocaleString('id-ID')}
                 </span>{' '}
                 -{' '}
                 <span className="font-bold text-slate-900">
-                  {Math.min(logPage * logPerPage, filteredLogs.length).toLocaleString('id-ID')}
+                  {Number(Math.min(logPage * logPerPage, filteredLogs?.length || 0)).toLocaleString('id-ID')}
                 </span>{' '}
                 dari{' '}
                 <span className="font-bold text-emerald-700">
-                  {filteredLogs.length.toLocaleString('id-ID')}
+                  {Number(filteredLogs?.length || 0).toLocaleString('id-ID')}
                 </span>{' '}
                 log
               </div>

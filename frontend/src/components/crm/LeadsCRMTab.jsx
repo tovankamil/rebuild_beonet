@@ -703,7 +703,7 @@ export default function LeadsCRMTab({ user }) {
                         <td className="py-3 px-4">{getSourceBadge(lead.source)}</td>
                         <td className="py-3 px-4">{getStatusBadge(lead.status)}</td>
                         <td className="py-3 px-4 font-mono text-slate-800">
-                          {lead.estimated_value ? `Rp ${Number(lead.estimated_value).toLocaleString('id-ID')}` : '-'}
+                          {lead.estimated_value ? `Rp ${Number(lead.estimated_value || 0).toLocaleString('id-ID')}` : '-'}
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center justify-center space-x-1.5">
@@ -775,13 +775,13 @@ export default function LeadsCRMTab({ user }) {
                 <div>
                   Menampilkan{' '}
                   <span className="font-bold text-slate-900">
-                    {((tablePage - 1) * tablePerPage + 1).toLocaleString('id-ID')}
+                    {Number((tablePage - 1) * tablePerPage + 1).toLocaleString('id-ID')}
                   </span>{' '}
                   -{' '}
                   <span className="font-bold text-slate-900">
-                    {Math.min(tablePage * tablePerPage, leads.length).toLocaleString('id-ID')}
+                    {Number(Math.min(tablePage * tablePerPage, leads?.length || 0)).toLocaleString('id-ID')}
                   </span>{' '}
-                  dari <span className="font-bold text-emerald-700">{leads.length.toLocaleString('id-ID')}</span> prospek
+                  dari <span className="font-bold text-emerald-700">{Number(leads?.length || 0).toLocaleString('id-ID')}</span> prospek
                 </div>
                 <div className="flex items-center space-x-1 text-xs">
                   <span>Baris:</span>

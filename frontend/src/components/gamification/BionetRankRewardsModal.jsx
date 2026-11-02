@@ -175,7 +175,7 @@ export default function SYNETIQRankRewardsModal({ isOpen, onClose, currentUser }
       currency: 'IDR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(val);
+    }).format(Number(val || 0));
   };
 
   return (

@@ -89,7 +89,7 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
     const price = getRetailPrice(product.memberPrice || product.basePrice || 150000);
     const cleanWa = whatsappNumber.replace(/[^0-9]/g, '');
     const text = encodeURIComponent(
-      `Halo kak, saya ingin memesan produk herbal *${product.name}* (Rp ${price.toLocaleString('id-ID')}) lewat toko online resmi Anda. Mohon info nomor rekening dan pengirimannya ya kak.`
+      `Halo kak, saya ingin memesan produk herbal *${product?.name || 'Produk'}* (Rp ${Number(price || 0).toLocaleString('id-ID')}) lewat toko online resmi Anda. Mohon info nomor rekening dan pengirimannya ya kak.`
     );
     window.open(`https://wa.me/${cleanWa}?text=${text}`, '_blank');
   };
@@ -117,7 +117,7 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
     const text = encodeURIComponent(
       `Halo kak, saya baru saja melakukan pemesanan via Toko Online SYNETIQ:\n\n` +
       `📦 *Produk:* ${selectedProduct.name}\n` +
-      `💰 *Total Harga:* Rp ${price.toLocaleString('id-ID')}\n` +
+      `💰 *Total Harga:* Rp ${Number(price || 0).toLocaleString('id-ID')}\n` +
       `🚚 *Ekspedisi Pilihan:* ${courier}\n\n` +
       `👤 *Data Penerima:*\n` +
       `- Nama: ${customerName}\n` +
@@ -167,7 +167,7 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
                   Formulir Pemesanan Produk
                 </h3>
                 <p className="text-xs text-slate-500">
-                  {selectedProduct.name} — Rp {getRetailPrice(selectedProduct.memberPrice || selectedProduct.basePrice || 150000).toLocaleString('id-ID')}
+                  {selectedProduct.name} — Rp {Number(getRetailPrice(selectedProduct?.memberPrice || selectedProduct?.basePrice || 150000) || 0).toLocaleString('id-ID')}
                 </p>
               </div>
               <button

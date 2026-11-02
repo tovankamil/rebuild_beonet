@@ -348,10 +348,10 @@ export default function Header({
                       return true;
                     })
                     .map((notif) => {
-                    const timeAgo = new Date(notif.created_at).toLocaleString('id-ID', {
+                    const timeAgo = notif?.created_at ? new Date(notif.created_at).toLocaleString('id-ID', {
                       dateStyle: 'short',
                       timeStyle: 'short',
-                    });
+                    }) : 'Baru saja';
                     return (
                       <div
                         key={notif.id}

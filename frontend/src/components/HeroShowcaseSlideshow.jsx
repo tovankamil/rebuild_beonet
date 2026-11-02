@@ -110,7 +110,7 @@ export default function HeroShowcaseSlideshow({
       badge: 'HITUNG BONUS 1 DETIK',
       icon: Users,
       accent: 'cyan',
-      desc: 'Visualisasi pohon jaringan otomatis, hitung pasangan/pairing instan tanpa rumus Excel manual.',
+      desc: 'Visualisasi pohon jaringan otomatis, hitung pasangan/pairing instan. Kompetitor butuh cut-off 24 jam.',
     },
     {
       id: 'whatsapp',
@@ -434,7 +434,7 @@ export default function HeroShowcaseSlideshow({
 
                     <div className="text-right">
                       <div className="text-xs sm:text-base font-mono font-black text-emerald-400">
-                        Rp {omsetHarian.toLocaleString('id-ID')}
+                        Rp {Number(omsetHarian || 0).toLocaleString('id-ID')}
                       </div>
                       <div className="text-[9px] sm:text-[11px] text-slate-400 font-mono">Omset Hari Ini</div>
                     </div>
@@ -445,7 +445,7 @@ export default function HeroShowcaseSlideshow({
                     <div className="p-2 sm:p-3 rounded-2xl bg-white/[0.04] border border-white/10">
                       <div className="text-[9px] sm:text-xs text-slate-400">Mitra Aktif</div>
                       <div className="text-sm sm:text-xl font-black text-white font-mono mt-0.5">
-                        {(heroMitraCount || 1420).toLocaleString('id-ID')}
+                        {Number(heroMitraCount || 1420).toLocaleString('id-ID')}
                       </div>
                       <div className="text-[8px] sm:text-[10px] text-emerald-400 font-medium">+42 Baru Hari Ini</div>
                     </div>
@@ -453,7 +453,7 @@ export default function HeroShowcaseSlideshow({
                     <div className="p-2 sm:p-3 rounded-2xl bg-white/[0.04] border border-white/10">
                       <div className="text-[9px] sm:text-xs text-slate-400">Kas &amp; Saldo E-Wallet</div>
                       <div className="text-sm sm:text-xl font-black text-cyan-400 font-mono mt-0.5">
-                        Rp {(heroWalletBalance || 4850000).toLocaleString('id-ID')}
+                        Rp {Number(heroWalletBalance || 4850000).toLocaleString('id-ID')}
                       </div>
                       <div className="text-[8px] sm:text-[10px] text-cyan-300 font-medium">Siap Cair 1-Klik</div>
                     </div>
@@ -568,7 +568,7 @@ export default function HeroShowcaseSlideshow({
                         </span>
                       </div>
                       <p className="text-[10px] sm:text-xs text-slate-300 mt-0.5">
-                        Bonus sponsor &amp; pasangan langsung terhitung otomatis tanpa repot rumus Excel.
+                        Bonus sponsor &amp; pasangan langsung terhitung otomatis — bukan tunda 24 jam seperti sistem kompetitor.
                       </p>
                     </div>
 
@@ -621,7 +621,7 @@ export default function HeroShowcaseSlideshow({
                     <div className="w-full max-w-md p-2 rounded-xl bg-cyan-950/40 border border-cyan-500/30 flex items-center justify-between text-[9px] sm:text-xs font-mono text-cyan-200">
                       <span className="flex items-center space-x-1.5">
                         <Zap className="w-3.5 h-3.5 text-amber-400" />
-                        <span>{pairsCount} Pasangan Terhitung = Rp {(pairsCount * 350000).toLocaleString('id-ID')}</span>
+                        <span>{pairsCount} Pasangan Terhitung = Rp {Number((pairsCount || 0) * 350000).toLocaleString('id-ID')}</span>
                       </span>
                       <span className="text-emerald-400 font-bold">Otomatis Masuk Dompet</span>
                     </div>
@@ -763,7 +763,7 @@ export default function HeroShowcaseSlideshow({
                     {waSelected === 'bonus' && (
                       <span>
                         <strong className="text-cyan-400">💰 Saldo Dompet:</strong> Rp{' '}
-                        {(heroWalletBalance || 4850000).toLocaleString('id-ID')} siap dicairkan ke rekening bank Anda.
+                        {Number(heroWalletBalance || 4850000).toLocaleString('id-ID')} siap dicairkan ke rekening bank Anda.
                       </span>
                     )}
                     {waSelected === 'owner' && (
@@ -870,7 +870,7 @@ export default function HeroShowcaseSlideshow({
                       <div className="pt-1.5 border-t border-white/10 flex justify-between text-[10px]">
                         <span className="text-slate-400">Total Kas Terverifikasi:</span>
                         <span className="text-amber-400 font-bold font-mono">
-                          Rp {(heroWalletBalance || 4850000).toLocaleString('id-ID')}
+                          Rp {Number(heroWalletBalance || 4850000).toLocaleString('id-ID')}
                         </span>
                       </div>
                     </div>
@@ -1125,8 +1125,8 @@ export default function HeroShowcaseSlideshow({
 
         <div className="text-center border-l md:border-x border-white/15">
           <div className="text-2xl sm:text-4xl font-black text-cyan-400 font-mono tracking-tight">1 Detik</div>
-          <div className="text-xs sm:text-sm font-extrabold text-white mt-1">Hitung Komisi Cepat</div>
-          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Tanpa Rumus Excel Manual</div>
+          <div className="text-xs sm:text-sm font-extrabold text-white mt-1">Hitung Bonus Instan</div>
+          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Kompetitor Butuh 24 Jam+</div>
         </div>
 
         <div className="text-center">

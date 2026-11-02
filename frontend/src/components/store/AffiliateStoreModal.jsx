@@ -98,7 +98,7 @@ export default function AffiliateStoreModal({ user, onClose }) {
     const retailPrice = (product.memberPrice || 150000) + customMarkup;
     const cleanWa = whatsappNumber.replace(/[^0-9]/g, '');
     const text = encodeURIComponent(
-      `Halo kak ${user?.full_name || user?.username}, saya tertarik pesan *${product.name}* (Rp ${retailPrice.toLocaleString('id-ID')}) lewat toko online resmi kakak. Apakah stok masih tersedia?`
+      `Halo kak ${user?.full_name || user?.username}, saya tertarik pesan *${product?.name || 'Produk'}* (Rp ${Number(retailPrice || 0).toLocaleString('id-ID')}) lewat toko online resmi kakak. Apakah stok masih tersedia?`
     );
     window.open(`https://wa.me/${cleanWa}?text=${text}`, '_blank');
   };
@@ -434,11 +434,11 @@ export default function AffiliateStoreModal({ user, onClose }) {
                   </div>
                   <div className="flex justify-between text-slate-700">
                     <span>Harga Jual ke Konsumen Anda:</span>
-                    <span className="font-bold text-slate-900">Rp {(150000 + customMarkup).toLocaleString('id-ID')}</span>
+                    <span className="font-bold text-slate-900">Rp {Number(150000 + (customMarkup || 0)).toLocaleString('id-ID')}</span>
                   </div>
                   <div className="flex justify-between text-emerald-800 font-bold pt-1 border-t border-emerald-200">
                     <span>Keuntungan Bersih Langsung Anda:</span>
-                    <span>Rp {customMarkup.toLocaleString('id-ID')} / botol</span>
+                    <span>Rp {Number(customMarkup || 0).toLocaleString('id-ID')} / botol</span>
                   </div>
                 </div>
               </div>

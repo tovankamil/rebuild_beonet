@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import api from '../services/api';
 import { useBranding } from '../context/BrandingContext';
-import BionetAmbientBackground from '../components/BionetAmbientBackground';
+import SYNETIQAmbientBackground from '../components/BionetAmbientBackground';
 import ModalPortal from '../components/common/ModalPortal';
 
 export default function LoginPage({ onLoginSuccess }) {

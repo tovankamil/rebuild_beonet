@@ -407,8 +407,8 @@ export default function LandingPage({ onGoToLogin }) {
       title: 'Kickoff Meeting',
       subtitle: 'Diskusi Visi & Skema Bisnis',
       desc: 'Pertemuan langsung (online/offline) untuk memetakan model bisnis MLM Anda, skema reward, profil target member, dan proyeksi omset.',
-      deliverables: ['Dokumen Notulensi Visi Bisnis', 'Matriks Kebutuhan Sistem & Modul', 'Timeline Pengerjaan Transparan'],
-      duration: 'Hari ke-1',
+      deliverables: ['Dokumen Notulensi Visi Bisnis', 'Matriks Kebutuhan Sistem & Modul', 'Timeline Pengerjaan 15-30 Hari Transparan'],
+      duration: 'Hari ke-1 s/d 2',
     },
     {
       id: 2,
@@ -417,7 +417,7 @@ export default function LandingPage({ onGoToLogin }) {
       subtitle: 'Bedah Logika Komisi Anti-Jebol',
       desc: 'Simulasi mendalam atas rumus bonus sponsor, pairing binary, reward omset, dan batas payout maksimal agar sistem bisnis Anda aman jangka panjang.',
       deliverables: ['Simulasi Stres Keuangan Sistem', 'Rumus Binary & Pairing Terverifikasi', 'Aturan Flush Out & Safety Net'],
-      duration: 'Hari ke-2 s/d 3',
+      duration: 'Hari ke-3 s/d 5',
     },
     {
       id: 3,
@@ -426,7 +426,7 @@ export default function LandingPage({ onGoToLogin }) {
       subtitle: 'Kemudahan Pengalaman Member',
       desc: 'Merancang perjalanan calon mitra: dari klik link iklan atau website replika, registrasi otomatis, pilih paket produk digital, hingga terima akses login.',
       deliverables: ['Wireframe Alur Prospek ke Mitra', 'Skema Auto-Spillover Binary', 'Desain Formulir Pendaftaran Singkat'],
-      duration: 'Hari ke-4',
+      duration: 'Hari ke-6 s/d 8',
     },
     {
       id: 4,
@@ -435,7 +435,7 @@ export default function LandingPage({ onGoToLogin }) {
       subtitle: 'Mesin Hitung Kilat (Sub-12ms)',
       desc: 'Setup infrastruktur cloud berkecepatan tinggi dengan database anti-lag, menjamin perhitungan bonus ribuan member selesai dalam 1 detik tanpa antre.',
       deliverables: ['High-Performance Go Engine', 'Double-Entry FinTech Ledger', 'Auto-Backup Database Harian'],
-      duration: 'Hari ke-5 s/d 7',
+      duration: 'Hari ke-9 s/d 14',
     },
     {
       id: 5,
@@ -444,7 +444,7 @@ export default function LandingPage({ onGoToLogin }) {
       subtitle: 'Logo & Desain Web Replika',
       desc: 'Penerapan identitas merek Anda: nama aplikasi, logo, palet warna elegan, dan website replika otomatis untuk setiap member yang bergabung.',
       deliverables: ['Domain Kustom (app.brandanda.com)', 'Template Web Replika Member Ber-nama', 'Dashboard Admin & Member Eksklusif'],
-      duration: 'Hari ke-8 s/d 10',
+      duration: 'Hari ke-15 s/d 19',
     },
     {
       id: 6,
@@ -453,7 +453,7 @@ export default function LandingPage({ onGoToLogin }) {
       subtitle: 'Otomasi Terima Uang & Closing 24/7',
       desc: 'Menghubungkan gerbang pembayaran QRIS dinamis seluruh bank dan dompet digital, plus robot WhatsApp AI yang melayani tanya-jawab konsumen tanpa admin.',
       deliverables: ['QRIS Standar Nasional Otomatis Masuk Kas', 'Robot WhatsApp AI Objection Handler', 'Notifikasi SMS / WA Real-Time'],
-      duration: 'Hari ke-11 s/d 13',
+      duration: 'Hari ke-20 s/d 24',
     },
     {
       id: 7,
@@ -462,16 +462,16 @@ export default function LandingPage({ onGoToLogin }) {
       subtitle: 'Pengujian Menyeluruh (Anti-Fraud)',
       desc: 'Uji coba beban sistem hingga puluhan ribu transaksi serentak, simulasi penarikan komisi e-wallet, dan verifikasi proteksi keamanan siber SOC DEFCON 1.',
       deliverables: ['Laporan Uji Beban 10.000 Transaksi', 'Audit Keamanan Data & Anti-Manipulasi', 'Verifikasi Rekonsiliasi Kas 100%'],
-      duration: 'Hari ke-14',
+      duration: 'Hari ke-25 s/d 28',
     },
     {
       id: 8,
       badge: 'LANGKAH 08',
       title: 'Peluncuran Resmi & Support 24/7',
       subtitle: 'Go-Live & Pendampingan Nonstop',
-      desc: 'Sistem resmi beroperasi. Kami memberikan pelatihan lengkap kepada manajemen admin dan pendampingan teknis prioritas 24 jam setiap hari.',
-      deliverables: ['Peluncuran Sistem Siap Pakai', 'Video Panduan & SOP Operasional Admin', 'Garansi & Support Teknis Siaga 24/7'],
-      duration: 'Hari ke-15 & Seterusnya',
+      desc: 'Sistem siap diluncurkan secara resmi dalam rentang 15 hingga 30 hari kerja. Kami memberikan pelatihan lengkap kepada manajemen admin dan pendampingan teknis prioritas 24 jam setiap hari.',
+      deliverables: ['Peluncuran Sistem Siap Pakai (15 - 30 Hari Kerja)', 'Video Panduan & SOP Operasional Admin', 'Garansi & Support Teknis Siaga 24/7'],
+      duration: 'Hari ke-15 s/d 30 (Go-Live)',
     },
   ];
 
@@ -497,7 +497,7 @@ export default function LandingPage({ onGoToLogin }) {
 
     const interestLabels = {
       'aplikasi-baru': 'Pembuatan Aplikasi Bisnis Jaringan Baru (Brand & Logo Sendiri)',
-      'upgrade-excel': 'Upgrade Sistem Manual / Rekap Excel Jadi Otomatis',
+      'upgrade-sistem': 'Migrasi dari Software Lama / Sistem Kompetitor Lambat Jadi Otomatis',
       'demo-vip': 'Akses Demo Lengkap & Coba Fitur Aplikasi',
       'konsultasi-komisi': 'Tanya Jawab Alur Bisnis & Konsultasi Sistem Komisi',
     };
@@ -547,15 +547,15 @@ export default function LandingPage({ onGoToLogin }) {
       },
       {
         id: 'mesin-hitung-komisi',
-        label: 'Mesin Hitung Komisi',
-        desc: 'Sub-12ms Go Engine & kalkulasi bonus anti-jebol',
+        label: 'Anti-Crash & Komisi',
+        desc: 'Sub-12ms Go Engine, 25k TPS cluster, & kalkulasi bonus anti-jebol',
         icon: <Sliders className="w-4 h-4" />,
         action: () => scrollToSection('anti-crash-engine'),
       },
       {
         id: 'problem-solution',
         label: 'Solusi Masalah',
-        desc: 'Tinggalkan rekap manual Excel menuju sistem otonom',
+        desc: 'Tinggalkan sistem kompetitor lambat menuju sistem otonom real-time',
         icon: <Zap className="w-4 h-4" />,
         action: () => scrollToSection('problem-solution'),
       },
@@ -571,8 +571,8 @@ export default function LandingPage({ onGoToLogin }) {
       },
       {
         id: 'process',
-        label: 'Alur Kerja',
-        desc: '8 tahap implementasi dari konsultasi sampai go-live',
+        label: 'Alur Kerja (15-30 Hari)',
+        desc: '8 tahap implementasi kickoff hingga go-live dalam 15-30 hari kerja',
         icon: <Sparkles className="w-4 h-4" />,
         action: () => scrollToSection('process'),
       },
@@ -590,10 +590,10 @@ export default function LandingPage({ onGoToLogin }) {
   return (
     <div className="min-h-screen bg-[#03060a] text-slate-100 font-sans selection:bg-emerald-500 selection:text-black overflow-x-hidden w-full max-w-full">
       {/* ========================================================================= */}
-      {/* 01: DYNAMIC ISLAND FLOATING NAVBAR (Zero Scrollbar • Triolla-Grade Layout) */}
+      {/* 01: DYNAMIC ISLAND FLOATING NAVBAR (Zero Scrollbar • Zero Overlap Layout) */}
       {/* ========================================================================= */}
       <nav className="fixed top-2.5 sm:top-3.5 left-1/2 -translate-x-1/2 z-50 w-[96%] sm:w-[98%] max-w-[1400px]">
-        <div className="bg-[#0e1726]/90 backdrop-blur-2xl border border-white/10 rounded-2xl px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 shadow-2xl shadow-emerald-950/40 flex items-center justify-between gap-2 sm:gap-3 lg:gap-6">
+        <div className="bg-[#0e1726]/90 backdrop-blur-2xl border border-white/10 rounded-2xl px-3 sm:px-4 lg:px-5 py-2 shadow-2xl shadow-emerald-950/40 flex items-center justify-between gap-1.5 sm:gap-2 lg:gap-3">
           {/* Brand Logo - Compact & Pristine */}
           <div className="flex items-center space-x-2 shrink-0">
             <button
@@ -620,36 +620,36 @@ export default function LandingPage({ onGoToLogin }) {
             </button>
           </div>
 
-          {/* Desktop Nav Links - Smooth, No Wrapping, Zero Scrollbar (Hidden on mobile & tablet) */}
-          <div className="hidden lg:flex items-center space-x-2 xl:space-x-3 2xl:space-x-5 text-[11px] xl:text-xs 2xl:text-[13px] font-medium text-slate-300">
+          {/* Desktop Nav Links - Smooth, No Wrapping, Zero Scrollbar, Zero Overlap */}
+          <div className="hidden lg:flex items-center space-x-1 xl:space-x-2 2xl:space-x-4 text-[11px] xl:text-xs 2xl:text-[13px] font-medium text-slate-300">
             <button
               type="button"
               onClick={() => scrollToSection('features')}
-              className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none shrink-0"
+              className="px-2 py-1 rounded-lg hover:text-white hover:bg-white/5 whitespace-nowrap transition focus:outline-none shrink-0"
             >
-              Fitur Unggulan
+              Fitur
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('tablet-showcase')}
-              className="whitespace-nowrap hover:text-cyan-400 transition focus:outline-none flex items-center space-x-1 shrink-0"
+              className="px-2 py-1 rounded-lg hover:text-cyan-400 hover:bg-white/5 whitespace-nowrap transition focus:outline-none flex items-center space-x-1 shrink-0"
             >
               <span>📱</span>
-              <span>Demo di Tablet</span>
+              <span>Demo Tablet</span>
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('anti-crash-engine')}
-              className="whitespace-nowrap hover:text-cyan-300 transition focus:outline-none shrink-0"
+              className="px-2 py-1 rounded-lg hover:text-cyan-300 hover:bg-white/5 whitespace-nowrap transition focus:outline-none shrink-0"
             >
-              Mesin Komisi
+              Anti-Crash
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('problem-solution')}
-              className="whitespace-nowrap hover:text-amber-400 transition focus:outline-none shrink-0"
+              className="hidden xl:inline-block px-2 py-1 rounded-lg hover:text-amber-400 hover:bg-white/5 whitespace-nowrap transition focus:outline-none shrink-0"
             >
-              Solusi Masalah
+              Solusi
             </button>
             <button
               type="button"
@@ -657,14 +657,14 @@ export default function LandingPage({ onGoToLogin }) {
                 setActiveStudioTab('calculator');
                 scrollToSection('brainstorming');
               }}
-              className="whitespace-nowrap hover:text-teal-400 transition focus:outline-none shrink-0"
+              className="hidden 2xl:inline-block px-2 py-1 rounded-lg hover:text-teal-400 hover:bg-white/5 whitespace-nowrap transition focus:outline-none shrink-0"
             >
-              Hitung Cuan
+              Simulasi Cuan
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('process')}
-              className="whitespace-nowrap hover:text-pink-400 transition focus:outline-none flex items-center space-x-1 shrink-0"
+              className="px-2 py-1 rounded-lg hover:text-pink-400 hover:bg-white/5 whitespace-nowrap transition focus:outline-none flex items-center space-x-1 shrink-0"
             >
               <span>⚡</span>
               <span>Alur Kerja</span>
@@ -672,15 +672,15 @@ export default function LandingPage({ onGoToLogin }) {
             <button
               type="button"
               onClick={() => scrollToSection('consultation')}
-              className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none shrink-0"
+              className="px-2 py-1 rounded-lg hover:text-emerald-400 hover:bg-white/5 whitespace-nowrap transition focus:outline-none shrink-0"
             >
-              Konsultasi
+              Kontak
             </button>
           </div>
 
           {/* Right Action Controls: Optimized for Mobile, Tablet, Laptop, and Desktop */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
-            {/* Audio Toggle: Mini-icon, hidden on mobile <sm (accessible inside drawer) to never squish CTA buttons */}
+          <div className="flex items-center space-x-1 sm:space-x-1.5 xl:space-x-2 shrink-0">
+            {/* Audio Toggle: Mini-icon, hidden on mobile <sm (accessible inside drawer) */}
             <button
               type="button"
               onClick={() => {
@@ -688,38 +688,38 @@ export default function LandingPage({ onGoToLogin }) {
                 triggerSound('click');
               }}
               title={audioEnabled ? 'Matikan Suara Haptic' : 'Nyalakan Suara Haptic'}
-              className="hidden sm:flex p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition focus:outline-none shrink-0 border border-white/5"
+              className="hidden sm:flex p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition focus:outline-none shrink-0 border border-white/5"
             >
-              {audioEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500" />}
+              {audioEnabled ? <Volume2 className="w-3.5 h-3.5 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5 text-slate-500" />}
             </button>
 
-            {/* Direct WhatsApp Action Button: Compact green on mobile */}
+            {/* Direct WhatsApp Action Button */}
             <a
               href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20tertarik%20dengan%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20konsultasi%20langsung"
               target="_blank"
               rel="noreferrer"
               onClick={() => triggerSound('success')}
-              className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-black text-xs flex items-center space-x-1 sm:space-x-1.5 shadow-lg shadow-emerald-950/60 transition active:scale-95 shrink-0"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-black text-xs flex items-center space-x-1 sm:space-x-1.5 shadow-lg shadow-emerald-950/60 transition active:scale-95 shrink-0"
               title="Chat Langsung via WhatsApp"
             >
               <MessageSquare className="w-3.5 h-3.5 text-slate-950 fill-current shrink-0" />
-              <span className="hidden sm:inline">WhatsApp</span>
-              <span className="sm:hidden text-[11px] font-extrabold">WA</span>
+              <span className="hidden xl:inline">WhatsApp</span>
+              <span className="xl:hidden text-[11px] font-extrabold">WA</span>
             </a>
 
-            {/* VIP Demo & Call Booking Button: Compact "Demo" on mobile to never cut off */}
+            {/* VIP Demo & Call Booking Button */}
             <button
               type="button"
               onClick={() => {
                 scrollToSection('consultation');
                 setMobileMenuOpen(false);
               }}
-              className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-900/50 hover:shadow-emerald-700/60 transition flex items-center space-x-1 sm:space-x-1.5 focus:outline-none active:scale-95 shrink-0"
+              className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-900/50 hover:shadow-emerald-700/60 transition flex items-center space-x-1 sm:space-x-1.5 focus:outline-none active:scale-95 shrink-0"
               title="Coba Demo VIP"
             >
               <Zap className="w-3.5 h-3.5 text-slate-950 fill-current shrink-0" />
-              <span className="hidden md:inline">Coba Demo VIP</span>
-              <span className="hidden sm:inline md:hidden">Demo VIP</span>
+              <span className="hidden xl:inline">Coba Demo VIP</span>
+              <span className="hidden sm:inline xl:hidden">Demo VIP</span>
               <span className="sm:hidden text-[11px]">Demo</span>
             </button>
 
@@ -731,7 +731,7 @@ export default function LandingPage({ onGoToLogin }) {
                 if (onGoToLogin) onGoToLogin();
                 else window.location.hash = '#/overview';
               }}
-              className="hidden lg:inline-block px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition focus:outline-none shrink-0"
+              className="hidden lg:inline-flex px-2 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition whitespace-nowrap focus:outline-none shrink-0"
             >
               Masuk
             </button>
@@ -880,7 +880,7 @@ export default function LandingPage({ onGoToLogin }) {
 
           {/* Centered Subheadline (Menjawab Kebutuhan Pemilik Bisnis) */}
           <p className="text-slate-300 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-8 font-normal">
-            Gak perlu lagi pusing rekap komisi manual di Excel sampai larut malam atau bayar gaji puluhan staf admin.
+            Gak perlu lagi tunggu cut-off 24 jam seperti sistem kompetitor atau pusing rekap manual larut malam.
             Dari pendaftaran member baru, perhitungan bonus instan dalam hitungan detik, hingga robot WhatsApp yang
             melayani calon pembeli nonstop—semua sudah siap pakai untuk brand Anda.
           </p>
@@ -913,8 +913,8 @@ export default function LandingPage({ onGoToLogin }) {
           <div className="grid grid-cols-3 gap-3 sm:gap-10 py-4 sm:py-5 px-4 sm:px-10 rounded-2xl bg-white/[0.03] border border-white/10 max-w-2xl mx-auto shadow-inner">
             <div className="text-center">
               <div className="text-xl sm:text-3xl font-black text-emerald-400 font-mono tracking-tight">1 Detik</div>
-              <div className="text-xs text-slate-200 font-bold mt-0.5">Hitung Bonus Cepat</div>
-              <div className="text-[10px] text-slate-400">Nol Rumus Excel Manual</div>
+              <div className="text-xs text-slate-200 font-bold mt-0.5">Hitung Bonus Instan</div>
+              <div className="text-[10px] text-slate-400">Kompetitor Butuh 24 Jam+</div>
             </div>
             <div className="text-center border-x border-white/10 px-2 sm:px-6">
               <div className="text-xl sm:text-3xl font-black text-cyan-400 font-mono tracking-tight">24 Jam</div>
@@ -1058,22 +1058,20 @@ export default function LandingPage({ onGoToLogin }) {
                 <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs">
                   <div className="font-extrabold text-red-400 flex items-center space-x-1.5 mb-1">
                     <span>❌</span>
-                    <span>CARA LAMA (MANUAL)</span>
+                    <span>SISTEM KOMPETITOR (TUNDA 24 JAM)</span>
                   </div>
                   <p className="leading-relaxed">
-                    Capek rekap bonus akhir bulan di file Excel. Rawan salah rumus, komisi dobel bayar, dan member sering
-                    komplain karena bonus lambat dicairkan.
+                    Sistem kompetitor butuh cut-off 24-48 jam. Rawan server crash saat traffic puncak akhir bulan, komisi lambat masuk dompet, dan member sering komplain.
                   </p>
                 </div>
 
                 <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs">
                   <div className="font-extrabold text-emerald-400 flex items-center space-x-1.5 mb-1">
                     <span>✅</span>
-                    <span>DENGAN SYNETIQ (OTOMATIS)</span>
+                    <span>DENGAN SYNETIQ (INSTAN &lt;12MS)</span>
                   </div>
                   <p className="leading-relaxed font-medium">
-                    Komisi sponsor dan pasangan dihitung otomatis dalam 1 detik. Saldo dompet member langsung bertambah
-                    real-time tanpa Anda perlu buka Excel lagi.
+                    Komisi sponsor dan pairing dihitung otomatis dalam 1 detik. Saldo dompet member langsung bertambah real-time tanpa tunda cut-off.
                   </p>
                 </div>
               </div>
@@ -1790,7 +1788,7 @@ export default function LandingPage({ onGoToLogin }) {
               </div>
               <h4 className="text-base font-bold text-white mb-2">Pohon Jaringan &amp; Bonus Otomatis</h4>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Hitung bonus sponsor, komisi pasangan (pairing), dan auto-spillover dalam 1 detik. Saldo dompet member langsung bertambah tanpa pusing rumus Excel.
+                Hitung bonus sponsor, komisi pasangan (pairing), dan auto-spillover dalam 1 detik. Saldo dompet member langsung bertambah tanpa tunda 24 jam seperti sistem kompetitor.
               </p>
             </div>
 
@@ -1966,17 +1964,17 @@ export default function LandingPage({ onGoToLogin }) {
           <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
             <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-300/80 text-slate-700 text-xs font-bold shadow-sm">
               <Sparkles className="w-4 h-4 text-pink-500" />
-              <span>PROSES IMPLEMENTASI TERUJI &amp; TERSTRUKTUR</span>
+              <span>TIMELINE ESTIMASI: 15 - 30 HARI KERJA HINGGA GO-LIVE</span>
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-black tracking-tight leading-tight">
               Alur Kerja &amp;{' '}
               <span className="bg-gradient-to-r from-[#d946ef] via-[#f97316] to-[#f59e0b] bg-clip-text text-transparent">
                 Desain
               </span>{' '}
-              Proses
+              Proses (15 - 30 Hari)
             </h2>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              Proses teruji kami menggabungkan pemahaman mendalam atas marketing plan MLM Anda dengan teknologi cloud mutakhir untuk menghasilkan aplikasi bisnis jaringan yang siap pakai, cepat, dan bebas pusing hitung komisi.
+              Proses teruji kami memastikan sistem MLM Anda siap beroperasi resmi dalam rentang <strong>15 hingga 30 hari kerja</strong>. Mulai dari kickoff meeting, audit skema komisi anti-jebol, hingga peluncuran live 24/7.
             </p>
           </div>
 
@@ -2520,7 +2518,7 @@ export default function LandingPage({ onGoToLogin }) {
                       className="w-full bg-[#03060a] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-500 transition cursor-pointer"
                     >
                       <option value="aplikasi-baru">Pembuatan Aplikasi Bisnis Jaringan Baru (Brand &amp; Logo Sendiri)</option>
-                      <option value="upgrade-excel">Upgrade Sistem Manual / Rekap Excel Jadi Otomatis</option>
+                      <option value="upgrade-sistem">Migrasi dari Software Lama / Sistem Kompetitor Lambat Jadi Otomatis</option>
                       <option value="demo-vip">Minta Akses Demo Lengkap &amp; Coba Fitur Aplikasi</option>
                       <option value="konsultasi-komisi">Tanya Jawab Alur Bisnis &amp; Konsultasi Sistem Komisi</option>
                     </select>

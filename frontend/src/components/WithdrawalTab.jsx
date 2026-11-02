@@ -213,14 +213,14 @@ export default function WithdrawalTab({ walletBalance, onWithdrawalSuccess, bank
                           : 'bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 border border-slate-200 text-slate-700'
                       }`}
                     >
-                      Rp {(nom / 1000).toLocaleString('id-ID')}rb
+                      Rp {Number((nom || 0) / 1000).toLocaleString('id-ID')}rb
                     </button>
                   );
                 })}
                 {walletBalance > 50000 && (
                   <button
                     type="button"
-                    onClick={() => setAmount(walletBalance.toString())}
+                    onClick={() => setAmount((walletBalance || 0).toString())}
                     className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 transition-colors"
                   >
                     Tarik Maksimal
@@ -459,7 +459,7 @@ export default function WithdrawalTab({ walletBalance, onWithdrawalSuccess, bank
                       )}
                     </td>
                     <td className="py-3.5 px-5 text-slate-400">
-                      {w.created_at ? new Date(w.created_at).toLocaleString('id-ID') : 'Hari ini'}
+                      {w?.created_at ? new Date(w.created_at).toLocaleString('id-ID') : 'Hari ini'}
                     </td>
                   </tr>
                 ))

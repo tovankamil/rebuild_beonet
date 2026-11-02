@@ -219,7 +219,7 @@ Berikut adalah *Simulasi Potensi Income Kemitraan Herbal SYNETIQ*:
 *2. Proyeksi Pertumbuhan Jaringan:*
 - Pola Duplikasi: *${duplication} Mitra Baru / Siklus*
 - Periode Proyeksi: *${months} Bulan*
-- Estimasi Total Jaringan: *${calculations.totalMembers.toLocaleString('id-ID')} Mitra* (${calculations.leftMembers.toLocaleString('id-ID')} Kiri : ${calculations.rightMembers.toLocaleString('id-ID')} Kanan)
+- Estimasi Total Jaringan: *${Number(calculations?.totalMembers || 0).toLocaleString('id-ID')} Mitra* (${Number(calculations?.leftMembers || 0).toLocaleString('id-ID')} Kiri : ${Number(calculations?.rightMembers || 0).toLocaleString('id-ID')} Kanan)
 
 *3. Estimasi Potensi Penghasilan:*
 - Potensi Bonus Sponsor: *${formatRupiah(calculations.totalSponsor)}*
@@ -227,7 +227,7 @@ Berikut adalah *Simulasi Potensi Income Kemitraan Herbal SYNETIQ*:
 - *TOTAL POTENSI INCOME: ${formatRupiah(calculations.totalIncome)}*
 
 *4. Total Poin Reward:*
-- Poin Volume: *${calculations.totalPV.toLocaleString('id-ID')} PV*
+- Poin Volume: *${Number(calculations?.totalPV || 0).toLocaleString('id-ID')} PV*
 - Lencana Tercapai: *${calculations.achievedTier ? calculations.achievedTier.badge : 'Bronze Aspirant'}*
 ${calculations.achievedTier ? `- Hadiah: *${calculations.achievedTier.reward}*` : ''}
 
@@ -454,11 +454,11 @@ _Dibuat via SYNETIQ Prospecting Engine_`;
                 <Users size={16} className="text-slate-600" />
               </div>
               <div className="font-heading font-black text-2xl text-slate-900">
-                {calculations.totalMembers.toLocaleString('id-ID')} <span className="text-sm font-normal text-slate-500">Mitra</span>
+                {Number(calculations?.totalMembers || 0).toLocaleString('id-ID')} <span className="text-sm font-normal text-slate-500">Mitra</span>
               </div>
               <div className="mt-2 text-xs text-slate-600 flex items-center justify-between pt-2 border-t border-slate-200">
-                <span>Kaki Kiri: <strong>{calculations.leftMembers.toLocaleString('id-ID')}</strong></span>
-                <span>Kanan: <strong>{calculations.rightMembers.toLocaleString('id-ID')}</strong></span>
+                <span>Kaki Kiri: <strong>{Number(calculations?.leftMembers || 0).toLocaleString('id-ID')}</strong></span>
+                <span>Kanan: <strong>{Number(calculations?.rightMembers || 0).toLocaleString('id-ID')}</strong></span>
               </div>
             </div>
 
@@ -517,7 +517,7 @@ _Dibuat via SYNETIQ Prospecting Engine_`;
                     Pencapaian Poin Reward SYNETIQ
                   </div>
                   <div className="text-lg font-heading font-extrabold text-white flex items-center gap-2">
-                    <span>{calculations.totalPV.toLocaleString('id-ID')} PV Terkumpul</span>
+                    <span>{Number(calculations?.totalPV || 0).toLocaleString('id-ID')} PV Terkumpul</span>
                     {calculations.achievedTier && (
                       <span className="px-2 py-0.5 rounded text-xs font-bold bg-amber-400/30 text-amber-200 border border-amber-400/50">
                         {calculations.achievedTier.badge}

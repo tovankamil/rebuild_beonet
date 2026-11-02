@@ -429,7 +429,7 @@ export default function PublicBioPage({ username: propUsername }) {
                     <div>
                       <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Harga Resmi</span>
                       <span className="font-heading font-black text-lg text-emerald-400">
-                        Rp {prod.price.toLocaleString('id-ID')}
+                        Rp {Number(prod?.price || 0).toLocaleString('id-ID')}
                       </span>
                     </div>
 

@@ -363,7 +363,7 @@ export default function SocIntelligenceSuite({
               </span>
             </div>
             <div className="text-2xl font-extrabold text-emerald-400 tracking-tight tabular-nums">
-              {(matrixData.low || 0).toLocaleString('id-ID')}
+              {Number(matrixData?.low || 0).toLocaleString('id-ID')}
             </div>
           </div>
 

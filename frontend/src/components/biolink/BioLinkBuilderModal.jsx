@@ -476,7 +476,7 @@ export default function BioLinkBuilderModal({ user, onClose }) {
                       </div>
                     </div>
                     <span className="font-bold text-xs text-emerald-700">
-                      Rp {item.price.toLocaleString('id-ID')}
+                      Rp {Number(item?.price || 0).toLocaleString('id-ID')}
                     </span>
                   </div>
                 ))}

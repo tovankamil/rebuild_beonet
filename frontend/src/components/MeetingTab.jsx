@@ -1921,12 +1921,12 @@ export default function MeetingTab({ user, setActiveTab }) {
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400">Jadwal:</span>
                       <span className="font-semibold text-indigo-700">
-                        {new Date(m.scheduled_at || m.created_at).toLocaleString('id-ID', {
+                        {(m.scheduled_at || m.created_at) ? new Date(m.scheduled_at || m.created_at).toLocaleString('id-ID', {
                           day: 'numeric',
                           month: 'short',
                           hour: '2-digit',
                           minute: '2-digit',
-                        })}{' '}
+                        }) : '-'}{' '}
                         WIB
                       </span>
                     </div>

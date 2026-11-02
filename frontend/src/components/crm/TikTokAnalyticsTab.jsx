@@ -329,12 +329,12 @@ export default function TikTokAnalyticsTab({ user, onLeadCreated }) {
                           </div>
                           <span className="text-[10px] text-slate-400 flex items-center gap-1">
                             <Clock size={10} />
-                            {new Date(c.created_at).toLocaleString('id-ID', {
+                            {c?.created_at ? new Date(c.created_at).toLocaleString('id-ID', {
                               day: 'numeric',
                               month: 'short',
                               hour: '2-digit',
                               minute: '2-digit',
-                            })}
+                            }) : '-'}
                           </span>
                         </div>
                       </div>

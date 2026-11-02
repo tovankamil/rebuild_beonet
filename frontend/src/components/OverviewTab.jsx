@@ -821,7 +821,7 @@ export default function OverviewTab({
                       {tx.description || 'Mutasi saldo sistem'}
                     </td>
                     <td className="py-3.5 px-5 text-slate-400">
-                      {tx.created_at ? new Date(tx.created_at).toLocaleString('id-ID') : 'Hari ini'}
+                      {tx?.created_at ? new Date(tx.created_at).toLocaleString('id-ID') : 'Hari ini'}
                     </td>
                     <td className="py-3.5 px-5">
                       <span className="badge-dot badge-dot-success text-[11px] text-emerald-700">

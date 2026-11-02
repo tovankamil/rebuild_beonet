@@ -335,7 +335,7 @@ export default function MailTab({ currentUser }) {
     setComposeForm({
       to: cleanFrom,
       subject: email.subject.startsWith('Re:') ? email.subject : `Re: ${email.subject}`,
-      body: `\n\n--- Pada ${new Date(email.date).toLocaleString('id-ID')}, ${email.from} menulis:\n> ${
+      body: `\n\n--- Pada ${email?.date ? new Date(email.date).toLocaleString('id-ID') : ''}, ${email?.from || ''} menulis:\n> ${
         email.body_text || email.snippet || ''
       }`,
       in_reply_to: email.message_id || '',
@@ -361,7 +361,7 @@ export default function MailTab({ currentUser }) {
       });
 
       const aiReplyText = res.data?.data?.reply || '';
-      const quoteHeader = `\n\n--- Pada ${new Date(email.date).toLocaleString('id-ID')}, ${email.from} menulis:\n> ${
+      const quoteHeader = `\n\n--- Pada ${email?.date ? new Date(email.date).toLocaleString('id-ID') : ''}, ${email?.from || ''} menulis:\n> ${
         email.body_text || email.snippet || ''
       }`;
 
@@ -764,7 +764,7 @@ export default function MailTab({ currentUser }) {
                   </div>
                   <div>
                     <span className="font-semibold text-slate-800">Waktu: </span>
-                    <span>{new Date(selectedEmail.date).toLocaleString('id-ID')}</span>
+                    <span>{selectedEmail?.date ? new Date(selectedEmail.date).toLocaleString('id-ID') : '-'}</span>
                   </div>
                 </div>
 

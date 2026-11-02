@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Shield,
   ShieldAlert,
@@ -1191,8 +1192,8 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
       </section>
 
       {/* AI THREAT INTELLIGENCE ANALYSIS MODAL */}
-      {aiAnalysisModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+      {aiAnalysisModal && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#05140d] border border-cyan-500/50 rounded-2xl max-w-2xl w-full p-6 shadow-[0_0_50px_rgba(6,182,212,0.3)] space-y-4 font-mono text-slate-200">
             <div className="flex items-center justify-between pb-3 border-b border-[#0e3b2c]">
               <div className="flex items-center gap-2">
@@ -1244,12 +1245,13 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* DEEP PACKET INSPECTION FORENSIC MODAL */}
-      {selectedThreatModal && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+      {selectedThreatModal && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#05140d] border border-rose-500/40 rounded-2xl max-w-2xl w-full p-6 shadow-[0_0_50px_rgba(244,63,94,0.25)] space-y-4 font-mono text-slate-200">
             <div className="flex items-center justify-between pb-3 border-b border-[#0e3b2c]">
               <div className="flex items-center gap-2">
@@ -1343,7 +1345,8 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

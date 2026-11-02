@@ -21,6 +21,22 @@ import (
 func seedDefaultData() {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("bionet123"), bcrypt.DefaultCost)
 
+	// 1. Seed Mitra: mitra01
+	var mitraUser models.User
+	if err := config.DB.Where("username = ?", "mitra01").First(&mitraUser).Error; err != nil {
+		mitraUser = models.User{
+			ID:           uuid.New().String(),
+			Username:     "mitra01",
+			FullName:     "Mitra Bionet Juara Perkasa",
+			PasswordHash: string(hashedPassword),
+			Role:         "member",
+			Status:       "active",
+		}
+		if err := config.DB.Create(&mitraUser).Error; err == nil {
+			log.Println("Seeded mitra user: username=mitra01, password=bionet123, role=member")
+		}
+	}
+
 	// 2. Seed Admin: admin01
 	var adminUser models.User
 	if err := config.DB.Where("username = ?", "admin01").First(&adminUser).Error; err != nil {

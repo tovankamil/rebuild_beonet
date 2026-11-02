@@ -659,13 +659,31 @@ export default function App() {
   }
 
   // SYNETIQ Autonomous Commerce Landing Page (Publicly accessible)
+  const landingSectionHashes = new Set([
+    'hero',
+    'brainstorming',
+    'studio',
+    'features',
+    'systems',
+    'security',
+    'defcon',
+    'beefarm',
+    'bpom',
+    'products',
+    'pricing',
+    'cta',
+    'consultation',
+    'footer',
+  ]);
   const hashVal = (window.location.hash || '').toLowerCase();
+  const cleanHash = hashVal.replace(/^#\/?/, '').split('?')[0].split('/')[0].trim();
   const isLandingRoute =
     hashVal === '#/landing' ||
     hashVal === '#landing' ||
     hashVal.startsWith('#/landing') ||
     pathname.toLowerCase().startsWith('/landing') ||
-    searchParams.get('page') === 'landing';
+    searchParams.get('page') === 'landing' ||
+    landingSectionHashes.has(cleanHash);
 
   if (isLandingRoute) {
     return (

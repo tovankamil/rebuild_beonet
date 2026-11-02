@@ -72,7 +72,7 @@ export default function SYNETIQAmbientBackground({ dimmed = false, activeMode = 
     window.addEventListener('resize', handleResize);
 
     // Titik node jaringan MLM SYNETIQ (Kiri, Kanan, Leader, Bonus Pairing)
-    const nodeCount = Math.min(width > 768 ? 45 : 25, 55);
+    const nodeCount = Math.min(width > 768 ? 30 : 16, 38);
     const nodes = [];
     const colors = ['#10b981', '#14b8a6', '#06b6d4', '#eab308', '#34d399'];
 
@@ -82,7 +82,7 @@ export default function SYNETIQAmbientBackground({ dimmed = false, activeMode = 
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * 0.6,
         vy: (Math.random() - 0.5) * 0.6,
-        radius: Math.random() * 2.5 + 1.5,
+        radius: Math.random() * 1.5 + 0.8,
         color: colors[Math.floor(Math.random() * colors.length)],
         pulse: Math.random() * Math.PI,
       });
@@ -123,7 +123,7 @@ export default function SYNETIQAmbientBackground({ dimmed = false, activeMode = 
             ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
             ctx.strokeStyle = `rgba(16, 185, 129, ${alpha})`;
-            ctx.lineWidth = 0.8;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
@@ -180,13 +180,13 @@ export default function SYNETIQAmbientBackground({ dimmed = false, activeMode = 
       {(mode === 'luxury-biotech' || mode === 'biotech') && (
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src="/assets/bionet_ambient_luxury.jpg"
-            alt="SYNETIQ Luxury Biotech Background"
-            className="absolute inset-0 w-full h-full object-cover opacity-90 scale-105 transition-transform duration-1000"
+            src="/assets/synetiq_ambient_luxury_bg.jpg"
+            alt="SYNETIQ Luxury Ambient Background"
+            className="absolute inset-0 w-full h-full object-cover opacity-95 transition-transform duration-1000"
           />
           <canvas
             ref={canvasRef}
-            className="absolute inset-0 w-full h-full pointer-events-auto"
+            className="absolute inset-0 w-full h-full pointer-events-auto opacity-60"
           />
         </div>
       )}

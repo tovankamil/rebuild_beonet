@@ -122,8 +122,8 @@ export default function LoginPage({ onLoginSuccess }) {
               {/* Background Bespoke 3D Planet Image with Slow Ambient Drift */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <img
-                  src="/assets/bionet_biotech_hero.jpg"
-                  alt="SYNETIQ 3D Biotech Planet with Binary Nodes"
+                  src="/assets/synetiq_luxury_hero_art.jpg"
+                  alt="SYNETIQ Luxury 3D Crystal Hero Art"
                   className="w-full h-full object-cover object-center opacity-85 group-hover:scale-105 transition-transform duration-1000"
                 />
                 {/* Soft gradient scrims for maximum text readability */}
@@ -147,9 +147,9 @@ export default function LoginPage({ onLoginSuccess }) {
               {/* Floating Glassmorphic Badges (Apple/Stripe Style) */}
               <div className="relative z-20 my-auto py-8 select-none">
                 {/* Floating Badge 1 (Top Right) */}
-                <div className="absolute -top-4 right-1 animate-float-slow hidden sm:flex items-center gap-2 px-3 py-2 rounded-2xl bg-slate-900/85 backdrop-blur-xl border border-emerald-500/30 shadow-lg text-[11px] text-white">
+                <div className="absolute -top-4 right-1 animate-float-slow hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-950/80 backdrop-blur-2xl border border-white/15 shadow-2xl text-[11px] text-white">
                   <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-bold">
-                    🌿
+                    <ShieldCheck size={13} className="text-emerald-400" />
                   </div>
                   <div>
                     <span className="font-bold block leading-tight text-emerald-300">Bio-Herbal BPOM</span>
@@ -158,9 +158,9 @@ export default function LoginPage({ onLoginSuccess }) {
                 </div>
 
                 {/* Floating Badge 2 (Middle Left) */}
-                <div className="absolute top-1/2 -left-2 -translate-y-1/2 animate-float-reverse hidden sm:flex items-center gap-2 px-3 py-2 rounded-2xl bg-slate-900/85 backdrop-blur-xl border border-teal-500/30 shadow-lg text-[11px] text-white">
+                <div className="absolute top-1/2 -left-2 -translate-y-1/2 animate-float-reverse hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-950/80 backdrop-blur-2xl border border-white/15 shadow-2xl text-[11px] text-white">
                   <div className="w-6 h-6 rounded-lg bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-400 font-bold">
-                    ⚡
+                    <Zap size={13} className="text-teal-400" />
                   </div>
                   <div>
                     <span className="font-bold block leading-tight text-teal-300">Flip.id Gateway</span>
@@ -169,9 +169,9 @@ export default function LoginPage({ onLoginSuccess }) {
                 </div>
 
                 {/* Floating Badge 3 (Bottom Right) */}
-                <div className="absolute -bottom-2 right-2 animate-float-slow hidden sm:flex items-center gap-2 px-3 py-2 rounded-2xl bg-slate-900/85 backdrop-blur-xl border border-amber-500/30 shadow-lg text-[11px] text-white">
+                <div className="absolute -bottom-2 right-2 animate-float-slow hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-950/80 backdrop-blur-2xl border border-white/15 shadow-2xl text-[11px] text-white">
                   <div className="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 font-bold">
-                    🧬
+                    <Network size={13} className="text-amber-400" />
                   </div>
                   <div>
                     <span className="font-bold block leading-tight text-amber-300">Pohon Binary</span>
@@ -181,26 +181,28 @@ export default function LoginPage({ onLoginSuccess }) {
               </div>
 
               {/* Bottom Section: Kinetic Rotating Storytelling */}
-              <div className="relative z-20 pt-4">
-                <div className="transition-all duration-700 ease-out">
-                  <h3 className="font-heading font-black text-xl sm:text-2xl text-white tracking-tight leading-snug">
-                    {headlines[activeHeadlineIdx].title}
-                  </h3>
-                  <p className="text-xs text-slate-300 mt-1.5 leading-relaxed font-normal">
-                    {headlines[activeHeadlineIdx].desc}
-                  </p>
-                </div>
+              <div className="relative z-20 pt-2 mt-auto">
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-950/75 backdrop-blur-xl border border-white/10 shadow-2xl">
+                  <div className="transition-all duration-700 ease-out">
+                    <h3 className="font-heading font-black text-lg sm:text-xl text-white tracking-tight leading-snug">
+                      {headlines[activeHeadlineIdx].title}
+                    </h3>
+                    <p className="text-xs text-slate-300 mt-1 leading-relaxed font-normal">
+                      {headlines[activeHeadlineIdx].desc}
+                    </p>
+                  </div>
 
-                {/* Interactive Feature Pills */}
-                <div className="flex items-center gap-1.5 flex-wrap mt-4 text-[10px] font-bold text-slate-200">
-                  <span className="px-2.5 py-1 rounded-full bg-slate-900/80 border border-white/10 shadow-xs flex items-center gap-1">
-                    <Zap size={11} className="text-amber-400" />
-                    <span>Flush-Out 12 Pasang</span>
-                  </span>
-                  <span className="px-2.5 py-1 rounded-full bg-slate-900/80 border border-white/10 shadow-xs flex items-center gap-1">
-                    <ShieldCheck size={11} className="text-emerald-400" />
-                    <span>Anti-Sybil Security</span>
-                  </span>
+                  {/* Interactive Feature Pills */}
+                  <div className="flex items-center gap-1.5 flex-wrap mt-3 text-[10px] font-bold text-slate-200">
+                    <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 shadow-xs flex items-center gap-1">
+                      <Zap size={11} className="text-amber-400" />
+                      <span>Flush-Out 12 Pasang</span>
+                    </span>
+                    <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 shadow-xs flex items-center gap-1">
+                      <ShieldCheck size={11} className="text-emerald-400" />
+                      <span>Anti-Sybil Security</span>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

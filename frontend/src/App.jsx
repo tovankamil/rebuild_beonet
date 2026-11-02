@@ -669,6 +669,7 @@ export default function App() {
     'defcon',
     'beefarm',
     'bpom',
+    'digital-products',
     'products',
     'pricing',
     'cta',

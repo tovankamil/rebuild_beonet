@@ -104,9 +104,9 @@ export default function HeroShowcaseSlideshow({
     },
     {
       id: 'beefarm',
-      tabTitle: 'Bee Farm',
-      route: 'game.synetiq.internal/honey-staking',
-      badge: 'NECTAR YIELD 2.4X',
+      tabTitle: 'Staking Poin',
+      route: 'game.synetiq.internal/digital-staking',
+      badge: 'DIGITAL STAKING 2.4X',
       icon: Sparkles,
       accent: 'amber',
     },
@@ -223,7 +223,7 @@ export default function HeroShowcaseSlideshow({
     setHarvestSparkle(true);
     setHoneyLiters((prev) => Number((prev + 2.5).toFixed(1)));
     setHeroWalletBalance((prev) => prev + 87500);
-    setHarvestToast('🍯 Panen Berhasil! +2.5L Royal Nectar (+Rp 87.500 Cair ke Dompet)');
+    setHarvestToast('🍯 Klaim Berhasil! +2.5k Digital Nectar (+Rp 87.500 Cair ke Dompet E-Wallet)');
 
     setTimeout(() => setHarvestSparkle(false), 1200);
     setTimeout(() => setHarvestToast(null), 3800);
@@ -311,7 +311,7 @@ export default function HeroShowcaseSlideshow({
       {/* MACBOOK / ULTRA-WIDESCREEN DASHBOARD GLASSMORPHIC FRAME                   */}
       {/* ========================================================================= */}
       <div
-        className="relative rounded-[26px] sm:rounded-[30px] border border-white/15 bg-[#0a101d]/95 backdrop-blur-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9),0_0_40px_rgba(16,185,129,0.12)] overflow-hidden transition-all duration-300"
+        className="relative rounded-[26px] sm:rounded-[32px] border border-white/15 bg-[#0a101d]/95 backdrop-blur-2xl shadow-[0_30px_80px_-15px_rgba(0,0,0,0.95),0_0_60px_rgba(16,185,129,0.16)] overflow-hidden transition-all duration-300"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -428,11 +428,11 @@ export default function HeroShowcaseSlideshow({
                 </div>
 
                 {/* Radar Stage Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
                   {/* Left: Tactical Radar Canvas Simulation */}
-                  <div className="sm:col-span-6 flex justify-center py-2">
+                  <div className="lg:col-span-5 flex justify-center py-2">
                     <div
-                      className={`relative w-44 h-44 sm:w-48 sm:h-48 rounded-full border border-emerald-500/40 flex items-center justify-center overflow-hidden transition-all duration-300 ${
+                      className={`relative w-48 h-48 sm:w-56 sm:h-56 lg:w-60 lg:h-60 rounded-full border border-emerald-500/40 flex items-center justify-center overflow-hidden transition-all duration-300 ${
                         isAttacking
                           ? 'bg-red-950/40 border-red-500 shadow-[0_0_35px_rgba(239,68,68,0.5)]'
                           : 'bg-[#030910]/90 shadow-[0_0_30px_rgba(16,185,129,0.15)]'
@@ -485,22 +485,22 @@ export default function HeroShowcaseSlideshow({
                   </div>
 
                   {/* Right: SOC Metrics & WAF telemetry */}
-                  <div className="sm:col-span-6 space-y-2.5">
-                    <div className="grid grid-cols-2 gap-2">
+                  <div className="lg:col-span-7 space-y-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                        <div className="text-[10px] text-slate-400">WAF Filter Latency</div>
+                        <div className="text-[10px] text-slate-400">WAF Latency</div>
                         <div className="text-sm font-mono font-black text-emerald-400">0.8 ms</div>
                       </div>
                       <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                        <div className="text-[10px] text-slate-400">Scrubbing Bandwidth</div>
+                        <div className="text-[10px] text-slate-400">Scrubbing</div>
                         <div className="text-sm font-mono font-black text-cyan-400">48.2 Gbps</div>
                       </div>
                       <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                        <div className="text-[10px] text-slate-400">Active Threat Sources</div>
+                        <div className="text-[10px] text-slate-400">Threats</div>
                         <div className="text-sm font-mono font-black text-red-400">{threatCount} IP</div>
                       </div>
                       <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                        <div className="text-[10px] text-slate-400">SLA Availability</div>
+                        <div className="text-[10px] text-slate-400">Availability</div>
                         <div className="text-sm font-mono font-black text-amber-400">99.999%</div>
                       </div>
                     </div>
@@ -598,7 +598,7 @@ export default function HeroShowcaseSlideshow({
                     <div className="flex justify-end">
                       <div className="bg-[#005c4b] text-white px-3 py-1.5 rounded-2xl rounded-tr-none max-w-[85%] sm:max-w-[75%] shadow-sm">
                         <p className="text-[11px] leading-relaxed">
-                          Halo min, mau tanya info paket kemitraan &amp; stok herbal BIONET hari ini?
+                          Halo min, mau tanya info lisensi produk digital &amp; paket kemitraan SYNETIQ hari ini?
                         </p>
                         <div className="text-[8px] text-emerald-200/80 text-right mt-0.5 font-mono">10:42 ✓✓</div>
                       </div>
@@ -663,8 +663,8 @@ export default function HeroShowcaseSlideshow({
                       <div className="bg-[#182229] border border-emerald-500/30 text-slate-200 px-3 py-2 rounded-2xl max-w-[94%] sm:max-w-[85%] text-[10px] sm:text-[11px] leading-relaxed shadow-sm">
                         {waSelected === 'catalog' && (
                           <div>
-                            <span className="text-emerald-400 font-bold">🌿 BIO-HERBAL PLATINUM:</span> BPOM TR.21390192
-                            • Stok Siap: <strong>4.820 box</strong> • Harga Mitra: Rp 250.000. Klik checkout untuk link
+                            <span className="text-emerald-400 font-bold">💎 LISENSI CORE SAAS PLATINUM:</span> ID: SYN-CORE-V3
+                            • Akses Instan: <strong>Pohon Binary &amp; E-Wallet</strong> • Aktivasi Detik Ini! Nol Ongkir. Klik checkout untuk link
                             QRIS instan!
                           </div>
                         )}
@@ -677,8 +677,8 @@ export default function HeroShowcaseSlideshow({
                         )}
                         {waSelected === 'beefarm' && (
                           <div>
-                            <span className="text-amber-400 font-bold">🍯 SARANG BEE FARM:</span> 14.8 Liter madu siap
-                            dipanen hari ini (+Rp 518.000). Nectar multiplier 2.4x aktif!
+                            <span className="text-amber-400 font-bold">🍯 DIGITAL STAKING POIN:</span> 14.8k Poin Nektar siap
+                            diklaim hari ini (+Rp 518.000). Staking multiplier 2.4x aktif!
                           </div>
                         )}
                         {waSelected === 'register' && (
@@ -1081,14 +1081,14 @@ export default function HeroShowcaseSlideshow({
                   <div className="sm:col-span-6 space-y-2.5">
                     <div className="p-3 rounded-xl bg-amber-950/20 border border-amber-500/30">
                       <div className="flex items-center justify-between text-[11px] text-amber-200/90 mb-0.5">
-                        <span>Total Madu Siap Panen Hari Ini</span>
+                        <span>Total Poin Staking Siap Klaim Hari Ini</span>
                         <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                       </div>
                       <div className="text-2xl font-black font-mono text-amber-400 tracking-tight">
-                        {honeyLiters} Liter Madu
+                        {honeyLiters}k Poin Nektar
                       </div>
                       <div className="text-[10px] text-slate-300 mt-1 font-mono">
-                        ≈ Rp {Math.round(honeyLiters * 35000).toLocaleString('id-ID')} Saldo Nilai Tunai
+                        ≈ Rp {Math.round(honeyLiters * 35000).toLocaleString('id-ID')} Saldo Tunai E-Wallet
                       </div>
                     </div>
 
@@ -1111,7 +1111,7 @@ export default function HeroShowcaseSlideshow({
                     {harvestToast ? (
                       <span className="text-amber-400 font-bold">{harvestToast}</span>
                     ) : (
-                      'Klaim panen madu harian Anda untuk mengisi saldo kas dompet.'
+                      'Klaim reward staking harian Anda langsung cair ke saldo e-wallet.'
                     )}
                   </div>
                   <button
@@ -1119,7 +1119,7 @@ export default function HeroShowcaseSlideshow({
                     className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/40 text-amber-200 hover:text-white text-xs font-bold transition active:scale-95 flex items-center justify-center space-x-1.5 shadow-lg shadow-amber-950/40"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>🍯 Panen Madu Hari Ini (+2.5 Liter Royalty)</span>
+                    <span>🍯 Klaim Staking Hari Ini (+2.5k Poin Royalty)</span>
                   </button>
                 </div>
               </motion.div>

@@ -202,31 +202,31 @@ export default function LandingPage({ onGoToLogin }) {
         script = {
           empathy: 'Paham sekali Kak, wajar jika awalnya Kakak merasa demikian bila melihat angkanya saja.',
           reframe:
-            'Namun produk herbal Bionet sudah berizin resmi BPOM RI & tersertifikasi Halal MUI dengan konsentrasi ekstrak murni 1:10 (bukan sekadar madu perasa biasa). Rata-rata 1 botol setara dengan 1 bulan pemakaian pencegahan, artinya investasi kesehatan keluarga hanya sekitar Rp 5.000-an per hari—jauh lebih hemat daripada biaya rawat inap di rumah sakit.',
+            'Namun software SaaS SYNETIQ adalah produk digital all-in-one: Anda langsung mendapatkan Bot WhatsApp AI auto-closing 24/7, mesin pohon binary sub-12ms, dan ledger QRIS otomatis tanpa perlu sewa programmer atau bayar tim admin puluhan juta. Dengan aktivasi instan detik ini, nol biaya ongkir, dan ROI tinggi dari komisi otomatis, investasi software ini bahkan bisa balik modal dalam hitungan hari.',
           ctaButtons: [
-            { id: 1, label: '🌿 Cek Uji Klinis & Izin BPOM RI', reply: 'Izin BPOM: TR213601811. Bebas bahan kimia obat (BKO) & teruji lab independen.' },
-            { id: 2, label: '🎁 Klaim Paket Promo Diskon 30%', reply: 'Selamat! Kupon diskon 30% terpasang otomatis: Total Rp 280.000 (Hemat Rp 120.000). Ketik 1 untuk bayar QRIS.' },
-            { id: 3, label: '📞 Konsultasi Dokter Herbal Gratis', reply: 'Menghubungkan ke Asisten Dokter Herbal Bionet 24/7. Apa keluhan utama yang ingin disembuhkan?' },
+            { id: 1, label: '⚡ Cek Fitur Lisensi Digital & Demo', reply: 'Akses SaaS Instan: Serial PIN otomatis terbit, bot WhatsApp aktif 24/7, dan dashboard cloud siap pakai detik ini.' },
+            { id: 2, label: '🎁 Klaim Promo Lisensi Diskon 30%', reply: 'Selamat! Kupon diskon lisensi 30% terpasang: Akses Cloud SaaS lengkap langsung aktif tanpa biaya ongkir. Ketik 1 untuk bayar QRIS.' },
+            { id: 3, label: '🤖 Coba Interaksi Bot WhatsApp Live', reply: 'Menghubungkan ke Bot WhatsApp AI SYNETIQ. Bot siap menjawab prospek dan closing 24 jam non-stop!' },
           ],
         };
       } else if (selectedObjection === 'mlm' || objectionText.toLowerCase().includes('mlm')) {
         script = {
-          empathy: 'Saya sangat mengerti kekhawatiran Kakak, apalagi marak skema piramida bodong tanpa produk jelas.',
+          empathy: 'Saya sangat mengerti kekhawatiran Kakak, apalagi marak skema piramida bodong tanpa produk atau nilai riil.',
           reframe:
-            'Di SYNETIQ, bisnis ini berbasis Real Direct-Commerce: Anda mendapatkan produk fisik herbal berkualitas tinggi dengan margin laba eceran hingga 40%. Tidak ada uang pendaftaran hilang cuma-cuma, dan sistem kami menggunakan Double-Entry Ledger terenkripsi dengan penarikan dana instan ke rekening bank Anda.',
+            'Di SYNETIQ, apa yang Anda beli dan pasarkan adalah 100% Produk Digital & Lisensi Software Cloud SaaS nyata berteknologi tinggi. Anda mendapatkan tools otomatisasi bisnis berstandar enterprise: Bot WhatsApp WAHA Docker, Double-Entry Ledger FinTech, dan sistem pohon biner otonom. Tidak ada biaya hangus, tidak ada barang numpuk di gudang, dan komisi cair instan sub-12ms ke rekening bank Anda.',
           ctaButtons: [
-            { id: 1, label: '📦 Lihat Katalog Produk Fisik BPOM', reply: 'Katalog Produk: Madu Bionet M4, Bio-Cream Kosmetik, Spray Antiseptik. Semua memiliki wujud fisik & izin edar.' },
-            { id: 2, label: '🛡️ Audit Keamanan & Legalitas Perusahaan', reply: 'Perusahaan resmi terdaftar dengan NIB legal, SIUPL resmi, dan kepatuhan perbankan Bank Indonesia.' },
+            { id: 1, label: '💻 Lihat Paket Lisensi Digital Cloud', reply: 'Katalog Lisensi: Core Binary SaaS, Bot WhatsApp AI Closer, dan SOC DEFCON 1 Enterprise Cyber Defense.' },
+            { id: 2, label: '🛡️ Audit Keamanan & Kepatuhan FinTech', reply: 'Sistem cloud bersertifikasi ISO-27001 standard, enkripsi AES-256 GCM, dan kepatuhan pembayaran QRIS Bank Indonesia.' },
           ],
         };
       } else {
         script = {
           empathy: 'Kekhawatiran yang sangat masuk akal, dan 80% Top Leader kami awalnya juga memulai dengan kendala yang persis sama.',
           reframe:
-            'Kelebihan utama ekosistem SYNETIQ adalah Anda TIDAK PERLU jago jualan manual. Kami telah menyediakan WhatsApp Store Bot otomatis dan AI Copilot 24/7 yang menyapa calon pembeli, menjelaskan manfaat produk, dan mengurus pembayaran QRIS secara otonom tanpa menyita waktu Anda.',
+            'Kelebihan utama ekosistem produk digital SYNETIQ adalah sistemnya SUDAH JADI dan CLOUD NATIVE. Anda tidak perlu install server rumit atau coding. Kami menyediakan Bot WhatsApp AI 24/7 yang menyapa calon pembeli, menjelaskan lisensi software, dan menerbitkan QRIS otomatis tanpa menyita waktu Anda.',
           ctaButtons: [
-            { id: 1, label: '🤖 Lihat Cara Kerja Robot WhatsApp', reply: 'Robot WhatsApp aktif 24 jam. Setiap ada pesan masuk, bot langsung mengirimkan katalog bertombol rapi.' },
-            { id: 2, label: '⚡ Coba Mulai Akun Percobaan Gratis', reply: 'Akun demo VIP siap diuji coba. Silakan klik link pendaftaran untuk mencoba dashboard otonom.' },
+            { id: 1, label: '🤖 Lihat Cara Kerja Robot WhatsApp', reply: 'Robot WhatsApp aktif 24 jam. Setiap ada pesan masuk, bot langsung mengirimkan katalog lisensi bertombol rapi.' },
+            { id: 2, label: '⚡ Coba Mulai Akun Percobaan Gratis', reply: 'Akun demo VIP siap diuji coba. Silakan klik link pendaftaran untuk mencoba dashboard cloud otonom.' },
           ],
         };
       }
@@ -259,14 +259,14 @@ export default function LandingPage({ onGoToLogin }) {
       id: 1,
       title: 'Lead Masuk',
       subtitle: 'TikTok Ads / Biolink',
-      desc: 'Prospek mengisi nomor HP dari video TikTok atau biolink replikasi mitra secara otonom.',
+      desc: 'Prospek mengisi formulir pendaftaran dari video TikTok atau biolink replikasi mitra secara otonom.',
       businessData: {
         prospectName: 'Budi Santoso',
         phone: '0812-8899-2211',
         adSource: 'TikTok Ads (Biolink Replikasi)',
-        gatewayStatus: 'Menunggu Pemilihan Paket',
+        gatewayStatus: 'Menunggu Pemilihan Paket SaaS',
         commissionValue: 'Potensi Rp 1.350.000',
-        shippingBPOM: 'Siap Diproses (3 Botol Madu Bionet M4)',
+        digitalDelivery: 'Lisensi Digital Cloud: Siap Aktivasi Instan',
         stepHighlight: 'Nomor WhatsApp berhasil divalidasi ke database WAHA dalam 0.3 detik',
         statusColor: 'emerald',
         badge: 'LEAD CAPTURED',
@@ -277,18 +277,18 @@ export default function LandingPage({ onGoToLogin }) {
       id: 2,
       title: 'WhatsApp Store Bot',
       subtitle: 'Katalog Tombol Otonom',
-      desc: 'Bot WAHA langsung mengirim menu bertingkat otomatis dalam 1.2 detik tanpa jeda.',
+      desc: 'Bot WAHA langsung mengirim menu lisensi digital bertingkat otomatis dalam 1.2 detik tanpa jeda.',
       businessData: {
         prospectName: 'Budi Santoso',
         phone: '0812-8899-2211',
         adSource: 'TikTok Ads (Biolink Replikasi)',
-        gatewayStatus: 'Katalog Terkirim (Pilihan Paket Gold)',
+        gatewayStatus: 'Katalog Terkirim (Pilihan Paket Gold SaaS)',
         commissionValue: 'Estimasi Rp 1.350.000 (Sponsor + Pasangan)',
-        shippingBPOM: 'Paket Terpilih: 3 Botol Madu Herbal BPOM',
-        stepHighlight: 'Bot mengirimkan pesan interaktif dengan 3 tombol pilihan produk instan',
+        digitalDelivery: 'Paket Terpilih: Lisensi Digital Core SaaS + AI Bot',
+        stepHighlight: 'Bot mengirimkan pesan interaktif dengan tombol pilihan paket lisensi software instan',
         statusColor: 'teal',
         badge: 'WAHA BOT ACTIVE',
-        details: 'Calon pembeli cukup menekan tombol pada WhatsApp untuk memilih paket herbal berizin BPOM.',
+        details: 'Calon pembeli cukup menekan tombol pada WhatsApp untuk memilih paket lisensi software digital SYNETIQ.',
       },
     },
     {
@@ -302,7 +302,7 @@ export default function LandingPage({ onGoToLogin }) {
         adSource: 'TikTok Ads (Biolink Replikasi)',
         gatewayStatus: 'QRIS Menunggu Scan (NMID: ID102008492019)',
         commissionValue: 'Terkunci Sistem (Invoice INV-2026-9921)',
-        shippingBPOM: 'Tujuan Pengiriman: Surabaya Gubeng, Jawa Timur',
+        digitalDelivery: 'Metode Pengiriman: 100% Cloud Native (Nol Biaya Ongkir)',
         stepHighlight: 'QRIS Dinamis resmi Bank Indonesia berlaku 15 menit dengan nominal presisi Rp 4.500.000',
         statusColor: 'amber',
         badge: 'QRIS GENERATED',
@@ -320,7 +320,7 @@ export default function LandingPage({ onGoToLogin }) {
         adSource: 'TikTok Ads (Biolink Replikasi)',
         gatewayStatus: 'LUNAS TERVERIFIKASI (HTTP 200 Settled)',
         commissionValue: 'Siap Didistribusikan ke Saldo Upline',
-        shippingBPOM: 'Instruksi Packing Gudang Terbit Otomatis',
+        digitalDelivery: 'Serial PIN & Kunci Lisensi Digital Terbit Otomatis',
         stepHighlight: 'Pembayaran Rp 4.500.000 sukses diterima, rekonsiliasi kas 0.8 detik tanpa selisih 1 rupiah pun',
         statusColor: 'emerald',
         badge: 'PAYMENT VERIFIED',
@@ -338,7 +338,7 @@ export default function LandingPage({ onGoToLogin }) {
         adSource: 'TikTok Ads (Biolink Replikasi)',
         gatewayStatus: 'Double-Entry Ledger Berimbang 100%',
         commissionValue: '+Rp 1.000.000 (Sponsor) & +Rp 350.000 (Pairing 12ms)',
-        shippingBPOM: 'Status Mitra Aktif: Hak Usaha & Produk Siap Kirim',
+        digitalDelivery: 'Akses SaaS Aktif: Hak Usaha & Lisensi Siap Pakai',
         stepHighlight: 'Saldo e-wallet upline langsung bertambah real-time dan notifikasi WA otomatis terkirim',
         statusColor: 'cyan',
         badge: 'COMMISSION CREDITED',
@@ -347,20 +347,20 @@ export default function LandingPage({ onGoToLogin }) {
     },
     {
       id: 6,
-      title: 'Otomasi Gudang',
-      subtitle: 'Pengiriman Produk BPOM',
-      desc: 'Surat jalan pergudangan otomatis terbit lengkap dengan resi ekspedisi dan barcode.',
+      title: 'Aktivasi Instan',
+      subtitle: 'Akun SaaS Langsung Aktif',
+      desc: 'Serial PIN digital terbit otomatis, akun SaaS langsung aktif detik ini juga tanpa kurir fisik.',
       businessData: {
-        prospectName: 'Budi Santoso (Penerima Paket)',
+        prospectName: 'Budi Santoso (Member SaaS Aktif)',
         phone: '0812-8899-2211',
         adSource: 'TikTok Ads (Biolink Replikasi)',
-        gatewayStatus: 'Transaksi Selesai Sempurna',
-        commissionValue: 'Komisi Telah Masuk Saldo Rekening Upline',
-        shippingBPOM: 'Resi J&T: JNT-88291039-ID (Izin BPOM: TR213601811)',
-        stepHighlight: 'Label barcode surat jalan tercetak otomatis di gudang dan kurir dipanggil via API',
+        gatewayStatus: 'Transaksi Selesai Sempurna (100% Cloud)',
+        commissionValue: 'Komisi Telah Masuk Saldo E-Wallet Upline',
+        digitalDelivery: 'Serial PIN: SYN-2026-CLOUD-9921 (Akses Cloud Aktif)',
+        stepHighlight: 'Serial PIN lisensi digital diterbitkan otomatis via WhatsApp & dashboard langsung aktif seketika',
         statusColor: 'emerald',
-        badge: 'SHIPPING AUTOMATED',
-        details: 'Paket Madu Herbal Bionet M4 resmi BPOM langsung dipacking rapi dengan bubble wrap tebal.',
+        badge: 'INSTANT ACTIVATION',
+        details: 'Aktivasi produk digital 100% instan: pengguna langsung dapat login ke dashboard SaaS dan menikmati seluruh modul otonom.',
       },
     },
   ];
@@ -394,7 +394,7 @@ export default function LandingPage({ onGoToLogin }) {
     triggerSound('success');
     setBeeHoneyLiters((prev) => Number((prev + 2.5).toFixed(1)));
     setHeroWalletBalance((prev) => prev + 87500);
-    setBeeHarvestToast('🍯 Panen Berhasil! +2.5L Royal Nectar (+Rp 87.500 Cair ke Dompet E-Wallet)');
+    setBeeHarvestToast('🍯 Klaim Berhasil! +2.5k Digital Nectar (+Rp 87.500 Cair ke Saldo E-Wallet)');
     setTimeout(() => setBeeHarvestToast(null), 3800);
   };
 
@@ -504,11 +504,11 @@ export default function LandingPage({ onGoToLogin }) {
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('bpom')}
+              onClick={() => scrollToSection('digital-products')}
               className="hover:text-emerald-400 transition focus:outline-none flex items-center space-x-1"
             >
               <BadgeCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Resmi BPOM RI</span>
+              <span>Produk Digital</span>
             </button>
             <button
               type="button"
@@ -572,7 +572,7 @@ export default function LandingPage({ onGoToLogin }) {
         <div className="absolute top-1/3 left-1/4 w-[360px] h-[360px] bg-cyan-500/10 blur-[110px] rounded-full pointer-events-none" />
         <div className="absolute top-1/3 right-1/4 w-[360px] h-[360px] bg-emerald-600/10 blur-[110px] rounded-full pointer-events-none" />
 
-        <div className="max-w-6xl mx-auto relative z-10 flex flex-col items-center text-center">
+        <div className="max-w-5xl mx-auto relative z-10 flex flex-col items-center text-center px-4">
           {/* Badge */}
           <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs font-bold shadow-lg shadow-emerald-950/50 mb-6">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -619,32 +619,35 @@ export default function LandingPage({ onGoToLogin }) {
           </div>
 
           {/* Centered Proof Metrics (3-column) */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-10 py-4 sm:py-5 px-6 sm:px-10 rounded-2xl bg-white/[0.03] border border-white/10 max-w-2xl mx-auto mb-12 shadow-inner">
+          <div className="grid grid-cols-3 gap-4 sm:gap-10 py-4 sm:py-5 px-6 sm:px-10 rounded-2xl bg-white/[0.03] border border-white/10 max-w-2xl mx-auto shadow-inner">
             <div className="text-center">
               <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono tracking-tight">100%</div>
-              <div className="text-xs text-slate-400 font-medium mt-0.5">Resmi Izin BPOM RI</div>
+              <div className="text-xs text-slate-300 font-bold mt-0.5">Produk Digital</div>
+              <div className="text-[10px] text-slate-400 font-medium">Aktivasi Instan • Nol Ongkir</div>
             </div>
             <div className="text-center border-x border-white/10 px-3 sm:px-6">
               <div className="text-2xl sm:text-3xl font-black text-cyan-400 font-mono tracking-tight">12 ms</div>
-              <div className="text-xs text-slate-400 font-medium mt-0.5">Pairing Binary Engine</div>
+              <div className="text-xs text-slate-300 font-bold mt-0.5">Pairing Binary Engine</div>
+              <div className="text-[10px] text-slate-400 font-medium">Auto Placement Spillover</div>
             </div>
             <div className="text-center">
               <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono tracking-tight">24 / 7</div>
-              <div className="text-xs text-slate-400 font-medium mt-0.5">WhatsApp Bot Closing</div>
+              <div className="text-xs text-slate-300 font-bold mt-0.5">WhatsApp Bot Closing</div>
+              <div className="text-[10px] text-slate-400 font-medium">WAHA Docker Multisesi</div>
             </div>
           </div>
+        </div>
 
-          {/* FULL-WIDTH SHOWCASE SLIDESHOW (max-w-6xl mx-auto w-full) */}
-          <div className="w-full max-w-6xl mx-auto mt-2">
-            <HeroShowcaseSlideshow
-              audioEnabled={audioEnabled}
-              triggerSound={triggerSound}
-              heroMitraCount={heroMitraCount}
-              setHeroMitraCount={setHeroMitraCount}
-              heroWalletBalance={heroWalletBalance}
-              setHeroWalletBalance={setHeroWalletBalance}
-            />
-          </div>
+        {/* FULL-WIDTH SHOWCASE SLIDESHOW (w-full max-w-[96vw] xl:max-w-[1400px] 2xl:max-w-[1560px] mx-auto px-2 sm:px-4) */}
+        <div className="w-full max-w-[96vw] xl:max-w-[1400px] 2xl:max-w-[1560px] mx-auto px-2 sm:px-4 mt-12 sm:mt-16 relative z-10">
+          <HeroShowcaseSlideshow
+            audioEnabled={audioEnabled}
+            triggerSound={triggerSound}
+            heroMitraCount={heroMitraCount}
+            setHeroMitraCount={setHeroMitraCount}
+            heroWalletBalance={heroWalletBalance}
+            setHeroWalletBalance={setHeroWalletBalance}
+          />
         </div>
       </section>
 
@@ -792,7 +795,7 @@ export default function LandingPage({ onGoToLogin }) {
 
                   {/* Selector: Paket Pilihan Produk Join */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300">Paket Herbal Terdaftar BPOM RI:</label>
+                    <label className="text-xs font-bold text-slate-300">Paket Produk &amp; Lisensi Digital SYNETIQ:</label>
                     <div className="grid grid-cols-3 gap-3">
                       {Object.keys(packageSpecs).map((key) => {
                         const pkg = packageSpecs[key];
@@ -822,11 +825,11 @@ export default function LandingPage({ onGoToLogin }) {
                     </div>
                   </div>
 
-                  {/* Slider 2: Estimasi Repeat Order Madu Herbal */}
+                  {/* Slider 2: Estimasi Repeat Order Lisensi Digital */}
                   <div className="space-y-2">
                     <div className="flex justify-between text-xs font-bold">
-                      <span className="text-slate-300">Repeat Order (Box Madu BPOM per Mitra/Bln):</span>
-                      <span className="text-amber-400 font-mono text-sm">{roPerMonth} Box</span>
+                      <span className="text-slate-300">Repeat Order / Add-On Lisensi Cloud (Paket/Bln):</span>
+                      <span className="text-amber-400 font-mono text-sm">{roPerMonth} Paket</span>
                     </div>
                     <input
                       type="range"
@@ -880,7 +883,7 @@ export default function LandingPage({ onGoToLogin }) {
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-300">3. Staking Gamifikasi Lebah (Nectar):</span>
+                        <span className="text-slate-300">3. Digital Staking (Reward Poin Nektar):</span>
                         <span className="font-mono font-bold text-amber-300">
                           Rp {calculatedFinances.beeFarmStaking.toLocaleString('id-ID')}
                         </span>
@@ -983,7 +986,7 @@ export default function LandingPage({ onGoToLogin }) {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white flex items-center space-x-1.5">
-                        <span>BIONET AI STORE ASSISTANT</span>
+                        <span>SYNETIQ AI DIGITAL ASSISTANT</span>
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       </div>
                       <div className="text-[10px] text-slate-400 font-mono">
@@ -1147,7 +1150,7 @@ export default function LandingPage({ onGoToLogin }) {
                   {/* Progress Line */}
                   <div className="my-6">
                     <div className="flex justify-between text-[11px] font-mono text-slate-400 mb-1.5">
-                      <span>Perjalanan Prospek Hingga Komisi &amp; Resi</span>
+                      <span>Perjalanan Prospek Hingga Komisi &amp; Aktivasi Lisensi</span>
                       <span className="text-amber-400 font-bold">{Math.round((activeWorkflowNode / 6) * 100)}% Selesai</span>
                     </div>
                     <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
@@ -1220,16 +1223,16 @@ export default function LandingPage({ onGoToLogin }) {
                       <div className="text-[11px] text-slate-400 mt-0.5">Langsung Bisa Ditarik ke Rekening Bank</div>
                     </div>
 
-                    {/* 6. Ekspedisi Resi BPOM */}
+                    {/* 6. Pengiriman & Aktivasi Digital */}
                     <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-indigo-500/40 transition">
                       <div className="flex items-center space-x-2 text-xs text-slate-400 font-medium">
                         <PackageCheck className="w-4 h-4 text-indigo-400" />
-                        <span>Ekspedisi &amp; Resi Produk BPOM:</span>
+                        <span>Pengiriman &amp; Aktivasi Digital:</span>
                       </div>
                       <div className="text-base font-extrabold text-indigo-300 mt-1">
-                        {activeNodeData.businessData.shippingBPOM}
+                        {activeNodeData.businessData.digitalDelivery}
                       </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">Legalitas: POM TR213601811 Halal MUI</div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">100% Digital SaaS • Nol Biaya Ongkir • Akses 24/7</div>
                     </div>
                   </div>
 
@@ -1364,25 +1367,25 @@ export default function LandingPage({ onGoToLogin }) {
               </p>
             </div>
 
-            {/* Card 7: Gamifikasi Panen Madu Lebah */}
+            {/* Card 7: Gamifikasi Digital Staking & Reward Poin */}
             <div className="bg-[#0e1726]/80 border border-white/10 rounded-3xl p-6 hover:border-amber-500/40 hover:shadow-xl transition group">
               <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition">
                 <Sparkles className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">Gamifikasi Panen Madu Lebah</h4>
+              <h4 className="text-base font-bold text-white mb-2">Gamifikasi Staking &amp; Reward Poin</h4>
               <p className="text-xs text-slate-400 leading-relaxed">
                 Mekanisme staking nektar digital yang dapat ditukar saldo tunai e-wallet, membangkitkan downline pasif dan menekan angka churn 70%.
               </p>
             </div>
 
-            {/* Card 8: BPOM Master & Package Configurator */}
+            {/* Card 8: Paket Lisensi Digital & Serial PIN Generator */}
             <div className="bg-[#0e1726]/80 border border-white/10 rounded-3xl p-6 hover:border-emerald-500/40 hover:shadow-xl transition group">
               <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition">
                 <Award className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">Katalog Resmi BPOM &amp; Paket</h4>
+              <h4 className="text-base font-bold text-white mb-2">Katalog Produk &amp; Lisensi Digital</h4>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Sertifikasi resmi BPOM RI &amp; Halal MUI dengan konfigurator paket join (Silver/Gold/Platinum) yang terikat langsung ke Serial PIN.
+                Manajemen paket produk SaaS (Silver/Gold/Platinum) dengan auto-generated Serial PIN digital terikat langsung ke sistem lisensi otonom.
               </p>
             </div>
           </div>
@@ -1477,14 +1480,14 @@ export default function LandingPage({ onGoToLogin }) {
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-400 text-xs font-bold">
               <span>🍯</span>
-              <span>GAMIFIKASI STAKING MADU &amp; ANTI-CHURN</span>
+              <span>DIGITAL STAKING &amp; GAMIFIKASI REWARD POIN</span>
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-              Gamifikasi Lebah Bee Farm: Bikin Mitra Betah &amp; Anti-Mogok
+              Gamifikasi Digital Bee Farm: Staking Poin &amp; Anti-Churn Otomatis
             </h2>
             <p className="text-amber-200/80 text-sm sm:text-base leading-relaxed">
-              Inovasi retensi jaringan pertama di Indonesia: Staking nektar digital dari setiap botol madu herbal BPOM yang
-              menghasilkan cuan pasif harian, terbukti menekan angka churn anggota hingga 70%.
+              Inovasi retensi jaringan modern: Digital Staking poin nektar dari setiap transaksi lisensi software dan repeat order yang
+              menghasilkan reward cuan harian, terbukti menekan angka churn anggota hingga 70%.
             </p>
           </div>
 
@@ -1497,7 +1500,7 @@ export default function LandingPage({ onGoToLogin }) {
                     🐝
                   </div>
                   <div>
-                    <h4 className="text-base font-bold text-white">Royal Nectar Staking Engine</h4>
+                    <h4 className="text-base font-bold text-white">Royal Nectar Digital Staking Engine</h4>
                     <p className="text-[11px] text-amber-300 font-mono">Tingkat Retensi Downline 98.4%</p>
                   </div>
                 </div>
@@ -1510,17 +1513,17 @@ export default function LandingPage({ onGoToLogin }) {
               {/* Honey Hive Stats Visual */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
                 <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/30">
-                  <div className="text-[11px] text-amber-200/80">Stok Madu Siap Panen:</div>
+                  <div className="text-[11px] text-amber-200/80">Stok Poin Nektar Siap Klaim:</div>
                   <div className="text-2xl font-black font-mono text-amber-400 mt-0.5">
-                    {beeHoneyLiters} Liter
+                    {beeHoneyLiters}k Poin
                   </div>
                   <div className="text-[10px] text-slate-400 mt-1 font-mono">
-                    ≈ Rp {Math.round(beeHoneyLiters * 35000).toLocaleString('id-ID')} Nilai Kas
+                    ≈ Rp {Math.round(beeHoneyLiters * 35000).toLocaleString('id-ID')} Nilai Saldo E-Wallet
                   </div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/30">
-                  <div className="text-[11px] text-amber-200/80">Status Koloni Lebah:</div>
+                  <div className="text-[11px] text-amber-200/80">Status Koloni Staking:</div>
                   <div className="text-base font-bold text-emerald-400 mt-1">👑 Royal Queen Hive</div>
                   <div className="text-[10px] text-slate-400 mt-1">Level 5 (Maksimal Koloni)</div>
                 </div>
@@ -1538,7 +1541,7 @@ export default function LandingPage({ onGoToLogin }) {
                   {beeHarvestToast ? (
                     <span className="text-amber-400 font-bold">{beeHarvestToast}</span>
                   ) : (
-                    'Klik panen untuk mencairkan royalti nektar harian Anda langsung ke saldo kas.'
+                    'Klik klaim untuk mencairkan royalti reward poin nektar harian Anda langsung ke saldo kas e-wallet.'
                   )}
                 </div>
 
@@ -1548,7 +1551,7 @@ export default function LandingPage({ onGoToLogin }) {
                   className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-950 flex items-center justify-center space-x-2 transition"
                 >
                   <Sparkles className="w-4 h-4 text-slate-950" />
-                  <span>🍯 Panen Madu Hari Ini (+2.5L / +Rp 87.500)</span>
+                  <span>🍯 Klaim Poin Nektar Hari Ini (+2.5k Poin / +Rp 87.500)</span>
                 </button>
               </div>
             </div>
@@ -1561,7 +1564,7 @@ export default function LandingPage({ onGoToLogin }) {
                   <span>1. Anti-Churn Inactive Downline Radar</span>
                 </h5>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Jika ada anggota tim yang tidak aktif selama 7 hari, bot WhatsApp otomatis mengirimkan notifikasi panen madu lebah
+                  Jika ada anggota tim yang tidak aktif selama 7 hari, bot WhatsApp otomatis mengirimkan notifikasi klaim reward poin nektar
                   agar mereka kembali membuka aplikasi dan login.
                 </p>
               </div>
@@ -1572,19 +1575,18 @@ export default function LandingPage({ onGoToLogin }) {
                   <span>2. Konversi Riil ke Kas E-Wallet</span>
                 </h5>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Bukan koin bodong tanpa nilai. Hasil panen nektar lebah dihitung dari margin laba repeat order produk madu herbal BPOM
-                  dan dapat ditarik tunai kapan saja.
+                  Bukan koin bodong tanpa nilai. Hasil klaim poin nektar digital dihitung dari alokasi margin riil ekosistem software
+                  dan dapat ditarik tunai ke e-wallet kapan saja.
                 </p>
               </div>
 
               <div className="p-4 rounded-2xl bg-white/[0.03] border border-amber-500/20">
                 <h5 className="text-sm font-bold text-amber-300 flex items-center space-x-2 mb-1.5">
                   <Check className="w-4 h-4 text-amber-400" />
-                  <span>3. Edukasi Produk Berkelanjutan</span>
+                  <span>3. Edukasi Sistem &amp; Bisnis Digital</span>
                 </h5>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Setiap siklus panen menyajikan tips kesehatan herbal dan khasiat madu Bionet M4, meningkatkan pemahaman produk mitra
-                  secara menyenangkan.
+                  Setiap siklus klaim poin menyajikan tips optimasi bisnis SaaS, strategi closing WhatsApp, dan tips skalabilitas jaringan secara konsisten.
                 </p>
               </div>
             </div>
@@ -1593,10 +1595,10 @@ export default function LandingPage({ onGoToLogin }) {
       </section>
 
       {/* ========================================================================= */}
-      {/* 08: BPOM MASTER PRODUK (Theme: Biotech Forest Green / Dark Jade #04140e)   */}
+      {/* 08: KATALOG PRODUK & PAKET LISENSI DIGITAL SYNETIQ                        */}
       {/* ========================================================================= */}
       <section
-        id="bpom"
+        id="digital-products"
         className="py-24 px-4 bg-gradient-to-b from-[#04140e] via-[#072418] to-[#04140e] border-t border-emerald-500/30 relative overflow-hidden"
       >
         {/* Jade Ambient Lights */}
@@ -1605,115 +1607,142 @@ export default function LandingPage({ onGoToLogin }) {
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
             <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold shadow-inner">
-              <BadgeCheck className="w-4 h-4 text-emerald-400" />
-              <span>LEGALITAS RESMI &amp; PRODUK FISIK BERKUALITAS</span>
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <span>100% PRODUK DIGITAL &amp; LISENSI SOFTWARE CLOUD SAAS</span>
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">
-              Katalog Resmi Produk Herbal Berizin BPOM RI &amp; Halal MUI
+              Katalog Produk &amp; Paket Lisensi Digital SYNETIQ
             </h2>
-            <p className="text-emerald-100/80 text-sm sm:text-base leading-relaxed">
-              Bisnis yang kokoh wajib bertumpu pada produk fisik nyata yang terbukti bermanfaat bagi masyarakat.
-              Seluruh produk Bionet diproduksi di pabrik berstandar cGMP dan lolos uji klinis Badan Pengawas Obat dan Makanan.
+            <div className="inline-flex flex-wrap items-center justify-center gap-2 py-1.5 px-4 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-mono text-xs font-bold shadow-md">
+              <span>⚡ Aktivasi Instan Detik Ini</span>
+              <span>•</span>
+              <span>🌐 100% Digital Cloud</span>
+              <span>•</span>
+              <span>📦 Nol Biaya Ongkir</span>
+              <span>•</span>
+              <span>⏰ Akses 24/7</span>
+            </div>
+            <p className="text-emerald-100/80 text-sm sm:text-base leading-relaxed mt-2">
+              Bisnis modern tanpa ribet packing gudang dan tanpa risiko stok basi.
+              Seluruh produk SYNETIQ merupakan software berbasis cloud native berkinerja tinggi yang siap aktif seketika setelah pembayaran terverifikasi.
             </p>
           </div>
 
-          {/* 3 Showcase Products Grid */}
+          {/* 3 Digital Product Packages Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Product 1: Madu Bionet M4 */}
+            {/* Paket 01: Core Binary Engine & E-Wallet Cloud */}
             <div className="bg-[#020b07] border border-emerald-500/30 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-400 hover:shadow-2xl hover:shadow-emerald-950/60 transition group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
-                  🍯
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition">
+                  <Layers className="w-6 h-6" />
                 </div>
                 <div className="flex items-center space-x-2 mb-2">
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                    POM TR213601811
+                    PAKET 01 • CLOUD SAAS
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-bold">
-                    HALAL MUI
+                    SUB-12MS ENGINE
                   </span>
                 </div>
-                <h4 className="text-lg font-bold text-white mb-2">Madu Bionet M4 (Royal Forest Honey)</h4>
+                <h4 className="text-lg font-bold text-white mb-2">Core Binary Engine &amp; E-Wallet Cloud</h4>
                 <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                  Konsentrat madu hutan murni dengan rasio ekstraksi 1:10, diperkaya propolis lebah trigona, royal jelly, dan ekstrak daun kelor.
-                  Membantu menjaga vitalitas sel dan daya tahan tubuh secara alami.
+                  Akses SaaS sistem pohon biner &amp; pembayaran QRIS otomatis. Penempatan auto-spillover kilat dengan perhitungan komisi pairing, bonus sponsor, dan mutasi e-wallet berimbang 100% tanpa lag database.
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/10 space-y-1.5 text-xs text-emerald-200">
+              <div className="pt-4 border-t border-white/10 space-y-2 text-xs text-emerald-200">
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Bebas Bahan Kimia Obat (BKO 0%)</span>
+                  <span>Akses Dashboard Cloud Instan &amp; Serial PIN</span>
                 </div>
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Uji Laboratorium Independen Terverifikasi</span>
+                  <span>Pohon Binary Otonom &amp; Auto-Spillover</span>
+                </div>
+                <div className="flex items-center space-x-1.5">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>QRIS Dinamis &amp; Double-Entry Ledger FinTech</span>
+                </div>
+                <div className="mt-3 pt-2 border-t border-white/5 text-[11px] font-mono text-emerald-400 font-bold">
+                  Aktivasi Instan Detik Ini • Nol Ongkir
                 </div>
               </div>
             </div>
 
-            {/* Product 2: Bio-Cream Rejuvenate */}
+            {/* Paket 02: WhatsApp AI Closer & Bot Multisesi */}
             <div className="bg-[#020b07] border border-emerald-500/30 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-400 hover:shadow-2xl hover:shadow-emerald-950/60 transition group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
-                  ✨
+                <div className="w-12 h-12 rounded-2xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 mb-4 group-hover:scale-110 transition">
+                  <Bot className="w-6 h-6" />
                 </div>
                 <div className="flex items-center space-x-2 mb-2">
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                    POM NA18220108392
+                    PAKET 02 • WAHA DOCKER
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-bold">
-                    DERMATOLOGY TESTED
+                    AI CLOSING 24/7
                   </span>
                 </div>
-                <h4 className="text-lg font-bold text-white mb-2">Bio-Cream Rejuvenate Cosmetic</h4>
+                <h4 className="text-lg font-bold text-white mb-2">WhatsApp AI Closer &amp; Bot Multisesi</h4>
                 <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                  Krim perawatan peremajaan kulit berbahan dasar nektar lebah multiflora dan kolagen peptida alami.
-                  Menutrisi kulit kering, meredakan iritasi, dan menjaga kekenyalan wajah.
+                  Mesin closing 24/7 otomatis tanpa admin. Robot WAHA Docker melayani prospek otonom, menjawab keberatan konsumen, menyajikan tombol menu paket, dan menerbitkan link pembayaran otomatis.
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/10 space-y-1.5 text-xs text-emerald-200">
+              <div className="pt-4 border-t border-white/10 space-y-2 text-xs text-emerald-200">
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Tanpa Merkuri &amp; Hidrokuinon</span>
+                  <span>Multi-Session WhatsApp Docker Engine</span>
                 </div>
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Aman Digunakan Setiap Hari</span>
+                  <span>AI Smart Objection Reframe Psikologis</span>
+                </div>
+                <div className="flex items-center space-x-1.5">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Katalog Bertombol Interaktif &amp; Auto Follow-Up</span>
+                </div>
+                <div className="mt-3 pt-2 border-t border-white/5 text-[11px] font-mono text-teal-400 font-bold">
+                  Mesin Closing Otonom • Konversi 68.4%
                 </div>
               </div>
             </div>
 
-            {/* Product 3: Bio-Mist Throat & Oral Spray */}
+            {/* Paket 03: SOC DEFCON 1 Enterprise Cyber Defense */}
             <div className="bg-[#020b07] border border-emerald-500/30 rounded-3xl p-6 sm:p-7 flex flex-col justify-between hover:border-emerald-400 hover:shadow-2xl hover:shadow-emerald-950/60 transition group">
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition">
-                  🌿
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition">
+                  <ShieldAlert className="w-6 h-6" />
                 </div>
                 <div className="flex items-center space-x-2 mb-2">
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                    POM TR226029311
+                    PAKET 03 • DEFCON 1
                   </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-bold">
-                    NATURAL ANTISEPTIC
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold">
+                    MILITARY DEFENSE
                   </span>
                 </div>
-                <h4 className="text-lg font-bold text-white mb-2">Bio-Mist Antiseptic Oral Spray</h4>
+                <h4 className="text-lg font-bold text-white mb-2">SOC DEFCON 1 Enterprise Cyber Defense</h4>
                 <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                  Spray antiseptik tenggorokan dan mulut berbasis propolis konsentrat tinggi dan ekstrak mint segar.
-                  Memberikan perlindungan instan terhadap kuman dan menyegarkan pernapasan sepanjang hari.
+                  Perlindungan anti-fraud, rate-limiting &amp; WAF tingkat militer. Menjaga integritas saldo e-wallet dan database jaringan dari ancaman SQL Injection, brute-force, serta serangan siber L7 DDoS.
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/10 space-y-1.5 text-xs text-emerald-200">
+              <div className="pt-4 border-t border-white/10 space-y-2 text-xs text-emerald-200">
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Praktis Masuk Kantong Saku</span>
+                  <span>GeoIP Worldwide Threat Radar Matrix</span>
                 </div>
                 <div className="flex items-center space-x-1.5">
                   <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>Reaksi Nyaman Tanpa Rasa Pahit Menusuk</span>
+                  <span>WAF Rate-Limiter &amp; Honeypot Telemetri</span>
+                </div>
+                <div className="flex items-center space-x-1.5">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Enkripsi AES-256 GCM &amp; Idempotency Ledger</span>
+                </div>
+                <div className="mt-3 pt-2 border-t border-white/5 text-[11px] font-mono text-cyan-400 font-bold">
+                  Zero Security Breaches • 99.999% SLA
                 </div>
               </div>
             </div>
@@ -1746,14 +1775,14 @@ export default function LandingPage({ onGoToLogin }) {
 
           <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
             Tinggalkan cara manual lama yang melelahkan. Dapatkan mesin closing WhatsApp otomatis, pohon biner sub-12ms,
-            gamifikasi lebah berdaya pikat tinggi, serta jaminan produk fisik resmi BPOM RI dalam satu ekosistem lengkap.
+            gamifikasi reward poin berdaya pikat tinggi, serta 100% produk digital lisensi cloud SaaS dalam satu ekosistem lengkap.
           </p>
 
           {/* 4 Trust Highlights */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto text-xs font-semibold text-slate-200">
             <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center space-x-1.5">
               <BadgeCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>Resmi BPOM RI</span>
+              <span>100% Digital SaaS Ready</span>
             </div>
             <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center space-x-1.5">
               <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
@@ -1921,8 +1950,8 @@ export default function LandingPage({ onGoToLogin }) {
             <span>— Autonomous Intelligence for Modern Networks.</span>
           </div>
           <div className="flex items-center space-x-6">
-            <span className="hover:text-emerald-400 transition cursor-pointer" onClick={() => scrollToSection('bpom')}>
-              Standar BPOM RI Terdaftar
+            <span className="hover:text-emerald-400 transition cursor-pointer" onClick={() => scrollToSection('digital-products')}>
+              100% Digital SaaS Ready
             </span>
             <span className="hover:text-cyan-400 transition cursor-pointer" onClick={() => scrollToSection('features')}>
               Fintech-Grade Ledger

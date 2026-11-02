@@ -39,3 +39,4 @@ func (w *WhatsAppInteractiveStoreConfig) BeforeCreate(tx *gorm.DB) (err error) {
 	}
 	return
 }
+

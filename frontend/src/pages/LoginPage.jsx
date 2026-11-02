@@ -235,7 +235,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 </div>
 
                 {/* Heading & Subtitle */}
-                <div className="mt-5 mb-6">
+                <div className="mt-5 mb-4">
                   <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-emerald-300 bg-clip-text text-transparent">
                     Portal Mitra {branding?.app_name || 'Bionet'}
                   </h1>
@@ -243,6 +243,21 @@ export default function LoginPage({ onLoginSuccess }) {
                     Masuk untuk memantau omset tim, struktur jaringan, dan bonus harian Anda
                   </p>
                 </div>
+
+                {/* SYNETIQ Landing Page & Brainstorming Studio Banner */}
+                <a
+                  href="#/landing"
+                  className="w-full py-2.5 px-3.5 rounded-2xl bg-gradient-to-r from-emerald-600/20 via-teal-600/20 to-cyan-600/20 hover:from-emerald-600/30 hover:to-cyan-600/30 border border-emerald-500/40 text-emerald-300 font-extrabold text-xs flex items-center justify-between transition shadow-lg shadow-emerald-950/40 group mb-5"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Sparkles className="w-4 h-4 text-emerald-400 group-hover:rotate-12 transition" />
+                    <span>Buka Landing Page SYNETIQ &amp; Studio</span>
+                  </div>
+                  <div className="flex items-center space-x-1 text-[10px] text-emerald-400 font-bold uppercase">
+                    <span>Lihat Cuan</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
+                  </div>
+                </a>
 
                 {/* Error Banner */}
                 {error && (

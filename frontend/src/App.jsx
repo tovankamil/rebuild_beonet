@@ -47,6 +47,7 @@ import LoginPage from './pages/LoginPage';
 import PublicStorefrontPage from './components/store/PublicStorefrontPage';
 import PublicMeetingPage from './components/meeting/PublicMeetingPage';
 import PublicBioPage from './pages/PublicBioPage';
+import LandingPage from './pages/LandingPage';
 import api from './services/api';
 
 // ==================== URL ROUTING & TAB NAVIGATION CONSTANTS ====================
@@ -62,6 +63,7 @@ export const MODAL_TABS = new Set([
 
 export const KNOWN_BASE_TABS = new Set([
   // Member & Shared Tabs
+  'landing',
   'overview',
   'genealogy',
   'referrals',
@@ -656,6 +658,28 @@ export default function App() {
     );
   }
 
+  // SYNETIQ Autonomous Commerce Landing Page (Publicly accessible)
+  const hashVal = (window.location.hash || '').toLowerCase();
+  const isLandingRoute =
+    hashVal === '#/landing' ||
+    hashVal === '#landing' ||
+    hashVal.startsWith('#/landing') ||
+    pathname.toLowerCase().startsWith('/landing') ||
+    searchParams.get('page') === 'landing';
+
+  if (isLandingRoute) {
+    return (
+      <LandingPage
+        onGoToLogin={() => {
+          try {
+            window.location.hash = '#/login';
+          } catch {}
+          window.location.reload();
+        }}
+      />
+    );
+  }
+
   if (!token) {
     return <LoginPage onLoginSuccess={handleLoginSuccess} />;
   }
@@ -807,6 +831,10 @@ export default function App() {
                 activeTab === 'warehouse-orders') && <WarehouseTab />}
 
               {/* ==================== MEMBER & SHARED VIEWS ==================== */}
+              {activeTab === 'landing' && (
+                <LandingPage onGoToLogin={() => setActiveTab('overview')} />
+              )}
+
               {activeTab === 'overview' && (
                 <OverviewTab
                   stats={stats}

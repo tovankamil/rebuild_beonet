@@ -30,11 +30,11 @@ func NewBrandingHandler(uploadBaseDir string) *BrandingHandler {
 func (h *BrandingHandler) getDefaultBranding() models.AppBranding {
 	return models.AppBranding{
 		ID:             "default",
-		AppName:        "BIONET",
-		AppTagline:     "Mitra Enterprise Hub",
+		AppName:        "SYNETIQ",
+		AppTagline:     "Autonomous Intelligence for Modern Networks",
 		LogoURL:        "",
 		FaviconURL:     "",
-		PrimaryColor:   "#059669",
+		PrimaryColor:   "#10b981",
 		SecondaryColor: "#06b6d4",
 		AccentColor:    "#f59e0b",
 		UpdatedAt:      time.Now(),

@@ -136,7 +136,7 @@ export default function AdminOrdersTab() {
         <div className="dash-card p-4 bg-white border-l-4 border-l-emerald-600">
           <div className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Total Omset Penjualan</div>
           <div className="text-xl font-heading font-extrabold text-slate-900 mt-1">
-            Rp {(metrics.total_revenue || 0).toLocaleString('id-ID')}
+            Rp {Number(metrics?.total_revenue || 0).toLocaleString('id-ID')}
           </div>
           <div className="text-[10px] text-slate-400 mt-0.5">Penjualan produk non-batal</div>
         </div>
@@ -284,7 +284,7 @@ export default function AdminOrdersTab() {
                       {/* Total Amount */}
                       <td className="py-3 px-4">
                         <span className="font-mono font-bold text-slate-900 text-xs">
-                          Rp {o.total_amount.toLocaleString('id-ID')}
+                          Rp {Number(o?.total_amount || 0).toLocaleString('id-ID')}
                         </span>
                       </td>
 
@@ -374,11 +374,11 @@ export default function AdminOrdersTab() {
                     <div>
                       <div className="font-bold text-slate-800">{item.product?.name || 'Produk Herbal'}</div>
                       <div className="text-slate-400 text-[10px]">
-                        {item.quantity} unit @ Rp {item.price_at_time?.toLocaleString('id-ID')}
+                        {item.quantity} unit @ Rp {Number(item?.price_at_time || 0).toLocaleString('id-ID')}
                       </div>
                     </div>
                     <div className="font-mono font-bold text-slate-800">
-                      Rp {(item.quantity * item.price_at_time).toLocaleString('id-ID')}
+                      Rp {Number((item?.quantity || 0) * (item?.price_at_time || 0)).toLocaleString('id-ID')}
                     </div>
                   </div>
                 ))}
@@ -387,7 +387,7 @@ export default function AdminOrdersTab() {
               <div className="p-3 bg-slate-50 rounded-lg flex items-center justify-between font-bold text-xs">
                 <span>Total Tagihan:</span>
                 <span className="text-emerald-700 font-mono text-sm">
-                  Rp {detailOrder.total_amount.toLocaleString('id-ID')}
+                  Rp {Number(detailOrder?.total_amount || 0).toLocaleString('id-ID')}
                 </span>
               </div>
             </div>

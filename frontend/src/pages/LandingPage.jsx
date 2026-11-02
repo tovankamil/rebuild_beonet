@@ -42,9 +42,11 @@ import {
   RefreshCw,
   BadgeCheck,
   Clock,
+  Menu,
 } from 'lucide-react';
 import api from '../services/api';
 import HeroShowcaseSlideshow from '../components/HeroShowcaseSlideshow';
+import AntiCrashReliabilitySection from '../components/AntiCrashReliabilitySection';
 
 /**
  * Web Audio API Synthesizer (Native Zero-Asset Audio)
@@ -89,6 +91,15 @@ function playSynthesizedSound(type = 'click') {
 export default function LandingPage({ onGoToLogin }) {
   // Audio state
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) setMobileMenuOpen(false);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const triggerSound = (type = 'click') => {
     if (audioEnabled) {
@@ -517,54 +528,121 @@ export default function LandingPage({ onGoToLogin }) {
 
   const activeNodeData = workflowSteps[activeWorkflowNode - 1];
 
+  // Top Floating & Mobile Drawer Navigation items (All 7 required sections)
+  const navItems = useMemo(
+    () => [
+      {
+        id: 'features',
+        label: 'Fitur Unggulan',
+        desc: '8 modul otomasi bisnis jaringan tanpa celah',
+        icon: <Layers className="w-4 h-4" />,
+        action: () => scrollToSection('features'),
+      },
+      {
+        id: 'tablet-showcase',
+        label: 'Demo di Tablet',
+        desc: 'Simulasi interaktif iPad OS & antarmuka aplikasi',
+        icon: <Smartphone className="w-4 h-4" />,
+        action: () => scrollToSection('tablet-showcase'),
+      },
+      {
+        id: 'mesin-hitung-komisi',
+        label: 'Mesin Hitung Komisi',
+        desc: 'Sub-12ms Go Engine & kalkulasi bonus anti-jebol',
+        icon: <Sliders className="w-4 h-4" />,
+        action: () => scrollToSection('anti-crash-engine'),
+      },
+      {
+        id: 'problem-solution',
+        label: 'Solusi Masalah',
+        desc: 'Tinggalkan rekap manual Excel menuju sistem otonom',
+        icon: <Zap className="w-4 h-4" />,
+        action: () => scrollToSection('problem-solution'),
+      },
+      {
+        id: 'hitung-potensi-cuan',
+        label: 'Hitung Potensi Cuan',
+        desc: 'Simulasi cashflow profit & omset jaringan Anda',
+        icon: <TrendingUp className="w-4 h-4" />,
+        action: () => {
+          setActiveStudioTab('calculator');
+          scrollToSection('brainstorming');
+        },
+      },
+      {
+        id: 'process',
+        label: 'Alur Kerja',
+        desc: '8 tahap implementasi dari konsultasi sampai go-live',
+        icon: <Sparkles className="w-4 h-4" />,
+        action: () => scrollToSection('process'),
+      },
+      {
+        id: 'consultation',
+        label: 'Konsultasi & Kontak',
+        desc: 'Jadwalkan demo VIP & konsultasi gratis tim ahli',
+        icon: <PhoneCall className="w-4 h-4" />,
+        action: () => scrollToSection('consultation'),
+      },
+    ],
+    []
+  );
+
   return (
-    <div className="min-h-screen bg-[#03060a] text-slate-100 font-sans selection:bg-emerald-500 selection:text-black overflow-x-clip">
+    <div className="min-h-screen bg-[#03060a] text-slate-100 font-sans selection:bg-emerald-500 selection:text-black overflow-x-hidden w-full max-w-full">
       {/* ========================================================================= */}
       {/* 01: DYNAMIC ISLAND FLOATING NAVBAR (Zero Scrollbar • Triolla-Grade Layout) */}
       {/* ========================================================================= */}
-      <nav className="fixed top-3.5 left-1/2 -translate-x-1/2 z-50 w-[98%] max-w-[1400px]">
-        <div className="bg-[#0e1726]/90 backdrop-blur-2xl border border-white/10 rounded-2xl px-4 sm:px-6 py-2.5 shadow-2xl shadow-emerald-950/40 flex items-center justify-between gap-3 sm:gap-6">
-          {/* Brand Logo */}
-          <div className="flex items-center space-x-3 shrink-0">
+      <nav className="fixed top-2.5 sm:top-3.5 left-1/2 -translate-x-1/2 z-50 w-[96%] sm:w-[98%] max-w-[1400px]">
+        <div className="bg-[#0e1726]/90 backdrop-blur-2xl border border-white/10 rounded-2xl px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 shadow-2xl shadow-emerald-950/40 flex items-center justify-between gap-2 sm:gap-3 lg:gap-6">
+          {/* Brand Logo - Compact & Pristine */}
+          <div className="flex items-center space-x-2 shrink-0">
             <button
               type="button"
-              onClick={() => scrollToSection('hero')}
-              className="flex items-center space-x-2.5 group text-left focus:outline-none"
+              onClick={() => {
+                scrollToSection('hero');
+                setMobileMenuOpen(false);
+              }}
+              className="flex items-center space-x-2 group text-left focus:outline-none"
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition shrink-0">
                 <div className="w-full h-full bg-[#03060a] rounded-[10px] flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 animate-pulse" />
                 </div>
               </div>
-              <div>
-                <div className="flex items-center space-x-1.5">
-                  <span className="font-extrabold text-base tracking-tight text-white group-hover:text-emerald-400 transition">
-                    SYNETIQ
-                  </span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-md bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
-                    AI
-                  </span>
-                </div>
+              <div className="flex items-center space-x-1 sm:space-x-1.5 shrink-0">
+                <span className="font-extrabold text-sm sm:text-base tracking-tight text-white group-hover:text-emerald-400 transition">
+                  SYNETIQ
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-mono px-1 sm:px-1.5 py-0.2 rounded-md bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                  AI
+                </span>
               </div>
             </button>
           </div>
 
-          {/* Nav Links (Desktop) - Smooth Scroll, Generous Width, Absolutely ZERO Scrollbar */}
-          <div className="hidden lg:flex items-center space-x-5 xl:space-x-7 text-[13px] font-medium text-slate-300">
+          {/* Desktop Nav Links - Smooth, No Wrapping, Zero Scrollbar (Hidden on mobile & tablet) */}
+          <div className="hidden lg:flex items-center space-x-2 xl:space-x-3 2xl:space-x-5 text-[11px] xl:text-xs 2xl:text-[13px] font-medium text-slate-300">
             <button
               type="button"
               onClick={() => scrollToSection('features')}
               className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none shrink-0"
             >
-              Fitur Aplikasi
+              Fitur Unggulan
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('tablet-showcase')}
-              className="whitespace-nowrap hover:text-cyan-400 transition focus:outline-none flex items-center space-x-1.5 shrink-0"
+              className="whitespace-nowrap hover:text-cyan-400 transition focus:outline-none flex items-center space-x-1 shrink-0"
             >
               <span>📱</span>
               <span>Demo di Tablet</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollToSection('anti-crash-engine')}
+              className="whitespace-nowrap hover:text-cyan-300 transition focus:outline-none shrink-0"
+            >
+              Mesin Komisi
             </button>
             <button
               type="button"
@@ -575,10 +653,13 @@ export default function LandingPage({ onGoToLogin }) {
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('brainstorming')}
+              onClick={() => {
+                setActiveStudioTab('calculator');
+                scrollToSection('brainstorming');
+              }}
               className="whitespace-nowrap hover:text-teal-400 transition focus:outline-none shrink-0"
             >
-              Hitung Potensi Cuan
+              Hitung Cuan
             </button>
             <button
               type="button"
@@ -593,13 +674,13 @@ export default function LandingPage({ onGoToLogin }) {
               onClick={() => scrollToSection('consultation')}
               className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none shrink-0"
             >
-              Konsultasi &amp; Kontak
+              Konsultasi
             </button>
           </div>
 
-          {/* Right Action Controls: Triolla-Style High-Conversion Conversion Suite */}
-          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            {/* Audio Toggle */}
+          {/* Right Action Controls: Optimized for Mobile, Tablet, Laptop, and Desktop */}
+          <div className="flex items-center space-x-1.5 sm:space-x-2 shrink-0">
+            {/* Audio Toggle: Mini-icon, hidden on mobile <sm (accessible inside drawer) to never squish CTA buttons */}
             <button
               type="button"
               onClick={() => {
@@ -607,35 +688,42 @@ export default function LandingPage({ onGoToLogin }) {
                 triggerSound('click');
               }}
               title={audioEnabled ? 'Matikan Suara Haptic' : 'Nyalakan Suara Haptic'}
-              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition focus:outline-none"
+              className="hidden sm:flex p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition focus:outline-none shrink-0 border border-white/5"
             >
-              {audioEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
+              {audioEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500" />}
             </button>
 
-            {/* Direct WhatsApp Action Button (Triolla Style) */}
+            {/* Direct WhatsApp Action Button: Compact green on mobile */}
             <a
               href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20tertarik%20dengan%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20konsultasi%20langsung"
               target="_blank"
               rel="noreferrer"
               onClick={() => triggerSound('success')}
-              className="px-3.5 sm:px-4 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-extrabold text-xs flex items-center space-x-1.5 shadow-lg shadow-emerald-950/60 transition active:scale-95 shrink-0"
+              className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-black text-xs flex items-center space-x-1 sm:space-x-1.5 shadow-lg shadow-emerald-950/60 transition active:scale-95 shrink-0"
               title="Chat Langsung via WhatsApp"
             >
-              <MessageSquare className="w-3.5 h-3.5 text-slate-950 fill-current" />
-              <span>WhatsApp</span>
+              <MessageSquare className="w-3.5 h-3.5 text-slate-950 fill-current shrink-0" />
+              <span className="hidden sm:inline">WhatsApp</span>
+              <span className="sm:hidden text-[11px] font-extrabold">WA</span>
             </a>
 
-            {/* VIP Demo & Call Booking Button */}
+            {/* VIP Demo & Call Booking Button: Compact "Demo" on mobile to never cut off */}
             <button
               type="button"
-              onClick={() => scrollToSection('consultation')}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-900/50 hover:shadow-emerald-700/60 transition flex items-center space-x-1.5 focus:outline-none active:scale-95"
+              onClick={() => {
+                scrollToSection('consultation');
+                setMobileMenuOpen(false);
+              }}
+              className="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-900/50 hover:shadow-emerald-700/60 transition flex items-center space-x-1 sm:space-x-1.5 focus:outline-none active:scale-95 shrink-0"
+              title="Coba Demo VIP"
             >
-              <Zap className="w-3.5 h-3.5 text-slate-950 fill-current" />
-              <span>Coba Demo VIP</span>
+              <Zap className="w-3.5 h-3.5 text-slate-950 fill-current shrink-0" />
+              <span className="hidden md:inline">Coba Demo VIP</span>
+              <span className="hidden sm:inline md:hidden">Demo VIP</span>
+              <span className="sm:hidden text-[11px]">Demo</span>
             </button>
 
-            {/* Login Link */}
+            {/* Login Link: Shown on desktop */}
             <button
               type="button"
               onClick={() => {
@@ -643,12 +731,123 @@ export default function LandingPage({ onGoToLogin }) {
                 if (onGoToLogin) onGoToLogin();
                 else window.location.hash = '#/overview';
               }}
-              className="hidden sm:inline-block px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition focus:outline-none"
+              className="hidden lg:inline-block px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition focus:outline-none shrink-0"
             >
               Masuk
             </button>
+
+            {/* Sleek Mobile Hamburger Menu Toggle (<lg: Mobile and Tablet) */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(!mobileMenuOpen);
+                triggerSound('click');
+              }}
+              aria-label={mobileMenuOpen ? 'Tutup Menu Navigasi' : 'Buka Menu Navigasi'}
+              aria-expanded={mobileMenuOpen}
+              className="lg:hidden p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition focus:outline-none shrink-0 border border-white/10 active:scale-95"
+            >
+              {mobileMenuOpen ? (
+                <X className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400" />
+              ) : (
+                <Menu className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Mobile / Tablet Drawer Sheet: Opens smoothly with all 7 items */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden mt-2 rounded-2xl bg-[#0a1120]/95 backdrop-blur-2xl border border-emerald-500/30 p-3 sm:p-4 shadow-2xl shadow-black/90 animate-in fade-in slide-in-from-top-2 duration-200">
+            {/* List of All 7 Nav Items */}
+            <div className="space-y-1">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    item.action();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 sm:py-2.5 rounded-xl text-slate-200 hover:text-white hover:bg-white/10 transition flex items-center justify-between group active:scale-[0.99]"
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="p-1.5 rounded-lg bg-white/5 text-emerald-400 group-hover:bg-emerald-500/20 group-hover:text-emerald-300 transition shrink-0">
+                      {item.icon}
+                    </span>
+                    <div>
+                      <div className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-400 transition">
+                        {item.label}
+                      </div>
+                      <div className="text-[10px] sm:text-[11px] text-slate-400 line-clamp-1">{item.desc}</div>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile Drawer Utilities: Audio Toggle & Quick Links */}
+            <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
+              {/* Audio Toggle in Drawer */}
+              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.04] border border-white/5">
+                <div className="flex items-center space-x-2 text-xs text-slate-300 font-medium">
+                  {audioEnabled ? (
+                    <Volume2 className="w-4 h-4 text-emerald-400" />
+                  ) : (
+                    <VolumeX className="w-4 h-4 text-slate-500" />
+                  )}
+                  <span>Efek Suara Haptic</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAudioEnabled(!audioEnabled);
+                    triggerSound('click');
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold font-mono transition ${
+                    audioEnabled
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      : 'bg-white/5 text-slate-400 border border-white/10'
+                  }`}
+                >
+                  {audioEnabled ? 'AKTIF' : 'SENYAP'}
+                </button>
+              </div>
+
+              {/* Action Buttons in Drawer */}
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <a
+                  href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20tertarik%20dengan%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20konsultasi%20langsung"
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => {
+                    triggerSound('success');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="px-3 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-bold text-xs flex items-center justify-center space-x-1.5 shadow-md transition active:scale-95"
+                >
+                  <MessageSquare className="w-3.5 h-3.5 fill-current" />
+                  <span>WhatsApp</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    triggerSound('click');
+                    setMobileMenuOpen(false);
+                    if (onGoToLogin) onGoToLogin();
+                    else window.location.hash = '#/overview';
+                  }}
+                  className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs border border-white/10 flex items-center justify-center space-x-1.5 transition active:scale-95"
+                >
+                  <span>Masuk Dashboard</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ========================================================================= */}
@@ -806,7 +1005,7 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       {/* 03: LIVE ARCHITECTURE TELEMETRY BAR (Theme: Cyber Carbon #080d16)        */}
       {/* ========================================================================= */}
-      <section className="border-y border-white/10 bg-[#080d16] py-3.5 px-4 overflow-x-auto">
+      <section className="border-y border-white/10 bg-[#080d16] py-3.5 px-4 overflow-x-auto w-full max-w-full">
         <div className="max-w-7xl mx-auto flex items-center justify-between min-w-[760px] text-xs font-mono text-slate-400">
           <div className="flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -953,11 +1152,19 @@ export default function LandingPage({ onGoToLogin }) {
       </section>
 
       {/* ========================================================================= */}
+      {/* 03.6: CORE ENGINE & ANTI-CRASH ARCHITECTURE (Tiga Solusi Kritis Bisnis)   */}
+      {/* ========================================================================= */}
+      <AntiCrashReliabilitySection
+        triggerSound={triggerSound}
+        scrollToSection={scrollToSection}
+      />
+
+      {/* ========================================================================= */}
       {/* 04: STUDIO BRAINSTORMING (Theme: Deep Tech Navy / Sapphire #06111f via #091b33) */}
       {/* ========================================================================= */}
       <section
         id="brainstorming"
-        className="py-24 px-4 bg-gradient-to-b from-[#06111f] via-[#091b33] to-[#06111f] border-t border-cyan-500/20"
+        className="py-24 px-4 bg-gradient-to-b from-[#06111f] via-[#091b33] to-[#06111f] border-t border-cyan-500/20 overflow-hidden"
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
@@ -973,22 +1180,22 @@ export default function LandingPage({ onGoToLogin }) {
               otomasi 6-node mengubah pengunjung menjadi mitra aktif.
             </p>
 
-            {/* Studio Navigation Tabs */}
-            <div className="inline-flex items-center p-1.5 rounded-2xl bg-[#030812]/80 border border-white/10 backdrop-blur-md shadow-xl mt-4">
+            {/* Studio Navigation Tabs - Fully Responsive Wrapping / Pill Bar */}
+            <div className="flex flex-wrap sm:inline-flex items-center justify-center p-1 sm:p-1.5 rounded-2xl bg-[#030812]/80 border border-white/10 backdrop-blur-md shadow-xl mt-4 max-w-full gap-1">
               <button
                 type="button"
                 onClick={() => {
                   setActiveStudioTab('calculator');
                   triggerSound('click');
                 }}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 sm:space-x-2 ${
                   activeStudioTab === 'calculator'
                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <Sliders className="w-4 h-4 text-emerald-300" />
-                <span>1. Kalkulator Bonus &amp; Cashflow</span>
+                <Sliders className="w-4 h-4 text-emerald-300 shrink-0" />
+                <span>1. Kalkulator Bonus <span className="hidden sm:inline">&amp; Cashflow</span></span>
               </button>
 
               <button
@@ -997,14 +1204,14 @@ export default function LandingPage({ onGoToLogin }) {
                   setActiveStudioTab('ai-closing');
                   triggerSound('click');
                 }}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 sm:space-x-2 ${
                   activeStudioTab === 'ai-closing'
                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <Bot className="w-4 h-4 text-cyan-300" />
-                <span>2. AI Smart Closing Simulator</span>
+                <Bot className="w-4 h-4 text-cyan-300 shrink-0" />
+                <span>2. AI Closing <span className="hidden sm:inline">Simulator</span></span>
               </button>
 
               <button
@@ -1013,14 +1220,14 @@ export default function LandingPage({ onGoToLogin }) {
                   setActiveStudioTab('workflow');
                   triggerSound('click');
                 }}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
+                className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 sm:space-x-2 ${
                   activeStudioTab === 'workflow'
                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950'
                     : 'text-slate-400 hover:text-white'
                 }`}
               >
-                <Layers className="w-4 h-4 text-amber-300" />
-                <span>3. Simulator Alur 6-Node</span>
+                <Layers className="w-4 h-4 text-amber-300 shrink-0" />
+                <span>3. Alur 6-Node <span className="hidden sm:inline">Simulator</span></span>
               </button>
             </div>
           </div>
@@ -1091,9 +1298,9 @@ export default function LandingPage({ onGoToLogin }) {
                           >
                             <div className="text-xs font-extrabold text-white">{pkg.name}</div>
                             <div className="text-[11px] text-emerald-400 font-mono mt-0.5">
-                              Rp {(pkg.price / 1000).toLocaleString('id-ID')}k
+                              Rp {(((pkg?.price || 0) / 1000) || 0).toLocaleString('id-ID')}k
                             </div>
-                            <div className="text-[10px] text-slate-400 mt-1">Bonus: Rp {(pkg.sponsorBonus / 1000)}k</div>
+                            <div className="text-[10px] text-slate-400 mt-1">Bonus: Rp {(((pkg?.sponsorBonus || 0) / 1000) || 0)}k</div>
                           </button>
                         );
                       })}
@@ -1134,7 +1341,7 @@ export default function LandingPage({ onGoToLogin }) {
                     <div className="my-6">
                       <div className="text-xs text-slate-400">Total Estimasi Penghasilan:</div>
                       <div className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 font-mono tracking-tight mt-1">
-                        Rp {calculatedFinances.totalCashflow.toLocaleString('id-ID')}
+                        Rp {(calculatedFinances?.totalCashflow || 0).toLocaleString('id-ID')}
                       </div>
                       <div className="text-[11px] text-slate-400 mt-1">
                         *Otomatis cair ke saldo e-wallet tanpa potongan admin tersembunyi.
@@ -1146,21 +1353,21 @@ export default function LandingPage({ onGoToLogin }) {
                       <div className="flex justify-between items-center">
                         <span className="text-slate-300">1. Bonus Sponsor Langsung:</span>
                         <span className="font-mono font-bold text-white">
-                          Rp {calculatedFinances.sponsorTotal.toLocaleString('id-ID')}
+                          Rp {(calculatedFinances?.sponsorTotal || 0).toLocaleString('id-ID')}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-slate-300">
-                          2. Bonus Pasangan Binary ({calculatedFinances.pairs} Pasang):
+                          2. Bonus Pasangan Binary ({calculatedFinances?.pairs || 0} Pasang):
                         </span>
                         <span className="font-mono font-bold text-cyan-400">
-                          Rp {calculatedFinances.pairingBonus.toLocaleString('id-ID')}
+                          Rp {(calculatedFinances?.pairingBonus || 0).toLocaleString('id-ID')}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-slate-300">3. Bonus Repeat Order &amp; Lisensi Cloud:</span>
                         <span className="font-mono font-bold text-amber-300">
-                          Rp {calculatedFinances.repeatOrderBonus.toLocaleString('id-ID')}
+                          Rp {(calculatedFinances?.repeatOrderBonus || 0).toLocaleString('id-ID')}
                         </span>
                       </div>
                     </div>
@@ -1558,7 +1765,7 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="features"
-        className="py-24 px-4 bg-gradient-to-b from-[#0b101b] via-[#0e1626] to-[#0b101b] border-t border-white/10"
+        className="py-24 px-4 bg-gradient-to-b from-[#0b101b] via-[#0e1626] to-[#0b101b] border-t border-white/10 overflow-hidden"
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
@@ -1696,7 +1903,7 @@ export default function LandingPage({ onGoToLogin }) {
                   dan enkripsi perbankan ISO-27001 standard.
                 </p>
 
-                <div className="grid grid-cols-2 gap-3 pt-2 text-xs font-mono">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-mono">
                   <div className="p-3.5 rounded-xl bg-white/5 border border-white/10">
                     <div className="text-slate-400">Status Kesiapan Siber:</div>
                     <div className="text-emerald-400 font-bold mt-1 flex items-center space-x-1.5">
@@ -2225,10 +2432,10 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="consultation"
-        className="py-24 px-4 bg-gradient-to-b from-[#0c1424] to-[#080e1a] border-t border-white/10"
+        className="py-24 px-4 bg-gradient-to-b from-[#0c1424] to-[#080e1a] border-t border-white/10 overflow-hidden"
       >
         <div className="max-w-4xl mx-auto">
-          <div className="bg-[#0e1726]/90 border border-white/15 rounded-3xl p-8 sm:p-10 shadow-2xl relative">
+          <div className="bg-[#0e1726]/90 border border-white/15 rounded-3xl p-5 sm:p-10 shadow-2xl relative">
             <div className="text-center max-w-xl mx-auto space-y-2 mb-8">
               <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-500/30">
                 <Users className="w-3.5 h-3.5" />
@@ -2402,7 +2609,10 @@ export default function LandingPage({ onGoToLogin }) {
             <span className="hover:text-emerald-400 transition cursor-pointer" onClick={() => scrollToSection('digital-products')}>
               100% Digital SaaS Ready
             </span>
-            <span className="hover:text-cyan-400 transition cursor-pointer" onClick={() => scrollToSection('features')}>
+            <span className="hover:text-cyan-400 transition cursor-pointer" onClick={() => scrollToSection('anti-crash-engine')}>
+              Sub-12ms Engine &amp; Anti-Crash
+            </span>
+            <span className="hover:text-amber-400 transition cursor-pointer" onClick={() => scrollToSection('features')}>
               Fintech-Grade Ledger
             </span>
             <span className="hover:text-rose-400 transition cursor-pointer" onClick={() => scrollToSection('security')}>
@@ -2440,19 +2650,21 @@ export default function LandingPage({ onGoToLogin }) {
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => triggerSound('success')}
-                className="px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 text-xs font-black shadow-lg shadow-emerald-950/60 transition flex items-center space-x-1.5 active:scale-95"
+                className="flex-1 sm:flex-initial px-3 sm:px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 text-xs font-black shadow-lg shadow-emerald-950/60 transition flex items-center justify-center space-x-1.5 active:scale-95 shrink-0"
               >
-                <MessageSquare className="w-3.5 h-3.5 fill-current" />
-                <span>Chat WhatsApp</span>
+                <MessageSquare className="w-3.5 h-3.5 fill-current shrink-0" />
+                <span className="hidden sm:inline">Chat WhatsApp</span>
+                <span className="sm:hidden text-[11px] font-bold">WhatsApp</span>
               </a>
 
               <button
                 type="button"
                 onClick={() => scrollToSection('consultation')}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-extrabold shadow-md shadow-emerald-950 transition flex items-center space-x-1.5 focus:outline-none active:scale-95"
+                className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-extrabold shadow-md shadow-emerald-950 transition flex items-center justify-center space-x-1.5 focus:outline-none active:scale-95 shrink-0"
               >
-                <Zap className="w-3.5 h-3.5 text-amber-300" />
-                <span>Coba Demo VIP</span>
+                <Zap className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                <span className="hidden sm:inline">Coba Demo VIP</span>
+                <span className="sm:hidden text-[11px]">Demo VIP</span>
               </button>
             </div>
           </div>

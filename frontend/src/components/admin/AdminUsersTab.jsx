@@ -888,7 +888,7 @@ export default function AdminUsersTab() {
                           <td className="py-3 px-4">
                             <div className="font-semibold text-slate-900 flex items-center gap-1">
                               <Wallet size={12} className="text-emerald-600" />
-                              <span>Rp {(u.balance || 0).toLocaleString('id-ID')}</span>
+                              <span>Rp {Number(u?.balance || 0).toLocaleString('id-ID')}</span>
                             </div>
                           </td>
 

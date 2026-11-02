@@ -282,7 +282,7 @@ export default function IncidentRadarView() {
 
                     <span className="text-[10px] text-slate-400 flex items-center gap-1">
                       <Clock size={11} />
-                      {new Date(inc.created_at).toLocaleString('id-ID')}
+                      {inc?.created_at ? new Date(inc.created_at).toLocaleString('id-ID') : '-'}
                       {inc.is_resolved && (
                         <span className="ml-2 font-semibold text-emerald-600 flex items-center gap-0.5">
                           <Check size={11} /> Diselesaikan oleh {inc.resolved_by || 'admin'}
@@ -357,7 +357,7 @@ export default function IncidentRadarView() {
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-100">
               <span className="text-xs text-slate-400">
-                Terjadi pada: {new Date(selectedIncident.created_at).toLocaleString('id-ID')}
+                Terjadi pada: {selectedIncident?.created_at ? new Date(selectedIncident.created_at).toLocaleString('id-ID') : '-'}
               </span>
               <div className="flex items-center gap-2">
                 {!selectedIncident.is_resolved && (

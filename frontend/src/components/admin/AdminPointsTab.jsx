@@ -143,7 +143,7 @@ export default function AdminPointsTab() {
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
           </div>
           <div className="text-2xl font-heading font-extrabold text-slate-900">
-            {metrics.total_point_left.toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-400">PV</span>
+            {Number(metrics?.total_point_left || 0).toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-400">PV</span>
           </div>
           <div className="text-[10px] text-slate-400 mt-0.5">Akumulasi seluruh jalur kiri mitra</div>
         </div>
@@ -155,7 +155,7 @@ export default function AdminPointsTab() {
             <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
           </div>
           <div className="text-2xl font-heading font-extrabold text-slate-900">
-            {metrics.total_point_right.toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-400">PV</span>
+            {Number(metrics?.total_point_right || 0).toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-400">PV</span>
           </div>
           <div className="text-[10px] text-slate-400 mt-0.5">Akumulasi seluruh jalur kanan mitra</div>
         </div>
@@ -167,7 +167,7 @@ export default function AdminPointsTab() {
             <Zap size={15} className="text-amber-500" />
           </div>
           <div className="text-2xl font-heading font-extrabold text-slate-900">
-            {totalPairingPotentials.toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-400">Pasang</span>
+            {Number(totalPairingPotentials || 0).toLocaleString('id-ID')} <span className="text-xs font-medium text-slate-400">Pasang</span>
           </div>
           <div className="text-[10px] text-slate-400 mt-0.5">Matching volume 1:1 terkunci</div>
         </div>
@@ -179,7 +179,7 @@ export default function AdminPointsTab() {
             <Scale size={15} className="text-emerald-600" />
           </div>
           <div className="text-xl font-heading font-extrabold text-emerald-900">
-            Rp {totalEstPairingAmount.toLocaleString('id-ID')}
+            Rp {Number(totalEstPairingAmount || 0).toLocaleString('id-ID')}
           </div>
           <div className="text-[10px] text-emerald-700 mt-0.5">@ Rp 20.000 / pasang</div>
         </div>
@@ -308,7 +308,7 @@ export default function AdminPointsTab() {
                             {potential} Pasang
                           </span>
                           <div className="text-[10px] text-emerald-600 font-semibold">
-                            &asymp; Rp {estBonus.toLocaleString('id-ID')}
+                            &asymp; Rp {Number(estBonus || 0).toLocaleString('id-ID')}
                           </div>
                         </div>
                       </td>

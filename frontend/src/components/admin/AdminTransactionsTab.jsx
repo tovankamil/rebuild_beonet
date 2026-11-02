@@ -107,7 +107,7 @@ export default function AdminTransactionsTab() {
             <ArrowDownLeft size={16} className="text-emerald-600" />
           </div>
           <div className="text-xl font-heading font-extrabold text-slate-900">
-            Rp {(metrics.total_credit || 0).toLocaleString('id-ID')}
+            Rp {Number(metrics?.total_credit || 0).toLocaleString('id-ID')}
           </div>
           <div className="text-[10px] text-slate-400 mt-0.5">Seluruh komisi &amp; inflow sistem</div>
         </div>
@@ -127,7 +127,7 @@ export default function AdminTransactionsTab() {
             </span>
           </div>
           <div className="text-xl font-heading font-extrabold text-emerald-900">
-            Rp {(metrics.total_pairing_bonus || 0).toLocaleString('id-ID')}
+            Rp {Number(metrics?.total_pairing_bonus || 0).toLocaleString('id-ID')}
           </div>
           <div className="text-[10px] text-emerald-700 font-medium mt-0.5">Matching volume kaki binary</div>
         </div>
@@ -139,7 +139,7 @@ export default function AdminTransactionsTab() {
             <Users size={16} className="text-sky-600" />
           </div>
           <div className="text-xl font-heading font-extrabold text-slate-900">
-            Rp {(metrics.total_sponsor_bonus || 0).toLocaleString('id-ID')}
+            Rp {Number(metrics?.total_sponsor_bonus || 0).toLocaleString('id-ID')}
           </div>
           <div className="text-[10px] text-slate-400 mt-0.5">Pendaftaran member binaan</div>
         </div>
@@ -151,7 +151,7 @@ export default function AdminTransactionsTab() {
             <ArrowUpRight size={16} className="text-rose-600" />
           </div>
           <div className="text-xl font-heading font-extrabold text-slate-900">
-            Rp {(metrics.total_debit || 0).toLocaleString('id-ID')}
+            Rp {Number(metrics?.total_debit || 0).toLocaleString('id-ID')}
           </div>
           <div className="text-[10px] text-slate-400 mt-0.5">Payout Flip.id &amp; pemotongan saldo</div>
         </div>
@@ -382,13 +382,13 @@ export default function AdminTransactionsTab() {
                             isCredit ? 'text-emerald-700' : 'text-rose-700'
                           }`}
                         >
-                          {isCredit ? '+' : '-'} Rp {t.amount.toLocaleString('id-ID')}
+                          {isCredit ? '+' : '-'} Rp {Number(t?.amount || 0).toLocaleString('id-ID')}
                         </span>
                       </td>
 
                       {/* Balance After */}
                       <td className="py-3 px-4 text-right whitespace-nowrap text-slate-600 font-mono text-[11px]">
-                        Rp {t.balance_after.toLocaleString('id-ID')}
+                        Rp {Number(t?.balance_after || 0).toLocaleString('id-ID')}
                       </td>
                     </tr>
                   );

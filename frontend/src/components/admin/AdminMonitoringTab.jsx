@@ -1239,7 +1239,7 @@ export default function AdminMonitoringTab({ setActiveTab }) {
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Permintaan HTTP</h3>
               <div className="text-2xl font-black text-slate-800">
-                {metrics?.traffic?.total_requests?.toLocaleString('id-ID') || 0}
+                {Number(metrics?.traffic?.total_requests || 0).toLocaleString('id-ID')}
               </div>
               <p className="text-xs text-slate-500 mt-1">Rata-rata Latensi: {metrics?.traffic?.average_latency_ms?.toFixed(2) || 0} ms</p>
             </div>
@@ -1314,7 +1314,7 @@ export default function AdminMonitoringTab({ setActiveTab }) {
                           {ep.endpoint}
                         </td>
                         <td className="py-3 px-4 font-bold text-slate-800">
-                          {ep.hits.toLocaleString('id-ID')} req
+                          {Number(ep?.hits || 0).toLocaleString('id-ID')} req
                         </td>
                         <td className="py-3 px-4 font-semibold text-slate-700">
                           {(ep.bytes_total / 1024).toFixed(1)} KB

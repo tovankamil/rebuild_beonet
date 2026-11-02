@@ -420,7 +420,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
 **Status Sistem**: 100% Defense Integrity - Perimeter Bersih & Stabil
 
 1. **Pemetaan Ancaman Terkini**:
-   - Menghadapi ${metrics.totalBlocked.toLocaleString('id-ID')} percobaan intrusi yang telah dinetralisir WAF SYNETIQ.
+   - Menghadapi ${Number(metrics?.totalBlocked || 0).toLocaleString('id-ID')} percobaan intrusi yang telah dinetralisir WAF SYNETIQ.
    - Perimeter keamanan operasional stabil dengan latensi inspeksi paket rata-rata 1.1ms.
 
 2. **Postur Keamanan Gateway**:
@@ -807,7 +807,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
                 </span>
                 <div className="my-2 flex items-baseline gap-2">
                   <span className="text-2xl font-extrabold text-white tabular-nums">
-                    {metrics.totalBlocked.toLocaleString('id-ID')}
+                    {Number(metrics?.totalBlocked || 0).toLocaleString('id-ID')}
                   </span>
                   <span className="text-[10px] text-emerald-400 font-bold tabular-nums">100%</span>
                 </div>
@@ -824,7 +824,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
                 </span>
                 <div className="my-2 flex items-baseline gap-2">
                   <span className="text-2xl font-extrabold text-white tabular-nums">
-                    {metrics.protectedDevices.toLocaleString('id-ID')}
+                    {Number(metrics?.protectedDevices || 0).toLocaleString('id-ID')}
                   </span>
                   <span className="text-[10px] text-emerald-400 font-bold tabular-nums">Users</span>
                 </div>
@@ -884,7 +884,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
           <SocIntelligenceSuite
             activeThreatCount={threatLogs.length}
             totalEventsCount={
-              geoTraffic?.total_visits ? geoTraffic.total_visits.toLocaleString('id-ID') : '0'
+              geoTraffic?.total_visits ? Number(geoTraffic.total_visits).toLocaleString('id-ID') : '0'
             }
             matrixData={{
               highRisk: threatLogs.filter((t) => t.severity.toUpperCase() === 'CRITICAL').length,

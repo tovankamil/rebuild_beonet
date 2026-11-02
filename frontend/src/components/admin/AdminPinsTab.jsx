@@ -354,7 +354,7 @@ export default function AdminPinsTab() {
                               )}
                             </div>
                             <div className="text-[10px] text-slate-400">
-                              Rp {(p.package?.price || 0).toLocaleString('id-ID')} • {p.package?.points || 0} PV
+                              Rp {Number(p?.package?.price || 0).toLocaleString('id-ID')} • {Number(p?.package?.points || 0).toLocaleString('id-ID')} PV
                             </div>
                           </td>
 
@@ -436,7 +436,7 @@ export default function AdminPinsTab() {
                   paginatedTransfers.map((t) => (
                     <tr key={t.id} className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
                       <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
-                        {new Date(t.transferred_at).toLocaleString('id-ID')}
+                        {t.transferred_at ? new Date(t.transferred_at).toLocaleString('id-ID') : '-'}
                       </td>
                       <td className="py-3 px-4">
                         <div className="font-mono font-bold text-slate-800">{t.pin?.serial_code}</div>
@@ -499,9 +499,9 @@ export default function AdminPinsTab() {
               >
                 {packages.map((pkg) => (
                   <option key={pkg.id} value={pkg.id}>
-                    {pkg.name} — Rp {pkg.price.toLocaleString('id-ID')} (Bonus Sponsor: Rp{' '}
-                    {pkg.sponsor_bonus?.toLocaleString('id-ID')} | Pairing: Rp{' '}
-                    {pkg.pairing_bonus?.toLocaleString('id-ID')})
+                    {pkg.name} — Rp {Number(pkg?.price || 0).toLocaleString('id-ID')} (Bonus Sponsor: Rp{' '}
+                    {Number(pkg?.sponsor_bonus || 0).toLocaleString('id-ID')} | Pairing: Rp{' '}
+                    {Number(pkg?.pairing_bonus || 0).toLocaleString('id-ID')})
                   </option>
                 ))}
               </select>

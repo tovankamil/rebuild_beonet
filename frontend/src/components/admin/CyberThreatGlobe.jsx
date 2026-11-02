@@ -729,7 +729,7 @@ export default function CyberThreatGlobe({
             </span>
             <span className="text-slate-200 font-bold">
               {hoveredNode.isTrafficNode
-                ? `${(hoveredNode.count || 1).toLocaleString('id-ID')} Verified Visits`
+                ? `${Number(hoveredNode?.count || 1).toLocaleString('id-ID')} Verified Visits`
                 : hoveredNode.ip || '103.145.22.84'}
             </span>
 

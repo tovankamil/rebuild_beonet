@@ -288,8 +288,8 @@ export default function AdminFraudTab({ onNavigateToAudit }) {
           </div>
 
           <ExportButtons
-            filename="Laporan_Fraud_Control_Bionet"
-            title="LAPORAN AUDIT & DETEKSI FRAUD BIONET"
+            filename="Laporan_Fraud_Control_SYNETIQ"
+            title="LAPORAN AUDIT & DETEKSI FRAUD SYNETIQ"
             subtitle="Daftar kasus kecurangan dan anomali akun terdeteksi sistem"
             headers={['TINGKAT RISIKO', 'ATURAN KECURANGAN', 'JUDUL INDIKASI', 'PENGGUNA TERKAIT', 'STATUS', 'TANGGAL DETEKSI']}
             rows={casesList.map((c) => [

@@ -22,9 +22,9 @@ import {
 import api from '../../services/api';
 
 export default function WebinarFunnelModal({ user, onClose }) {
-  const partnerName = user?.full_name || 'Mitra Bionet Juara';
+  const partnerName = user?.full_name || 'Mitra SYNETIQ Juara';
   const partnerPhone = user?.phone || '';
-  const referralCode = user?.username || 'bionet';
+  const referralCode = user?.username || 'synetiq';
   const cleanPhone = partnerPhone.replace(/[^0-9]/g, '');
 
   // Form State
@@ -37,8 +37,8 @@ export default function WebinarFunnelModal({ user, onClose }) {
 
   // Zoom Credentials
   const zoomRoomId = '892 1829 012';
-  const zoomPasscode = 'BIONETJUARA';
-  const zoomLink = 'https://zoom.us/j/8921829012?pwd=BIONETJUARA';
+  const zoomPasscode = 'SYNETIQJUARA';
+  const zoomLink = 'https://zoom.us/j/8921829012?pwd=SYNETIQJUARA';
 
   // Countdown timer simulation for Next BOP (Every Wednesday & Saturday 19:30 WIB)
   const [timeLeft, setTimeLeft] = useState({ hours: 14, minutes: 28, seconds: 45 });
@@ -72,7 +72,7 @@ export default function WebinarFunnelModal({ user, onClose }) {
         phone: guestPhone.trim(),
         city: guestCity.trim(),
         source: 'webinar_funnel',
-        product_interest: 'Webinar Peluang Bisnis BOP Bionet',
+        product_interest: 'Webinar Peluang Bisnis BOP SYNETIQ',
         notes: `Didaftarkan ke Webinar BOP oleh sponsor ${partnerName}`,
         estimated_value: 500000,
       }).catch(() => {
@@ -88,7 +88,7 @@ export default function WebinarFunnelModal({ user, onClose }) {
   };
 
   const handleSendWAInvitation = () => {
-    const inviteText = `Halo ${guestName || 'Bapak/Ibu'}, salam kenal dari ${partnerName}! 🌿\n\nSaya telah mendaftarkan akses VIP gratis untuk Anda di acara:\n\n*WEBINAR KESEHATAN & PELUANG BISNIS BIONET (BOP)*\n📅 Jadwal: Rabu & Sabtu Malam, Pukul 19.30 WIB\n🎙️ Pembicara: dr. Hendra Wijaya, Sp.PD & Top Leader Diamond\n\n📌 *Link Masuk Zoom:*\n${zoomLink}\nMeeting ID: ${zoomRoomId}\nPasscode: ${zoomPasscode}\n\nPengundang Resmi: ${partnerName} (Kode: ${referralCode.toUpperCase()})\n\nSampai jumpa di ruangan Zoom! Kuota terbatas 500 peserta.`;
+    const inviteText = `Halo ${guestName || 'Bapak/Ibu'}, salam kenal dari ${partnerName}! 🌿\n\nSaya telah mendaftarkan akses VIP gratis untuk Anda di acara:\n\n*WEBINAR KESEHATAN & PELUANG BISNIS SYNETIQ (BOP)*\n📅 Jadwal: Rabu & Sabtu Malam, Pukul 19.30 WIB\n🎙️ Pembicara: dr. Hendra Wijaya, Sp.PD & Top Leader Diamond\n\n📌 *Link Masuk Zoom:*\n${zoomLink}\nMeeting ID: ${zoomRoomId}\nPasscode: ${zoomPasscode}\n\nPengundang Resmi: ${partnerName} (Kode: ${referralCode.toUpperCase()})\n\nSampai jumpa di ruangan Zoom! Kuota terbatas 500 peserta.`;
 
     const targetPhone = guestPhone ? guestPhone.replace(/[^0-9]/g, '') : '';
     const waUrl = targetPhone
@@ -99,7 +99,7 @@ export default function WebinarFunnelModal({ user, onClose }) {
   };
 
   const handleCopyZoomDetails = () => {
-    const text = `Zoom BOP Bionet: ${zoomLink} | Meeting ID: ${zoomRoomId} | Passcode: ${zoomPasscode}`;
+    const text = `Zoom BOP SYNETIQ: ${zoomLink} | Meeting ID: ${zoomRoomId} | Passcode: ${zoomPasscode}`;
     navigator.clipboard.writeText(text);
     setCopiedZoom(true);
     setTimeout(() => setCopiedZoom(false), 2500);
@@ -124,7 +124,7 @@ export default function WebinarFunnelModal({ user, onClose }) {
                 </span>
               </div>
               <p className="text-xs text-emerald-200/80">
-                Ajak prospek hadir di presentasi resmi Bionet, biarkan sistem dan para dokter membantu closing tim Anda!
+                Ajak prospek hadir di presentasi resmi SYNETIQ, biarkan sistem dan para dokter membantu closing tim Anda!
               </p>
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function WebinarFunnelModal({ user, onClose }) {
                       dr. Hendra Wijaya, Sp.PD
                     </span>
                     <p className="text-[11px] text-slate-500">
-                      Konsultan Medis & Pakar Antioksidan Organ Tubuh Bionet
+                      Konsultan Medis & Pakar Antioksidan Organ Tubuh SYNETIQ
                     </p>
                   </div>
                 </div>

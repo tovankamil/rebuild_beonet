@@ -76,7 +76,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
     {
       sender: 'Host Moderator',
       time: 'Sistem',
-      message: 'Selamat datang di ruang Video Conference Bionet! Mohon perhatikan materi yang disampaikan.',
+      message: 'Selamat datang di ruang Video Conference SYNETIQ! Mohon perhatikan materi yang disampaikan.',
     },
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -332,7 +332,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
       {!isSmall && (
         <div className="mt-4 text-center space-y-1 px-4">
           <h4 className="font-extrabold text-white text-base sm:text-lg">
-            {meeting?.host_name || 'Presenter Utama Bionet'}
+            {meeting?.host_name || 'Presenter Utama SYNETIQ'}
           </h4>
           <p className="text-xs text-indigo-300 font-medium">Host Webinar &bull; Membagikan Suara &amp; Materi BOP</p>
 
@@ -348,7 +348,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
       )}
 
       <div className="absolute bottom-2.5 left-2.5 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-xl text-[10px] sm:text-[11px] font-bold flex items-center space-x-1.5 border border-slate-800">
-        <span className="text-indigo-400">Moderator Bionet (Host)</span>
+        <span className="text-indigo-400">Moderator SYNETIQ (Host)</span>
       </div>
     </div>
   );
@@ -405,7 +405,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white p-4 space-y-4">
         <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs font-semibold text-slate-400">Menghubungkan ke Ruang Pertemuan Bionet...</p>
+        <p className="text-xs font-semibold text-slate-400">Menghubungkan ke Ruang Pertemuan SYNETIQ...</p>
       </div>
     );
   }
@@ -456,7 +456,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
           <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 text-left space-y-2 text-xs">
             <div className="flex items-center space-x-2 text-indigo-400 font-bold">
               <Sparkles className="w-4 h-4" />
-              <span>Tertarik Bergabung Menjadi Mitra Resmi Bionet?</span>
+              <span>Tertarik Bergabung Menjadi Mitra Resmi SYNETIQ?</span>
             </div>
             <p className="text-slate-400 text-[11px] leading-relaxed">
               Dapatkan potensi penghasilan harian dari bonus pasangan, reward mobil, dan akses toko herbal mandiri sekarang.
@@ -468,7 +468,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
               onClick={() => (window.location.href = '/')}
               className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-lg shadow-emerald-950 flex items-center justify-center space-x-2"
             >
-              <span>Daftar Kemitraan Bionet</span>
+              <span>Daftar Kemitraan SYNETIQ</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
@@ -516,7 +516,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
               B
             </div>
             <div>
-              <h1 className="text-sm sm:text-base font-black tracking-tight text-white">BIONET LIVE WEBINAR</h1>
+              <h1 className="text-sm sm:text-base font-black tracking-tight text-white">SYNETIQ LIVE WEBINAR</h1>
               <p className="text-[11px] text-slate-400">Portal Video Conference &amp; Presentasi Bisnis Resmi</p>
             </div>
           </div>
@@ -535,7 +535,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold">
               <Flame className="w-3.5 h-3.5 text-amber-300" />
-              <span>Webinar Eksklusif Bionet v6</span>
+              <span>Webinar Eksklusif SYNETIQ v6</span>
             </div>
 
             <div className="space-y-3">
@@ -544,7 +544,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 {meeting.description ||
-                  'Ikuti pemaparan peluang bisnis resmi Bionet, strategi mencetak omset jutaan rupiah per minggu, serta sesi tanya jawab live.'}
+                  'Ikuti pemaparan peluang bisnis resmi SYNETIQ, strategi mencetak omset jutaan rupiah per minggu, serta sesi tanya jawab live.'}
               </p>
             </div>
 
@@ -669,7 +669,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
 
         {/* Footer */}
         <footer className="max-w-5xl mx-auto w-full text-center text-[11px] text-slate-500 pt-6 border-t border-slate-900 z-10">
-          &copy; {new Date().getFullYear()} Bionet Network System &bull; Ruang Video Conference Terintegrasi
+          &copy; {new Date().getFullYear()} SYNETIQ Network System &bull; Ruang Video Conference Terintegrasi
         </footer>
       </div>
     );
@@ -861,7 +861,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
                     B
                   </div>
                   <div>
-                    <div className="font-bold text-white leading-tight">{meeting.host_name || 'Presenter Bionet'}</div>
+                    <div className="font-bold text-white leading-tight">{meeting.host_name || 'Presenter SYNETIQ'}</div>
                     <div className="text-[10px] text-indigo-400">Host (Moderator)</div>
                   </div>
                 </div>
@@ -985,7 +985,7 @@ export default function PublicMeetingPage({ roomId, onGoHome }) {
                         B
                       </div>
                       <div>
-                        <div className="font-bold text-white">{meeting.host_name || 'Presenter Bionet'}</div>
+                        <div className="font-bold text-white">{meeting.host_name || 'Presenter SYNETIQ'}</div>
                         <div className="text-[10px] text-indigo-400">Host (Moderator)</div>
                       </div>
                     </div>

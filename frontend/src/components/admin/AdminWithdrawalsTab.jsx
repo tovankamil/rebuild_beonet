@@ -74,7 +74,7 @@ export default function AdminWithdrawalsTab() {
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <ExportButtons
-            filename="Approval_Pencairan_Bionet"
+            filename="Approval_Pencairan_SYNETIQ"
             title="DAFTAR PENGAJUAN PENCAIRAN DANA (WITHDRAWAL)"
             subtitle="Persetujuan transfer dana komisi mitra melalui Flip.id"
             headers={['WAKTU', 'USERNAME', 'NAMA MITRA', 'BANK TUJUAN', 'NO. REKENING', 'PEMILIK', 'NOMINAL (RP)', 'ADMIN (RP)', 'NET (RP)', 'STATUS']}

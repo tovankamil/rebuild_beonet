@@ -205,12 +205,12 @@ export default function ProspectingCalculatorModal({
     playCoinChime();
     const refCode = currentUser?.username || 'mitra';
     const regUrl = `${window.location.origin}/register?ref=${refCode}`;
-    const greeting = prospectName ? `Halo Kak *${prospectName}*, salam kenal!` : `Halo Sahabat Mitra Bionet,`;
+    const greeting = prospectName ? `Halo Kak *${prospectName}*, salam kenal!` : `Halo Sahabat Mitra SYNETIQ,`;
 
     const message = 
 `${greeting}
 
-Berikut adalah *Simulasi Potensi Income Kemitraan Herbal Bionet*:
+Berikut adalah *Simulasi Potensi Income Kemitraan Herbal SYNETIQ*:
 
 *1. Pilihan Paket Kemitraan:*
 - Paket: *${currentPkg.name.toUpperCase()}* (${currentPkg.hu} Hak Usaha)
@@ -235,7 +235,7 @@ Gabung bersama kami & raih kebebasan finansial melalui industri kesehatan herbal
 Daftar kemitraan resmi melalui tautan ini:
 ${regUrl}
 
-_Dibuat via Bionet Prospecting Engine_`;
+_Dibuat via SYNETIQ Prospecting Engine_`;
 
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/?text=${encoded}`, '_blank');
@@ -282,7 +282,7 @@ _Dibuat via Bionet Prospecting Engine_`;
                 </span>
               </div>
               <p className="text-xs text-emerald-200/80">
-                Visualisasikan kekuatan duplikasi binary &amp; potensi passive income Bionet
+                Visualisasikan kekuatan duplikasi binary &amp; potensi passive income SYNETIQ
               </p>
             </div>
           </div>
@@ -303,7 +303,7 @@ _Dibuat via Bionet Prospecting Engine_`;
               </div>
               <div>
                 <h1 className="text-xl font-black text-emerald-800 tracking-tight">
-                  BIONET INDONESIA
+                  SYNETIQ INDONESIA
                 </h1>
                 <p className="text-[11px] text-slate-600 font-semibold">
                   Proposal Simulasi Potensi Income &amp; Kemitraan Herbal Resmi BPOM
@@ -514,7 +514,7 @@ _Dibuat via Bionet Prospecting Engine_`;
                 </div>
                 <div>
                   <div className="text-[11px] font-bold text-amber-300 uppercase tracking-wider">
-                    Pencapaian Poin Reward Bionet
+                    Pencapaian Poin Reward SYNETIQ
                   </div>
                   <div className="text-lg font-heading font-extrabold text-white flex items-center gap-2">
                     <span>{calculations.totalPV.toLocaleString('id-ID')} PV Terkumpul</span>
@@ -644,7 +644,7 @@ _Dibuat via Bionet Prospecting Engine_`;
         {/* Modal Action Buttons Footer */}
         <div className="px-5 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
           <div className="text-xs text-slate-500 text-center sm:text-left">
-            Disimulasikan dengan algoritma real-time Bionet Binary Engine
+            Disimulasikan dengan algoritma real-time SYNETIQ Binary Engine
           </div>
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
             <button

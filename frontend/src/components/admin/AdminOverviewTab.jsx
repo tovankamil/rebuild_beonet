@@ -172,7 +172,7 @@ export default function AdminOverviewTab({ setActiveTab }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white">Panduan Lengkap Fitur &amp; Menu Platform Bionet</h2>
+                <h2 className="text-sm font-bold text-white">Panduan Lengkap Fitur &amp; Menu Platform SYNETIQ</h2>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/30 text-teal-200 border border-teal-400/40">
                   Modul Baru
                 </span>

@@ -256,7 +256,7 @@ export function QrCodeSvg({
 }) {
   const matrix = React.useMemo(() => {
     try {
-      return generateQrMatrix(value || 'https://bionet.id');
+      return generateQrMatrix(value || 'https://synetiq.id');
     } catch (e) {
       console.warn('QR matrix error:', e);
       return [];

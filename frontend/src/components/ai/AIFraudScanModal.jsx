@@ -68,13 +68,13 @@ const SAMPLE_DOCS = {
     title: 'Bukti Transfer BCA Mobile Asli & Valid',
     bank: 'Bank Central Asia (BCA)',
     pengirim: 'HERMAN PRASETYO',
-    rekeningTujuan: 'PT Bionet Herbal Indonesia (BCA 829-102-9988)',
+    rekeningTujuan: 'PT SYNETIQ Herbal Indonesia (BCA 829-102-9988)',
     nominal: 'Rp 2.500.000',
     noRef: '202610300941209382',
     waktu: '30/10/2026 14:28:11 WIB',
     score: 99,
     checks: [
-      { label: 'Verifikasi Nomor Rekening Tujuan Perusahaan', passed: true, detail: 'Akun escrow resmi PT Bionet Herbal Indonesia valid' },
+      { label: 'Verifikasi Nomor Rekening Tujuan Perusahaan', passed: true, detail: 'Akun escrow resmi PT SYNETIQ Herbal Indonesia valid' },
       { label: 'Layout & Tipografi Baku Aplikasi BCA Mobile', passed: true, detail: 'Alignment teks, grid spasi, dan warna hijau BCA presisi' },
       { label: 'Format Nomor Referensi Bank', passed: true, detail: 'Checksum 18 digit timestamp bank sinkron real-time' },
       { label: 'Analisis Pixel Font Nominal Transfer', passed: true, detail: 'Tidak ada tanda bekas clone stamp atau penimpaan angka' },
@@ -86,7 +86,7 @@ const SAMPLE_DOCS = {
     title: 'Bukti Transfer Rekayasa / Editan Font',
     bank: 'Bank Central Asia (BCA)',
     pengirim: 'DONI ANGGARA',
-    rekeningTujuan: 'PT Bionet Herbal Indonesia (BCA 829-102-9988)',
+    rekeningTujuan: 'PT SYNETIQ Herbal Indonesia (BCA 829-102-9988)',
     nominal: 'Rp 10.000.000 (DIREKAYASA)',
     noRef: '1234567890 (TIDAK SESUAI FORMAT)',
     waktu: '30/10/2026 00:00:00 WIB',
@@ -162,7 +162,7 @@ export default function AIFraudScanModal({ isOpen, onClose }) {
           ? `e-KTP Asli Terverifikasi (${file.name})`
           : `Bukti Transfer Asli & Valid (${file.name})`,
         nik: '3276' + Math.floor(100000000000 + Math.random() * 900000000000),
-        nama: cleanName || 'MITRA RESMI BIONET',
+        nama: cleanName || 'MITRA RESMI SYNETIQ',
         ttl: 'Kota Surabaya, 12-05-1988',
         alamat: 'Jl. Raya Darmo No. 45, Jawa Timur',
         agama: 'Islam',
@@ -170,7 +170,7 @@ export default function AIFraudScanModal({ isOpen, onClose }) {
         pekerjaan: 'Wiraswasta / Profesional',
         bank: 'Bank Central Asia (BCA)',
         pengirim: cleanName || 'HERMAN PRASETYO',
-        rekeningTujuan: 'PT Bionet Herbal Indonesia (BCA 829-102-9988)',
+        rekeningTujuan: 'PT SYNETIQ Herbal Indonesia (BCA 829-102-9988)',
         nominal: 'Rp 2.500.000',
         noRef: '20261101' + Math.floor(1000000000 + Math.random() * 9000000000),
         waktu: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) + ' WIB',
@@ -183,7 +183,7 @@ export default function AIFraudScanModal({ isOpen, onClose }) {
               { label: 'Analisis EXIF & Noise Forensik Digital', passed: true, detail: 'Bebas manipulasi pixel, suntingan software grafis, atau clone stamp' },
             ]
           : [
-              { label: 'Verifikasi Nomor Rekening Tujuan Perusahaan', passed: true, detail: 'Akun escrow resmi PT Bionet Herbal Indonesia valid' },
+              { label: 'Verifikasi Nomor Rekening Tujuan Perusahaan', passed: true, detail: 'Akun escrow resmi PT SYNETIQ Herbal Indonesia valid' },
               { label: 'Layout & Tipografi Baku Aplikasi Mobile Banking', passed: true, detail: 'Alignment teks, grid spasi, dan warna resmi presisi' },
               { label: 'Format Nomor Referensi Bank & Checksum Waktu', passed: true, detail: 'Timestamp dan nomor referensi bank sinkron real-time' },
               { label: 'Analisis Pixel Font Nominal Transfer', passed: true, detail: 'Tidak ditemukan distorsi artefak kompresi pada nominal transfer' },
@@ -220,7 +220,7 @@ export default function AIFraudScanModal({ isOpen, onClose }) {
   };
 
   const handleCopyAuditReport = () => {
-    let report = `[LAPORAN AUDIT FORENSIK DOKUMEN AI BIONET]\n`;
+    let report = `[LAPORAN AUDIT FORENSIK DOKUMEN AI SYNETIQ]\n`;
     report += `Jenis Dokumen: ${currentDoc.type.toUpperCase()}\n`;
     report += `Judul: ${currentDoc.title}\n`;
     report += `Skor Keaslian: ${currentDoc.score}% (${currentDoc.status === 'valid' ? 'DOKUMEN ASLI' : 'TERINDIKASI FRAUD'})\n`;
@@ -681,7 +681,7 @@ export default function AIFraudScanModal({ isOpen, onClose }) {
               {verifyingStatus === 'approved' && (
                 <div className="p-3 rounded-xl bg-emerald-100 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center space-x-2">
                   <CheckCircle2 size={16} className="text-emerald-700 shrink-0" />
-                  <span>Dokumen berhasil diverifikasi dan disetujui masuk sistem Bionet!</span>
+                  <span>Dokumen berhasil diverifikasi dan disetujui masuk sistem SYNETIQ!</span>
                 </div>
               )}
               {verifyingStatus === 'rejected' && (

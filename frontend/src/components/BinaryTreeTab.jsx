@@ -218,7 +218,7 @@ export default function BinaryTreeTab() {
           {node.username}
         </div>
         <div className="text-[10px] text-slate-400 truncate mb-2">
-          {node.full_name || 'Mitra Bionet'}
+          {node.full_name || 'Mitra SYNETIQ'}
         </div>
 
         {/* L / R PV Counter */}
@@ -536,7 +536,7 @@ export default function BinaryTreeTab() {
               <div className="p-3 rounded-lg bg-slate-50 border border-slate-100 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Nama Lengkap</span>
-                  <span className="font-bold text-slate-800">{selectedNode.full_name || 'Mitra Bionet'}</span>
+                  <span className="font-bold text-slate-800">{selectedNode.full_name || 'Mitra SYNETIQ'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Username</span>

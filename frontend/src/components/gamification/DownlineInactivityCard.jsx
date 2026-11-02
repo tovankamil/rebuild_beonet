@@ -19,7 +19,7 @@ const DORMANT_DOWNLINES = [];
 export default function DownlineInactivityCard({ user, onNavigateTree }) {
   const [filterDays, setFilterDays] = useState('all'); // 'all' | '14' | '30'
   const [downlines, setDownlines] = useState(DORMANT_DOWNLINES);
-  const sponsorName = user?.full_name || 'Sponsor Bionet Anda';
+  const sponsorName = user?.full_name || 'Sponsor SYNETIQ Anda';
 
   const filteredList = downlines.filter((item) => {
     if (filterDays === '30') return item.inactiveDays >= 30;
@@ -28,7 +28,7 @@ export default function DownlineInactivityCard({ user, onNavigateTree }) {
   });
 
   const handleSendMentoringWA = (member) => {
-    const text = `Halo Mas/Mbak ${member.name}, apa kabar? Salam hangat dari ${sponsorName} di Bionet! 🙏🌿\n\nSaya perhatikan sudah ${member.inactiveDays} hari belum ada kabar aktivitas di jaringan Bionet Anda. Semoga Anda sekeluarga selalu sehat ya.\n\nApakah ada kendala seputar cara prospek, stok produk Bio-Propolis, atau cara closing di WhatsApp yang bisa saya bantu dampingi? Yuk kalau ada waktu luang kita ngobrol santai 10 menit via telepon/video call agar omset dan bonus pasangan Anda segera melesat lagi!\n\nSemangat selalu, kita sukses bareng di Bionet! 💪✨`;
+    const text = `Halo Mas/Mbak ${member.name}, apa kabar? Salam hangat dari ${sponsorName} di SYNETIQ! 🙏🌿\n\nSaya perhatikan sudah ${member.inactiveDays} hari belum ada kabar aktivitas di jaringan SYNETIQ Anda. Semoga Anda sekeluarga selalu sehat ya.\n\nApakah ada kendala seputar cara prospek, stok produk Bio-Propolis, atau cara closing di WhatsApp yang bisa saya bantu dampingi? Yuk kalau ada waktu luang kita ngobrol santai 10 menit via telepon/video call agar omset dan bonus pasangan Anda segera melesat lagi!\n\nSemangat selalu, kita sukses bareng di SYNETIQ! 💪✨`;
 
     const clean = member.phone.replace(/[^0-9]/g, '');
     window.open(`https://wa.me/${clean}?text=${encodeURIComponent(text)}`, '_blank');

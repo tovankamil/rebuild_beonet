@@ -3,7 +3,7 @@ import { Download, FileSpreadsheet, Printer, ChevronDown } from 'lucide-react';
 import { exportToExcel, exportToPDF } from '../../utils/exportUtils';
 
 export default function ExportButtons({
-  filename = 'Laporan-Bionet',
+  filename = 'Laporan-SYNETIQ',
   title = 'Laporan Data',
   subtitle = '',
   headers = [],

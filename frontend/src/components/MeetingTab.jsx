@@ -88,7 +88,7 @@ export default function MeetingTab({ user, setActiveTab }) {
     {
       sender: 'Host Moderator',
       time: 'Sistem',
-      message: 'Selamat datang di ruang Video Conference Bionet! Fitur Tatap Muka 2 Arah & Suara WebRTC aktif langsung.',
+      message: 'Selamat datang di ruang Video Conference SYNETIQ! Fitur Tatap Muka 2 Arah & Suara WebRTC aktif langsung.',
     },
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -429,7 +429,7 @@ export default function MeetingTab({ user, setActiveTab }) {
       const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const myId = user?.id || `user_${Math.random().toString(36).substring(2, 8)}`;
       const myUsername = user?.username || 'mitra';
-      const myFullName = user?.full_name || user?.username || 'Mitra Bionet';
+      const myFullName = user?.full_name || user?.username || 'Mitra SYNETIQ';
       const myRole = user?.role || 'member';
 
       const wsUrl = `${wsProtocol}//${window.location.host}/ws/meetings/${activeMeeting.room_id}?user_id=${myId}&username=${encodeURIComponent(
@@ -710,7 +710,7 @@ export default function MeetingTab({ user, setActiveTab }) {
 
       recorder.onstop = () => {
         const blob = new Blob(recordedChunksRef.current, { type: selectedMime || 'video/webm' });
-        const cleanTitle = (activeMeeting?.title || 'Bionet_Meeting').replace(/[^a-zA-Z0-9_-]/g, '_');
+        const cleanTitle = (activeMeeting?.title || 'SYNETIQ_Meeting').replace(/[^a-zA-Z0-9_-]/g, '_');
         const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
         const fileName = `${cleanTitle}_${timestamp}.webm`;
 
@@ -998,7 +998,7 @@ export default function MeetingTab({ user, setActiveTab }) {
         {!isSmall && (
           <div className="mt-4 text-center space-y-1 px-4">
             <h4 className="font-extrabold text-white text-base sm:text-lg">
-              {activeMeeting.host_name || 'Presenter Utama Bionet'}
+              {activeMeeting.host_name || 'Presenter Utama SYNETIQ'}
             </h4>
             <p className="text-xs text-indigo-300 font-medium">Menunggu mitra lain bergabung...</p>
 
@@ -1815,7 +1815,7 @@ export default function MeetingTab({ user, setActiveTab }) {
               <span>Video Conference, BOP Webinar &amp; Video KYC Anti-Fraud</span>
             </div>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
-              Ruang Pertemuan Digital Bionet v6
+              Ruang Pertemuan Digital SYNETIQ v6
             </h1>
             <p className="text-xs sm:text-sm text-indigo-200/90 max-w-2xl leading-relaxed">
               Ikuti Webinar Akbar BOP Nasional, sesi verifikasi tatap muka Video KYC Anti-Fraud, serta konsultasi kesehatan live bersama dokter dan herbalis resmi.
@@ -2010,7 +2010,7 @@ export default function MeetingTab({ user, setActiveTab }) {
                   required
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Contoh: Webinar Peluang Sukses Kemitraan Bionet"
+                  placeholder="Contoh: Webinar Peluang Sukses Kemitraan SYNETIQ"
                   className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>

@@ -1,5 +1,5 @@
 /**
- * Sound Notification Utility for Bionet Mitra Hub
+ * Sound Notification Utility for SYNETIQ Mitra Hub
  * Synthesizes pure Web Audio API sounds with 0 external audio dependencies (works 100% offline).
  */
 

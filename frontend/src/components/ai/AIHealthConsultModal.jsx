@@ -181,7 +181,7 @@ export default function AIHealthConsultModal({
   isOpen,
   onClose,
   partnerWhatsApp = '',
-  partnerName = 'Konsultan Herbal Bionet',
+  partnerName = 'Konsultan Herbal SYNETIQ',
 }) {
   const [step, setStep] = useState('input'); // 'input' | 'analyzing' | 'result'
   const [patientName, setPatientName] = useState('');
@@ -255,7 +255,7 @@ export default function AIHealthConsultModal({
 
   const generateWhatsAppMessage = () => {
     const pName = patientName.trim() || 'Prospek';
-    let text = `*KONSULTASI RESEP HERBAL AI BIONET*\n`;
+    let text = `*KONSULTASI RESEP HERBAL AI SYNETIQ*\n`;
     text += `--------------------------------------\n`;
     text += `👤 *Pasien:* ${pName} (${patientAge} th, ${patientGender})\n`;
     text += `🩺 *Keluhan:* ${selectedPreset.label} (${severity})\n`;
@@ -327,7 +327,7 @@ export default function AIHealthConsultModal({
             <div>
               <div className="flex items-center space-x-2">
                 <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                  AI Fitofarmaka Bionet
+                  AI Fitofarmaka SYNETIQ
                 </span>
                 <span className="inline-flex items-center text-[10px] font-semibold text-emerald-200">
                   <ShieldCheck size={12} className="mr-1 text-emerald-300" /> Standar BPOM RI
@@ -658,7 +658,7 @@ export default function AIHealthConsultModal({
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2.5 flex items-center">
                   <Pill size={14} className="mr-1.5 text-emerald-600" />
-                  Rangkaian Produk Terapi Sinergis Bionet:
+                  Rangkaian Produk Terapi Sinergis SYNETIQ:
                 </h4>
 
                 <div className="space-y-3">
@@ -735,7 +735,7 @@ export default function AIHealthConsultModal({
                 <Info size={14} className="text-slate-400 mt-0.5 shrink-0" />
                 <p>
                   <strong>Disclaimer Medis Resmi:</strong> Resep herbal AI ini disusun berdasarkan prinsip
-                  fitofarmaka empiris produk resmi BPOM PT Bionet Herbal Indonesia sebagai suplemen pendukung daya
+                  fitofarmaka empiris produk resmi BPOM PT SYNETIQ Herbal Indonesia sebagai suplemen pendukung daya
                   tahan sel dan metabolisme. Bukan pengganti intervensi medis darurat rumah sakit. Konsultasikan dengan
                   dokter spesialis bila keluhan berlanjut.
                 </p>

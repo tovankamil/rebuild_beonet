@@ -471,8 +471,8 @@ export default function AdminProductsTab() {
             <ExportButtons
               data={products}
               columns={exportColumns}
-              filename="katalog-produk-herbal-bionet"
-              title="Katalog Produk Herbal Bionet"
+              filename="katalog-produk-herbal-synetiq"
+              title="Katalog Produk Herbal SYNETIQ"
             />
           </div>
         </div>
@@ -757,7 +757,7 @@ export default function AdminProductsTab() {
                 <input
                   type="text"
                   required
-                  placeholder="Contoh: Bionet Bio-Herbal Drops 30ml"
+                  placeholder="Contoh: SYNETIQ Bio-Herbal Drops 30ml"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"

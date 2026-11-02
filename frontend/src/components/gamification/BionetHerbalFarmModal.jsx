@@ -239,7 +239,7 @@ const SEEDS_CATALOG = [
   },
   {
     id: 'royal_trigona',
-    name: 'Herbal Emas Propolis Trigona Bionet',
+    name: 'Herbal Emas Propolis Trigona SYNETIQ',
     tag: 'Jackpot • Panen Akbar',
     targetWater: 300,
     timeDesc: '30x Siram Air',
@@ -252,7 +252,7 @@ const SEEDS_CATALOG = [
   },
 ];
 
-export default function BionetHerbalFarmModal({ isOpen, onClose, currentUser, onRewardClaimed }) {
+export default function SYNETIQHerbalFarmModal({ isOpen, onClose, currentUser, onRewardClaimed }) {
   const [activeSubTab, setActiveSubTab] = useState('farm'); // 'farm', 'seeds', 'friends', 'harvests'
   const [loading, setLoading] = useState(false);
   const [wateringAnim, setWateringAnim] = useState(false);
@@ -538,7 +538,7 @@ export default function BionetHerbalFarmModal({ isOpen, onClose, currentUser, on
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-extrabold uppercase tracking-wider bg-emerald-400/30 text-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300/40">
-                  Intermezo Komunitas Bionet
+                  Intermezo Komunitas SYNETIQ
                 </span>
                 <span className="text-[10px] bg-amber-400 text-amber-950 font-extrabold px-1.5 py-0.5 rounded-md">
                   Level {farmData.pet.level}
@@ -764,7 +764,7 @@ export default function BionetHerbalFarmModal({ isOpen, onClose, currentUser, on
 
                     {/* Mound of Rich Garden Soil */}
                     <div className="w-40 h-10 bg-gradient-to-r from-amber-900 via-amber-800 to-amber-900 rounded-[50%] -mt-5 mx-auto border-2 border-amber-950/40 shadow-inner flex items-center justify-center">
-                      <span className="text-[10px] text-amber-200/70 font-mono font-bold">Tanah Organik Bionet</span>
+                      <span className="text-[10px] text-amber-200/70 font-mono font-bold">Tanah Organik SYNETIQ</span>
                     </div>
                   </div>
 
@@ -844,7 +844,7 @@ export default function BionetHerbalFarmModal({ isOpen, onClose, currentUser, on
               <div className="p-3.5 rounded-2xl bg-white border border-emerald-100 shadow-xs flex items-start gap-3">
                 <span className="text-xl">💡</span>
                 <div className="text-xs text-slate-600 leading-relaxed">
-                  <strong>Tips Perawatan Kebun:</strong> Siram kebun Anda setiap pagi dan sore hari. Ajak rekan downline saling berkunjung untuk saling bantu siram kebun agar hadiah diskon belanja dan saldo Bionet lebih cepat dipanen!
+                  <strong>Tips Perawatan Kebun:</strong> Siram kebun Anda setiap pagi dan sore hari. Ajak rekan downline saling berkunjung untuk saling bantu siram kebun agar hadiah diskon belanja dan saldo SYNETIQ lebih cepat dipanen!
                 </div>
               </div>
             </div>
@@ -855,7 +855,7 @@ export default function BionetHerbalFarmModal({ isOpen, onClose, currentUser, on
             <div className="space-y-4">
               <div className="text-center max-w-md mx-auto mb-2">
                 <h3 className="text-base font-heading font-black text-slate-900">
-                  Katalog Bibit Herbal Nusantara Bionet
+                  Katalog Bibit Herbal Nusantara SYNETIQ
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
                   Pilih tanaman yang ingin Anda rawat hari ini. Setiap bibit menghasilkan hadiah riil berupa madu asli, voucher belanja RO, atau saldo tunai!
@@ -1039,7 +1039,7 @@ export default function BionetHerbalFarmModal({ isOpen, onClose, currentUser, on
         <div className="p-3.5 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 shrink-0">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Komunitas Petani Herbal Bionet Nusantara</span>
+            <span>Komunitas Petani Herbal SYNETIQ Nusantara</span>
           </div>
           <button
             type="button"

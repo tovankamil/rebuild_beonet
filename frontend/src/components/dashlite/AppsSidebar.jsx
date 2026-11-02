@@ -287,7 +287,7 @@ function getRoleMenuModules(role) {
         icon: Sparkles,
         badge: 'Produk',
         submenus: [
-          { id: 'products', title: 'Katalog Produk Bionet', desc: 'Spesifikasi fisik & foto produk herbal', icon: ShoppingBag },
+          { id: 'products', title: 'Katalog Produk SYNETIQ', desc: 'Spesifikasi fisik & foto produk herbal', icon: ShoppingBag },
         ],
       },
     ];
@@ -669,7 +669,7 @@ export default function AppsSidebar({
   const roleLabel = {
     admin: 'SUPER ADMIN',
     gudang: 'TIM GUDANG',
-    member: 'MITRA BIONET',
+    member: 'MITRA SYNETIQ',
   }[userRole] || 'PENGGUNA';
 
   // Mobile drawer submenu accordion state
@@ -785,7 +785,7 @@ export default function AppsSidebar({
                   ? 'rgba(255, 255, 255, 0.1)'
                   : `linear-gradient(135deg, ${branding?.primary_color || '#10b981'} 0%, ${branding?.secondary_color || '#06b6d4'} 100%)`,
               }}
-              title={branding?.app_name || 'Bionet Hub'}
+              title={branding?.app_name || 'SYNETIQ Hub'}
             >
               {branding?.logo_url ? (
                 <img
@@ -899,7 +899,7 @@ export default function AppsSidebar({
               </div>
               <div>
                 <h3 className="font-heading font-extrabold text-sm text-white leading-tight">
-                  {branding?.app_name || 'Bionet'} {userRole === 'admin' ? 'Admin Hub' : 'Mitra Hub'}
+                  {branding?.app_name || 'SYNETIQ'} {userRole === 'admin' ? 'Admin Hub' : 'Mitra Hub'}
                 </h3>
                 <p className="text-[10px] text-emerald-400/80 font-medium">
                   {roleLabel}
@@ -936,7 +936,7 @@ export default function AppsSidebar({
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-bold text-white truncate group-hover:text-emerald-300 transition-colors">
-                  {user?.full_name || user?.username || 'Mitra Bionet'}
+                  {user?.full_name || user?.username || 'Mitra SYNETIQ'}
                 </div>
                 <div className="text-[10px] text-emerald-400/80 truncate">
                   @{user?.username || 'user'} • Edit Profil

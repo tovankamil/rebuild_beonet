@@ -100,7 +100,7 @@ export default function AdminPackagesTab() {
     setFormPoints(3);
     setFormProductQuota(3);
     setFormSelectionRule('free_choice');
-    setFormDescription('Paket kemitraan resmi Bionet dengan hak usaha dan jatah produk herbal pilihan.');
+    setFormDescription('Paket kemitraan resmi SYNETIQ dengan hak usaha dan jatah produk herbal pilihan.');
     setFormIsActive(true);
     setFormBundleItems([]);
     setErrorBanner('');
@@ -313,8 +313,8 @@ export default function AdminPackagesTab() {
           <ExportButtons
             data={packages}
             columns={exportColumns}
-            filename="master-paket-kemitraan-bionet"
-            title="Master Paket Join Kemitraan Bionet"
+            filename="master-paket-kemitraan-synetiq"
+            title="Master Paket Join Kemitraan SYNETIQ"
           />
         </div>
 

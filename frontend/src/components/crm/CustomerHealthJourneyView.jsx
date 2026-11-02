@@ -23,7 +23,7 @@ import api from '../../services/api';
 import ModalPortal from '../common/ModalPortal';
 import { downloadVCardContact } from '../../utils/vCardGenerator';
 
-// 4 Milestone Definisi Siklus Herbal Bionet
+// 4 Milestone Definisi Siklus Herbal SYNETIQ
 export const HEALTH_MILESTONES = [
   {
     step: 1,
@@ -35,7 +35,7 @@ export const HEALTH_MILESTONES = [
     badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
     dotColor: 'bg-amber-500',
     promptTemplate: (name, keluhan, produk) =>
-      `Halo Bapak/Ibu ${name}, salam sehat dari Bionet! 🙏\n\nAlhamdulillah hari ini sudah memasuki hari ke-3 konsumsi rutin ${produk}.\n\nBagaimana rasa dan proses adaptasi di tubuh sejauh ini? Apakah mulai terasa sedikit lebih hangat atau buang air lebih lancar? Itu merupakan respon alami pembersihan toksin (detoksifikasi) tubuh. Pastikan tetap minum air putih hangat yang cukup ya. 😊🌿`,
+      `Halo Bapak/Ibu ${name}, salam sehat dari SYNETIQ! 🙏\n\nAlhamdulillah hari ini sudah memasuki hari ke-3 konsumsi rutin ${produk}.\n\nBagaimana rasa dan proses adaptasi di tubuh sejauh ini? Apakah mulai terasa sedikit lebih hangat atau buang air lebih lancar? Itu merupakan respon alami pembersihan toksin (detoksifikasi) tubuh. Pastikan tetap minum air putih hangat yang cukup ya. 😊🌿`,
   },
   {
     step: 2,
@@ -259,7 +259,7 @@ export default function CustomerHealthJourneyView({ user }) {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
               </span>
               <HeartHandshake className="w-3.5 h-3.5 text-emerald-300 ml-0.5" />
-              <span className="tracking-wide">Protokol Retensi Klinis Pasien Herbal Bionet</span>
+              <span className="tracking-wide">Protokol Retensi Klinis Pasien Herbal SYNETIQ</span>
             </div>
 
             {/* Banner Title */}
@@ -271,7 +271,7 @@ export default function CustomerHealthJourneyView({ user }) {
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-emerald-100/85 max-w-2xl leading-relaxed mt-2 font-normal">
-                Sistematisasi pendampingan konsumen herbal Bionet: pantau detoks awal (Hari 3), evaluasi vitalitas (Hari 7), kumpulkan testimoni klinis (Hari 14), dan amankan repeat order otomatis sebelum botol habis (Hari 25).
+                Sistematisasi pendampingan konsumen herbal SYNETIQ: pantau detoks awal (Hari 3), evaluasi vitalitas (Hari 7), kumpulkan testimoni klinis (Hari 14), dan amankan repeat order otomatis sebelum botol habis (Hari 25).
               </p>
             </div>
 
@@ -1003,7 +1003,7 @@ export default function CustomerHealthJourneyView({ user }) {
                     Panduan SOP Siklus Sehat 3-7-14-25 Hari
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Protokol retensi &amp; pendampingan klinis konsumen herbal Bionet
+                    Protokol retensi &amp; pendampingan klinis konsumen herbal SYNETIQ
                   </p>
                 </div>
               </div>

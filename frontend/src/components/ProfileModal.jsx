@@ -29,11 +29,11 @@ const AVATAR_PRESETS = [
   'https://api.dicebear.com/7.x/bottts/svg?seed=mitra01',
   'https://api.dicebear.com/7.x/bottts/svg?seed=gold_leader',
   'https://api.dicebear.com/7.x/bottts/svg?seed=champion99',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=bionet_star',
-  'https://api.dicebear.com/7.x/bottts/svg?seed=diamond_bionet',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=synetiq_star',
+  'https://api.dicebear.com/7.x/bottts/svg?seed=diamond_synetiq',
   'https://api.dicebear.com/7.x/bottts/svg?seed=super_mitra',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=bionet_man',
-  'https://api.dicebear.com/7.x/avataaars/svg?seed=bionet_woman',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=synetiq_man',
+  'https://api.dicebear.com/7.x/avataaars/svg?seed=synetiq_woman',
 ];
 
 export default function ProfileModal({
@@ -398,7 +398,7 @@ export default function ProfileModal({
                   className="w-14 h-14 rounded-2xl bg-emerald-50 border-2 border-emerald-400 shadow-sm p-1 object-cover"
                 />
                 <div className="text-xs text-slate-500">
-                  Pilih salah satu karakter resmi Bionet di bawah atau tempel URL avatar kustom Anda.
+                  Pilih salah satu karakter resmi SYNETIQ di bawah atau tempel URL avatar kustom Anda.
                 </div>
               </div>
 

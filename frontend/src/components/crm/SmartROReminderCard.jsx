@@ -80,7 +80,7 @@ export default function SmartROReminderCard({ user }) {
     const cleanPhone = (item.phone || '').replace(/[^0-9]/g, '');
     const phoneTarget = cleanPhone.startsWith('0') ? '62' + cleanPhone.slice(1) : cleanPhone;
 
-    const message = `Halo Kak ${item.customer_name}, salam hangat dari Bionet Herbal!
+    const message = `Halo Kak ${item.customer_name}, salam hangat dari SYNETIQ Herbal!
 
 Semoga selalu sehat ya Kak. Mau mengabarkan bahwa ${item.product_name} pesanan kemarin perkiraan tinggal sedikit ya (estimasi tersisa ${item.bottles_remaining_est})? 
 
@@ -102,7 +102,7 @@ Biar khasiatnya tetap berkesinambungan dan tidak putus minum, mau kami bantu sia
 
     const message = `Halo Mitra Hebat Kak ${downline.name} (@${downline.username})! Apa kabar?
 
-Lagi kangen diskusi perkembangan tim Bionet nih. Di jalur ${downline.position} Anda sudah ada omset bertumbuh, sayang banget kalau poin pasangannya tidak dimaksimalkan.
+Lagi kangen diskusi perkembangan tim SYNETIQ nih. Di jalur ${downline.position} Anda sudah ada omset bertumbuh, sayang banget kalau poin pasangannya tidak dimaksimalkan.
 
 Ada strategi baru dan promo promo repeat order terbaru dari manajemen minggu ini. Kapan ada waktu santai 10 menit buat ngobrol via telepon atau Zoom?`;
 

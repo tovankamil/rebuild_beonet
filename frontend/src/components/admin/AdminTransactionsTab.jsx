@@ -239,7 +239,7 @@ export default function AdminTransactionsTab() {
 
           <div className="flex flex-wrap items-center gap-3">
             <ExportButtons
-              filename="Buku_Besar_Bionet"
+              filename="Buku_Besar_SYNETIQ"
               title="BUKU BESAR MUTASI & AUDIT BONUS PASANGAN"
               subtitle="Laporan mutasi kredit/debit dompet, komisi sponsor, dan bonus pairing binary"
               headers={['WAKTU', 'USERNAME', 'NAMA MITRA', 'TIPE', 'NOMINAL (RP)', 'SALDO AKHIR (RP)', 'DESKRIPSI']}
@@ -327,7 +327,7 @@ export default function AdminTransactionsTab() {
                             {t.user?.username?.charAt(0).toUpperCase() || 'M'}
                           </div>
                           <div>
-                            <div className="font-bold text-slate-900">{t.user?.full_name || 'Mitra Bionet'}</div>
+                            <div className="font-bold text-slate-900">{t.user?.full_name || 'Mitra SYNETIQ'}</div>
                             <div className="text-[10px] text-slate-400">@{t.user?.username || '-'}</div>
                           </div>
                         </div>

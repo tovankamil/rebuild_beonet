@@ -24,7 +24,7 @@ import AIVoiceNoteModal from './AIVoiceNoteModal';
 import AIFraudScanModal from './AIFraudScanModal';
 import AIImageGeneratorModal from './AIImageGeneratorModal';
 
-export default function BionetAIFloatingHub({ currentUser, stats, onOpenRegisterDownline }) {
+export default function SYNETIQAIFloatingHub({ currentUser, stats, onOpenRegisterDownline }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(null); // 'health' | 'copywriting' | 'binary' | 'churn' | 'voicenote' | 'fraud' | null
 
@@ -135,14 +135,14 @@ export default function BionetAIFloatingHub({ currentUser, stats, onOpenRegister
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsMenuOpen((prev) => !prev)}
           className="relative bg-gradient-to-r from-emerald-800 via-emerald-900 to-teal-950 hover:from-emerald-700 hover:to-teal-900 text-white px-4 py-3 rounded-full shadow-[0_8px_25px_rgba(4,120,87,0.45)] border border-emerald-400/40 flex items-center space-x-2.5 transition group"
-          aria-label="Buka Menu Bionet AI Hub"
+          aria-label="Buka Menu SYNETIQ AI Hub"
         >
           <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-300 text-slate-950 flex items-center justify-center shrink-0 shadow-sm shadow-emerald-400/50">
             <Sparkles size={16} className="group-hover:rotate-12 transition-transform" />
           </div>
           <div className="text-left hidden sm:block pr-1">
             <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-              Bionet AI Hub
+              SYNETIQ AI Hub
             </div>
             <div className="text-xs font-black text-white leading-tight">
               7 Fitur Cerdas
@@ -181,7 +181,7 @@ export default function BionetAIFloatingHub({ currentUser, stats, onOpenRegister
                   </div>
                   <div>
                     <h3 className="font-heading font-extrabold text-sm text-white">
-                      Bionet AI Intelligence Suite
+                      SYNETIQ AI Intelligence Suite
                     </h3>
                     <p className="text-[10px] text-emerald-300">
                       Pusat Fitur AI Cerdas Mitra &amp; CRM Herbal
@@ -259,14 +259,14 @@ export default function BionetAIFloatingHub({ currentUser, stats, onOpenRegister
         isOpen={activeModal === 'health'}
         onClose={() => setActiveModal(null)}
         partnerWhatsApp={currentUser?.phone || ''}
-        partnerName={currentUser?.full_name || 'Konsultan Herbal Bionet'}
+        partnerName={currentUser?.full_name || 'Konsultan Herbal SYNETIQ'}
       />
 
       <AICopywritingStudioModal
         isOpen={activeModal === 'copywriting'}
         onClose={() => setActiveModal(null)}
         partnerWhatsApp={currentUser?.phone || ''}
-        partnerName={currentUser?.full_name || 'Mitra Resmi Bionet'}
+        partnerName={currentUser?.full_name || 'Mitra Resmi SYNETIQ'}
       />
 
       <AIBinaryAdvisorModal

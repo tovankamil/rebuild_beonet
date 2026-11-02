@@ -252,7 +252,7 @@ export default function PinTab() {
             </div>
             <ExportButtons
               filename="Inventori_PIN_Mitra"
-              title="INVENTORI SERIAL PIN MITRA BIONET"
+              title="INVENTORI SERIAL PIN MITRA SYNETIQ"
               subtitle="Stok serial PIN aktif dan terpakai untuk aktivasi paket hak usaha"
               headers={['SERIAL CODE', 'PAKET HU', 'STATUS', 'TANGGAL']}
               rows={pins.map((p) => [

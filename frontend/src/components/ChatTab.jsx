@@ -52,17 +52,17 @@ export default function ChatTab({ currentUser }) {
   const emojiPickerRef = useRef(null);
 
   const quickRepliesMitra = [
-    'Halo CS Bionet, mohon info jadwal penarikan dana.',
+    'Halo CS SYNETIQ, mohon info jadwal penarikan dana.',
     'Bagaimana cara melakukan transfer PIN lisensi ke mitra baru?',
     'Kapan komisi bonus pasangan binary masuk ke dompet?',
     'Terima kasih banyak atas bantuannya!',
   ];
 
   const quickRepliesCS = [
-    'Halo Kak, ada yang bisa kami bantu seputar kemitraan Bionet?',
+    'Halo Kak, ada yang bisa kami bantu seputar kemitraan SYNETIQ?',
     'Pengajuan penarikan dana Anda telah berhasil diproses melalui Flip.id.',
     'Serial PIN lisensi Anda sudah aktif dan siap didaftarkan.',
-    'Terima kasih telah menghubungi Customer Service Bionet!',
+    'Terima kasih telah menghubungi Customer Service SYNETIQ!',
   ];
 
   const scrollToBottom = () => {
@@ -283,7 +283,7 @@ export default function ChatTab({ currentUser }) {
           <p className="text-xs text-slate-500 mt-1">
             {isSupportRole
               ? 'Kelola tiket percakapan mitra, panduan jaringan binary, kendala mutasi, dan pencairan bonus harian.'
-              : 'Komunikasi langsung dengan Tim Layanan Pelanggan (CS) dan Administrator Bionet Pusat.'}
+              : 'Komunikasi langsung dengan Tim Layanan Pelanggan (CS) dan Administrator SYNETIQ Pusat.'}
           </p>
         </div>
 
@@ -407,7 +407,7 @@ export default function ChatTab({ currentUser }) {
                       <span>
                         {isSupportRole
                           ? selectedUser?.full_name || selectedUser?.username
-                          : 'Customer Service & Helpdesk Bionet'}
+                          : 'Customer Service & Helpdesk SYNETIQ'}
                       </span>
                       {isSupportRole ? (
                         <span className="text-[10px] px-2 py-0.2 rounded bg-emerald-100 text-emerald-800 font-semibold uppercase">
@@ -442,7 +442,7 @@ export default function ChatTab({ currentUser }) {
                 <div className="text-center my-2">
                   <span className="inline-flex items-center gap-1 text-[11px] text-slate-400 bg-white/80 border border-slate-200 px-3 py-1 rounded-full shadow-xs">
                     <Shield size={12} className="text-emerald-600" />
-                    <span>Percakapan dienkripsi secara aman & tersimpan dalam log audit Bionet</span>
+                    <span>Percakapan dienkripsi secara aman & tersimpan dalam log audit SYNETIQ</span>
                   </span>
                 </div>
 
@@ -470,7 +470,7 @@ export default function ChatTab({ currentUser }) {
                       >
                         {!isMe && (
                           <span className="text-[10px] font-bold text-slate-500 mb-1 ml-1 flex items-center gap-1">
-                            <span>{msg.sender?.full_name || msg.sender?.username || 'CS Bionet'}</span>
+                            <span>{msg.sender?.full_name || msg.sender?.username || 'CS SYNETIQ'}</span>
                             <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-200 text-slate-600 font-normal">
                               {msg.sender?.role?.toUpperCase() || 'SUPPORT'}
                             </span>

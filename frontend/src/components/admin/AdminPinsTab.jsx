@@ -260,8 +260,8 @@ export default function AdminPinsTab() {
 
             <div className="flex items-center gap-2">
               <ExportButtons
-                filename="Master_PIN_Bionet"
-                title="MASTER INVENTORI SERIAL PIN BIONET"
+                filename="Master_PIN_SYNETIQ"
+                title="MASTER INVENTORI SERIAL PIN SYNETIQ"
                 subtitle="Daftar seluruh serial code hak usaha, status lisensi, dan pemilik"
                 headers={['SERIAL CODE', 'PAKET HU', 'PEMILIK', 'STATUS', 'DIGUNAKAN OLEH', 'TANGGAL BUAT']}
                 rows={pins.map((p) => [

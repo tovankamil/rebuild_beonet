@@ -455,7 +455,7 @@ export default function LeadsCRMTab({ user }) {
 
             {/* Header Action: Ekspor Kontak HP (.vcf) */}
             <button
-              onClick={() => downloadBatchVCard(leads, 'semua-prospek-bionet-crm')}
+              onClick={() => downloadBatchVCard(leads, 'semua-prospek-synetiq-crm')}
               disabled={leads.length === 0}
               className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs transition flex items-center space-x-1.5"
               title="Download semua kontak prospek dalam file .vcf untuk disimpan ke buku telepon HP"

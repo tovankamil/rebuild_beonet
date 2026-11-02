@@ -172,7 +172,7 @@ export default function Header({
           </h2>
           <p className="text-[11px] text-slate-400 font-medium hidden sm:block truncate">
             {user?.role === 'admin'
-              ? 'Panel Kontrol Pusat & Manajemen Eksekutif Bionet'
+              ? 'Panel Kontrol Pusat & Manajemen Eksekutif SYNETIQ'
               : user?.role === 'keuangan'
               ? 'Audit Transaksi, Rekonsiliasi Bank & Pencairan WD'
               : user?.role === 'cs'
@@ -198,6 +198,7 @@ export default function Header({
               if (onNavigate) {
                 onNavigate('lucky-wheel');
               } else {
+                window.dispatchEvent(new Event('synetiq:open-wheel'));
                 window.dispatchEvent(new Event('bionet:open-wheel'));
               }
             }}
@@ -474,7 +475,7 @@ export default function Header({
               if (onNavigate) onNavigate('rank-rewards');
               else onOpenRankRewards();
             }}
-            title="Jenjang Karir & Klaim Reward Bionet (Bronze s/d Crown Diamond)"
+            title="Jenjang Karir & Klaim Reward SYNETIQ (Bronze s/d Crown Diamond)"
             className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-50 to-emerald-50 hover:from-amber-100/80 hover:to-emerald-100/80 text-amber-900 border border-amber-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
           >
             <Award size={13} className="text-amber-600" />
@@ -482,7 +483,7 @@ export default function Header({
           </button>
         )}
 
-        {/* Module 10 Quick Trigger: Kebun Herbal & Peternakan Lebah Bionet (Member Only) */}
+        {/* Module 10 Quick Trigger: Kebun Herbal & Peternakan Lebah SYNETIQ (Member Only) */}
         {user?.role === 'member' && onOpenHerbalFarm && (
           <button
             type="button"
@@ -490,7 +491,7 @@ export default function Header({
               if (onNavigate) onNavigate('herbal-farm');
               else onOpenHerbalFarm();
             }}
-            title="Game Intermezo: Kebun Herbal & Peternakan Lebah Bionet (Ala Shopee Farm)"
+            title="Game Intermezo: Kebun Herbal & Peternakan Lebah SYNETIQ (Ala Shopee Farm)"
             className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-teal-50 to-emerald-50 hover:from-teal-100/80 hover:to-emerald-100/80 text-teal-900 border border-teal-200 transition-all text-xs font-bold active:scale-95 shadow-xs"
           >
             <span className="text-sm">🏡</span>

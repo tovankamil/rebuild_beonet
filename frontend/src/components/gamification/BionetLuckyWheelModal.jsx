@@ -72,7 +72,7 @@ const WHEEL_PRIZES = [
   },
 ];
 
-export default function BionetLuckyWheelModal({ isOpen, onClose, currentUser }) {
+export default function SYNETIQLuckyWheelModal({ isOpen, onClose, currentUser }) {
   const [spinning, setSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [selectedPrize, setSelectedPrize] = useState(null);
@@ -219,7 +219,7 @@ export default function BionetLuckyWheelModal({ isOpen, onClose, currentUser }) 
   };
 
   return (
-    <ModalPortal isOpen={isOpen} onClose={onClose} ariaLabel="Roda Berkah Bionet">
+    <ModalPortal isOpen={isOpen} onClose={onClose} ariaLabel="Roda Berkah SYNETIQ">
       <div
         className="bg-white rounded-3xl p-5 sm:p-7 max-w-lg w-full shadow-2xl border border-slate-200 relative text-slate-900 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -240,7 +240,7 @@ export default function BionetLuckyWheelModal({ isOpen, onClose, currentUser }) 
         <div className="text-center pt-2 mb-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-2">
             <Sparkles size={14} className="text-emerald-600 animate-spin" />
-            <span>Intermezo Santai Mitra Bionet</span>
+            <span>Intermezo Santai Mitra SYNETIQ</span>
           </div>
           <h3 className="font-heading font-black text-2xl text-slate-900 tracking-tight">
             🎡 Roda Keberuntungan Harian

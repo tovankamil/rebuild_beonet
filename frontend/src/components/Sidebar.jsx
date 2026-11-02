@@ -109,7 +109,7 @@ export default function Sidebar({ activeTab, setActiveTab, user, onLogout, isOpe
         <div>
           <div className="flex items-center gap-1.5">
             <h1 className="font-heading font-extrabold text-sm tracking-tight text-white leading-none">
-              {branding?.app_name || 'BIONET'}
+              {branding?.app_name || 'SYNETIQ'}
             </h1>
             <span className="text-[8px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded">
               v6

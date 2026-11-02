@@ -95,7 +95,7 @@ export default function PwaInstallBanner() {
           <div>
             <div className="flex items-center gap-2">
               <h4 className="text-sm font-bold tracking-tight text-white">
-                Pasang Aplikasi Bionet di HP
+                Pasang Aplikasi SYNETIQ di HP
               </h4>
               <span className="hidden sm:inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
                 PWA Standalone
@@ -162,7 +162,7 @@ export default function PwaInstallBanner() {
           <ol className="list-decimal list-inside space-y-1 text-slate-200 text-[11px]">
             <li>Ketuk tombol <strong className="text-white">Bagikan (Share)</strong> di bagian bawah layar Safari.</li>
             <li>Gulir ke bawah dan pilih opsi <strong className="text-amber-300">"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</li>
-            <li>Ketuk <strong className="text-emerald-400">Tambah (Add)</strong> di pojok kanan atas. Ikon Bionet akan langsung tampil di Home HP Anda!</li>
+            <li>Ketuk <strong className="text-emerald-400">Tambah (Add)</strong> di pojok kanan atas. Ikon SYNETIQ akan langsung tampil di Home HP Anda!</li>
           </ol>
         </div>
       )}

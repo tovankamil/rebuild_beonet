@@ -84,7 +84,7 @@ const DREAM_REWARDS = [
     targetPair: 4000,
     icon: Crown,
     badgeColor: 'bg-purple-50 text-purple-800 border-purple-300',
-    desc: 'Simbol kepemimpinan tertinggi dan ketangguhan Crown Diamond Leader Bionet.',
+    desc: 'Simbol kepemimpinan tertinggi dan ketangguhan Crown Diamond Leader SYNETIQ.',
   },
 ];
 
@@ -129,7 +129,7 @@ export default function LeaderboardModal({ user, stats, onClose }) {
                 </span>
               </div>
               <p className="text-xs text-emerald-200/80">
-                Apresiasi prestasi puncak kemitraan Bionet di seluruh Indonesia
+                Apresiasi prestasi puncak kemitraan SYNETIQ di seluruh Indonesia
               </p>
             </div>
           </div>
@@ -200,7 +200,7 @@ export default function LeaderboardModal({ user, stats, onClose }) {
         <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/60">
           {activeLeaderTab === 'rewards' ? (
             /* ======================================================== */
-            /* PROGRAM REWARD IMPIAN BIONET */
+            /* PROGRAM REWARD IMPIAN SYNETIQ */
             /* ======================================================== */
             <div className="space-y-5">
               {/* Top Banner Status */}
@@ -417,7 +417,7 @@ export default function LeaderboardModal({ user, stats, onClose }) {
                     <div className="flex items-center space-x-2">
                       <span className="font-bold text-xs text-white">Posisi Anda Saat Ini</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-200">
-                        {user?.full_name || 'Mitra Bionet'}
+                        {user?.full_name || 'Mitra SYNETIQ'}
                       </span>
                     </div>
                     <p className="text-[11px] text-emerald-200/90 mt-0.5">

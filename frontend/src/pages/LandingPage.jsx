@@ -399,12 +399,12 @@ export default function LandingPage({ onGoToLogin }) {
   };
 
   // =========================================================================
-  // LEAD REGISTRATION & CONSULTATION FORM STATE (Simplified per instruction 2)
+  // LEAD REGISTRATION & CONSULTATION FORM STATE (Human-Friendly Consultation)
   // =========================================================================
   const [consultName, setConsultName] = useState('');
   const [consultPhone, setConsultPhone] = useState('');
   const [consultEmail, setConsultEmail] = useState('');
-  const [consultInterest, setConsultInterest] = useState('mitra-leader'); // 'mitra-leader' | 'demo-vip'
+  const [consultInterest, setConsultInterest] = useState('aplikasi-baru');
   const [consultSubmitting, setConsultSubmitting] = useState(false);
   const [consultSuccess, setConsultSuccess] = useState(false);
 
@@ -418,14 +418,22 @@ export default function LandingPage({ onGoToLogin }) {
     triggerSound('click');
     setConsultSubmitting(true);
 
+    const interestLabels = {
+      'aplikasi-baru': 'Pembuatan Aplikasi Bisnis Jaringan Baru (Brand & Logo Sendiri)',
+      'upgrade-excel': 'Upgrade Sistem Manual / Rekap Excel Jadi Otomatis',
+      'demo-vip': 'Akses Demo Lengkap & Coba Fitur Aplikasi',
+      'konsultasi-komisi': 'Tanya Jawab Alur Bisnis & Konsultasi Sistem Komisi',
+    };
+    const interestLabel = interestLabels[consultInterest] || consultInterest;
+
     try {
       await api.post('/crm/leads', {
         name: consultName,
         phone: consultPhone,
         email: consultEmail || `${consultPhone.replace(/\D/g, '')}@lead.synetiq.ai`,
-        category: consultInterest === 'mitra-leader' ? 'Mitra / Top Leader Jaringan' : 'Akses Demo VIP & Konsultasi',
+        category: interestLabel,
         city: 'Online Registration',
-        notes: `Mendaftar dari Landing Page SYNETIQ. Peminatan: ${consultInterest === 'mitra-leader' ? 'Bergabung Jadi Mitra / Top Leader Jaringan' : 'Akses Demo VIP & Konsultasi'}.`,
+        notes: `Mendaftar dari Landing Page SYNETIQ. Peminatan: ${interestLabel}.`,
       });
     } catch (err) {
       console.warn('Fallback lead recording:', err);
@@ -433,6 +441,11 @@ export default function LandingPage({ onGoToLogin }) {
       setConsultSubmitting(false);
       setConsultSuccess(true);
       triggerSound('success');
+
+      // Auto-dispatch formatted WhatsApp chat link
+      const text = `Halo Admin SYNETIQ, saya ${consultName} (${consultPhone}).\n\nSaya tertarik untuk: ${interestLabel}.\nMohon informasi lengkap dan akses demonya. Terima kasih!`;
+      const waUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank');
     }
   };
 
@@ -441,10 +454,10 @@ export default function LandingPage({ onGoToLogin }) {
   return (
     <div className="min-h-screen bg-[#03060a] text-slate-100 font-sans selection:bg-emerald-500 selection:text-black overflow-x-clip">
       {/* ========================================================================= */}
-      {/* 01: DYNAMIC ISLAND FLOATING NAVBAR (Buttons without URL hash changes)     */}
+      {/* 01: DYNAMIC ISLAND FLOATING NAVBAR (Zero Scrollbar • Triolla-Grade Layout) */}
       {/* ========================================================================= */}
-      <nav className="fixed top-3.5 left-1/2 -translate-x-1/2 z-50 w-[96%] max-w-7xl">
-        <div className="bg-[#0e1726]/90 backdrop-blur-2xl border border-white/10 rounded-2xl px-4 sm:px-6 py-2.5 shadow-2xl shadow-emerald-950/40 flex items-center justify-between gap-4">
+      <nav className="fixed top-3.5 left-1/2 -translate-x-1/2 z-50 w-[98%] max-w-[1400px]">
+        <div className="bg-[#0e1726]/90 backdrop-blur-2xl border border-white/10 rounded-2xl px-4 sm:px-6 py-2.5 shadow-2xl shadow-emerald-950/40 flex items-center justify-between gap-3 sm:gap-6">
           {/* Brand Logo */}
           <div className="flex items-center space-x-3 shrink-0">
             <button
@@ -470,57 +483,48 @@ export default function LandingPage({ onGoToLogin }) {
             </button>
           </div>
 
-          {/* Nav Links (Desktop) - Smooth Scroll via scrollToSection with crisp single-line layout */}
-          <div className="hidden lg:flex items-center space-x-4 xl:space-x-7 text-[13px] font-medium text-slate-300 overflow-x-auto no-scrollbar">
-            <button
-              type="button"
-              onClick={() => scrollToSection('brainstorming')}
-              className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none shrink-0"
-            >
-              Studio Brainstorming
-            </button>
+          {/* Nav Links (Desktop) - Smooth Scroll, Generous Width, Absolutely ZERO Scrollbar */}
+          <div className="hidden lg:flex items-center space-x-6 xl:space-x-8 text-[13px] font-medium text-slate-300">
             <button
               type="button"
               onClick={() => scrollToSection('features')}
               className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none shrink-0"
             >
-              8 Sistem Utama
+              Fitur Aplikasi
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('security')}
-              className="whitespace-nowrap hover:text-rose-400 transition focus:outline-none flex items-center space-x-1.5 shrink-0"
+              onClick={() => scrollToSection('hero')}
+              className="whitespace-nowrap hover:text-cyan-400 transition focus:outline-none flex items-center space-x-1.5 shrink-0"
             >
-              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
-              <span>SOC DEFCON 1</span>
+              <span>💻</span>
+              <span>Demo di Laptop</span>
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('beefarm')}
-              className="whitespace-nowrap hover:text-amber-400 transition focus:outline-none flex items-center space-x-1.5 shrink-0"
+              onClick={() => scrollToSection('problem-solution')}
+              className="whitespace-nowrap hover:text-amber-400 transition focus:outline-none shrink-0"
             >
-              <span>🍯</span>
-              <span>Gamifikasi Lebah</span>
+              Solusi Masalah
             </button>
             <button
               type="button"
-              onClick={() => scrollToSection('digital-products')}
-              className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none flex items-center space-x-1.5 shrink-0"
+              onClick={() => scrollToSection('brainstorming')}
+              className="whitespace-nowrap hover:text-teal-400 transition focus:outline-none shrink-0"
             >
-              <BadgeCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Produk Digital</span>
+              Hitung Potensi Cuan
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('consultation')}
-              className="whitespace-nowrap hover:text-cyan-400 transition focus:outline-none shrink-0"
+              className="whitespace-nowrap hover:text-emerald-400 transition focus:outline-none shrink-0"
             >
-              Konsultasi &amp; Demo
+              Konsultasi &amp; Kontak
             </button>
           </div>
 
-          {/* Right Action Controls */}
-          <div className="flex items-center space-x-2 shrink-0">
+          {/* Right Action Controls: Triolla-Style High-Conversion Conversion Suite */}
+          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
             {/* Audio Toggle */}
             <button
               type="button"
@@ -534,6 +538,29 @@ export default function LandingPage({ onGoToLogin }) {
               {audioEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-slate-500" />}
             </button>
 
+            {/* Direct WhatsApp Action Button (Triolla Style) */}
+            <a
+              href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20tertarik%20dengan%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20konsultasi%20langsung"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => triggerSound('success')}
+              className="px-3.5 sm:px-4 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-extrabold text-xs flex items-center space-x-1.5 shadow-lg shadow-emerald-950/60 transition active:scale-95 shrink-0"
+              title="Chat Langsung via WhatsApp"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-slate-950 fill-current" />
+              <span>WhatsApp</span>
+            </a>
+
+            {/* VIP Demo & Call Booking Button */}
+            <button
+              type="button"
+              onClick={() => scrollToSection('consultation')}
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-900/50 hover:shadow-emerald-700/60 transition flex items-center space-x-1.5 focus:outline-none active:scale-95"
+            >
+              <Zap className="w-3.5 h-3.5 text-slate-950 fill-current" />
+              <span>Coba Demo VIP</span>
+            </button>
+
             {/* Login Link */}
             <button
               type="button"
@@ -542,30 +569,20 @@ export default function LandingPage({ onGoToLogin }) {
                 if (onGoToLogin) onGoToLogin();
                 else window.location.hash = '#/overview';
               }}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-200 hover:text-white hover:bg-white/10 transition focus:outline-none"
+              className="hidden sm:inline-block px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10 transition focus:outline-none"
             >
               Masuk
-            </button>
-
-            {/* Primary Action Button */}
-            <button
-              type="button"
-              onClick={() => scrollToSection('consultation')}
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs shadow-lg shadow-emerald-900/50 hover:shadow-emerald-700/60 transition flex items-center space-x-1.5 focus:outline-none"
-            >
-              <Zap className="w-3.5 h-3.5 text-amber-300" />
-              <span>Coba Demo VIP</span>
             </button>
           </div>
         </div>
       </nav>
 
       {/* ========================================================================= */}
-      {/* 02: HERO SECTION - CENTERED HERO WITH FULL-WIDTH SLIDESHOW (Theme: Deep Obsidian) */}
+      {/* 02: HERO SECTION - HUMAN-FRIENDLY COPYWRITING & FULL MACBOOK SHOWCASE     */}
       {/* ========================================================================= */}
       <section
         id="hero"
-        className="relative pt-32 pb-20 md:pt-40 md:pb-28 px-4 overflow-hidden bg-[#03060a]"
+        className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-4 overflow-hidden bg-[#03060a]"
       >
         {/* Emerald Aurora Radial Glow */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[480px] bg-gradient-to-b from-emerald-500/20 via-teal-500/10 to-transparent blur-[140px] rounded-full pointer-events-none" />
@@ -579,67 +596,68 @@ export default function LandingPage({ onGoToLogin }) {
             <span>SYNETIQ ENTERPRISE NETWORK OS • V3.2 LIVE</span>
           </div>
 
-          {/* Centered Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1] max-w-4xl mx-auto mb-6">
-            Otomasi Jaringan.{' '}
+          {/* Centered Headline (Bahasa Manusia yang Mudah Dipahami) */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.15] max-w-4xl mx-auto mb-6">
+            Aplikasi Bisnis Jaringan Otomatis:{' '}
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-              Cerdas Menjual.
+              Kerja Lebih Ringan, Member Senang,
             </span>{' '}
-            Closing Instan 24/7.
+            Cuan Mengalir 24 Jam.
           </h1>
 
-          {/* Centered Subheadline */}
+          {/* Centered Subheadline (Menjawab Kebutuhan Pemilik Bisnis) */}
           <p className="text-slate-300 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-8 font-normal">
-            Platform sistem operasi bisnis jaringan pertama yang mengintegrasikan{' '}
-            <strong className="text-white font-semibold">Pohon Binary Otonom</strong>,{' '}
-            <strong className="text-white font-semibold">Bot WhatsApp Bertombol Interaktif</strong>, asisten cerdas AI Gemini, dan{' '}
-            <strong className="text-white font-semibold">Pertahanan Cyber SOC DEFCON 1</strong>. Ubah obrolan biasa menjadi omzet tanpa henti.
+            Gak perlu lagi pusing rekap komisi manual di Excel sampai larut malam atau bayar gaji puluhan staf admin.
+            Dari pendaftaran member baru, perhitungan bonus instan dalam hitungan detik, hingga robot WhatsApp yang
+            melayani calon pembeli nonstop—semua sudah siap pakai untuk brand Anda.
           </p>
 
-          {/* Centered CTA Buttons */}
+          {/* Centered Direct CTA Buttons (Triolla Style) */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 w-full sm:w-auto">
+            <a
+              href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20tertarik%20dengan%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20konsultasi%20langsung"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => triggerSound('success')}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-black text-sm md:text-base shadow-xl shadow-emerald-950/80 hover:shadow-emerald-700/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center space-x-2.5 group"
+            >
+              <MessageSquare className="w-5 h-5 text-slate-950 fill-current group-hover:scale-110 transition-transform" />
+              <span>💬 Chat WhatsApp Sekarang (Fast Response)</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </a>
+
             <button
               type="button"
               onClick={() => scrollToSection('consultation')}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-sm md:text-base shadow-xl shadow-emerald-950/80 hover:shadow-emerald-700/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 flex items-center justify-center space-x-2.5 group"
-            >
-              <Zap className="w-5 h-5 text-amber-300 group-hover:scale-110 transition-transform" />
-              <span>⚡ Mulai Coba Gratis / Akses Demo VIP</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => scrollToSection('brainstorming')}
               className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-200 font-bold text-sm md:text-base hover:text-white hover:border-emerald-500/40 transition-all duration-200 flex items-center justify-center space-x-2.5 group"
             >
-              <Sparkles className="w-5 h-5 text-emerald-400 group-hover:rotate-12 transition-transform" />
-              <span>💡 Buka Brainstorming Studio</span>
+              <Zap className="w-5 h-5 text-amber-300 group-hover:rotate-12 transition-transform" />
+              <span>⚡ Minta Akses Demo Langsung</span>
             </button>
           </div>
 
-          {/* Centered Proof Metrics (3-column) */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-10 py-4 sm:py-5 px-6 sm:px-10 rounded-2xl bg-white/[0.03] border border-white/10 max-w-2xl mx-auto shadow-inner">
+          {/* Centered Proof Metrics (3-column Benefit) */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-10 py-4 sm:py-5 px-4 sm:px-10 rounded-2xl bg-white/[0.03] border border-white/10 max-w-2xl mx-auto shadow-inner">
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono tracking-tight">100%</div>
-              <div className="text-xs text-slate-300 font-bold mt-0.5">Produk Digital</div>
-              <div className="text-[10px] text-slate-400 font-medium">Aktivasi Instan • Nol Ongkir</div>
+              <div className="text-xl sm:text-3xl font-black text-emerald-400 font-mono tracking-tight">1 Detik</div>
+              <div className="text-xs text-slate-200 font-bold mt-0.5">Hitung Bonus Cepat</div>
+              <div className="text-[10px] text-slate-400">Nol Rumus Excel Manual</div>
             </div>
-            <div className="text-center border-x border-white/10 px-3 sm:px-6">
-              <div className="text-2xl sm:text-3xl font-black text-cyan-400 font-mono tracking-tight">12 ms</div>
-              <div className="text-xs text-slate-300 font-bold mt-0.5">Pairing Binary Engine</div>
-              <div className="text-[10px] text-slate-400 font-medium">Auto Placement Spillover</div>
+            <div className="text-center border-x border-white/10 px-2 sm:px-6">
+              <div className="text-xl sm:text-3xl font-black text-cyan-400 font-mono tracking-tight">24 Jam</div>
+              <div className="text-xs text-slate-200 font-bold mt-0.5">Robot WhatsApp Aktif</div>
+              <div className="text-[10px] text-slate-400">Balas Prospek &amp; Closing</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono tracking-tight">24 / 7</div>
-              <div className="text-xs text-slate-300 font-bold mt-0.5">WhatsApp Bot Closing</div>
-              <div className="text-[10px] text-slate-400 font-medium">Multi-Session Cloud Bot</div>
+              <div className="text-xl sm:text-3xl font-black text-amber-400 font-mono tracking-tight">100%</div>
+              <div className="text-xs text-slate-200 font-bold mt-0.5">Otomatis Kas Masuk</div>
+              <div className="text-[10px] text-slate-400">QRIS Semua Bank &amp; E-Wallet</div>
             </div>
           </div>
         </div>
 
-        {/* FULL-WIDTH SHOWCASE SLIDESHOW (w-full max-w-[96vw] xl:max-w-[1400px] 2xl:max-w-[1560px] mx-auto px-2 sm:px-4) */}
-        <div className="w-full max-w-[96vw] xl:max-w-[1400px] 2xl:max-w-[1560px] mx-auto px-2 sm:px-4 mt-12 sm:mt-16 relative z-10">
+        {/* FULL-WIDTH SHOWCASE SLIDESHOW (Apple MacBook Pro Frame) */}
+        <div id="laptop-showcase" className="w-full max-w-[96vw] xl:max-w-[1360px] 2xl:max-w-[1480px] mx-auto px-2 sm:px-4 mt-12 sm:mt-16 relative z-10">
           <HeroShowcaseSlideshow
             audioEnabled={audioEnabled}
             triggerSound={triggerSound}
@@ -658,21 +676,144 @@ export default function LandingPage({ onGoToLogin }) {
         <div className="max-w-7xl mx-auto flex items-center justify-between min-w-[760px] text-xs font-mono text-slate-400">
           <div className="flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="font-bold text-emerald-400">DEFCON 1 ACTIVE</span>
+            <span className="font-bold text-emerald-400">SISTEM AKTIF 24/7</span>
             <span className="text-slate-600">|</span>
-            <span>Zero Security Breaches</span>
+            <span>Zero Error Komisi</span>
           </div>
           <div className="flex items-center space-x-2">
             <Radio className="w-3.5 h-3.5 text-cyan-400" />
-            <span>GATEWAY RAILS: QRIS • BCA • MANDIRI • BRI • BNI</span>
+            <span>PEMBAYARAN OTOMATIS: QRIS • BCA • MANDIRI • BRI • BNI • GOPAY</span>
           </div>
           <div className="flex items-center space-x-2">
             <Server className="w-3.5 h-3.5 text-amber-400" />
-            <span>WHATSAPP AI BOT: 24/7 AUTO-RESPONDER READY</span>
+            <span>ROBOT WHATSAPP: 24/7 BALAS PROSPEK NONSTOP</span>
           </div>
           <div className="flex items-center space-x-2">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>AES-256 DOUBLE-ENTRY FINTECH ENCRYPTED</span>
+            <span>KEAMANAN SALDO KAS TERJAMIN 100%</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 03.5: PROBLEM VS SOLUTION (Mengapa Bisnis Jaringan Butuh SYNETIQ)        */}
+      {/* ========================================================================= */}
+      <section
+        id="problem-solution"
+        className="py-20 px-4 bg-[#050b14] border-b border-white/10 relative overflow-hidden"
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
+              <span>⚠️</span>
+              <span>KENDALA NYATA BISNIS JARINGAN MANUAL</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+              Apakah Bisnis Jaringan Anda Sering Mengalami Hal Ini?
+            </h2>
+            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+              Banyak pemilik bisnis jaringan kehabisan waktu dan energi bukan karena jualan, tapi karena ribet mengurus
+              administrasi dan komplain member. Lihat bagaimana SYNETIQ mengatasinya secara otomatis:
+            </p>
+          </div>
+
+          {/* 3 Comparison Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Card 1: Rekap Bonus Manual */}
+            <div className="p-6 rounded-3xl bg-[#091120] border border-white/10 hover:border-emerald-500/40 transition-all flex flex-col justify-between group shadow-xl">
+              <div className="space-y-4">
+                <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs">
+                  <div className="font-extrabold text-red-400 flex items-center space-x-1.5 mb-1">
+                    <span>❌</span>
+                    <span>CARA LAMA (MANUAL)</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    Capek rekap bonus akhir bulan di file Excel. Rawan salah rumus, komisi dobel bayar, dan member sering
+                    komplain karena bonus lambat dicairkan.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs">
+                  <div className="font-extrabold text-emerald-400 flex items-center space-x-1.5 mb-1">
+                    <span>✅</span>
+                    <span>DENGAN SYNETIQ (OTOMATIS)</span>
+                  </div>
+                  <p className="leading-relaxed font-medium">
+                    Komisi sponsor dan pasangan dihitung otomatis dalam 1 detik. Saldo dompet member langsung bertambah
+                    real-time tanpa Anda perlu buka Excel lagi.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-emerald-400">
+                <span>Penghematan Waktu:</span>
+                <span className="font-bold">120+ Jam / Bulan</span>
+              </div>
+            </div>
+
+            {/* Card 2: Chat Prospek Malam Hari */}
+            <div className="p-6 rounded-3xl bg-[#091120] border border-white/10 hover:border-teal-500/40 transition-all flex flex-col justify-between group shadow-xl">
+              <div className="space-y-4">
+                <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs">
+                  <div className="font-extrabold text-red-400 flex items-center space-x-1.5 mb-1">
+                    <span>❌</span>
+                    <span>CARA LAMA (MANUAL)</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    Calon pembeli yang chat malam hari tidak terlayani karena admin sudah tidur. Pagi hari prospek sudah
+                    dingin atau beli ke kompetitor lain.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-200 text-xs">
+                  <div className="font-extrabold text-teal-400 flex items-center space-x-1.5 mb-1">
+                    <span>✅</span>
+                    <span>DENGAN SYNETIQ (OTOMATIS)</span>
+                  </div>
+                  <p className="leading-relaxed font-medium">
+                    Robot WhatsApp AI aktif 24 jam nonstop menjawab ramah, mengirimkan brosur produk, video presentasi,
+                    hingga menerbitkan kode bayar QRIS otomatis.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-teal-400">
+                <span>Konversi Closing:</span>
+                <span className="font-bold">Meningkat +68.4%</span>
+              </div>
+            </div>
+
+            {/* Card 3: Member Bingung Promosi */}
+            <div className="p-6 rounded-3xl bg-[#091120] border border-white/10 hover:border-cyan-500/40 transition-all flex flex-col justify-between group shadow-xl">
+              <div className="space-y-4">
+                <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs">
+                  <div className="font-extrabold text-red-400 flex items-center space-x-1.5 mb-1">
+                    <span>❌</span>
+                    <span>CARA LAMA (MANUAL)</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    Member baru sering bingung cara jualan, tidak punya website sendiri, dan kesulitan menjelaskan sistem
+                    bisnis ke calon pembeli baru.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200 text-xs">
+                  <div className="font-extrabold text-cyan-400 flex items-center space-x-1.5 mb-1">
+                    <span>✅</span>
+                    <span>DENGAN SYNETIQ (OTOMATIS)</span>
+                  </div>
+                  <p className="leading-relaxed font-medium">
+                    Begitu mendaftar, setiap member langsung punya Website Toko Replika pribadi dengan nama mereka. Siap
+                    disebar ke status WhatsApp dan TikTok 1 klik.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-cyan-400">
+                <span>Retensi Tim Mitra:</span>
+                <span className="font-bold">98.4% Lebih Aktif</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1299,16 +1440,16 @@ export default function LandingPage({ onGoToLogin }) {
             </p>
           </div>
 
-          {/* 8 Bento Grid Cards */}
+          {/* 8 Bento Grid Cards (Human-Friendly Business Benefits) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Card 1: Binary Tree Sub-12ms */}
             <div className="bg-[#0e1726]/80 border border-white/10 rounded-3xl p-6 hover:border-cyan-500/40 hover:shadow-xl transition group">
               <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition">
                 <Users className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">Pohon Binary Sub-12ms</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Algoritma penempatan auto-spillover kilat dengan perhitungan flush out, matching leg, dan komisi tanpa lag database.
+              <h4 className="text-base font-bold text-white mb-2">Pohon Jaringan &amp; Bonus Otomatis</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Hitung bonus sponsor, komisi pasangan (pairing), dan auto-spillover dalam 1 detik. Saldo dompet member langsung bertambah tanpa pusing rumus Excel.
               </p>
             </div>
 
@@ -1317,9 +1458,9 @@ export default function LandingPage({ onGoToLogin }) {
               <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition">
                 <MessageSquare className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">WhatsApp Store Bot Otonom</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Robot WhatsApp multi-session otonom yang melayani prospek 24/7 dengan katalog bertombol dan QRIS instan.
+              <h4 className="text-base font-bold text-white mb-2">Robot WhatsApp 24 Jam Nonstop</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Robot WhatsApp pintar yang membalas chat prospek, kirim katalog bertombol, video penjelasan, dan follow-up calon pembeli saat Anda tidur.
               </p>
             </div>
 
@@ -1328,31 +1469,31 @@ export default function LandingPage({ onGoToLogin }) {
               <div className="w-10 h-10 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-4 group-hover:scale-110 transition">
                 <QrCode className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">QRIS &amp; Double-Entry Ledger</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Standar akuntansi perbankan internasional: setiap rupiah pembayaran diimbangi debet-kredit otomatis tanpa selisih.
+              <h4 className="text-base font-bold text-white mb-2">Kas &amp; Pembayaran QRIS Otomatis</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Terima pembayaran dari semua bank dan e-wallet (BCA, Mandiri, BRI, GoPay, OVO). Uang langsung masuk kas tanpa upload bukti transfer manual.
               </p>
             </div>
 
-            {/* Card 4: CRM Pipeline & vCard Importer */}
+            {/* Card 4: Storefront Replika */}
             <div className="bg-[#0e1726]/80 border border-white/10 rounded-3xl p-6 hover:border-amber-500/40 hover:shadow-xl transition group">
               <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition">
-                <Sliders className="w-5 h-5" />
+                <Globe className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">CRM Pipeline &amp; vCard Importer</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Pelacakan prospek dari Cold Lead hingga Closing, lengkap dengan fitur import massal kontak CSV atau Google/Apple vCard.
+              <h4 className="text-base font-bold text-white mb-2">Website Toko Replika Member</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Setiap member otomatis memiliki link website toko online pribadi dengan nama mereka sendiri untuk disebar ke WhatsApp dan TikTok.
               </p>
             </div>
 
-            {/* Card 5: Webmail IMAP/SMTP */}
+            {/* Card 5: Penarikan Saldo 1-Klik */}
             <div className="bg-[#0e1726]/80 border border-white/10 rounded-3xl p-6 hover:border-teal-500/40 hover:shadow-xl transition group">
               <div className="w-10 h-10 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 mb-4 group-hover:scale-110 transition">
-                <Server className="w-5 h-5" />
+                <Wallet className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">Webmail Client IMAP/SMTP</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Komunikasi email bisnis terenkripsi dengan generator balasan email otomatis berbasis AI untuk prospek korporat dan vendor.
+              <h4 className="text-base font-bold text-white mb-2">Penarikan Komisi 1-Klik ke Bank</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Member bisa mencairkan bonus kapan saja langsung ke rekening bank mereka secara transparan, cepat, dan bebas drama komplain.
               </p>
             </div>
 
@@ -1361,9 +1502,9 @@ export default function LandingPage({ onGoToLogin }) {
               <div className="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-4 group-hover:scale-110 transition">
                 <ShieldAlert className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">Cyber Threat Radar SOC DEFCON 1</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Pusat komando pertahanan militer: GeoIP threat mapping, honeypot telemetri, sirene audio taktis, dan proteksi anti-DDoS.
+              <h4 className="text-base font-bold text-white mb-2">Keamanan &amp; Anti-Kecurangan Saldo</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Proteksi berlapis mencegah manipulasi bonus, akun ganda ilegal, dan serangan siber. Saldo kas dan data member terlindungi 100% aman.
               </p>
             </div>
 
@@ -1372,20 +1513,20 @@ export default function LandingPage({ onGoToLogin }) {
               <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition">
                 <Sparkles className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">Gamifikasi Staking &amp; Reward Poin</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Mekanisme staking nektar digital yang dapat ditukar saldo tunai e-wallet, membangkitkan downline pasif dan menekan angka churn 70%.
+              <h4 className="text-base font-bold text-white mb-2">Gamifikasi Poin &amp; Retensi Downline</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Sistem reward poin harian dari transaksi yang memotivasi downline pasif agar kembali aktif membuka aplikasi dan mengulang order.
               </p>
             </div>
 
-            {/* Card 8: Paket Lisensi Digital & Serial PIN Generator */}
+            {/* Card 8: Laporan Omset & Grafik Penjualan */}
             <div className="bg-[#0e1726]/80 border border-white/10 rounded-3xl p-6 hover:border-emerald-500/40 hover:shadow-xl transition group">
               <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-4 group-hover:scale-110 transition">
-                <Award className="w-5 h-5" />
+                <TrendingUp className="w-5 h-5" />
               </div>
-              <h4 className="text-base font-bold text-white mb-2">Katalog Produk &amp; Lisensi Digital</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Manajemen paket produk SaaS (Silver/Gold/Platinum) dengan auto-generated Serial PIN digital terikat langsung ke sistem lisensi otonom.
+              <h4 className="text-base font-bold text-white mb-2">Laporan Omset &amp; Grafik Penjualan</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Pantau perkembangan bisnis, omset harian, dan keaktifan tim dari satu dashboard rapi yang bisa diakses dari HP atau laptop Anda.
               </p>
             </div>
           </div>
@@ -1751,7 +1892,7 @@ export default function LandingPage({ onGoToLogin }) {
       </section>
 
       {/* ========================================================================= */}
-      {/* 09: NEW HIGH-CONVERTING CALL TO ACTION (CTA) SECTION (Theme: Royal Violet)*/}
+      {/* 09: HIGH-CONVERTING CALL TO ACTION (CTA) SECTION                          */}
       {/* ========================================================================= */}
       <section
         id="cta"
@@ -1763,84 +1904,87 @@ export default function LandingPage({ onGoToLogin }) {
         <div className="max-w-4xl mx-auto relative z-10 space-y-8">
           <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-purple-950/70 border border-purple-400/40 text-purple-200 text-xs font-bold shadow-lg shadow-purple-950/50">
             <Sparkles className="w-4 h-4 text-purple-300" />
-            <span>PENAWARAN KEMITRAAN EKSLUSIF TAHUN INI</span>
+            <span>SOLUSI BISNIS JARINGAN MODERN</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
-            Siap Meledakkan Omzet Bisnis Jaringan Anda Menjadi{' '}
+            Siap Mengotomasi &amp; Melipatgandakan{' '}
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
-              Mesin Penghasil Cuan Otonom 24/7?
+              Bisnis Jaringan Anda?
             </span>
           </h2>
 
           <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-            Tinggalkan cara manual lama yang melelahkan. Dapatkan mesin closing WhatsApp otomatis, pohon biner sub-12ms,
-            gamifikasi reward poin berdaya pikat tinggi, serta 100% produk digital lisensi cloud SaaS dalam satu ekosistem lengkap.
+            Tinggalkan cara manual lama yang melelahkan. Dapatkan aplikasi bisnis siap pakai lengkap dengan nama brand,
+            logo, domain, dan aturan sistem komisi Anda sendiri.
           </p>
 
           {/* 4 Trust Highlights */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto text-xs font-semibold text-slate-200">
             <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center space-x-1.5">
               <BadgeCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>100% Digital SaaS Ready</span>
+              <span>Brand &amp; Logo Sendiri</span>
             </div>
             <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center space-x-1.5">
               <Zap className="w-4 h-4 text-cyan-400 shrink-0" />
-              <span>12ms Binary Engine</span>
+              <span>Hitung Bonus 1 Detik</span>
             </div>
             <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center space-x-1.5">
               <Bot className="w-4 h-4 text-teal-400 shrink-0" />
-              <span>Bot WA Closing 24/7</span>
+              <span>Robot WhatsApp 24 Jam</span>
             </div>
             <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center space-x-1.5">
               <ShieldCheck className="w-4 h-4 text-rose-400 shrink-0" />
-              <span>SOC DEFCON 1 Aman</span>
+              <span>Garansi Server Stabil</span>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <button
-              type="button"
-              onClick={() => scrollToSection('consultation')}
-              className="w-full sm:w-auto px-9 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-base shadow-2xl shadow-emerald-950/80 hover:shadow-emerald-600/50 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center space-x-2.5"
+            <a
+              href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20tertarik%20konsultasi%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20tanya%20info%20paketnya"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => triggerSound('success')}
+              className="w-full sm:w-auto px-9 py-4 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 font-black text-base shadow-2xl shadow-emerald-950/80 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center space-x-2.5"
             >
-              <Zap className="w-5 h-5 text-amber-300" />
-              <span>Mulai Sekarang — Dapatkan Akses VIP</span>
+              <MessageSquare className="w-5 h-5 text-slate-950 fill-current" />
+              <span>💬 Konsultasi Gratis via WhatsApp</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
+            </a>
 
             <button
               type="button"
-              onClick={() => scrollToSection('brainstorming')}
+              onClick={() => scrollToSection('consultation')}
               className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-sm hover:border-emerald-500/40 transition flex items-center justify-center space-x-2"
             >
-              <Sliders className="w-4 h-4 text-emerald-400" />
-              <span>Hitung Potensi Cuan Pribadi</span>
+              <Zap className="w-4 h-4 text-amber-300" />
+              <span>⚡ Minta Jadwal Demo VIP</span>
             </button>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 10: LEAD REGISTRATION & VIP CONSULTATION FORM (Theme: Deep Slate #0c1424) */}
+      {/* 10: LEAD REGISTRATION & VIP CONSULTATION FORM                             */}
       {/* ========================================================================= */}
       <section
         id="consultation"
         className="py-24 px-4 bg-gradient-to-b from-[#0c1424] to-[#080e1a] border-t border-white/10"
       >
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="bg-[#0e1726]/90 border border-white/15 rounded-3xl p-8 sm:p-10 shadow-2xl relative">
             <div className="text-center max-w-xl mx-auto space-y-2 mb-8">
               <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-500/30">
                 <Users className="w-3.5 h-3.5" />
-                <span>FORMULIR KEMITRAAN &amp; DEMO VIP</span>
+                <span>FORMULIR KONSULTASI &amp; DEMO VIP</span>
               </div>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Jadwalkan Demo VIP &amp; Bergabung Bersama Tim SYNETIQ
+                Hubungi Kami &amp; Dapatkan Akses Demo Langsung
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Isi data di bawah ini. Bot cerdas kami akan langsung mengirimkan undangan demo dan akses dashboard percobaan ke WhatsApp Anda.
+                Isi formulir singkat di bawah ini. Tim kami akan langsung menghubungi WhatsApp Anda dan memberikan
+                undangan akses demo aplikasi lengkap.
               </p>
             </div>
 
@@ -1849,8 +1993,9 @@ export default function LandingPage({ onGoToLogin }) {
                 <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto" />
                 <h4 className="text-lg font-bold text-white">Terima Kasih, Permintaan Terkirim!</h4>
                 <p className="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
-                  Pesan sambutan dan link akses demo telah dikirimkan ke nomor WhatsApp{' '}
-                  <strong className="text-emerald-400 font-mono">{consultPhone}</strong>. Silakan periksa notifikasi WhatsApp Anda sekarang!
+                  Chat WhatsApp otomatis sedang dibuka untuk menghubungkan Anda ke nomor{' '}
+                  <strong className="text-emerald-400 font-mono">{consultPhone}</strong>. Tim admin kami siap menjawab
+                  semua pertanyaan Anda!
                 </p>
                 <div className="pt-2">
                   <button
@@ -1906,14 +2051,16 @@ export default function LandingPage({ onGoToLogin }) {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-300">Peminatan Anda:</label>
+                    <label className="text-xs font-bold text-slate-300">Kebutuhan Anda:</label>
                     <select
                       value={consultInterest}
                       onChange={(e) => setConsultInterest(e.target.value)}
                       className="w-full bg-[#03060a] border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-emerald-500 transition cursor-pointer"
                     >
-                      <option value="mitra-leader">Bergabung Jadi Mitra / Top Leader Jaringan</option>
-                      <option value="demo-vip">Akses Demo VIP &amp; Konsultasi</option>
+                      <option value="aplikasi-baru">Pembuatan Aplikasi Bisnis Jaringan Baru (Brand &amp; Logo Sendiri)</option>
+                      <option value="upgrade-excel">Upgrade Sistem Manual / Rekap Excel Jadi Otomatis</option>
+                      <option value="demo-vip">Minta Akses Demo Lengkap &amp; Coba Fitur Aplikasi</option>
+                      <option value="konsultasi-komisi">Tanya Jawab Alur Bisnis &amp; Konsultasi Sistem Komisi</option>
                     </select>
                   </div>
                 </div>
@@ -1925,17 +2072,64 @@ export default function LandingPage({ onGoToLogin }) {
                     className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-500 hover:from-emerald-500 hover:to-teal-400 disabled:opacity-50 text-white font-black text-sm shadow-xl shadow-emerald-950 transition flex items-center justify-center space-x-2"
                   >
                     {consultSubmitting ? (
-                      <span>Menghubungkan ke WhatsApp Bot...</span>
+                      <span>Menghubungkan ke WhatsApp...</span>
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        <span>Kirim &amp; Hubungkan ke WhatsApp Bot Sekarang</span>
+                        <span>Kirim &amp; Buka Chat WhatsApp Sekarang</span>
                       </>
                     )}
                   </button>
                 </div>
               </form>
             )}
+
+            {/* Official Direct Contact Cards (Triolla Style) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/10">
+              <a
+                href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20ingin%20konsultasi%20langsung"
+                target="_blank"
+                rel="noreferrer"
+                className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-[#25D366] transition flex items-center space-x-3 group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-[#25D366]/20 flex items-center justify-center text-[#25D366] group-hover:scale-110 transition">
+                  <MessageSquare className="w-4 h-4 fill-current" />
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-400">WhatsApp Resmi:</div>
+                  <div className="text-xs font-bold text-white group-hover:text-[#25D366] transition font-mono">
+                    +62 812-3456-7890
+                  </div>
+                </div>
+              </a>
+
+              <a
+                href="mailto:halo@synetiq.id"
+                className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-cyan-400 transition flex items-center space-x-3 group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:scale-110 transition">
+                  <Send className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-400">Email Tim Support:</div>
+                  <div className="text-xs font-bold text-white group-hover:text-cyan-400 transition font-mono">
+                    halo@synetiq.id
+                  </div>
+                </div>
+              </a>
+
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center space-x-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[11px] text-slate-400">Jam Layanan Konsultasi:</div>
+                  <div className="text-xs font-bold text-white font-mono">
+                    Setiap Hari (08.00 - 22.00)
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1967,36 +2161,43 @@ export default function LandingPage({ onGoToLogin }) {
       </footer>
 
       {/* ========================================================================= */}
-      {/* 12: STICKY FLOATING BOTTOM ACTION BAR                                    */}
+      {/* 12: STICKY FLOATING BOTTOM ACTION BAR (Triolla-Style Conversion Dock)     */}
       {/* ========================================================================= */}
       {showStickyBar && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-3xl animate-in slide-in-from-bottom-6 duration-300">
-          <div className="bg-[#0e1726]/90 backdrop-blur-xl border border-emerald-500/30 rounded-2xl px-4 py-3 shadow-2xl shadow-black flex items-center justify-between">
-            <div className="hidden sm:flex items-center space-x-3">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-2xl animate-in slide-in-from-bottom-6 duration-300">
+          <div className="bg-[#0e1726]/95 backdrop-blur-2xl border border-emerald-500/30 rounded-2xl px-3.5 sm:px-5 py-2.5 shadow-2xl shadow-black flex items-center justify-between gap-3">
+            <div className="hidden sm:flex items-center space-x-2.5">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
               <div>
-                <div className="text-xs font-bold text-white">Ingin Menghitung Potensi Cuan Anda?</div>
-                <div className="text-[10px] text-slate-400">Gunakan Interactive Brainstorming Studio gratis.</div>
+                <div className="text-xs font-bold text-white flex items-center space-x-1.5">
+                  <span>Konsultasi Bisnis Jaringan</span>
+                  <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-mono font-bold">
+                    FAST RESPONSE
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-400">Tim kami siap membantu kebutuhan sistem Anda.</div>
               </div>
             </div>
 
             <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
-              <button
-                type="button"
-                onClick={() => scrollToSection('brainstorming')}
-                className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-bold transition flex items-center space-x-1.5 focus:outline-none"
+              <a
+                href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20tertarik%20dengan%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20konsultasi%20langsung"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => triggerSound('success')}
+                className="px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 text-xs font-black shadow-lg shadow-emerald-950/60 transition flex items-center space-x-1.5 active:scale-95"
               >
-                <Sliders className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Buka Studio</span>
-              </button>
+                <MessageSquare className="w-3.5 h-3.5 fill-current" />
+                <span>Chat WhatsApp</span>
+              </a>
 
               <button
                 type="button"
                 onClick={() => scrollToSection('consultation')}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-extrabold shadow-md shadow-emerald-950 transition flex items-center space-x-1.5 focus:outline-none"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-extrabold shadow-md shadow-emerald-950 transition flex items-center space-x-1.5 focus:outline-none active:scale-95"
               >
                 <Zap className="w-3.5 h-3.5 text-amber-300" />
-                <span>Mulai Sekarang</span>
+                <span>Coba Demo VIP</span>
               </button>
             </div>
           </div>

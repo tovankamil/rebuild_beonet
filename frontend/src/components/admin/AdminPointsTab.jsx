@@ -200,7 +200,7 @@ export default function AdminPointsTab() {
 
         <div className="flex flex-wrap items-center gap-3">
           <ExportButtons
-            filename="Poin_Binary_Bionet"
+            filename="Poin_Binary_SYNETIQ"
             title="REKAPITULASI POIN PASANGAN BINARY MITRA"
             subtitle="Volume omset kaki kiri/kanan, potensi pairing matching, dan estimasi nilai bonus"
             headers={['USERNAME', 'NAMA MITRA', 'POIN KIRI (PV)', 'POIN KANAN (PV)', 'POTENSI PASANG', 'STATUS KAKI', 'TERAKHIR UPDATE']}
@@ -232,7 +232,7 @@ export default function AdminPointsTab() {
           <table className="w-full text-left text-xs border-collapse dash-table">
             <thead>
               <tr className="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
-                <th className="py-3 px-4">Mitra Bionet</th>
+                <th className="py-3 px-4">Mitra SYNETIQ</th>
                 <th className="py-3 px-4 text-center">Poin Kiri (Left)</th>
                 <th className="py-3 px-4 text-center">Poin Kanan (Right)</th>
                 <th className="py-3 px-4 text-center">Potensi Pasangan</th>
@@ -281,7 +281,7 @@ export default function AdminPointsTab() {
                             {pb.user?.username?.charAt(0).toUpperCase() || 'M'}
                           </div>
                           <div>
-                            <div className="font-bold text-slate-900">{pb.user?.full_name || 'Mitra Bionet'}</div>
+                            <div className="font-bold text-slate-900">{pb.user?.full_name || 'Mitra SYNETIQ'}</div>
                             <div className="text-[10px] text-slate-400">@{pb.user?.username || '-'}</div>
                           </div>
                         </div>

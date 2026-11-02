@@ -66,7 +66,7 @@ export default function WhatsAppGatewayMonitorView({ user }) {
     try {
       const res = await api.post('/crm/whatsapp/send-direct', {
         phone: testPhone,
-        recipient: testRecipient || 'Konsumen Bionet',
+        recipient: testRecipient || 'Konsumen SYNETIQ',
         category: 'custom',
         message: testMessage,
       });
@@ -286,7 +286,7 @@ export default function WhatsAppGatewayMonitorView({ user }) {
               </h4>
             </div>
             <p className="text-xs text-emerald-200/80 leading-relaxed">
-              Sistem Bionet telah mendukung multi-engine: <strong>Fonnte API</strong>, <strong>WAHA (WhatsApp HTTP API)</strong>, maupun mode simulasi internal.
+              Sistem SYNETIQ telah mendukung multi-engine: <strong>Fonnte API</strong>, <strong>WAHA (WhatsApp HTTP API)</strong>, maupun mode simulasi internal.
             </p>
 
             <div className="mt-4 pt-3 border-t border-emerald-800/80 space-y-2 text-xs">

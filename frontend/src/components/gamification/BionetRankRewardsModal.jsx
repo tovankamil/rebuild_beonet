@@ -18,7 +18,7 @@ import ModalPortal from '../common/ModalPortal';
 import api from '../../services/api';
 import { playCoinChime } from '../../utils/soundNotification';
 
-export default function BionetRankRewardsModal({ isOpen, onClose, currentUser }) {
+export default function SYNETIQRankRewardsModal({ isOpen, onClose, currentUser }) {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [claimingRank, setClaimingRank] = useState(null);
@@ -179,7 +179,7 @@ export default function BionetRankRewardsModal({ isOpen, onClose, currentUser })
   };
 
   return (
-    <ModalPortal isOpen={isOpen} onClose={onClose} ariaLabel="Jenjang Karir dan Reward Bionet">
+    <ModalPortal isOpen={isOpen} onClose={onClose} ariaLabel="Jenjang Karir dan Reward SYNETIQ">
       <div
         className="bg-white rounded-3xl p-5 sm:p-7 max-w-2xl w-full shadow-2xl border border-slate-200 relative text-slate-900 max-h-[92vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
@@ -204,7 +204,7 @@ export default function BionetRankRewardsModal({ isOpen, onClose, currentUser })
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-bold uppercase tracking-wider">
               <Sparkles size={12} className="text-amber-600" />
-              <span>Jenjang Karir &amp; Prestasi Bionet</span>
+              <span>Jenjang Karir &amp; Prestasi SYNETIQ</span>
             </div>
             <h3 className="font-heading font-black text-xl sm:text-2xl text-slate-900 tracking-tight">
               Peringkat &amp; Reward Kemitraan

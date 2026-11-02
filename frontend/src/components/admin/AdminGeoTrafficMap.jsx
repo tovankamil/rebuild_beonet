@@ -544,7 +544,7 @@ const INITIAL_ACTIVE_VISITORS = [
   {
     id: 'VIS-991',
     name: 'H. Sudirman Santoso',
-    username: 'sudirman_bionet',
+    username: 'sudirman_synetiq',
     role: 'Mitra Platinum',
     city: 'Surabaya',
     province: 'Jawa Timur',
@@ -1308,7 +1308,7 @@ export default function AdminGeoTrafficMap({ setActiveTab }) {
               className="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-cyan-500 font-mono"
             >
               <option value="ALL">Semua Tipe Akun</option>
-              <option value="MITRA">Mitra Resmi Bionet</option>
+              <option value="MITRA">Mitra Resmi SYNETIQ</option>
               <option value="GUEST">Tamu / Pembeli RO Publik</option>
               <option value="STAFF">Administrator &amp; CS</option>
             </select>

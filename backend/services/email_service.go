@@ -257,10 +257,10 @@ func (s *EmailService) FetchInbox(userID string, limit int) ([]models.EmailSumma
 			{
 				SeqNum:    1,
 				UID:       101,
-				MessageID: "<welcome-guide@bionet.id>",
-				From:      "Bionet System <support@bionet.id>",
-				To:        "mitra@bionet.id",
-				Subject:   "Selamat Datang di Webmail Terintegrasi Bionet",
+				MessageID: "<welcome-guide@synetiq.id>",
+				From:      "SYNETIQ System <support@synetiq.id>",
+				To:        "mitra@synetiq.id",
+				Subject:   "Selamat Datang di Webmail Terintegrasi SYNETIQ",
 				Date:      time.Now(),
 				Snippet:   "Fitur email siap digunakan. Anda dapat menghubungkan akun Gmail (App Password) atau domain bisnis sendiri melalui menu Pengaturan Akun Email.",
 				IsSeen:    false,
@@ -379,15 +379,15 @@ func (s *EmailService) GetEmailDetail(userID string, seqNum uint32) (*models.Ema
 		return &models.EmailDetail{
 			SeqNum:    seqNum,
 			UID:       seqNum,
-			MessageID: "<welcome-guide@bionet.id>",
-			From:      "Bionet Official <support@bionet.id>",
-			To:        "mitra@bionet.id",
-			Subject:   "Selamat Datang di Webmail Terintegrasi Bionet",
+			MessageID: "<welcome-guide@synetiq.id>",
+			From:      "SYNETIQ Official <support@synetiq.id>",
+			To:        "mitra@synetiq.id",
+			Subject:   "Selamat Datang di Webmail Terintegrasi SYNETIQ",
 			Date:      time.Now(),
 			BodyText:  "Fitur email siap digunakan.\n\nAnda dapat membaca dan membalas email masuk menggunakan akun Gmail (dengan App Password) atau akun email domain hosting Anda sendiri.\n\nSilakan klik tombol 'Konfigurasi Email' untuk menghubungkan akun.",
 			BodyHTML: `
 				<div style="font-family: sans-serif; line-height: 1.6; color: #1e293b; padding: 16px;">
-					<h2 style="color: #0284c7; margin-bottom: 8px;">Selamat Datang di Webmail Bionet! 🚀</h2>
+					<h2 style="color: #0284c7; margin-bottom: 8px;">Selamat Datang di Webmail SYNETIQ! 🚀</h2>
 					<p>Fitur membaca dan membalas email telah aktif di platform Anda.</p>
 					<div style="background: #f1f5f9; padding: 14px; border-radius: 8px; margin: 16px 0;">
 						<strong>Panduan Koneksi:</strong>
@@ -396,7 +396,7 @@ func (s *EmailService) GetEmailDetail(userID string, seqNum uint32) (*models.Ema
 							<li><b>Custom Domain:</b> Gunakan hostname server mail Anda (contoh: <code>mail.domainanda.com</code>) dengan port standar 993 & 587.</li>
 						</ul>
 					</div>
-					<p>Selamat berbisnis dan salam sukses bersama Bionet!</p>
+					<p>Selamat berbisnis dan salam sukses bersama SYNETIQ!</p>
 				</div>
 			`,
 		}, nil
@@ -511,26 +511,26 @@ func (s *EmailService) SendWelcomeEmail(toEmail, username, fullName string) erro
 		return nil
 	}
 
-	subject := fmt.Sprintf("Selamat Bergabung di Bionet, %s! 🌟", fullName)
+	subject := fmt.Sprintf("Selamat Bergabung di SYNETIQ, %s! 🌟", fullName)
 
 	htmlBody := fmt.Sprintf(`
 	<!DOCTYPE html>
 	<html>
 	<head>
 		<meta charset="utf-8">
-		<title>Selamat Datang di Bionet</title>
+		<title>Selamat Datang di SYNETIQ</title>
 	</head>
 	<body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
 		<div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;">
 			<div style="background: linear-gradient(135deg, #0284c7 0%%, #0369a1 100%%); padding: 36px 32px; text-align: center; color: #ffffff;">
-				<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">BIONET OFFICIAL</h1>
+				<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px;">SYNETIQ OFFICIAL</h1>
 				<p style="margin: 8px 0 0; font-size: 15px; opacity: 0.9;">Solusi Ekosistem Bisnis & Kemitraan Digital Terpercaya</p>
 			</div>
 			
 			<div style="padding: 36px 32px;">
 				<h2 style="font-size: 20px; color: #0f172a; margin-top: 0;">Halo Bapak/Ibu <b>%s</b>,</h2>
 				<p style="font-size: 15px; line-height: 1.6; color: #475569;">
-					Selamat! Akun kemitraan Bionet Anda telah berhasil didaftarkan dan aktif di sistem. Kami sangat antusias menyambut Anda di dalam keluarga besar kami.
+					Selamat! Akun kemitraan SYNETIQ Anda telah berhasil didaftarkan dan aktif di sistem. Kami sangat antusias menyambut Anda di dalam keluarga besar kami.
 				</p>
 				
 				<div style="background: #f8fafc; border-left: 4px solid #0284c7; padding: 18px; border-radius: 6px; margin: 24px 0;">
@@ -556,26 +556,26 @@ func (s *EmailService) SendWelcomeEmail(toEmail, username, fullName string) erro
 				</div>
 
 				<div style="text-align: center; margin: 32px 0;">
-					<a href="https://app.bionet.id" style="background: #0284c7; color: #ffffff; text-decoration: none; font-weight: bold; padding: 14px 32px; border-radius: 10px; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
+					<a href="https://app.synetiq.id" style="background: #0284c7; color: #ffffff; text-decoration: none; font-weight: bold; padding: 14px 32px; border-radius: 10px; font-size: 15px; display: inline-block; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
 						Masuk ke Dashboard Mitra &rarr;
 					</a>
 				</div>
 
 				<p style="font-size: 13px; color: #64748b; line-height: 1.5; margin-top: 24px;">
-					<b>Tips Keamanan:</b> Jangan pernah membagikan password atau PIN keamanan Anda kepada siapa pun, termasuk staf Bionet.
+					<b>Tips Keamanan:</b> Jangan pernah membagikan password atau PIN keamanan Anda kepada siapa pun, termasuk staf SYNETIQ.
 				</p>
 			</div>
 
 			<div style="background: #f1f5f9; padding: 20px 32px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0;">
-				<p style="margin: 0;">&copy; %d Bionet Indonesia. Hak Cipta Dilindungi.</p>
-				<p style="margin: 4px 0 0;">Email ini dikirim secara otomatis oleh platform resmi Bionet.</p>
+				<p style="margin: 0;">&copy; %d SYNETIQ Indonesia. Hak Cipta Dilindungi.</p>
+				<p style="margin: 4px 0 0;">Email ini dikirim secara otomatis oleh platform resmi SYNETIQ.</p>
 			</div>
 		</div>
 	</body>
 	</html>
 	`, fullName, username, fullName, toEmail, time.Now().Year())
 
-	textBody := fmt.Sprintf("Selamat Datang di Bionet, %s!\n\nUsername: @%s\nNama: %s\nEmail: %s\nStatus: Aktif\n\nSilakan login ke portal Bionet.", fullName, username, fullName, toEmail)
+	textBody := fmt.Sprintf("Selamat Datang di SYNETIQ, %s!\n\nUsername: @%s\nNama: %s\nEmail: %s\nStatus: Aktif\n\nSilakan login ke portal SYNETIQ.", fullName, username, fullName, toEmail)
 
 	// Kirim email asinkron lewat goroutine agar proses registrasi tetap instan
 	go func() {
@@ -596,7 +596,7 @@ func (s *EmailService) GenerateAIReply(sender, subject, incomingBody string) (st
 		return "", errors.New("layanan Gemini AI belum diinisialisasi")
 	}
 
-	prompt := fmt.Sprintf(`Anda adalah Customer Care dan Asisten Komunikasi Resmi Bionet Indonesia (Platform E-Commerce Herbal dan Bisnis Kemitraan Binary).
+	prompt := fmt.Sprintf(`Anda adalah Customer Care dan Asisten Komunikasi Resmi SYNETIQ Indonesia (Platform E-Commerce Herbal dan Bisnis Kemitraan Binary).
 Tugas Anda: Buat draf balasan email resmi yang sangat santun, empatik, solutif, dan profesional dalam Bahasa Indonesia.
 
 Informasi Email Masuk:
@@ -607,13 +607,13 @@ Informasi Email Masuk:
 Panduan Respon:
 1. Awali dengan salam hangat yang sopan kepada pengirim.
 2. Tanggapi inti pesan mereka secara jelas, informatif, dan solutif.
-   - Bila menanyakan produk/pengiriman RO: jelaskan produk herbal Bionet diproses sesuai nomor resi ekspedisi dan bisa dipantau langsung dari dashboard.
+   - Bila menanyakan produk/pengiriman RO: jelaskan produk herbal SYNETIQ diproses sesuai nomor resi ekspedisi dan bisa dipantau langsung dari dashboard.
    - Bila menanyakan kemitraan/bonus: jelaskan perhitungan bonus binary 1:1 dan pencairan dana diproses cepat via transfer bank.
    - Bila menanyakan kendala teknis/akun: sampaikan langkah solutif dan tawarkan bantuan lanjutan.
 3. Akhiri dengan penutup yang ramah dan salam resmi:
    "Salam Hangat,
-Tim Customer Care Bionet Indonesia
-Website: bionet.id"
+Tim Customer Care SYNETIQ Indonesia
+Website: synetiq.id"
 4. Jawab HANYA isi teks balasan email tersebut, tanpa awalan atau akhiran penjelasan meta.`, sender, subject, incomingBody)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
@@ -689,14 +689,14 @@ func (s *EmailService) ProcessAutoReplies(userID string, items []models.EmailSum
 			}
 			replyBody = cfg.AutoReplyMessage
 			if strings.TrimSpace(replyBody) == "" {
-				replyBody = fmt.Sprintf("Halo,\n\nTerima kasih telah menghubungi Bionet Official.\n\nPesan Anda dengan subjek \"%s\" telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim Bionet Indonesia", item.Subject)
+				replyBody = fmt.Sprintf("Halo,\n\nTerima kasih telah menghubungi SYNETIQ Official.\n\nPesan Anda dengan subjek \"%s\" telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim SYNETIQ Indonesia", item.Subject)
 			}
 		}
 
 		htmlReply := `<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #1e293b;">` +
 			stringsReplaceNewlinesForEmail(replyBody) +
 			`<hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />` +
-			`<p style="font-size: 11px; color: #94a3b8; margin: 0;">Pesan ini dikirim secara otomatis oleh Sistem Automasi Bionet Official.</p>` +
+			`<p style="font-size: 11px; color: #94a3b8; margin: 0;">Pesan ini dikirim secara otomatis oleh Sistem Automasi SYNETIQ Official.</p>` +
 			`</div>`
 
 		sendErr := s.SendEmail(userID, targetEmail, replySubject, htmlReply, replyBody, msgID, nil)

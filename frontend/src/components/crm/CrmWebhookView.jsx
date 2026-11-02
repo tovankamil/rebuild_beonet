@@ -53,7 +53,7 @@ export default function CrmWebhookView({ user, onLeadAdded }) {
   ]);
 
   const origin =
-    typeof window !== 'undefined' ? window.location.origin : 'https://bionet.id';
+    typeof window !== 'undefined' ? window.location.origin : 'https://synetiq.id';
   const mitraKey = user?.username || 'mitra';
   const webhookUrl = `${origin}/api/public/leads/webhook?key=${mitraKey}`;
 
@@ -280,7 +280,7 @@ export default function CrmWebhookView({ user, onLeadAdded }) {
                   Masukkan URL Webhook Anda dengan metode <strong>POST</strong> dan format <code>application/json</code>.
                 </li>
                 <li>
-                  Uji koneksi dengan tombol kirim contoh. Sistem Bionet akan merespon status <code>200 OK</code>.
+                  Uji koneksi dengan tombol kirim contoh. Sistem SYNETIQ akan merespon status <code>200 OK</code>.
                 </li>
               </ol>
             </div>

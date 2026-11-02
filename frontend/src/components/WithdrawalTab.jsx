@@ -302,7 +302,7 @@ export default function WithdrawalTab({ walletBalance, onWithdrawalSuccess, bank
               <div>
                 <span className="text-[10px] text-slate-400 uppercase font-semibold block">Nama Pemilik Rekening</span>
                 <div className="font-bold text-xs text-slate-700 uppercase">
-                  {bank?.account_name || 'MITRA BIONET JUARA'}
+                  {bank?.account_name || 'MITRA SYNETIQ JUARA'}
                 </div>
               </div>
             </div>
@@ -332,9 +332,9 @@ export default function WithdrawalTab({ walletBalance, onWithdrawalSuccess, bank
 
           <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
             <ExportButtons
-              filename="Riwayat_Pencairan_Bionet"
+              filename="Riwayat_Pencairan_SYNETIQ"
               title="RIWAYAT PENCAIRAN DANA (WITHDRAWAL)"
-              subtitle="Rekapitulasi riwayat penarikan saldo mitra Bionet ke rekening bank"
+              subtitle="Rekapitulasi riwayat penarikan saldo mitra SYNETIQ ke rekening bank"
               headers={['ID REF', 'TANGGAL', 'BANK TUJUAN', 'NO. REKENING', 'PEMILIK', 'NOMINAL KOTOR', 'BIAYA ADMIN', 'NOMINAL BERSIH', 'STATUS']}
               rows={filteredWithdrawals.map((w) => [
                 w.id ? w.id.slice(0, 8).toUpperCase() : '-',

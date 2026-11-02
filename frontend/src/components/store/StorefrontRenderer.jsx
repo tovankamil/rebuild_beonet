@@ -65,7 +65,7 @@ export default function StorefrontRenderer({
                   </div>
                   <div className="flex items-center space-x-1.5 text-[11px] text-emerald-700 font-semibold">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Distributor Resmi Terverifikasi Bionet</span>
+                    <span>Distributor Resmi Terverifikasi SYNETIQ</span>
                   </div>
                 </div>
               </div>
@@ -237,7 +237,7 @@ export default function StorefrontRenderer({
 
         {!isPreview && (
           <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
-            <p>© 2026 {shopName}. Didukung oleh Platform Resmi Bionet Indonesia.</p>
+            <p>© 2026 {shopName}. Didukung oleh Platform Resmi SYNETIQ Indonesia.</p>
           </footer>
         )}
       </div>
@@ -435,7 +435,7 @@ export default function StorefrontRenderer({
 
         {!isPreview && (
           <footer className="border-t border-amber-500/20 bg-stone-950 py-6 text-center text-xs text-stone-500">
-            <p>© 2026 {shopName}. Private Royal Reserve Partner &bull; Bionet Indonesia.</p>
+            <p>© 2026 {shopName}. Private Royal Reserve Partner &bull; SYNETIQ Indonesia.</p>
           </footer>
         )}
       </div>
@@ -632,7 +632,7 @@ export default function StorefrontRenderer({
 
         {!isPreview && (
           <footer className="border-t border-emerald-100 bg-white py-6 text-center text-xs text-emerald-700/60">
-            <p>© 2026 {shopName}. Sahabat Herbal Keluarga &bull; Bionet Indonesia.</p>
+            <p>© 2026 {shopName}. Sahabat Herbal Keluarga &bull; SYNETIQ Indonesia.</p>
           </footer>
         )}
       </div>
@@ -847,7 +847,7 @@ export default function StorefrontRenderer({
 
         {!isPreview && (
           <footer className="border-t border-cyan-500/20 bg-[#090e1a] py-6 text-center text-xs text-cyan-400/60 font-mono">
-            <p>© 2026 {shopName}. Advanced Cellular Biotech Protocol &bull; Bionet Indonesia.</p>
+            <p>© 2026 {shopName}. Advanced Cellular Biotech Protocol &bull; SYNETIQ Indonesia.</p>
           </footer>
         )}
       </div>
@@ -878,7 +878,7 @@ export default function StorefrontRenderer({
             </div>
 
             <p className="text-xs text-slate-500 mt-0.5 max-w-xs">
-              Official Partner Bionet &bull; Solusi Herbal Alami Bersertifikasi BPOM &bull; 1,400+ Konsumen Puas
+              Official Partner SYNETIQ &bull; Solusi Herbal Alami Bersertifikasi BPOM &bull; 1,400+ Konsumen Puas
             </p>
 
             {/* Quick Action Badges */}
@@ -998,7 +998,7 @@ export default function StorefrontRenderer({
 
         {!isPreview && (
           <footer className="text-center py-4 text-[11px] text-slate-400">
-            <p>© 2026 {shopName} &bull; Bionet Indonesia</p>
+            <p>© 2026 {shopName} &bull; SYNETIQ Indonesia</p>
           </footer>
         )}
       </div>

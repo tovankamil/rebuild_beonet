@@ -31,7 +31,7 @@ export default function DigitalMemberCardModal({
   const memberId = currentUser?.id
     ? `BIO-MBR-${currentUser.id.slice(0, 8).toUpperCase()}`
     : 'BIO-MBR-2026-DEMO';
-  const fullName = currentUser?.full_name || currentUser?.username || 'Mitra Bionet';
+  const fullName = currentUser?.full_name || currentUser?.username || 'Mitra SYNETIQ';
   const username = currentUser?.username || 'mitra';
   const verifyUrl = `${window.location.origin}/verify/member/${currentUser?.id || 'demo'}`;
 
@@ -88,7 +88,7 @@ export default function DigitalMemberCardModal({
       // 3. Header Branding
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 36px "Outfit", sans-serif';
-      ctx.fillText('BIONET NETWORK SYSTEM', 60, 90);
+      ctx.fillText('SYNETIQ NETWORK SYSTEM', 60, 90);
 
       ctx.fillStyle = '#f59e0b';
       ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
@@ -201,19 +201,19 @@ export default function DigitalMemberCardModal({
       ctx.fillStyle = '#071e17';
       ctx.font = 'bold 12px "Outfit", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('BIONET', sealX, sealY - 6);
+      ctx.fillText('SYNETIQ', sealX, sealY - 6);
       ctx.fillText('GENUINE', sealX, sealY + 12);
       ctx.textAlign = 'left';
 
       // 7. Footer text
       ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
       ctx.font = '14px "Plus Jakarta Sans", sans-serif';
-      ctx.fillText('PT. BIONET NETWORK INDONESIA • SIUPL & BPOM COMPLIANT', 60, 690);
+      ctx.fillText('PT. SYNETIQ NETWORK INDONESIA • SIUPL & BPOM COMPLIANT', 60, 690);
 
       // Trigger Download
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
-      link.download = `KTA_Bionet_${username.toUpperCase()}.png`;
+      link.download = `KTA_SYNETIQ_${username.toUpperCase()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -226,7 +226,7 @@ export default function DigitalMemberCardModal({
   const handleShareWhatsApp = () => {
     playCoinChime();
     const msg =
-      `*KARTU TANDA ANGGOTA (KTA) DIGITAL BIONET*
+      `*KARTU TANDA ANGGOTA (KTA) DIGITAL SYNETIQ*
 Nama: *${fullName}*
 ID Anggota: *${memberId}*
 Status: *DISTRIBUTOR RESMI TERVERIFIKASI BPOM*
@@ -239,7 +239,7 @@ ${verifyUrl}`;
   };
 
   return (
-    <ModalPortal isOpen={isOpen} onClose={onClose} ariaLabel="KTA Digital Resmi Mitra Bionet">
+    <ModalPortal isOpen={isOpen} onClose={onClose} ariaLabel="KTA Digital Resmi Mitra SYNETIQ">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -256,7 +256,7 @@ ${verifyUrl}`;
             </div>
             <div>
               <h3 className="font-heading font-extrabold text-base text-white">
-                KTA Digital Resmi Mitra Bionet
+                KTA Digital Resmi Mitra SYNETIQ
               </h3>
               <p className="text-xs text-slate-400">
                 Kartu Tanda Anggota terenkripsi dengan verifikasi QR-Code BPOM
@@ -284,7 +284,7 @@ ${verifyUrl}`;
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-heading font-extrabold text-sm sm:text-base tracking-wider text-white">
-                    BIONET
+                    SYNETIQ
                   </span>
                   <span className="text-[10px] font-bold text-amber-400 px-1.5 py-0.2 rounded border border-amber-400/40">
                     NETWORK

@@ -26,7 +26,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// AIHandler coordinates the comprehensive Bionet MLM & Herbal AI Suite
+// AIHandler coordinates the comprehensive SYNETIQ MLM & Herbal AI Suite
 type AIHandler struct {
 	mockLock sync.RWMutex
 }
@@ -107,14 +107,14 @@ func (h *AIHandler) HealthConsult(c *gin.Context) {
 	if strings.Contains(complaintLower, "asam urat") || strings.Contains(complaintLower, "sendi") || strings.Contains(complaintLower, "rematik") {
 		analysisText = fmt.Sprintf("Berdasarkan keluhan nyeri sendi/asam urat pada usia %d tahun, terjadi penumpukan kristal asam urat pada persendian disertai inflamasi jaringan ikat.", req.Age)
 		prods = append(prods, models.ProductRecommendation{
-			ProductName:      "Bionet Bio-Herbal Drops 30ml",
+			ProductName:      "SYNETIQ Bio-Herbal Drops 30ml",
 			Dosage:           "3 x 7 tetes per hari",
 			ConsumptionGuide: warmGuide,
 			KeyBenefits:      []string{"Anti-inflamasi alami pereda nyeri sendi", "Membantu melarutkan purin berlebih", "Detoksifikasi asam urat melalui ginjal"},
 			Price:            150000.0,
 			BPOMNumber:       "POM TR 213678911",
 		}, models.ProductRecommendation{
-			ProductName:      "Bionet Propolis Premium Pure",
+			ProductName:      "SYNETIQ Propolis Premium Pure",
 			Dosage:           "2 x 5 tetes per hari",
 			ConsumptionGuide: "Campur dalam air hangat, minum menjelang tidur malam",
 			KeyBenefits:      []string{"Regenerasi sel tulang rawan", "Antioksidan bioflavonoid tinggi pelindung sendi"},
@@ -126,7 +126,7 @@ func (h *AIHandler) HealthConsult(c *gin.Context) {
 	} else if strings.Contains(complaintLower, "lambung") || strings.Contains(complaintLower, "maag") || strings.Contains(complaintLower, "gerd") || strings.Contains(complaintLower, "perih") {
 		analysisText = fmt.Sprintf("Keluhan dispepsia/asam lambung menunjukkan iritasi mukosa lambung dan refluks asam yang perlu ditenangkan dengan herbal bersenyawa anti-ulkus.")
 		prods = append(prods, models.ProductRecommendation{
-			ProductName:      "Bionet Propolis Premium Pure",
+			ProductName:      "SYNETIQ Propolis Premium Pure",
 			Dosage:           "3 x 5 tetes per hari",
 			ConsumptionGuide: warmGuide,
 			KeyBenefits:      []string{"Formula non-alkohol ramah lambung", "Melapisi dan meregenerasi mukosa lambung yang teriritasi", "Menormalkan sekresi asam lambung"},
@@ -138,7 +138,7 @@ func (h *AIHandler) HealthConsult(c *gin.Context) {
 	} else if strings.Contains(complaintLower, "diabetes") || strings.Contains(complaintLower, "gula") || strings.Contains(complaintLower, "kencing manis") {
 		analysisText = fmt.Sprintf("Keluhan kadar gula darah memerlukan herbal fitofarmaka yang mendukung sensitivitas insulin dan perlindungan vaskular.")
 		prods = append(prods, models.ProductRecommendation{
-			ProductName:      "Bionet Bio-Herbal Drops 30ml",
+			ProductName:      "SYNETIQ Bio-Herbal Drops 30ml",
 			Dosage:           "3 x 8 tetes per hari",
 			ConsumptionGuide: warmGuide,
 			KeyBenefits:      []string{"Membantu kestabilan glukosa darah", "Meningkatkan sensitivitas reseptor insulin alami", "Mencegah komplikasi neuropati perifer"},
@@ -150,7 +150,7 @@ func (h *AIHandler) HealthConsult(c *gin.Context) {
 	} else if strings.Contains(complaintLower, "kolesterol") || strings.Contains(complaintLower, "hipertensi") || strings.Contains(complaintLower, "darah tinggi") {
 		analysisText = fmt.Sprintf("Indikasi kekentalan darah dan tekanan vaskular membutuhkan suplemen herbal pembersih plak dan peningkat elastisitas pembuluh darah.")
 		prods = append(prods, models.ProductRecommendation{
-			ProductName:      "Bionet Propolis Premium Pure",
+			ProductName:      "SYNETIQ Propolis Premium Pure",
 			Dosage:           "3 x 6 tetes per hari",
 			ConsumptionGuide: warmGuide,
 			KeyBenefits:      []string{"Membantu mengikis plak trigliserida & LDL", "Menjaga elastisitas dinding endotel pembuluh darah", "Meringankan rasa pegal di tengkuk & leher"},
@@ -163,14 +163,14 @@ func (h *AIHandler) HealthConsult(c *gin.Context) {
 		// General Immunity / Vitality
 		analysisText = fmt.Sprintf("Konsultasi untuk keluhan '%s' memerlukan peningkatan daya tahan tubuh seluler dan proteksi antioksidan harian.", req.Complaint)
 		prods = append(prods, models.ProductRecommendation{
-			ProductName:      "Bionet Bio-Herbal Drops 30ml",
+			ProductName:      "SYNETIQ Bio-Herbal Drops 30ml",
 			Dosage:           "3 x 5 tetes per hari",
 			ConsumptionGuide: warmGuide,
 			KeyBenefits:      []string{"Meningkatkan imunitas & stamina seluler", "Kaya antioksidan pelindung radikal bebas", "Menjaga kesegaran tubuh seharian"},
 			Price:            150000.0,
 			BPOMNumber:       "POM TR 213678911",
 		}, models.ProductRecommendation{
-			ProductName:      "Bionet Propolis Premium Pure",
+			ProductName:      "SYNETIQ Propolis Premium Pure",
 			Dosage:           "2 x 5 tetes per hari",
 			ConsumptionGuide: "Minum di pagi dan malam hari dengan air hangat suam kuku",
 			KeyBenefits:      []string{"Regenerasi sel dan stamina harian", "Antibakteri dan antivirus alami"},
@@ -183,7 +183,7 @@ func (h *AIHandler) HealthConsult(c *gin.Context) {
 
 	// Try calling Google Gemini AI for advanced medical-grade consultation enhancement
 	if services.GlobalGeminiService != nil {
-		prompt := fmt.Sprintf(`Anda adalah AI Herbal Doctor & Ahli Farmakologi Herbal resmi Bionet MLM.
+		prompt := fmt.Sprintf(`Anda adalah AI Herbal Doctor & Ahli Farmakologi Herbal resmi SYNETIQ MLM.
 Berikan analisis medis konsultasi kesehatan holistik berbasis herbal BPOM untuk:
 - Nama Pasien: %s
 - Usia: %d tahun, Gender: %s
@@ -194,7 +194,7 @@ Berikan analisis medis konsultasi kesehatan holistik berbasis herbal BPOM untuk:
 
 Panduan:
 1. Jelaskan patofisiologi singkat keluhan dengan bahasa santun, ramah, dan mudah dipahami masyarakat awam.
-2. Jelaskan mekanisme kerja herbal Bionet (Bio-Propolis Trigona & Bio-Herbal Drops) dengan air hangat suam-suam kuku.
+2. Jelaskan mekanisme kerja herbal SYNETIQ (Bio-Propolis Trigona & Bio-Herbal Drops) dengan air hangat suam-suam kuku.
 3. Sebutkan pantangan makanan secara jelas.
 Berikan analisis medis ringkas 3 paragraf tanpa format markdown tebal berlebihan.`,
 			custName, req.Age, req.Gender, req.Complaint, req.HasGastricUlcer, req.Allergies, req.CurrentMedications)
@@ -203,21 +203,21 @@ Berikan analisis medis ringkas 3 paragraf tanpa format markdown tebal berlebihan
 		defer cancel()
 
 		if aiText, err := services.GlobalGeminiService.AskWithSystemPrompt(ctx,
-			"Anda adalah Dokter Konsultan Herbal Resmi Bionet yang berpengalaman, empatik, berbasis bukti klinis BPOM, dan mematuhi etika medis Indonesia.",
+			"Anda adalah Dokter Konsultan Herbal Resmi SYNETIQ yang berpengalaman, empatik, berbasis bukti klinis BPOM, dan mematuhi etika medis Indonesia.",
 			prompt); err == nil && strings.TrimSpace(aiText) != "" {
 			analysisText = strings.TrimSpace(aiText)
 		}
 	}
 
 	// Medical Disclaimer
-	medicalDisclaimer := "DISCLAIMER MEDIS: Rekomendasi herbal Bionet ini merupakan suplemen pendukung nutrisi dan daya tahan tubuh alami berizin BPOM, bukan pengganti diagnosis, tindakan bedah, atau pengobatan dokter spesialis. Jika Anda sedang mengonsumsi obat dokter, berikan jeda waktu 1 hingga 2 jam. Segera konsultasikan ke dokter atau fasilitas kesehatan terdekat jika gejala berlanjut atau memburuk."
+	medicalDisclaimer := "DISCLAIMER MEDIS: Rekomendasi herbal SYNETIQ ini merupakan suplemen pendukung nutrisi dan daya tahan tubuh alami berizin BPOM, bukan pengganti diagnosis, tindakan bedah, atau pengobatan dokter spesialis. Jika Anda sedang mengonsumsi obat dokter, berikan jeda waktu 1 hingga 2 jam. Segera konsultasikan ke dokter atau fasilitas kesehatan terdekat jika gejala berlanjut atau memburuk."
 
 	// WhatsApp Order text & click-to-chat URL
 	prodNames := make([]string, 0, len(prods))
 	for _, p := range prods {
 		prodNames = append(prodNames, p.ProductName)
 	}
-	waOrderText := fmt.Sprintf("Halo Konsultan Resmi Bionet, saya %s (%d th). Saya baru saja berkonsultasi dengan AI Herbal Doctor terkait keluhan '%s'. Saya ingin memesan paket herbal rekomendasi: %s. Mohon panduan pemesanan dan pengiriman. Terima kasih!",
+	waOrderText := fmt.Sprintf("Halo Konsultan Resmi SYNETIQ, saya %s (%d th). Saya baru saja berkonsultasi dengan AI Herbal Doctor terkait keluhan '%s'. Saya ingin memesan paket herbal rekomendasi: %s. Mohon panduan pemesanan dan pengiriman. Terima kasih!",
 		custName, req.Age, req.Complaint, strings.Join(prodNames, " & "))
 
 	phoneTarget := req.Phone
@@ -270,11 +270,11 @@ func (h *AIHandler) ObjectionHandler(c *gin.Context) {
 	}
 	prodName := html.EscapeString(strings.TrimSpace(req.ProductName))
 	if prodName == "" {
-		prodName = "Bionet Bio-Propolis Trigona"
+		prodName = "SYNETIQ Bio-Propolis Trigona"
 	}
 	mitraName := html.EscapeString(strings.TrimSpace(req.MitraName))
 	if mitraName == "" {
-		mitraName = "Mitra Juara Bionet"
+		mitraName = "Mitra Juara SYNETIQ"
 	}
 
 	objType := strings.ToLower(strings.TrimSpace(req.ObjectionType))
@@ -298,11 +298,11 @@ func (h *AIHandler) ObjectionHandler(c *gin.Context) {
 		},
 		"trauma_mlm": {
 			Framework: "Empathy Bridge & System Differentiation",
-			Script: fmt.Sprintf("Terima kasih banyak sudah berterus terang, %s. Saya sangat menghormati kejujuran Anda karena dulu saya dan banyak rekan di Bionet pun pernah merasakan hal yang sama: lelah dengan sistem MLM lama yang mewajibkan tutup poin bulanan, belanja stok menumpuk, dan janji muluk tanpa produk riil. Di Bionet, kami meninggalkan pola lama tersebut: 100 persen tanpa tutup poin paksa, fokus pada perputaran produk herbal BPOM yang dicari konsumen repeat order, dan bonus pasangan dihitung secara adil serta ditransfer harian. Bagaimana jika %s melihat dulu kualitas khasiat produknya sebelum bicara kemitraan?", prospectName, prospectName),
-			Tip:       "Dengarkan dengan penuh empati, pisahkan reputasi MLM lama dari model kemitraan e-commerce syariah Bionet, dan mulai dari produk bukan rekrutmen.",
+			Script: fmt.Sprintf("Terima kasih banyak sudah berterus terang, %s. Saya sangat menghormati kejujuran Anda karena dulu saya dan banyak rekan di SYNETIQ pun pernah merasakan hal yang sama: lelah dengan sistem MLM lama yang mewajibkan tutup poin bulanan, belanja stok menumpuk, dan janji muluk tanpa produk riil. Di SYNETIQ, kami meninggalkan pola lama tersebut: 100 persen tanpa tutup poin paksa, fokus pada perputaran produk herbal BPOM yang dicari konsumen repeat order, dan bonus pasangan dihitung secara adil serta ditransfer harian. Bagaimana jika %s melihat dulu kualitas khasiat produknya sebelum bicara kemitraan?", prospectName, prospectName),
+			Tip:       "Dengarkan dengan penuh empati, pisahkan reputasi MLM lama dari model kemitraan e-commerce syariah SYNETIQ, dan mulai dari produk bukan rekrutmen.",
 			Hooks: []string{
 				"Saya setuju sekali! Saya juga tidak suka sistem yang memaksa mitra belanja barang yang tidak dibutuhkan...",
-				"Di Bionet, kita bukan jualan mimpi, tapi membantu orang sembuh dengan herbal berkualitas BPOM...",
+				"Di SYNETIQ, kita bukan jualan mimpi, tapi membantu orang sembuh dengan herbal berkualitas BPOM...",
 			},
 		},
 		"efek_samping": {
@@ -316,7 +316,7 @@ func (h *AIHandler) ObjectionHandler(c *gin.Context) {
 		},
 		"izin_bpom": {
 			Framework: "Legal Transparency & Trust Anchor",
-			Script: fmt.Sprintf("%s tidak perlu khawatir sama sekali. Legalitas dan kepatuhan hukum adalah fondasi mutlak kami di Bionet. Seluruh produk kami, termasuk %s, telah lulus uji mutu laboratorium dan mengantongi Izin Edar Resmi Badan Pengawas Obat dan Makanan (BPOM RI) serta sertifikasi Halal MUI/Kemenag. Nomor registrasi BPOM tercetak jelas pada setiap kemasan dan bisa langsung dicek secara real-time melalui aplikasi BPOM Mobile. Mau saya fotokan sertifikat legalitas dan nomor registrasi resminya sekarang, %s?", prospectName, prodName, prospectName),
+			Script: fmt.Sprintf("%s tidak perlu khawatir sama sekali. Legalitas dan kepatuhan hukum adalah fondasi mutlak kami di SYNETIQ. Seluruh produk kami, termasuk %s, telah lulus uji mutu laboratorium dan mengantongi Izin Edar Resmi Badan Pengawas Obat dan Makanan (BPOM RI) serta sertifikasi Halal MUI/Kemenag. Nomor registrasi BPOM tercetak jelas pada setiap kemasan dan bisa langsung dicek secara real-time melalui aplikasi BPOM Mobile. Mau saya fotokan sertifikat legalitas dan nomor registrasi resminya sekarang, %s?", prospectName, prodName, prospectName),
 			Tip:       "Tunjukkan transparansi penuh, sertakan nomor registrasi POM TR resmi, dan tawarkan panduan cek via aplikasi resmi BPOM.",
 			Hooks: []string{
 				"Legalitas 100%% aman dan resmi berizin BPOM RI serta Halal...",
@@ -334,11 +334,11 @@ func (h *AIHandler) ObjectionHandler(c *gin.Context) {
 		},
 		"obat_dokter": {
 			Framework: "Medical Synergy & Safe Interval",
-			Script: fmt.Sprintf("Langkah yang sangat baik %s tetap disiplin dengan obat dokter. Prinsip herbal %s adalah komplementer atau pelengkap nutrisi seluler untuk mempercepat proses pemulihan alami tubuh, bukan menggantikan resep dokter secara tiba-tiba. Aturan amannya sangat sederhana: cukup berikan jeda waktu 1 hingga 2 jam setelah meminum obat dokter sebelum mengonsumsi herbal Bionet dengan air hangat suam-suam kuku. Dengan begitu, terapi dokter tetap berjalan optimal dan herbal kami membantu memperkuat imunitas dari dalam. Boleh tahu obat dokter yang sedang %s konsumsi saat ini?", prospectName, prodName, prospectName),
+			Script: fmt.Sprintf("Langkah yang sangat baik %s tetap disiplin dengan obat dokter. Prinsip herbal %s adalah komplementer atau pelengkap nutrisi seluler untuk mempercepat proses pemulihan alami tubuh, bukan menggantikan resep dokter secara tiba-tiba. Aturan amannya sangat sederhana: cukup berikan jeda waktu 1 hingga 2 jam setelah meminum obat dokter sebelum mengonsumsi herbal SYNETIQ dengan air hangat suam-suam kuku. Dengan begitu, terapi dokter tetap berjalan optimal dan herbal kami membantu memperkuat imunitas dari dalam. Boleh tahu obat dokter yang sedang %s konsumsi saat ini?", prospectName, prodName, prospectName),
 			Tip:       "Tunjukkan respek penuh terhadap resep dokter dan ajarkan aturan jeda konsumsi 1-2 jam agar aman dan harmonis.",
 			Hooks: []string{
 				"Sangat boleh dikombinasikan dengan memberikan jeda 1-2 jam setelah obat dokter...",
-				"Herbal Bionet bekerja sebagai nutrisi komplementer yang mempercepat daya tahan tubuh alami...",
+				"Herbal SYNETIQ bekerja sebagai nutrisi komplementer yang mempercepat daya tahan tubuh alami...",
 			},
 		},
 	}
@@ -348,7 +348,7 @@ func (h *AIHandler) ObjectionHandler(c *gin.Context) {
 		// Generic Objection Fallback
 		data = objectionData{
 			Framework: "Active Listening & Solution Match",
-			Script: fmt.Sprintf("Terima kasih atas tanggapannya, %s. Kami sangat menghargai setiap pertimbangan Anda. Di Bionet, kepuasan dan kesehatan mitra/konsumen adalah prioritas utama kami. Untuk %s, kami menjamin kualitas bahan baku terbaik, legalitas BPOM resmi, dan pendampingan konsumsi secara konsisten. Apa hal utama yang menjadi pertimbangan %s saat ini agar saya bisa memberikan solusi yang paling tepat?", prospectName, prodName, prospectName),
+			Script: fmt.Sprintf("Terima kasih atas tanggapannya, %s. Kami sangat menghargai setiap pertimbangan Anda. Di SYNETIQ, kepuasan dan kesehatan mitra/konsumen adalah prioritas utama kami. Untuk %s, kami menjamin kualitas bahan baku terbaik, legalitas BPOM resmi, dan pendampingan konsumsi secara konsisten. Apa hal utama yang menjadi pertimbangan %s saat ini agar saya bisa memberikan solusi yang paling tepat?", prospectName, prodName, prospectName),
 			Tip:       "Gali lebih dalam akar keraguan prospek dengan pertanyaan terbuka yang santun dan berempati.",
 			Hooks: []string{
 				"Kesehatan keluarga adalah investasi terbaik yang tidak ternilai...",
@@ -428,7 +428,7 @@ func (h *AIHandler) BinaryAdvisor(c *gin.Context) {
 		user = models.User{
 			ID:       "user-demo-binary",
 			Username: "mitra_juara",
-			FullName: "Mitra Juara Bionet",
+			FullName: "Mitra Juara SYNETIQ",
 			Role:     "member",
 		}
 		userID = user.ID
@@ -458,7 +458,7 @@ func (h *AIHandler) BinaryAdvisor(c *gin.Context) {
 	}
 
 	unearnedPairs := int(diff)
-	pairValue := 25000.0 // Rp 25.000 per pasang di Bionet Binary
+	pairValue := 25000.0 // Rp 25.000 per pasang di SYNETIQ Binary
 	unearnedBonus := float64(unearnedPairs) * pairValue
 
 	// Find best upline node for spillover placement
@@ -487,12 +487,12 @@ func (h *AIHandler) BinaryAdvisor(c *gin.Context) {
 		fmt.Sprintf("Arahkan 3 pendaftaran member baru berikutnya ke Kaki %s di bawah Uplines ID: %s", strings.ToUpper(recLeg), recUplineUser),
 		fmt.Sprintf("Fokuskan pameran demo produk / table talk di jaringan kaki %s", weakLeg),
 		fmt.Sprintf("Hubungi leader kaki %s untuk memberikan support meeting zoom prospek", weakLeg),
-		"Pantau kenaikan poin secara live di dashboard pohon jaringan Bionet",
+		"Pantau kenaikan poin secara live di dashboard pohon jaringan SYNETIQ",
 	}
 
 	// Enhance with Gemini AI if available
 	if services.GlobalGeminiService != nil {
-		prompt := fmt.Sprintf(`Anda adalah Senior Binary MLM Compensation Plan Strategist untuk Bionet.
+		prompt := fmt.Sprintf(`Anda adalah Senior Binary MLM Compensation Plan Strategist untuk SYNETIQ.
 Analisis data jaringan:
 - Member: %s
 - Poin Kiri: %.1f PV
@@ -554,11 +554,11 @@ func (h *AIHandler) GenerateCopywriting(c *gin.Context) {
 	}
 	prodName := html.EscapeString(strings.TrimSpace(req.ProductName))
 	if prodName == "" {
-		prodName = "Bionet Bio-Propolis Trigona"
+		prodName = "SYNETIQ Bio-Propolis Trigona"
 	}
 	mitraName := html.EscapeString(strings.TrimSpace(req.MitraName))
 	if mitraName == "" {
-		mitraName = "Mitra Resmi Bionet"
+		mitraName = "Mitra Resmi SYNETIQ"
 	}
 	waNum := strings.TrimSpace(req.WhatsAppNumber)
 	if waNum == "" {
@@ -576,9 +576,9 @@ func (h *AIHandler) GenerateCopywriting(c *gin.Context) {
 	}
 	refCode := html.EscapeString(strings.TrimSpace(req.ReferralCode))
 	if refCode == "" {
-		refCode = "BIONETJUARA"
+		refCode = "SYNETIQJUARA"
 	}
-	refLink := fmt.Sprintf("https://bionet.id/join?ref=%s", refCode)
+	refLink := fmt.Sprintf("https://synetiq.id/join?ref=%s", refCode)
 	benefits := html.EscapeString(strings.TrimSpace(req.KeyBenefits))
 	if benefits == "" {
 		benefits = "Membantu menstabilkan kolesterol, meredakan asam urat, melindungi lambung, dan meningkatkan vitalitas harian keluarga."
@@ -632,11 +632,11 @@ Stok terbatas *%s* batch produksi terbaru:
 🎁 Konsultasi kesehatan gratis seumur hidup
 
 Amankan jatah botol Anda sebelum kehabisan:
-👉 wa.me/%s?text=Halo%%20%s,%%20saya%%20mau%%20pesan%%20promo%%20Bionet%%20hari%%20ini!`,
+👉 wa.me/%s?text=Halo%%20%s,%%20saya%%20mau%%20pesan%%20promo%%20SYNETIQ%%20hari%%20ini!`,
 				prodName, cleanWA, url.QueryEscape(mitraName))
 		} else { // storytelling
 			generatedCopy = fmt.Sprintf(`Kemarin sempat ada yang tanya ke saya:
-"Mas %s, apa benar herbal Bionet ini bisa bantu badan yang sering loyo dan kaki ngilu?"
+"Mas %s, apa benar herbal SYNETIQ ini bisa bantu badan yang sering loyo dan kaki ngilu?"
 
 Saya jawab dengan senyuman: "Bukan kata saya, tapi rasakan sendiri khasiatnya dalam 7 hari."
 Ibu saya sendiri yang dulu susah jalan karena asam urat, sekarang bisa shalat dengan nyaman tanpa meringis.
@@ -647,7 +647,7 @@ Sehat itu murah, yang mahal adalah penyesalan saat sakit datang.
 Mau coba 1 botol dulu untuk orang tua tercinta?
 %s`, mitraName, prodName, ctaText)
 		}
-		hashtags = []string{"#BionetHerbal", "#IkhtiarSehat", "#PropolisTrigona", "#KeluargaSehat"}
+		hashtags = []string{"#SYNETIQHerbal", "#IkhtiarSehat", "#PropolisTrigona", "#KeluargaSehat"}
 
 	case "tiktok_script":
 		ctaText = "Klik link di bio profil untuk konsultasi gratis!"
@@ -667,9 +667,9 @@ Voiceover: "Untung sekarang saya rutin minum %s. Murni ekstrak lebah trigona, no
 
 🎬 [00:30 - 00:40] CALL TO ACTION:
 (Pegang produk sambil tersenyum menunjuk ke bawah/bio)
-Voiceover: "Jangan tunggu drop baru panik! Yuk proteksi keluarga dari sekarang. Klik link di bio profil saya sekarang ya! Bersama saya %s di Bionet."
+Voiceover: "Jangan tunggu drop baru panik! Yuk proteksi keluarga dari sekarang. Klik link di bio profil saya sekarang ya! Bersama saya %s di SYNETIQ."
 --------------------------------------------------`, prodName, prodName, mitraName)
-		hashtags = []string{"#TikTokHerbal", "#TipsKesehatan", "#PropolisBionet", "#SolusiAsamUrat", "#FYP"}
+		hashtags = []string{"#TikTokHerbal", "#TipsKesehatan", "#PropolisSYNETIQ", "#SolusiAsamUrat", "#FYP"}
 
 	case "ig_caption":
 		ctaText = fmt.Sprintf("Klik link pada bio profil atau WhatsApp ke: wa.me/%s", cleanWA)
@@ -684,7 +684,7 @@ Banyak dari kita yang terlalu sibuk bekerja sampai lupa memberikan nutrisi terba
 Saatnya kembali ke kebaikan herbal alami Nusantara bersama *%s*! 🌿
 Kandungan bioflavonoid alaminya bekerja sebagai perisai antioksidan tingkat sel.
 
-Keunggulan Bionet:
+Keunggulan SYNETIQ:
 🛡️ 100%% Ekstrak Murni Lebah Trigona
 🛡️ Resmi BPOM RI & Bersertifikat Halal
 🛡️ Formula ramah lambung tanpa alkohol
@@ -695,8 +695,8 @@ Konsultasikan keluhan kesehatan Anda bersama kami:
 👉 Link Pendaftaran Mitra: %s
 
 Salam Sehat & Sukses Berkah,
-*%s* - Official Distributor Bionet`, prodName, ctaText, refLink, mitraName)
-		hashtags = []string{"#BionetIndonesia", "#PropolisHerbal", "#GayaHidupSehat", "#BisnisBerkah", "#HerbalBPOM", "#PeluangBisnis"}
+*%s* - Official Distributor SYNETIQ`, prodName, ctaText, refLink, mitraName)
+		hashtags = []string{"#SYNETIQIndonesia", "#PropolisHerbal", "#GayaHidupSehat", "#BisnisBerkah", "#HerbalBPOM", "#PeluangBisnis"}
 
 	case "fb_ad":
 		ctaText = fmt.Sprintf("👉 Klik Di Sini Untuk Pesan via WhatsApp: wa.me/%s", cleanWA)
@@ -723,7 +723,7 @@ DAPATKAN PENAWARAN KHUSUS HARI INI:
 %s
 Daftar Mitra Syariah: %s
 Hubungi Distributor Resmi: %s`, prodName, ctaText, refLink, mitraName)
-		hashtags = []string{"#BionetHerbal", "#SolusiKolesterol", "#ObatAsamUratAlami", "#HerbalBPOM"}
+		hashtags = []string{"#SYNETIQHerbal", "#SolusiKolesterol", "#ObatAsamUratAlami", "#HerbalBPOM"}
 
 	default:
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -820,7 +820,7 @@ func (h *AIHandler) ChurnRadar(c *gin.Context) {
 						riskLevel = "High"
 					}
 
-					draftMsg := fmt.Sprintf("Assalamu'alaikum Kak %s, salam hangat dari tim Bionet! Semoga selalu sehat sekeluarga ya. Teringat semangat luar biasa Kakak waktu aktivasi awal kemarin. Minggu ini tim kami ada promo support dan strategi omset baru. Yuk sempatkan ngobrol santai 10 menit via WA. Semangat terus!", r.FullName)
+					draftMsg := fmt.Sprintf("Assalamu'alaikum Kak %s, salam hangat dari tim SYNETIQ! Semoga selalu sehat sekeluarga ya. Teringat semangat luar biasa Kakak waktu aktivasi awal kemarin. Minggu ini tim kami ada promo support dan strategi omset baru. Yuk sempatkan ngobrol santai 10 menit via WA. Semangat terus!", r.FullName)
 					cleanPh := strings.ReplaceAll(strings.ReplaceAll(r.PhoneNumber, "+", ""), "-", "")
 					waDirect := fmt.Sprintf("https://wa.me/%s?text=%s", cleanPh, url.QueryEscape(draftMsg))
 
@@ -844,7 +844,7 @@ func (h *AIHandler) ChurnRadar(c *gin.Context) {
 
 	// 2. Return fallback demo downlines if DB has no inactive records or offline
 	if len(downlines) == 0 {
-		draftMsg := "Assalamu'alaikum Kak Ahmad Fauzi, salam hangat dari tim Bionet! Semoga selalu sehat sekeluarga ya. Teringat semangat luar biasa Kakak waktu aktivasi awal kemarin. Minggu ini tim kami ada promo support dan strategi omset baru. Yuk sempatkan ngobrol santai 10 menit via WA. Semangat terus!"
+		draftMsg := "Assalamu'alaikum Kak Ahmad Fauzi, salam hangat dari tim SYNETIQ! Semoga selalu sehat sekeluarga ya. Teringat semangat luar biasa Kakak waktu aktivasi awal kemarin. Minggu ini tim kami ada promo support dan strategi omset baru. Yuk sempatkan ngobrol santai 10 menit via WA. Semangat terus!"
 		waDirect := fmt.Sprintf("https://wa.me/6281234567890?text=%s", url.QueryEscape(draftMsg))
 		downlines = []models.DownlineChurnItem{
 			{
@@ -906,9 +906,9 @@ func (h *AIHandler) VoiceNoteScript(c *gin.Context) {
 	case "welcome_member":
 		toneGuidelines = "Gunakan suara riang, ramah, dan penuh antusiasme sambutan kemitraan baru."
 		scriptText = fmt.Sprintf(`[Suara tersenyum & hangat]
-"Halo, Assalamu'alaikum %s! Salam kenal, saya perwakilan tim Bionet. 
+"Halo, Assalamu'alaikum %s! Salam kenal, saya perwakilan tim SYNETIQ. 
 [Jeda 1 detik]
-Pertama-tama, selamat ya sudah resmi bergabung di keluarga besar Bionet! Senang sekali bisa berjuang bersama Anda. Nanti setelah ini, saya akan kirimkan video panduan singkat 3 menit cara aktivasi akun dan strategi meraih bonus pertama dalam minggu ini. 
+Pertama-tama, selamat ya sudah resmi bergabung di keluarga besar SYNETIQ! Senang sekali bisa berjuang bersama Anda. Nanti setelah ini, saya akan kirimkan video panduan singkat 3 menit cara aktivasi akun dan strategi meraih bonus pertama dalam minggu ini. 
 [Intonasi bersemangat]
 Kalau ada yang mau ditanyakan santai saja ya, saya siap dampingi sampai bisa. Sukses berkah selalu untuk %s sekeluarga!"`,
 			prospectName, prospectName)
@@ -918,7 +918,7 @@ Kalau ada yang mau ditanyakan santai saja ya, saya siap dampingi sampai bisa. Su
 		scriptText = fmt.Sprintf(`[Suara ramah tapi tegas & peduli]
 "Halo %s, selamat siang! 
 [Jeda sejenak]
-Saya teringat kemarin %s sempat konsultasi mengenai paket herbal Bio-Propolis untuk kesehatan keluarga. Kebetulan sekali, khusus hari ini kantor pusat Bionet sedang buka promo subsidi ongkir dan bonus konsultasi herbalis langsung. 
+Saya teringat kemarin %s sempat konsultasi mengenai paket herbal Bio-Propolis untuk kesehatan keluarga. Kebetulan sekali, khusus hari ini kantor pusat SYNETIQ sedang buka promo subsidi ongkir dan bonus konsultasi herbalis langsung. 
 [Suara berbisik lembut]
 Koutanya terbatas untuk 10 orang pertama hari ini. 
 Kira-kira mau saya bantu amankan paketnya dan kirim ke alamat %s hari ini?"`,
@@ -929,7 +929,7 @@ Kira-kira mau saya bantu amankan paketnya dan kirim ke alamat %s hari ini?"`,
 		scriptText = fmt.Sprintf(`[Suara lembut penuh perhatian]
 "Halo %s, Assalamu'alaikum. Semoga hari ini tubuhnya terasa semakin bugar ya.
 [Jeda 1 detik]
-Saya cuma mau menyapa sebentar dan tanya perkembangan keluhan kemarin setelah mulai rutin konsumsi herbal Bionet dengan air hangatnya. Apakah sudah mulai terasa lebih enteng di badan?
+Saya cuma mau menyapa sebentar dan tanya perkembangan keluhan kemarin setelah mulai rutin konsumsi herbal SYNETIQ dengan air hangatnya. Apakah sudah mulai terasa lebih enteng di badan?
 [Intonasi santun]
 Nanti kalau ada sensasi atau ada yang perlu ditanyakan tentang dosis lanjutannya, jangan sungkan voice note atau chat saya balik ya, %s. Sehat selalu ya!"`,
 			prospectName, prospectName)
@@ -937,7 +937,7 @@ Nanti kalau ada sensasi atau ada yang perlu ditanyakan tentang dosis lanjutannya
 
 	// AI Enhancement with Gemini
 	if services.GlobalGeminiService != nil {
-		prompt := fmt.Sprintf(`Anda adalah Pakar Komunikasi Suara & Voice Note WhatsApp untuk Bionet Herbal & MLM.
+		prompt := fmt.Sprintf(`Anda adalah Pakar Komunikasi Suara & Voice Note WhatsApp untuk SYNETIQ Herbal & MLM.
 Tuliskan naskah voice note berdurasi 30-45 detik untuk dikirimkan melalui WhatsApp:
 - Nama Prospek: %s
 - Topik: %s
@@ -1217,7 +1217,7 @@ func (h *AIHandler) RORetention(c *gin.Context) {
 						prodName = "Bio-Propolis Trigona"
 					}
 
-					msg := fmt.Sprintf("Halo Bapak/Ibu %s, salam hangat dari Bionet! Semoga konsumsi %s membawa perubahan yang semakin baik untuk keluhan %s. Mengingat hari ini sudah memasuki hari ke-%d, botol kemungkinan tersisa untuk 3-5 hari ke depan. Agar terapi tidak terputus, kami sedang ada promo subsidi ongkir khusus repeat order minggu ini. Mau kami siapkan pengirimannya hari ini?",
+					msg := fmt.Sprintf("Halo Bapak/Ibu %s, salam hangat dari SYNETIQ! Semoga konsumsi %s membawa perubahan yang semakin baik untuk keluhan %s. Mengingat hari ini sudah memasuki hari ke-%d, botol kemungkinan tersisa untuk 3-5 hari ke depan. Agar terapi tidak terputus, kami sedang ada promo subsidi ongkir khusus repeat order minggu ini. Mau kami siapkan pengirimannya hari ini?",
 						rec.CustomerName, prodName, rec.ChiefComplaint, days)
 
 					waURL := fmt.Sprintf("https://wa.me/%s?text=%s", cleanPh, url.QueryEscape(msg))
@@ -1310,7 +1310,7 @@ func (h *AIHandler) GenerateImage(c *gin.Context) {
 	// 2. Enhance Prompt with Gemini AI
 	enhancedPrompt := cleanPrompt
 	if services.GlobalGeminiService != nil {
-		sysPrompt := `You are an elite commercial advertising art director for Bionet Herbal and luxury wellness products.
+		sysPrompt := `You are an elite commercial advertising art director for SYNETIQ Herbal and luxury wellness products.
 Your job is to convert any user input (even short or in Indonesian) into an ultra-high-quality, photorealistic commercial product photography English prompt.
 Incorporate: studio lighting, depth of field, 8k resolution, crisp commercial advertising aesthetic, elegant materials, natural botanicals, realistic textures.
 Output ONLY the English prompt, no explanations, no quotes.`

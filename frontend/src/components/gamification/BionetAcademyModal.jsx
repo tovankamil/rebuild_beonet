@@ -25,13 +25,13 @@ import {
 const ACADEMY_MODULES = [
   {
     day: 1,
-    title: 'Mindset Juara & Fondasi Sehat Bionet',
+    title: 'Mindset Juara & Fondasi Sehat SYNETIQ',
     desc: 'Menanamkan visi besar, etika kemitraan, dan komitmen kesehatan jangka panjang.',
     duration: '12 Menit',
-    summary: 'Fondasi utama sukses di Bionet bukan sekadar jualan, melainkan niat tulus menebar manfaat kesembuhan alami. Mitra juara memprioritaskan edukasi berbasis bukti dan membangun relasi persaudaraan yang kokoh.',
+    summary: 'Fondasi utama sukses di SYNETIQ bukan sekadar jualan, melainkan niat tulus menebar manfaat kesembuhan alami. Mitra juara memprioritaskan edukasi berbasis bukti dan membangun relasi persaudaraan yang kokoh.',
     questions: [
       {
-        q: 'Apa tujuan utama seorang Mitra Resmi Bionet dalam mengedukasi masyarakat?',
+        q: 'Apa tujuan utama seorang Mitra Resmi SYNETIQ dalam mengedukasi masyarakat?',
         options: [
           'Memaksa calon konsumen membeli paket termahal hari ini juga',
           'Membantu memberikan edukasi kesehatan holistik dan solusi herbal legal terpercaya',
@@ -39,7 +39,7 @@ const ACADEMY_MODULES = [
           'Menyembunyikan informasi izin BPOM dari calon pembeli',
         ],
         correct: 1,
-        explanation: 'Mitra Bionet adalah konsultan kesehatan herbal terpercaya yang mendahulukan empati dan edukasi berdasar izin resmi BPOM.',
+        explanation: 'Mitra SYNETIQ adalah konsultan kesehatan herbal terpercaya yang mendahulukan empati dan edukasi berdasar izin resmi BPOM.',
       },
       {
         q: 'Mengapa izin BPOM RI sangat krusial dalam memilih produk herbal?',
@@ -98,12 +98,12 @@ const ACADEMY_MODULES = [
         q: 'Jika konsumen sedang mengonsumsi obat resep dari dokter, apa anjuran yang benar?',
         options: [
           'Meminta konsumen membuang seluruh obat dokter seketika',
-          'Beri jeda waktu 1 hingga 2 jam antara konsumsi obat dokter dan herbal Bionet',
+          'Beri jeda waktu 1 hingga 2 jam antara konsumsi obat dokter dan herbal SYNETIQ',
           'Herbal diminum bersamaan sekaligus dengan obat dokter',
           'Melarang konsumen periksa ke dokter lagi',
         ],
         correct: 1,
-        explanation: 'Herbal Bionet bersifat komplementer pendamping. Selalu berikan jeda waktu 1-2 jam dan anjurkan kontrol rutin dengan dokter.',
+        explanation: 'Herbal SYNETIQ bersifat komplementer pendamping. Selalu berikan jeda waktu 1-2 jam dan anjurkan kontrol rutin dengan dokter.',
       },
     ],
   },
@@ -112,10 +112,10 @@ const ACADEMY_MODULES = [
     title: 'Marketing Plan Binary & Formula Bonus Pasangan',
     desc: 'Memahami omset jalur kiri & kanan, bonus sponsor harian, dan kualifikasi reward.',
     duration: '18 Menit',
-    summary: 'Sistem Binary Bionet dirancang adil dan berkelanjutan. Pahami hitungan bonus pasangan per titik keseimbangan, batas kuota flush harian, dan strategi duplikasi dua kaki aktif.',
+    summary: 'Sistem Binary SYNETIQ dirancang adil dan berkelanjutan. Pahami hitungan bonus pasangan per titik keseimbangan, batas kuota flush harian, dan strategi duplikasi dua kaki aktif.',
     questions: [
       {
-        q: 'Dalam sistem binary Bionet, bagaimana bonus pasangan dihitung?',
+        q: 'Dalam sistem binary SYNETIQ, bagaimana bonus pasangan dihitung?',
         options: [
           'Dihitung dari jumlah member tanpa perlu ada transaksi poin PV',
           'Dihitung dari keseimbangan pasangan poin PV di Kaki Kiri dan Kaki Kanan',
@@ -126,7 +126,7 @@ const ACADEMY_MODULES = [
         explanation: 'Bonus pasangan tercipta dari setiap titik keseimbangan omset poin di kaki kiri dan kanan jaringan Anda.',
       },
       {
-        q: 'Kapan bonus sponsor dan bonus pasangan di Bionet dicairkan?',
+        q: 'Kapan bonus sponsor dan bonus pasangan di SYNETIQ dicairkan?',
         options: [
           'Harus menunggu 1 tahun kemudian',
           'Cair harian secara otomatis ke dompet digital siap ditarik ke rekening bank',
@@ -134,7 +134,7 @@ const ACADEMY_MODULES = [
           'Tidak bisa dicairkan ke uang rupiah',
         ],
         correct: 1,
-        explanation: 'Bionet menerapkan sistem mutasi dan penarikan harian terintegrasi dengan gateway perbankan nasional.',
+        explanation: 'SYNETIQ menerapkan sistem mutasi dan penarikan harian terintegrasi dengan gateway perbankan nasional.',
       },
       {
         q: 'Berapa syarat pasangan PV untuk memenuhi kualifikasi Reward Smartwatch AMOLED?',
@@ -142,7 +142,7 @@ const ACADEMY_MODULES = [
           '10 Pasang Kiri : Kanan',
           '50 Pasang Kiri : 50 Pasang Kanan',
           '500 Pasang Kiri : Kanan',
-          'Tidak ada syarat reward di Bionet',
+          'Tidak ada syarat reward di SYNETIQ',
         ],
         correct: 1,
         explanation: 'Reward Smartwatch AMOLED terbuka pada kualifikasi 50 PV Kiri : 50 PV Kanan tanpa batas waktu reset.',
@@ -173,7 +173,7 @@ const ACADEMY_MODULES = [
           'Ya, Anda wajib rekrut minimal 50 orang per minggu',
           'Tidak sama sekali! Konsumen murni membeli untuk kesembuhan tanpa kewajiban jualan atau rekrut',
           'Bohong kepada prospek demi closing',
-          'Mengatakan bahwa Bionet bukan perusahaan resmi',
+          'Mengatakan bahwa SYNETIQ bukan perusahaan resmi',
         ],
         correct: 1,
         explanation: 'Konsumen berhak membeli murni sebagai pemakai produk tanpa paksaan rekrutmen apapun.',
@@ -199,7 +199,7 @@ const ACADEMY_MODULES = [
     summary: 'Pasang Bio-Link interaktif di profil TikTok dan IG. Manfaatkan fitur Smart Scheduler WhatsApp untuk follow-up teratur dan pelacakan health journey pelanggan.',
     questions: [
       {
-        q: 'Di mana tempat paling strategis memasang tautan Bio-Link Bionet Anda?',
+        q: 'Di mana tempat paling strategis memasang tautan Bio-Link SYNETIQ Anda?',
         options: [
           'Di catatan rahasia di dalam buku harian yang terkunci',
           'Di Bio Profil TikTok, Bio Instagram, WhatsApp Story, dan Kartu Nama Digital',
@@ -210,7 +210,7 @@ const ACADEMY_MODULES = [
         explanation: 'Menyematkan bio-link di seluruh etalase media sosial memaksimalkan konversi prospek inbound organik.',
       },
       {
-        q: 'Apa fungsi utama dari Smart Scheduler WhatsApp di CRM Bionet?',
+        q: 'Apa fungsi utama dari Smart Scheduler WhatsApp di CRM SYNETIQ?',
         options: [
           'Menghapus seluruh kontak pelanggan secara otomatis',
           'Mengingatkan mitra untuk follow-up prospek yang belum merespon setelah 24 atau 48 jam',
@@ -280,13 +280,13 @@ const ACADEMY_MODULES = [
     title: 'Duplikasi Jaringan & Mencetak Tim Mandiri',
     desc: 'Menduplikasi ilmu 7 hari ke seluruh downline dan melahirkan Leader baru.',
     duration: '20 Menit',
-    summary: 'Puncak keberhasilan di bisnis Bionet adalah duplikasi. Saat Anda mampu membimbing 2 orang mitra menguasai kurikulum 7 hari ini, jaringan Anda akan bertumbuh mandiri menghasilkan kebebasan waktu dan finansial.',
+    summary: 'Puncak keberhasilan di bisnis SYNETIQ adalah duplikasi. Saat Anda mampu membimbing 2 orang mitra menguasai kurikulum 7 hari ini, jaringan Anda akan bertumbuh mandiri menghasilkan kebebasan waktu dan finansial.',
     questions: [
       {
-        q: 'Apa prinsip dasar duplikasi yang benar dalam sistem kemitraan Bionet?',
+        q: 'Apa prinsip dasar duplikasi yang benar dalam sistem kemitraan SYNETIQ?',
         options: [
           'Mengerjakan semua hal sendirian tanpa mengajarkan ke tim downline',
-          'Membimbing mitra baru menyelesaikan Kurikulum 7 Hari Bionet Academy agar mandiri prospek & bina konsumen',
+          'Membimbing mitra baru menyelesaikan Kurikulum 7 Hari SYNETIQ Academy agar mandiri prospek & bina konsumen',
           'Membiarkan mitra baru berjuang sendiri tanpa arahan sistem',
           'Melarang downline untuk sukses melebihi sponsor',
         ],
@@ -302,14 +302,14 @@ const ACADEMY_MODULES = [
           'Hanya mengandalkan limpahan sponsor terus-menerus',
         ],
         correct: 0,
-        explanation: 'Fokus mencetak 1 Leader Kiri dan 1 Leader Kanan yang mandiri adalah rahasia passive income binary Bionet.',
+        explanation: 'Fokus mencetak 1 Leader Kiri dan 1 Leader Kanan yang mandiri adalah rahasia passive income binary SYNETIQ.',
       },
       {
         q: 'Setelah menyelesaikan modul hari ke-7 ini, langkah apa yang harus segera Anda lakukan?',
         options: [
           'Berhenti belajar dan tidak bertindak apa-apa',
           'Unduh Sertifikat Master Partner dan mulai praktekkan langsung bersama sponsor & tim Anda',
-          'Menghapus akun Bionet',
+          'Menghapus akun SYNETIQ',
           'Menunggu keajaiban tanpa aksi nyata',
         ],
         correct: 1,
@@ -319,8 +319,8 @@ const ACADEMY_MODULES = [
   },
 ];
 
-export default function BionetAcademyModal({ user, onClose }) {
-  const partnerName = user?.full_name || 'Mitra Bionet Juara';
+export default function SYNETIQAcademyModal({ user, onClose }) {
+  const partnerName = user?.full_name || 'Mitra SYNETIQ Juara';
   const username = user?.username || 'mitra01';
   const storageKey = `bionet_academy_${username}`;
 
@@ -415,7 +415,7 @@ export default function BionetAcademyModal({ user, onClose }) {
     ctx.fillStyle = '#F59E0B';
     ctx.font = 'bold 32px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('PT BIONET HERBAL INDONESIA', 800, 150);
+    ctx.fillText('PT SYNETIQ HERBAL INDONESIA', 800, 150);
 
     ctx.fillStyle = '#A7F3D0';
     ctx.font = 'bold 22px sans-serif';
@@ -428,7 +428,7 @@ export default function BionetAcademyModal({ user, onClose }) {
 
     ctx.fillStyle = '#FBBF24';
     ctx.font = 'bold 28px sans-serif';
-    ctx.fillText('CERTIFIED BIONET MASTER PARTNER', 800, 360);
+    ctx.fillText('CERTIFIED SYNETIQ MASTER PARTNER', 800, 360);
 
     ctx.fillStyle = '#E2E8F0';
     ctx.font = '24px sans-serif';
@@ -446,7 +446,7 @@ export default function BionetAcademyModal({ user, onClose }) {
     // Body Text
     ctx.fillStyle = '#D1D5DB';
     ctx.font = '22px sans-serif';
-    ctx.fillText('Telah berhasil menyelesaikan seluruh 7 Modul Kurikulum Bionet Academy:', 800, 660);
+    ctx.fillText('Telah berhasil menyelesaikan seluruh 7 Modul Kurikulum SYNETIQ Academy:', 800, 660);
     ctx.fillText('Mindset Juara, Legalitas BPOM, Marketing Plan Binary, Prospecting, Funnel Bio-Link,', 800, 700);
     ctx.fillText('Closing 1-on-1, serta Duplikasi Jaringan Berkelanjutan.', 800, 740);
 
@@ -460,10 +460,10 @@ export default function BionetAcademyModal({ user, onClose }) {
 
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 26px sans-serif';
-    ctx.fillText('Direktur Utama PT Bionet', 1150, 930);
+    ctx.fillText('Direktur Utama PT SYNETIQ', 1150, 930);
     ctx.font = '18px sans-serif';
     ctx.fillStyle = '#9CA3AF';
-    ctx.fillText('PT Bionet Herbal Indonesia', 1150, 960);
+    ctx.fillText('PT SYNETIQ Herbal Indonesia', 1150, 960);
 
     // Gold Medal Center Seal
     ctx.fillStyle = '#F59E0B';
@@ -478,7 +478,7 @@ export default function BionetAcademyModal({ user, onClose }) {
 
     setTimeout(() => {
       const link = document.createElement('a');
-      link.download = `Sertifikat_Bionet_Master_${username}.png`;
+      link.download = `Sertifikat_SYNETIQ_Master_${username}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
       setDownloadingCert(false);
@@ -505,7 +505,7 @@ export default function BionetAcademyModal({ user, onClose }) {
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-heading font-extrabold text-lg sm:text-xl text-white tracking-tight">
-                    Bionet Academy:
+                    SYNETIQ Academy:
                     <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-400 bg-clip-text text-transparent">
                       {' '}Kurikulum 7 Hari Sukses Mitra
                     </span>
@@ -776,7 +776,7 @@ export default function BionetAcademyModal({ user, onClose }) {
                   Selamat, {partnerName}!
                 </h4>
                 <p className="text-xs text-emerald-200 max-w-md mx-auto mt-1">
-                  Anda resmi dinobatkan sebagai <strong>Certified Bionet Master Partner</strong> setelah menguasai seluruh 7 kurikulum mandiri.
+                  Anda resmi dinobatkan sebagai <strong>Certified SYNETIQ Master Partner</strong> setelah menguasai seluruh 7 kurikulum mandiri.
                 </p>
               </div>
 

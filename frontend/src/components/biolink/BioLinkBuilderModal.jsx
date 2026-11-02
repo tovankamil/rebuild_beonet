@@ -124,11 +124,11 @@ export default function BioLinkBuilderModal({ user, onClose }) {
   });
 
   const [displayName, setDisplayName] = useState(() => {
-    return localStorage.getItem(`${storageKey}_name`) || user?.full_name || 'Mitra Bionet Resmi';
+    return localStorage.getItem(`${storageKey}_name`) || user?.full_name || 'Mitra SYNETIQ Resmi';
   });
 
   const [tagline, setTagline] = useState(() => {
-    return localStorage.getItem(`${storageKey}_tagline`) || 'Konsultan Resmi Herbal Bionet BPOM & Pembina Bisnis Digital';
+    return localStorage.getItem(`${storageKey}_tagline`) || 'Konsultan Resmi Herbal SYNETIQ BPOM & Pembina Bisnis Digital';
   });
 
   const [waNumber, setWaNumber] = useState(() => {
@@ -136,7 +136,7 @@ export default function BioLinkBuilderModal({ user, onClose }) {
   });
 
   const [instagram, setInstagram] = useState(() => {
-    return localStorage.getItem(`${storageKey}_ig`) || '@bionet.official';
+    return localStorage.getItem(`${storageKey}_ig`) || '@synetiq.official';
   });
 
   const [videoUrl, setVideoUrl] = useState(() => {
@@ -255,7 +255,7 @@ export default function BioLinkBuilderModal({ user, onClose }) {
     ctx.fillText(`Bio-Link: ${displayName}`, 200, 405);
     ctx.font = '12px sans-serif';
     ctx.fillStyle = '#6EE7B7';
-    ctx.fillText(`bionet.id/bio/${username}`, 200, 430);
+    ctx.fillText(`synetiq.id/bio/${username}`, 200, 430);
 
     const link = document.createElement('a');
     link.download = `QR_BioLink_${username}.png`;
@@ -278,7 +278,7 @@ export default function BioLinkBuilderModal({ user, onClose }) {
                   Bio-Link Studio & Growth Funnel
                 </h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                  Resmi Mitra Bionet
+                  Resmi Mitra SYNETIQ
                 </span>
               </div>
               <p className="text-xs text-emerald-200/80">
@@ -568,7 +568,7 @@ export default function BioLinkBuilderModal({ user, onClose }) {
 
                   {/* Main Call To Action Button (WA) */}
                   <a
-                    href={`https://wa.me/${waNumber.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(displayName)},%20saya%20tertarik%20konsultasi%20produk%20Bionet`}
+                    href={`https://wa.me/${waNumber.replace(/[^0-9]/g, '')}?text=Halo%20${encodeURIComponent(displayName)},%20saya%20tertarik%20konsultasi%20produk%20SYNETIQ`}
                     target="_blank"
                     rel="noreferrer"
                     className={`w-full py-2.5 px-3 rounded-xl flex items-center justify-center space-x-2 font-bold text-xs transition transform hover:scale-[1.02] ${activeThemeObj.buttonClass}`}
@@ -629,7 +629,7 @@ export default function BioLinkBuilderModal({ user, onClose }) {
                 {/* Footer verification badge */}
                 <div className="pt-2 border-t border-current/10 text-[9px] opacity-60 flex items-center justify-center space-x-1">
                   <ShieldCheck size={11} />
-                  <span>Didukung oleh PT Bionet Herbal Indonesia</span>
+                  <span>Didukung oleh PT SYNETIQ Herbal Indonesia</span>
                 </div>
               </div>
 

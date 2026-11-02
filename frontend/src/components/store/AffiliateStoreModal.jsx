@@ -29,16 +29,16 @@ import { STORE_TEMPLATES, getTemplateById } from './storeTemplates';
 export default function AffiliateStoreModal({ user, onClose }) {
   const [copied, setCopied] = useState(false);
   const [shopName, setShopName] = useState(
-    () => localStorage.getItem('bionet_shop_name') || `Toko Herbal Berkah ${user?.full_name || user?.username}`
+    () => (localStorage.getItem('synetiq_shop_name') || localStorage.getItem('bionet_shop_name')) || `Toko Herbal Berkah ${user?.full_name || user?.username}`
   );
   const [whatsappNumber, setWhatsappNumber] = useState(
-    () => localStorage.getItem('bionet_shop_wa') || user?.phone || ''
+    () => (localStorage.getItem('synetiq_shop_wa') || localStorage.getItem('bionet_shop_wa')) || user?.phone || ''
   );
   const [customMarkup, setCustomMarkup] = useState(
-    () => Number(localStorage.getItem('bionet_shop_markup')) || 50000
+    () => Number((localStorage.getItem('synetiq_shop_markup') || localStorage.getItem('bionet_shop_markup'))) || 50000
   );
   const [selectedTemplate, setSelectedTemplate] = useState(
-    () => localStorage.getItem('bionet_shop_template') || 'emerald'
+    () => (localStorage.getItem('synetiq_shop_template') || localStorage.getItem('bionet_shop_template')) || 'emerald'
   );
   const [activeTab, setActiveTab] = useState('preview'); // 'preview' | 'settings' | 'templates'
   const [savedSuccess, setSavedSuccess] = useState(false);
@@ -54,14 +54,19 @@ export default function AffiliateStoreModal({ user, onClose }) {
 
   const handleSelectTemplate = (templateId) => {
     setSelectedTemplate(templateId);
+    localStorage.setItem('synetiq_shop_template', templateId);
     localStorage.setItem('bionet_shop_template', templateId);
   };
 
   const handleSaveSettings = (e) => {
     e.preventDefault();
+    localStorage.setItem('synetiq_shop_name', shopName);
     localStorage.setItem('bionet_shop_name', shopName);
+    localStorage.setItem('synetiq_shop_wa', whatsappNumber);
     localStorage.setItem('bionet_shop_wa', whatsappNumber);
+    localStorage.setItem('synetiq_shop_markup', customMarkup.toString());
     localStorage.setItem('bionet_shop_markup', customMarkup.toString());
+    localStorage.setItem('synetiq_shop_template', selectedTemplate);
     localStorage.setItem('bionet_shop_template', selectedTemplate);
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
@@ -71,7 +76,7 @@ export default function AffiliateStoreModal({ user, onClose }) {
   const products = [
     {
       id: 'p1',
-      name: 'Bionet Bio-Herbal Drops 30ml',
+      name: 'SYNETIQ Bio-Herbal Drops 30ml',
       desc: 'Konsentrat herbal tetes antioksidan tinggi untuk imunitas dan metabolisme tubuh prima.',
       memberPrice: 150000,
       image: '/assets/bionet_biotech_hero.jpg',
@@ -80,7 +85,7 @@ export default function AffiliateStoreModal({ user, onClose }) {
     },
     {
       id: 'p2',
-      name: 'Bionet Royal Propolis Elixir 15ml',
+      name: 'SYNETIQ Royal Propolis Elixir 15ml',
       desc: 'Ekstrak propolis murni lebah trigona kualitas premium untuk pemulihan dan regenerasi sel.',
       memberPrice: 180000,
       image: '/assets/bionet_ambient_luxury.jpg',
@@ -424,7 +429,7 @@ export default function AffiliateStoreModal({ user, onClose }) {
                 </div>
                 <div className="mt-2 p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl text-xs space-y-1">
                   <div className="flex justify-between text-slate-700">
-                    <span>Harga Modal Member (dari Bionet):</span>
+                    <span>Harga Modal Member (dari SYNETIQ):</span>
                     <span className="font-semibold">Rp 150.000</span>
                   </div>
                   <div className="flex justify-between text-slate-700">

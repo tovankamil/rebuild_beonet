@@ -992,7 +992,7 @@ export default function App() {
 
       {/* Module 6: Intermezo Roda Berkah Keberuntungan Modal (Member Only) */}
       {role === 'member' && (
-        <BionetLuckyWheelModal
+        <SYNETIQLuckyWheelModal
           isOpen={luckyWheelOpen}
           onClose={() => setLuckyWheelOpen(false)}
           currentUser={user}
@@ -1001,7 +1001,7 @@ export default function App() {
 
       {/* Module 8: Sistem Peringkat & Klaim Reward Karir SYNETIQ (Member Only) */}
       {role === 'member' && (
-        <BionetRankRewardsModal
+        <SYNETIQRankRewardsModal
           isOpen={rankRewardsOpen}
           onClose={() => setRankRewardsOpen(false)}
           currentUser={user}
@@ -1013,7 +1013,7 @@ export default function App() {
 
       {/* Module 10: Game Intermezo Kebun Herbal & Peternakan Lebah (Member Only) */}
       {role === 'member' && (
-        <BionetHerbalFarmModal
+        <SYNETIQHerbalFarmModal
           isOpen={herbalFarmOpen}
           onClose={() => setHerbalFarmOpen(false)}
           currentUser={user}
@@ -1041,7 +1041,7 @@ export default function App() {
 
       {/* Luxury SYNETIQ AI Intelligence Suite Floating Hub (Member Only) */}
       {role === 'member' && (
-        <BionetAIFloatingHub
+        <SYNETIQAIFloatingHub
           currentUser={user}
           stats={stats}
           onOpenRegisterDownline={(slotData) => {

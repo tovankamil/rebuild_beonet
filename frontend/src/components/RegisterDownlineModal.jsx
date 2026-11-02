@@ -228,7 +228,7 @@ export default function RegisterDownlineModal({
 
   const handleCopyCredentials = () => {
     if (!successData) return;
-    const text = `Selamat datang di Bionet!\nAkun Anda telah diaktifkan:\nUsername: ${successData.user?.username}\nPassword: ${password}\nLogin: ${window.location.origin}`;
+    const text = `Selamat datang di SYNETIQ!\nAkun Anda telah diaktifkan:\nUsername: ${successData.user?.username}\nPassword: ${password}\nLogin: ${window.location.origin}`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -336,7 +336,7 @@ export default function RegisterDownlineModal({
                   </span>
                   {phone && (
                     <a
-                      href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Halo ${fullName}, selamat bergabung di keluarga besar Bionet!`)}`}
+                      href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Halo ${fullName}, selamat bergabung di keluarga besar SYNETIQ!`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] shadow-2xs transition-colors"
@@ -382,7 +382,7 @@ export default function RegisterDownlineModal({
                     <span className="text-slate-500 font-normal">Upline:</span>
                     <span className="text-emerald-700 font-bold">@{activeUpline?.username || 'Akun Anda'}</span>
                     <span className="text-slate-400 text-xs font-normal">
-                      ({activeUpline?.full_name || 'Mitra Bionet'})
+                      ({activeUpline?.full_name || 'Mitra SYNETIQ'})
                     </span>
                   </div>
                 </div>

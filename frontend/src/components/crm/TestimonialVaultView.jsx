@@ -125,7 +125,7 @@ export default function TestimonialVaultView() {
           city: 'Medan, Sumatera Utara',
           headline: 'Dari Konsumen Cocok Herbal, Kini Punya Penghasilan Belasan Juta/Bulan',
           story:
-            'Awalnya beli untuk ibu yang menderita komplikasi diabetes. Karena hasilnya sangat nyata, tetangga dan relasi ikut pesan. Saya memutuskan ambil Paket Kemitraan Gold Bionet, kini dalam 4 bulan sudah meraih reward dan komisi harian rutin.',
+            'Awalnya beli untuk ibu yang menderita komplikasi diabetes. Karena hasilnya sangat nyata, tetangga dan relasi ikut pesan. Saya memutuskan ambil Paket Kemitraan Gold SYNETIQ, kini dalam 4 bulan sudah meraih reward dan komisi harian rutin.',
           proof_type: 'whatsapp_chat',
           bpom_verified: true,
           product: 'Paket Kemitraan BOP Gold',
@@ -143,13 +143,13 @@ export default function TestimonialVaultView() {
 
   // Format Testimoni to WhatsApp text
   const formatWhatsAppText = (item) => {
-    const title = item.headline || 'Kisah Pemulihan Konsumen Bionet';
-    const name = item.customer_name || 'Konsumen Bionet';
+    const title = item.headline || 'Kisah Pemulihan Konsumen SYNETIQ';
+    const name = item.customer_name || 'Konsumen SYNETIQ';
     const city = item.city || 'Indonesia';
     const story = item.story || '';
     const bpom = item.bpom_no || 'BPOM TR Resmi Terverifikasi';
 
-    return `*Kisah Nyata Konsumen Herbal Bionet* 🌿\n\n📌 *"${title}"*\n\n👤 *Nama:* ${name} (${city})\n📜 *Legalitas:* ${bpom}\n\n💬 *Kisah Pemulihan:* \n"${story}"\n\n_100% Testimoni Asli Konsumen Terverifikasi & Resmi BPOM RI._\nUntuk informasi dosis dan pemesanan, silakan balas pesan ini. 😊✨`;
+    return `*Kisah Nyata Konsumen Herbal SYNETIQ* 🌿\n\n📌 *"${title}"*\n\n👤 *Nama:* ${name} (${city})\n📜 *Legalitas:* ${bpom}\n\n💬 *Kisah Pemulihan:* \n"${story}"\n\n_100% Testimoni Asli Konsumen Terverifikasi & Resmi BPOM RI._\nUntuk informasi dosis dan pemesanan, silakan balas pesan ini. 😊✨`;
   };
 
   const handleCopyTestimonial = (item) => {

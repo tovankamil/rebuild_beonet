@@ -179,7 +179,7 @@ export default function AdminOrdersTab() {
 
           <div className="flex items-center gap-2">
             <ExportButtons
-              filename="Pesanan_RO_Bionet"
+              filename="Pesanan_RO_SYNETIQ"
               title="DAFTAR PESANAN REPEAT ORDER (RO) E-COMMERCE"
               subtitle="Laporan pemesanan produk herbal, status invoice & nomor resi ekspedisi"
               headers={['NO. INVOICE', 'USERNAME', 'PEMESAN', 'TOTAL (RP)', 'STATUS', 'TANGGAL']}
@@ -458,7 +458,7 @@ export default function AdminOrdersTab() {
               {/* Header: Logo & Courier */}
               <div className="flex items-center justify-between border-b-2 border-black pb-2">
                 <div>
-                  <div className="font-black text-base tracking-tighter">BIONET LOGISTICS</div>
+                  <div className="font-black text-base tracking-tighter">SYNETIQ LOGISTICS</div>
                   <div className="text-[10px] font-sans font-bold text-slate-700">HERBAL E-COMMERCE 3PL</div>
                 </div>
                 <div className="text-right">
@@ -502,7 +502,7 @@ export default function AdminOrdersTab() {
               <div className="grid grid-cols-1 gap-2 text-[11px] border-b-2 border-black pb-2">
                 <div>
                   <div className="font-bold uppercase text-[9px] text-slate-600">Penerima:</div>
-                  <div className="font-bold text-xs">{printOrder.user?.full_name || 'Mitra Bionet'}</div>
+                  <div className="font-bold text-xs">{printOrder.user?.full_name || 'Mitra SYNETIQ'}</div>
                   <div className="text-[10px]">{printOrder.user?.phone || '0812-3456-7890'}</div>
                   <div className="text-[10px] mt-0.5 leading-tight">
                     Jl. Sukajadi No. 45, RT 02/05, Kel. Pasteur, Kec. Sukajadi, Kota Bandung, Jawa Barat (40161)
@@ -511,7 +511,7 @@ export default function AdminOrdersTab() {
 
                 <div className="pt-1 border-t border-dashed border-black">
                   <div className="font-bold uppercase text-[9px] text-slate-600">Pengirim (Warehouse Pusat):</div>
-                  <div className="font-bold text-[10px]">BIONET LOGISTICS CENTER</div>
+                  <div className="font-bold text-[10px]">SYNETIQ LOGISTICS CENTER</div>
                   <div className="text-[10px]">0821-8899-7711 | Gudang Herbal Bandung, Jawa Barat</div>
                 </div>
               </div>

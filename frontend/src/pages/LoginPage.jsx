@@ -103,7 +103,7 @@ export default function LoginPage({ onLoginSuccess }) {
   return (
     <div className="relative min-h-screen min-h-dvh flex flex-col items-center justify-between p-3 sm:p-6 font-sans text-slate-100 overflow-x-hidden selection:bg-emerald-500 selection:text-white">
       {/* 1. Dynamic Ambient Background: Luxury Biotech Canvas */}
-      <BionetAmbientBackground
+      <SYNETIQAmbientBackground
         dimmed={false}
         activeMode={ambientBgMode}
         onModeChange={setAmbientBgMode}

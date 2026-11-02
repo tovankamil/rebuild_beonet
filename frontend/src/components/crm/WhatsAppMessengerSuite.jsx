@@ -167,7 +167,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const [broadcasts, setBroadcasts] = useState([]);
   const [bcTitle, setBcTitle] = useState('');
   const [bcSegment, setBcSegment] = useState('all');
-  const [bcTemplate, setBcTemplate] = useState('Halo {{nama}}, salam sehat dari Bionet Official! 🙏\n\nKami memiliki penawaran spesial untuk produk {{produk}} khusus hari ini dengan subsidi gratis ongkir ke {{kota}}.\n\nApakah berkenan kami siapkan paketnya? 🌿');
+  const [bcTemplate, setBcTemplate] = useState('Halo {{nama}}, salam sehat dari SYNETIQ Official! 🙏\n\nKami memiliki penawaran spesial untuk produk {{produk}} khusus hari ini dengan subsidi gratis ongkir ke {{kota}}.\n\nApakah berkenan kami siapkan paketnya? 🌿');
   const [bcDelay, setBcDelay] = useState(8);
   const [bcSending, setBcSending] = useState(false);
   const [bcSuccessAlert, setBcSuccessAlert] = useState('');
@@ -444,7 +444,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
       phone: '081287654321',
       cadence: '24 Jam',
       scheduled_time: 'Hari Ini, 16:30 WIB',
-      message: 'Halo Ibu Nurjanah, salam sehat! Bagaimana respon setelah membaca info khasiat Bio-Propolis Bionet kemarin? Ada yang bisa kami bantu jelaskan lebih lanjut?',
+      message: 'Halo Ibu Nurjanah, salam sehat! Bagaimana respon setelah membaca info khasiat Bio-Propolis SYNETIQ kemarin? Ada yang bisa kami bantu jelaskan lebih lanjut?',
       status: 'pending',
       time_left: '4 Jam 12 Menit',
     },
@@ -464,7 +464,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
       phone: '085611223344',
       cadence: '72 Jam',
       scheduled_time: 'Kemarin, 19:30 WIB',
-      message: 'Halo Mas Agus, malam ini ada Webinar Bisnis Bionet (BOP) bersama para dokter spesialis. Apakah berkenan kami kirimkan akses Zoom VIP gratisnya?',
+      message: 'Halo Mas Agus, malam ini ada Webinar Bisnis SYNETIQ (BOP) bersama para dokter spesialis. Apakah berkenan kami kirimkan akses Zoom VIP gratisnya?',
       status: 'sent',
       time_left: 'Terkirim Otomatis',
     },
@@ -671,12 +671,12 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const handleSendPdfCatalog = async () => {
     if (!activeThreadId) return;
     setSendingMessage(true);
-    const pdfText = '📄 *KATALOG RESMI BIONET HERBAL BPOM RI 2026*\n\nBerikut terlampir dokumen resmi sertifikasi BPOM dan katalog lengkap produk herbal Bionet untuk referensi kesehatan Anda.';
+    const pdfText = '📄 *KATALOG RESMI SYNETIQ HERBAL BPOM RI 2026*\n\nBerikut terlampir dokumen resmi sertifikasi BPOM dan katalog lengkap produk herbal SYNETIQ untuk referensi kesehatan Anda.';
     try {
       const res = await api.post(`/crm/whatsapp/threads/${activeThreadId}/messages`, {
         text: pdfText,
         media_type: 'pdf',
-        media_url: 'https://bionet.id/docs/Katalog_Resmi_Bionet_BPOM_2026.pdf',
+        media_url: 'https://synetiq.id/docs/Katalog_Resmi_SYNETIQ_BPOM_2026.pdf',
       });
       if (res.data?.data) {
         setMessages((prev) => [...prev, { ...res.data.data, media_type: 'pdf' }]);
@@ -700,7 +700,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
   const handleSendVoiceNote = async () => {
     if (!activeThreadId) return;
     setSendingMessage(true);
-    const vnText = '🎙️ *VOICE NOTE KONSULTAN MEDIS BIONET*\n\nPanduan dosis anjuran & tips pemulihan keluhan kesehatan secara alami (0:48).';
+    const vnText = '🎙️ *VOICE NOTE KONSULTAN MEDIS SYNETIQ*\n\nPanduan dosis anjuran & tips pemulihan keluhan kesehatan secara alami (0:48).';
     try {
       const res = await api.post(`/crm/whatsapp/threads/${activeThreadId}/messages`, {
         text: vnText,
@@ -786,11 +786,11 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
         );
       } else if (goalToUse === 'bpom') {
         setInputText(
-          `Halo ${contactName}! Produk ${prod} dari Bionet 100% berizin resmi BPOM RI (POM TR 226012891) serta bersertifikat Halal MUI ID321100001234. Sangat aman dan bebas Bahan Kimia Obat (BKO). Keasliannya bisa dicek langsung di aplikasi BPOM Mobile 🙏`
+          `Halo ${contactName}! Produk ${prod} dari SYNETIQ 100% berizin resmi BPOM RI (POM TR 226012891) serta bersertifikat Halal MUI ID321100001234. Sangat aman dan bebas Bahan Kimia Obat (BKO). Keasliannya bisa dicek langsung di aplikasi BPOM Mobile 🙏`
         );
       } else {
         setInputText(
-          `Halo ${contactName}, terima kasih telah berkonsultasi dengan Bionet! 🙏 Produk ${prod} kami diformulasikan murni dengan teknologi nano sehingga lebih cepat diserap tubuh. Ada keluhan kesehatan spesifik yang ingin kami dampingi? 😊🌿`
+          `Halo ${contactName}, terima kasih telah berkonsultasi dengan SYNETIQ! 🙏 Produk ${prod} kami diformulasikan murni dengan teknologi nano sehingga lebih cepat diserap tubuh. Ada keluhan kesehatan spesifik yang ingin kami dampingi? 😊🌿`
         );
       }
     } finally {
@@ -1433,7 +1433,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                           name: activeThread.contact_name,
                           phone: activeThread.phone,
                           city: activeThread.city,
-                          notes: `Pelanggan Bionet - ${activeThread.product || ''}`,
+                          notes: `Pelanggan SYNETIQ - ${activeThread.product || ''}`,
                         })
                       }
                       className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center space-x-1 transition"
@@ -1506,7 +1506,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   <div className="text-center my-2">
                     <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-100/80 border border-amber-200/80 text-[10px] font-semibold text-amber-900 shadow-xs">
                       <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
-                      <span>Pesan terenkripsi &amp; terhubung langsung ke Server Gateway Bionet</span>
+                      <span>Pesan terenkripsi &amp; terhubung langsung ke Server Gateway SYNETIQ</span>
                     </span>
                   </div>
 
@@ -1695,7 +1695,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   <button
                     onClick={() =>
                       handleQuickReply(
-                        'Produk herbal Bionet 100% resmi berizin BPOM RI (POM TR 226012891) dan Halal MUI. Sangat aman dan bebas Bahan Kimia Obat.'
+                        'Produk herbal SYNETIQ 100% resmi berizin BPOM RI (POM TR 226012891) dan Halal MUI. Sangat aman dan bebas Bahan Kimia Obat.'
                       )
                     }
                     className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-emerald-500 hover:text-emerald-700 font-semibold whitespace-nowrap transition shadow-2xs"
@@ -1725,7 +1725,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   <button
                     onClick={() =>
                       handleQuickReply(
-                        'Pembayaran resmi Bionet via Transfer Rekening BCA 0123-456-789 atas nama PT Bionet Prima Sejahtera.'
+                        'Pembayaran resmi SYNETIQ via Transfer Rekening BCA 0123-456-789 atas nama PT SYNETIQ Prima Sejahtera.'
                       )
                     }
                     className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:border-emerald-500 hover:text-emerald-700 font-semibold whitespace-nowrap transition shadow-2xs"
@@ -2231,9 +2231,9 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                       name: t.contact_name,
                       phone: t.phone,
                       city: t.city,
-                      notes: `Prospek Bionet: ${t.product || ''}`,
+                      notes: `Prospek SYNETIQ: ${t.product || ''}`,
                     })),
-                    filteredContacts.length === threads.length ? 'semua-kontak-bionet-whatsapp' : 'kontak-terfilter-bionet'
+                    filteredContacts.length === threads.length ? 'semua-kontak-synetiq-whatsapp' : 'kontak-terfilter-bionet'
                   )
                 }
                 className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs transition shadow-xs flex items-center space-x-1.5"
@@ -2401,7 +2401,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                                   name: t.contact_name,
                                   phone: t.phone,
                                   city: t.city,
-                                  notes: `Prospek Bionet - ${t.product || ''}`,
+                                  notes: `Prospek SYNETIQ - ${t.product || ''}`,
                                 })
                               }
                               className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-[10px] border border-emerald-200 flex items-center space-x-1 transition"
@@ -2741,7 +2741,7 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
                   </div>
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-500">Perangkat Node:</span>
-                    <span className="font-semibold text-slate-800">{deviceSession?.device_name || 'Bionet Node v2.24'}</span>
+                    <span className="font-semibold text-slate-800">{deviceSession?.device_name || 'SYNETIQ Node v2.24'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-500">Auto-Responder Bot:</span>

@@ -29,7 +29,7 @@ export default function ComponentsTab() {
   const [toggleState, setToggleState] = useState(true);
 
   const sampleActivities = [
-    { user: 'Agus Bionet', label: 'Mendaftar sebagai mitra baru di kaki kanan', time: '10 menit yang lalu', color: 'emerald' },
+    { user: 'Agus SYNETIQ', label: 'Mendaftar sebagai mitra baru di kaki kanan', time: '10 menit yang lalu', color: 'emerald' },
     { user: 'Siti Aminah', label: 'Mengajukan penarikan saldo sebesar Rp 500.000', time: '45 menit yang lalu', color: 'amber' },
     { user: 'Budi Santoso', label: 'Mengaktivasi paket Platinum 7 Hak Usaha', time: '2 jam yang lalu', color: 'purple' },
     { user: 'Flip Gateway', label: 'Dana penarikan Rp 1.000.000 berhasil ditransfer ke BCA', time: '4 jam yang lalu', color: 'cyan' },
@@ -57,7 +57,7 @@ export default function ComponentsTab() {
             <span>Katalog Komponen UI DashLite Demo 3</span>
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            Galeri komponen antarmuka yang diadaptasi dari template DashLite Demo 3 dengan Tailwind CSS & tema Bionet
+            Galeri komponen antarmuka yang diadaptasi dari template DashLite Demo 3 dengan Tailwind CSS & tema SYNETIQ
           </p>
         </div>
         <div className="flex items-center gap-2">

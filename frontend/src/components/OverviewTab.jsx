@@ -113,7 +113,7 @@ export default function OverviewTab({
   const recentTxList = (stats?.recent_transactions && stats.recent_transactions.length > 0)
     ? stats.recent_transactions
     : [
-        { id: '7f9a2b8e-1', type: 'credit', amount: 500000, description: 'Bonus Sponsor Baru (Mitra @agus_bionet)', created_at: '2026-10-27T09:15:00Z', status: 'Selesai' },
+        { id: '7f9a2b8e-1', type: 'credit', amount: 500000, description: 'Bonus Sponsor Baru (Mitra @agus_synetiq)', created_at: '2026-10-27T09:15:00Z', status: 'Selesai' },
         { id: '3d4c1a5b-2', type: 'credit', amount: 250000, description: 'Bonus Pasangan Binary (10 Pasang Harian)', created_at: '2026-10-26T23:59:00Z', status: 'Selesai' },
         { id: '118fae49-3', type: 'debit', amount: 1000000, description: 'Pencairan Saldo ke Rekening BCA', created_at: '2026-10-25T14:20:00Z', status: 'Berhasil Ditransfer' },
       ];
@@ -130,7 +130,7 @@ export default function OverviewTab({
             Sales & Overview Kemitraan
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            Selamat datang di panel kendali Bionet. Pantau omset, bonus pasangan, dan mutasi saldo secara real-time.
+            Selamat datang di panel kendali SYNETIQ. Pantau omset, bonus pasangan, dan mutasi saldo secara real-time.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto flex-wrap">
@@ -244,7 +244,7 @@ export default function OverviewTab({
               <GraduationCap size={18} />
             </div>
             <div className="text-left">
-              <span className="font-heading font-bold text-xs block leading-tight text-slate-900">Bionet Academy</span>
+              <span className="font-heading font-bold text-xs block leading-tight text-slate-900">SYNETIQ Academy</span>
               <span className="text-[10px] text-slate-500">Kurikulum 7 Hari</span>
             </div>
           </div>
@@ -253,7 +253,7 @@ export default function OverviewTab({
       </div>
 
       {/* ======================================================== */}
-      {/* PUSAT FITUR AI CERDAS BIONET (LUXURY BIO-EMERALD SUITE) */}
+      {/* PUSAT FITUR AI CERDAS SYNETIQ (LUXURY BIO-EMERALD SUITE) */}
       {/* ======================================================== */}
       <div className="rounded-2xl bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 p-4 sm:p-5 border border-emerald-500/20 text-white shadow-lg space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-500/15 pb-3">
@@ -264,7 +264,7 @@ export default function OverviewTab({
             <div>
               <div className="flex items-center space-x-2">
                 <span className="font-heading font-extrabold text-sm text-white">
-                  Bionet AI Intelligence Suite
+                  SYNETIQ AI Intelligence Suite
                 </span>
                 <span className="text-[9px] uppercase font-bold tracking-widest text-emerald-300 bg-emerald-900/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
                   6 Modul Cerdas
@@ -277,7 +277,7 @@ export default function OverviewTab({
           </div>
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new Event('bionet:open-copilot'))}
+            onClick={() => window.dispatchEvent(new Event('synetiq:open-copilot'))}
             className="self-start sm:self-center px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center space-x-1.5 shadow-md shadow-emerald-500/20 transition active:scale-[0.98]"
           >
             <Sparkles size={13} />
@@ -289,7 +289,7 @@ export default function OverviewTab({
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'health' } }))}
+            onClick={() => window.dispatchEvent(new CustomEvent('synetiq:open-ai-module', { detail: { module: 'health' } }))}
             className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-400/50 text-left transition group active:scale-[0.98]"
           >
             <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
@@ -305,7 +305,7 @@ export default function OverviewTab({
 
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'copywriting' } }))}
+            onClick={() => window.dispatchEvent(new CustomEvent('synetiq:open-ai-module', { detail: { module: 'copywriting' } }))}
             className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-amber-400/50 text-left transition group active:scale-[0.98]"
           >
             <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
@@ -321,7 +321,7 @@ export default function OverviewTab({
 
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'binary' } }))}
+            onClick={() => window.dispatchEvent(new CustomEvent('synetiq:open-ai-module', { detail: { module: 'binary' } }))}
             className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-teal-400/50 text-left transition group active:scale-[0.98]"
           >
             <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
@@ -337,7 +337,7 @@ export default function OverviewTab({
 
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'churn' } }))}
+            onClick={() => window.dispatchEvent(new CustomEvent('synetiq:open-ai-module', { detail: { module: 'churn' } }))}
             className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-rose-400/50 text-left transition group active:scale-[0.98]"
           >
             <div className="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
@@ -353,7 +353,7 @@ export default function OverviewTab({
 
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'voicenote' } }))}
+            onClick={() => window.dispatchEvent(new CustomEvent('synetiq:open-ai-module', { detail: { module: 'voicenote' } }))}
             className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-400/50 text-left transition group active:scale-[0.98]"
           >
             <div className="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
@@ -369,7 +369,7 @@ export default function OverviewTab({
 
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent('bionet:open-ai-module', { detail: { module: 'fraud' } }))}
+            onClick={() => window.dispatchEvent(new CustomEvent('synetiq:open-ai-module', { detail: { module: 'fraud' } }))}
             className="p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-400/50 text-left transition group active:scale-[0.98]"
           >
             <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center mb-2 group-hover:scale-105 transition">
@@ -530,7 +530,7 @@ export default function OverviewTab({
         </div>
         <button
           type="button"
-          onClick={() => window.dispatchEvent(new Event('bionet:open-wheel'))}
+          onClick={() => window.dispatchEvent(new Event('synetiq:open-wheel'))}
           className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-emerald-600 to-teal-600 hover:from-amber-600 hover:to-teal-700 text-white font-bold text-xs shadow-md transition self-start sm:self-auto flex items-center space-x-1.5 shrink-0 cursor-pointer active:scale-95"
         >
           <span>🎡 Putar Roda Berkah</span>
@@ -721,7 +721,7 @@ export default function OverviewTab({
               </div>
               <div className="text-xs text-slate-500 mt-2">Atas Nama</div>
               <div className="font-semibold text-xs text-slate-700 uppercase">
-                {stats?.bank?.account_name || stats?.user?.full_name || 'MITRA BIONET MANDIRI'}
+                {stats?.bank?.account_name || stats?.user?.full_name || 'MITRA SYNETIQ MANDIRI'}
               </div>
             </div>
 
@@ -876,7 +876,7 @@ export default function OverviewTab({
         />
       )}
       {showAcademyModal && (
-        <BionetAcademyModal
+        <SYNETIQAcademyModal
           user={currentUser}
           onClose={() => setShowAcademyModal(false)}
         />

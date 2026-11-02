@@ -201,12 +201,12 @@ export default function CrmKanbanBoard({
   // Build smart stage-specific WhatsApp Greeting
   const getWhatsAppGreeting = (lead) => {
     const name = lead.name || 'Bapak/Ibu';
-    const prod = lead.product_interest || 'produk herbal Bionet';
+    const prod = lead.product_interest || 'produk herbal SYNETIQ';
     let text = '';
 
     switch (lead.status) {
       case 'new':
-        text = `Halo ${name}, salam kenal dari Bionet Herbal! Kami melihat ketertarikan Anda pada ${prod}. Ada yang bisa kami bantu jelaskan mengenai dosis pemakaian atau khasiatnya? 😊🌿`;
+        text = `Halo ${name}, salam kenal dari SYNETIQ Herbal! Kami melihat ketertarikan Anda pada ${prod}. Ada yang bisa kami bantu jelaskan mengenai dosis pemakaian atau khasiatnya? 😊🌿`;
         break;
       case 'contacted':
         text = `Halo ${name}, salam sehat! Melanjutkan perbincangan kita mengenai ${prod}, bagaimana kabarnya hari ini? Apakah sudah sempat membaca brosur khasiat yang kami kirimkan? 😊`;
@@ -215,13 +215,13 @@ export default function CrmKanbanBoard({
         text = `Halo ${name}! Untuk pemesanan ${prod} minggu ini kami ada promo free konsultasi dan panduan terapi khusus. Apakah ingin kami siapkan pengirimannya hari ini? 📦✨`;
         break;
       case 'webinar':
-        text = `Halo ${name}! Jangan lupa malam ini ada sesi Webinar BOP Bionet. Kita akan kupas tuntas rahasia kesehatan herbal dan potensi peluang kemitraannya. Link room sudah siap ya! 🎥🌟`;
+        text = `Halo ${name}! Jangan lupa malam ini ada sesi Webinar BOP SYNETIQ. Kita akan kupas tuntas rahasia kesehatan herbal dan potensi peluang kemitraannya. Link room sudah siap ya! 🎥🌟`;
         break;
       case 'closing':
-        text = `Selamat ${name}! Paket ${prod} sudah siap kami proses. Terima kasih banyak atas kepercayaannya ikhtiar sehat bersama Bionet. Kami siap pantau progresnya dari hari ke hari! 🙏🌿`;
+        text = `Selamat ${name}! Paket ${prod} sudah siap kami proses. Terima kasih banyak atas kepercayaannya ikhtiar sehat bersama SYNETIQ. Kami siap pantau progresnya dari hari ke hari! 🙏🌿`;
         break;
       default:
-        text = `Halo ${name}, salam sehat dari Bionet! Semoga harinya menyenangkan. 😊`;
+        text = `Halo ${name}, salam sehat dari SYNETIQ! Semoga harinya menyenangkan. 😊`;
     }
     return `https://wa.me/${lead.phone}?text=${encodeURIComponent(text)}`;
   };

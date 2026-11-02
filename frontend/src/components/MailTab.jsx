@@ -31,43 +31,43 @@ const AUTO_REPLY_PRESETS = [
   {
     id: 'cs',
     title: '📌 Konfirmasi CS 24 Jam',
-    subject: 'Re: [Bionet Official] Konfirmasi Penerimaan Email',
-    message: `Halo, terima kasih telah menghubungi Bionet Official.
+    subject: 'Re: [SYNETIQ Official] Konfirmasi Penerimaan Email',
+    message: `Halo, terima kasih telah menghubungi SYNETIQ Official.
 
 Pesan Anda telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.
 
-Jika ada informasi mendesak mengenai akun atau layanan Bionet Anda, silakan lampirkan ID Pengguna Anda pada balasan email ini.
+Jika ada informasi mendesak mengenai akun atau layanan SYNETIQ Anda, silakan lampirkan ID Pengguna Anda pada balasan email ini.
 
 Salam hangat,
-Customer Care Bionet Indonesia`
+Customer Care SYNETIQ Indonesia`
   },
   {
     id: 'ekspedisi',
     title: '📦 Ekspedisi & Produk Herbal',
-    subject: 'Re: [Bionet Official] Status Pengiriman & Produk Herbal',
-    message: `Halo, terima kasih telah menghubungi Tim Logistik & Produk Herbal Bionet.
+    subject: 'Re: [SYNETIQ Official] Status Pengiriman & Produk Herbal',
+    message: `Halo, terima kasih telah menghubungi Tim Logistik & Produk Herbal SYNETIQ.
 
 Pesan dan pertanyaan Anda terkait ketersediaan stok produk herbal, konfirmasi resi, atau status pengiriman ekspedisi telah kami terima. Tim gudang dan operasional kami akan memeriksa nomor pesanan Anda secepat mungkin.
 
 Pastikan Anda telah menyertakan Nomor Invoice atau Nomor Resi pengiriman agar proses pengecekan dapat dilakukan lebih cepat.
 
 Salam sehat,
-Tim Logistik Bionet Herbal`
+Tim Logistik SYNETIQ Herbal`
   },
   {
     id: 'kemitraan',
     title: '💼 Kemitraan & Penarikan Dana',
-    subject: 'Re: [Bionet Official] Informasi Kemitraan & Finansial',
-    message: `Halo Mitra Bionet yang terhormat,
+    subject: 'Re: [SYNETIQ Official] Informasi Kemitraan & Finansial',
+    message: `Halo Mitra SYNETIQ yang terhormat,
 
-Terima kasih atas email Anda kepada Tim Kemitraan & Finansial Bionet.
+Terima kasih atas email Anda kepada Tim Kemitraan & Finansial SYNETIQ.
 
 Email Anda terkait program kemitraan, bonus referensi, verifikasi rekening, atau proses penarikan dana (withdrawal) telah masuk ke antrean prioritas departemen keuangan kami. Semua permintaan penarikan dan verifikasi diproses sesuai jadwal operasional perbankan.
 
-Terima kasih atas kerja sama dan dedikasi Anda bersama jaringan Bionet.
+Terima kasih atas kerja sama dan dedikasi Anda bersama jaringan SYNETIQ.
 
 Salam sukses mulia,
-Tim Kemitraan & Finance Bionet`
+Tim Kemitraan & Finance SYNETIQ`
   }
 ];
 
@@ -178,7 +178,7 @@ export default function MailTab({ currentUser }) {
   const [config, setConfig] = useState({
     provider: 'gmail',
     email_address: '',
-    sender_name: 'Bionet Official',
+    sender_name: 'SYNETIQ Official',
     smtp_host: 'smtp.gmail.com',
     smtp_port: 587,
     smtp_username: '',
@@ -192,8 +192,8 @@ export default function MailTab({ currentUser }) {
     is_active: false,
     auto_reply_enabled: false,
     auto_reply_mode: 'standard', // 'standard' or 'ai'
-    auto_reply_subject: 'Re: [Bionet Official] Konfirmasi Penerimaan Email',
-    auto_reply_message: 'Halo, terima kasih telah menghubungi Bionet Official.\n\nPesan Anda telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim Bionet Indonesia',
+    auto_reply_subject: 'Re: [SYNETIQ Official] Konfirmasi Penerimaan Email',
+    auto_reply_message: 'Halo, terima kasih telah menghubungi SYNETIQ Official.\n\nPesan Anda telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim SYNETIQ Indonesia',
   });
   const [configSaving, setConfigSaving] = useState(false);
   const [configMessage, setConfigMessage] = useState(null);
@@ -233,8 +233,8 @@ export default function MailTab({ currentUser }) {
           ...data,
           auto_reply_enabled: data.auto_reply_enabled ?? false,
           auto_reply_mode: data.auto_reply_mode || 'standard',
-          auto_reply_subject: data.auto_reply_subject || 'Re: [Bionet Official] Konfirmasi Penerimaan Email',
-          auto_reply_message: data.auto_reply_message || 'Halo, terima kasih telah menghubungi Bionet Official.\n\nPesan Anda telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim Bionet Indonesia',
+          auto_reply_subject: data.auto_reply_subject || 'Re: [SYNETIQ Official] Konfirmasi Penerimaan Email',
+          auto_reply_message: data.auto_reply_message || 'Halo, terima kasih telah menghubungi SYNETIQ Official.\n\nPesan Anda telah kami terima dengan baik. Tim layanan pelanggan dan dukungan kemitraan kami akan segera meninjau dan merespons pesan Anda dalam 1x24 jam kerja.\n\nSalam hangat,\nTim SYNETIQ Indonesia',
         }));
       }
     } catch (err) {
@@ -890,7 +890,7 @@ export default function MailTab({ currentUser }) {
               <input
                 type="email"
                 required
-                placeholder="contoh: partner@bionet.id, customer@gmail.com"
+                placeholder="contoh: partner@synetiq.id, customer@gmail.com"
                 value={composeForm.to}
                 onChange={(e) => setComposeForm({ ...composeForm, to: e.target.value })}
                 className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 text-slate-800"
@@ -1127,7 +1127,7 @@ export default function MailTab({ currentUser }) {
                 <div>
                   <h4 className="text-xs font-bold text-slate-800">Domain Sendiri (cPanel / Plesk / Webmail)</h4>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    Gunakan hostname mail domain Anda sendiri (contoh: mail.bionet.id, support@perusahaan.com).
+                    Gunakan hostname mail domain Anda sendiri (contoh: mail.synetiq.id, support@perusahaan.com).
                   </p>
                 </div>
               </div>
@@ -1144,7 +1144,7 @@ export default function MailTab({ currentUser }) {
               <p className="text-slate-600 leading-relaxed">
                 1. Buka <b>myaccount.google.com</b> &rarr; Tab <b>Keamanan (Security)</b> &rarr; Aktifkan <b>Verifikasi 2 Langkah</b>.
                 <br />
-                2. Cari menu <b>Sandi Aplikasi (App Passwords)</b> &rarr; Masukkan nama aplikasi "Bionet" &rarr; Klik Buat.
+                2. Cari menu <b>Sandi Aplikasi (App Passwords)</b> &rarr; Masukkan nama aplikasi "SYNETIQ" &rarr; Klik Buat.
                 <br />
                 3. Salin kode 16-karakter yang muncul ke kolom <b>Password / Sandi Aplikasi</b> di bawah.
               </p>
@@ -1178,7 +1178,7 @@ export default function MailTab({ currentUser }) {
                 <label className="block text-xs font-bold text-slate-700 mb-1">Nama Pengirim (Display Name)</label>
                 <input
                   type="text"
-                  placeholder="contoh: Bionet Official, Ahmad Support"
+                  placeholder="contoh: SYNETIQ Official, Ahmad Support"
                   value={config.sender_name}
                   onChange={(e) => setConfig({ ...config, sender_name: e.target.value })}
                   className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 text-slate-800"
@@ -1454,7 +1454,7 @@ export default function MailTab({ currentUser }) {
                           required={config.auto_reply_enabled && config.auto_reply_mode === 'standard'}
                           value={config.auto_reply_subject}
                           onChange={(e) => setConfig({ ...config, auto_reply_subject: e.target.value })}
-                          placeholder="Re: [Bionet Official] Konfirmasi Penerimaan Email"
+                          placeholder="Re: [SYNETIQ Official] Konfirmasi Penerimaan Email"
                           className="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 text-slate-800"
                         />
                       </div>
@@ -1506,7 +1506,7 @@ export default function MailTab({ currentUser }) {
                       </div>
 
                       <p className="text-xs text-purple-950/80 leading-relaxed">
-                        Setiap email yang masuk ke kotak masuk Anda akan dipindai oleh Google Gemini AI. Sistem memahami pertanyaan pelanggan (seperti status pesanan herbal, kemitraan Bionet, atau info rekening) dan menyusun respon resmi yang ramah, akurat, dan sopan dalam hitungan detik.
+                        Setiap email yang masuk ke kotak masuk Anda akan dipindai oleh Google Gemini AI. Sistem memahami pertanyaan pelanggan (seperti status pesanan herbal, kemitraan SYNETIQ, atau info rekening) dan menyusun respon resmi yang ramah, akurat, dan sopan dalam hitungan detik.
                       </p>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
@@ -1521,9 +1521,9 @@ export default function MailTab({ currentUser }) {
                         <div className="bg-white/90 p-2.5 rounded-lg border border-purple-100 text-xs">
                           <div className="font-bold text-slate-800 mb-0.5 flex items-center gap-1.5">
                             <CheckCircle size={13} className="text-emerald-500" />
-                            Identitas Resmi Bionet
+                            Identitas Resmi SYNETIQ
                           </div>
-                          <p className="text-[11px] text-slate-500">Menyertakan salam resmi tim Bionet Indonesia dan nada bicara korporat.</p>
+                          <p className="text-[11px] text-slate-500">Menyertakan salam resmi tim SYNETIQ Indonesia dan nada bicara korporat.</p>
                         </div>
 
                         <div className="bg-white/90 p-2.5 rounded-lg border border-purple-100 text-xs">
@@ -1543,7 +1543,7 @@ export default function MailTab({ currentUser }) {
                           type="text"
                           value={config.auto_reply_subject}
                           onChange={(e) => setConfig({ ...config, auto_reply_subject: e.target.value })}
-                          placeholder="Re: [Bionet Official] Tanggapan Pesan Anda"
+                          placeholder="Re: [SYNETIQ Official] Tanggapan Pesan Anda"
                           className="w-full px-3 py-2 text-xs bg-white border border-purple-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-400"
                         />
                       </div>

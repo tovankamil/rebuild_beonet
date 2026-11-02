@@ -298,7 +298,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
           bannedIps: m.bannedIps + 1,
           activeIncidents: Math.max(0, m.activeIncidents - 1),
         }));
-        showToast(`IP ${ip} telah DIBLOKIR PERMANEN dari seluruh routing gateway Bionet!`, 'danger');
+        showToast(`IP ${ip} telah DIBLOKIR PERMANEN dari seluruh routing gateway SYNETIQ!`, 'danger');
         if (audioEnabled) playCyberAlarm('warning');
       } else {
         await api.post('/admin/security/unblock-ip', { ip_address: ip });
@@ -352,7 +352,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
 
     try {
       const res = await api.post('/ai/chat', {
-        prompt: `Kamu adalah Lead Cybersecurity SOC Analyst di Bionet. Analisis pertanyaan keamanan berikut dengan format profesional, teliti, dan actionable: "${query}". Sertakan taktik MITRE ATT&CK, profil ancaman, status isolasi WAF, serta rekomendasi langkah teknis untuk admin.`,
+        prompt: `Kamu adalah Lead Cybersecurity SOC Analyst di SYNETIQ. Analisis pertanyaan keamanan berikut dengan format profesional, teliti, dan actionable: "${query}". Sertakan taktik MITRE ATT&CK, profil ancaman, status isolasi WAF, serta rekomendasi langkah teknis untuk admin.`,
       });
 
       const reply = res.data?.reply;
@@ -403,7 +403,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
 **Status Defcon**: 100% PROTECTED - WAF Parameterized Filter Active
 
 1. **Analisis Eksploit**:
-   - WAF Bionet secara otomatis memindai pola karakter berbahaya seperti \`UNION SELECT\`, \`OR 1=1\`, dan comment dashes.
+   - WAF SYNETIQ secara otomatis memindai pola karakter berbahaya seperti \`UNION SELECT\`, \`OR 1=1\`, dan comment dashes.
    - Seluruh payload mencurigakan dijatuhkan dengan kode status 403 WAF DROP.
 
 2. **Evaluasi Keamanan Core**:
@@ -420,7 +420,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
 **Status Sistem**: 100% Defense Integrity - Perimeter Bersih & Stabil
 
 1. **Pemetaan Ancaman Terkini**:
-   - Menghadapi ${metrics.totalBlocked.toLocaleString('id-ID')} percobaan intrusi yang telah dinetralisir WAF Bionet.
+   - Menghadapi ${metrics.totalBlocked.toLocaleString('id-ID')} percobaan intrusi yang telah dinetralisir WAF SYNETIQ.
    - Perimeter keamanan operasional stabil dengan latensi inspeksi paket rata-rata 1.1ms.
 
 2. **Postur Keamanan Gateway**:
@@ -620,9 +620,9 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
           <button
             onClick={handleTestNotificationGateway}
             disabled={testingAlert}
-            aria-label="Uji konektivitas gateway notifikasi Telegram & WhatsApp SOC Bionet"
+            aria-label="Uji konektivitas gateway notifikasi Telegram & WhatsApp SOC SYNETIQ"
             className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-            title="Uji konektivitas gateway notifikasi Telegram & WhatsApp SOC Bionet tanpa mencemari log"
+            title="Uji konektivitas gateway notifikasi Telegram & WhatsApp SOC SYNETIQ tanpa mencemari log"
           >
             <Send size={14} className={testingAlert ? 'animate-spin' : ''} />
             <span>{testingAlert ? 'Menguji Gateway...' : 'Uji Gateway Notifikasi'}</span>
@@ -732,7 +732,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
                     type="text"
                     value={aiPromptInput}
                     onChange={(e) => setAiPromptInput(e.target.value)}
-                    placeholder="Ask Threat Intelligence... (e.g. 'Analisis status perimeter keamanan', 'Rekomendasi WAF Bionet')"
+                    placeholder="Ask Threat Intelligence... (e.g. 'Analisis status perimeter keamanan', 'Rekomendasi WAF SYNETIQ')"
                     className="w-full bg-transparent text-xs text-slate-100 placeholder-slate-400 focus:outline-none font-mono"
                   />
                   <button
@@ -1038,7 +1038,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
                           🛡️ Perimeter Bersih: 0 Ancaman Siber Aktif Terdeteksi
                         </h4>
                         <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                          WAF dan Security Shield Bionet aktif memproteksi server secara real-time. Seluruh paket dan request inbound terverifikasi aman.
+                          WAF dan Security Shield SYNETIQ aktif memproteksi server secara real-time. Seluruh paket dan request inbound terverifikasi aman.
                         </p>
                       </div>
                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#03140e] border border-emerald-500/30 text-[10px] text-emerald-300 font-mono">
@@ -1303,7 +1303,7 @@ export default function AdminSecurityThreatRadar({ setActiveTab }) {
 
               <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs">
                 <span className="font-bold block mb-0.5">Status Penanganan Gateway:</span>
-                Payload diisolasi oleh layer WAF Bionet tanpa menyentuh core database PostgreSQL atau session cache.
+                Payload diisolasi oleh layer WAF SYNETIQ tanpa menyentuh core database PostgreSQL atau session cache.
               </div>
             </div>
 

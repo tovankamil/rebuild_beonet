@@ -181,7 +181,7 @@ func InitWhatsAppService() *WhatsAppService {
 			deviceSession: WhatsAppDeviceSession{
 				Status:          "disconnected",
 				PhoneNumber:     "",
-				DeviceName:      "Bionet WhatsApp Business Node (WAHA Docker Gateway)",
+				DeviceName:      "SYNETIQ WhatsApp Business Node (WAHA Docker Gateway)",
 				BatteryLevel:    100,
 				Provider:        provider,
 				QRCode:          "",
@@ -213,7 +213,7 @@ func InitWhatsAppService() *WhatsAppService {
 				ID:              "bc-02",
 				Title:           "Undangan Webinar Bisnis BOP Akbar Malam Ini",
 				TargetSegment:   "webinar",
-				Template:        "Halo {{nama}}, jangan lewatkan rahasia passive income Rp 10 Juta/bulan di Webinar BOP Bionet pukul 19.30 WIB.",
+				Template:        "Halo {{nama}}, jangan lewatkan rahasia passive income Rp 10 Juta/bulan di Webinar BOP SYNETIQ pukul 19.30 WIB.",
 				TotalRecipients: 42,
 				SentCount:       42,
 				FailedCount:     0,
@@ -235,7 +235,7 @@ func InitWhatsAppService() *WhatsAppService {
 			{
 				ID:       "bot-02",
 				Keyword:  "bpom",
-				Reply:    "Produk herbal Bionet 100% legal dan teruji klinis! Nomor registrasi BPOM RI: POM TR 226012891 dan Sertifikat Halal MUI ID321100001234. Bisa dicek langsung di aplikasi BPOM Mobile.",
+				Reply:    "Produk herbal SYNETIQ 100% legal dan teruji klinis! Nomor registrasi BPOM RI: POM TR 226012891 dan Sertifikat Halal MUI ID321100001234. Bisa dicek langsung di aplikasi BPOM Mobile.",
 				IsActive: true,
 				Category: "legality",
 				UseAI:    false,
@@ -251,7 +251,7 @@ func InitWhatsAppService() *WhatsAppService {
 			{
 				ID:       "bot-04",
 				Keyword:  "join",
-				Reply:    "Untuk bergabung menjadi Mitra Resmi Bionet, cukup memilih paket keanggotaan mulai Rp 500.000 (dapat 2 botol produk + website replika + landing page promosi + hak bisnis bonus pasangan harian)!",
+				Reply:    "Untuk bergabung menjadi Mitra Resmi SYNETIQ, cukup memilih paket keanggotaan mulai Rp 500.000 (dapat 2 botol produk + website replika + landing page promosi + hak bisnis bonus pasangan harian)!",
 				IsActive: true,
 				Category: "membership",
 				UseAI:    false,
@@ -964,7 +964,7 @@ func (s *WhatsAppService) handleSmartIncomingReply(threadID, contactName, contac
 	} else if strings.Contains(lowerText, "paket") || strings.Contains(lowerText, "harga") || strings.Contains(lowerText, "promo") {
 		replyText = fmt.Sprintf("Baik, untuk paket rekomendasi pemulihan 1 bulan ada paket hemat 2 botol Rp 450.000 dengan Gratis Ongkir ke %s. Apakah mau langsung kami siapkan pengirimannya?", contactName)
 	} else if strings.Contains(lowerText, "zoom") || strings.Contains(lowerText, "webinar") {
-		replyText = "Link Zoom Webinar BOP: https://zoom.us/j/8921829012 (Passcode: BIONETJUARA). Ditunggu kehadirannya ya!"
+		replyText = "Link Zoom Webinar BOP: https://zoom.us/j/8921829012 (Passcode: SYNETIQJUARA). Ditunggu kehadirannya ya!"
 	} else {
 		// Realistic consumer acknowledgment after 4 seconds
 		time.Sleep(4 * time.Second)
@@ -1543,7 +1543,7 @@ func (s *WhatsAppService) RecordInboundMessage(fromPhone, senderName, message st
 
 func (s *WhatsAppService) SendBonusNotification(phone, memberName, bonusType string, amount float64) error {
 	msg := fmt.Sprintf(
-		"🎉 *KABAR GEMBIRA DARI BIONET!*\n\nHalo kak %s, komisi *%s* sebesar *Rp %s* telah berhasil cair ke dompet digital Anda.\n\nCek saldo & mutasi di portal resmi Bionet sekarang juga!",
+		"🎉 *KABAR GEMBIRA DARI SYNETIQ!*\n\nHalo kak %s, komisi *%s* sebesar *Rp %s* telah berhasil cair ke dompet digital Anda.\n\nCek saldo & mutasi di portal resmi SYNETIQ sekarang juga!",
 		memberName,
 		bonusType,
 		fmt.Sprintf("%.0f", amount),
@@ -1554,7 +1554,7 @@ func (s *WhatsAppService) SendBonusNotification(phone, memberName, bonusType str
 
 func (s *WhatsAppService) SendOrderTrackingNotification(phone, memberName, orderNumber, courier, trackingNumber string) error {
 	msg := fmt.Sprintf(
-		"🚚 *UPDATE PENGIRIMAN PESANAN BIONET*\n\nHalo kak %s, pesanan *%s* telah dipickup oleh kurir *%s*.\n\nNomor Resi: *%s*\nPaket sedang dalam perjalanan menuju alamat Anda. Terima kasih telah berbelanja di Bionet!",
+		"🚚 *UPDATE PENGIRIMAN PESANAN SYNETIQ*\n\nHalo kak %s, pesanan *%s* telah dipickup oleh kurir *%s*.\n\nNomor Resi: *%s*\nPaket sedang dalam perjalanan menuju alamat Anda. Terima kasih telah berbelanja di SYNETIQ!",
 		memberName,
 		orderNumber,
 		courier,
@@ -1995,7 +1995,7 @@ func (s *WhatsAppService) SyncNewMemberContact(phone, fullName, username, packag
 			contact = models.WhatsAppContactModel{
 				Phone:    cleanPhone,
 				Name:     fullName,
-				City:     "Mitra Bionet",
+				City:     "Mitra SYNETIQ",
 				Category: "member",
 				Tags:     "Mitra Resmi, Paket " + packageName,
 				Notes:    fmt.Sprintf("Username: %s | Terdaftar via Network Registration", username),
@@ -2040,7 +2040,7 @@ func (s *WhatsAppService) SendRegistrationWelcomeMessages(sponsor models.User, n
 					UserID:   sponsor.ID,
 					Phone:    cleanMemberPhone,
 					Name:     newMember.FullName,
-					City:     "Mitra Bionet",
+					City:     "Mitra SYNETIQ",
 					Category: "member",
 					Tags:     "Mitra Baru, Paket " + packageName,
 					Notes:    fmt.Sprintf("Username: @%s | Sponsor: @%s | Posisi: Kaki %s", newMember.Username, sponsor.Username, strings.Title(position)),
@@ -2061,10 +2061,10 @@ func (s *WhatsAppService) SendRegistrationWelcomeMessages(sponsor models.User, n
 		}
 
 		// 2. Format & Send Welcome WhatsApp Message to the New Member
-		welcomeMsg := fmt.Sprintf(`🌿 *SELAMAT DATANG DI KELUARGA BESAR BIONET INDONESIA!* 🌿
+		welcomeMsg := fmt.Sprintf(`🌿 *SELAMAT DATANG DI KELUARGA BESAR SYNETIQ INDONESIA!* 🌿
 
 Halo *%s*,
-Selamat bergabung! Akun kemitraan bisnis Bionet Anda telah resmi diaktifkan.
+Selamat bergabung! Akun kemitraan bisnis SYNETIQ Anda telah resmi diaktifkan.
 
 Berikut rincian akun kemitraan Anda:
 ━━━━━━━━━━━━━━━━━━━━━━━
@@ -2076,14 +2076,14 @@ Berikut rincian akun kemitraan Anda:
 
 🚀 *Langkah Awal Sukses Anda:*
 1. Akses Portal Dashboard Resmi Kemitraan:
-   🔗 https://bionet.id/login
+   🔗 https://synetiq.id/login
 2. Masuk menggunakan username *@%s* dan kata sandi yang telah didaftarkan.
 3. Hubungi sponsor Anda (@%s) untuk bimbingan awal, strategi pemasaran, serta akses grup edukasi komunitas.
 
-_“Perjalanan ribuan mil selalu dimulai dari satu langkah berani. Selamat berjuang dan meraih kebebasan finansial bersama Bionet!”_
+_“Perjalanan ribuan mil selalu dimulai dari satu langkah berani. Selamat berjuang dan meraih kebebasan finansial bersama SYNETIQ!”_
 
 Salam Sukses Luar Biasa,
-*Manajemen Bionet Indonesia*`,
+*Manajemen SYNETIQ Indonesia*`,
 			newMember.FullName,
 			newMember.FullName,
 			newMember.Username,
@@ -2105,7 +2105,7 @@ Salam Sukses Luar Biasa,
 	// 3. Format & Send Notification WhatsApp Message to the Sponsor
 	if cleanSponsorPhone != "" {
 		encodedName := strings.ReplaceAll(newMember.FullName, " ", "%20")
-		sponsorMsg := fmt.Sprintf(`🎉 *SELAMAT! ANDA MENDAPATKAN MITRA BARU DI BIONET* 🎉
+		sponsorMsg := fmt.Sprintf(`🎉 *SELAMAT! ANDA MENDAPATKAN MITRA BARU DI SYNETIQ* 🎉
 
 Halo *%s* (@%s),
 Kabar gembira! Anda baru saja berhasil mendaftarkan dan mensponsori mitra baru ke dalam jaringan bisnis Anda.
@@ -2122,12 +2122,12 @@ Berikut rincian data mitra baru Anda:
 
 💡 *Langkah Rekomendasi Sponsor:*
 Segera hubungi dan berikan sambutan hangat kepada mitra baru Anda, serta undang ke grup pembinaan tim:
-📲 Chat WhatsApp Mitra: https://wa.me/%s?text=Halo%%20%s,%%20selamat%%20datang%%20di%%20keluarga%%20besar%%20Bionet!%%20Saya%%20siap%%20membimbing%%20Anda.
+📲 Chat WhatsApp Mitra: https://wa.me/%s?text=Halo%%20%s,%%20selamat%%20datang%%20di%%20keluarga%%20besar%%20SYNETIQ!%%20Saya%%20siap%%20membimbing%%20Anda.
 
-Mari bangun jaringan yang solid dan raih impian sukses bersama Bionet!
+Mari bangun jaringan yang solid dan raih impian sukses bersama SYNETIQ!
 
 Salam Hangat,
-*Sistem Kemitraan Bionet*`,
+*Sistem Kemitraan SYNETIQ*`,
 			sponsor.FullName,
 			sponsor.Username,
 			newMember.FullName,
@@ -2186,7 +2186,7 @@ func (s *WhatsAppService) GenerateAIReplyDraft(ctx context.Context, threadID, cl
 	for _, m := range msgs[startIdx:] {
 		senderLabel := "Konsumen"
 		if m.Sender == "me" {
-			senderLabel = "CS Bionet"
+			senderLabel = "CS SYNETIQ"
 		}
 		recentLines = append(recentLines, fmt.Sprintf("%s: %s", senderLabel, m.Text))
 	}
@@ -2195,7 +2195,7 @@ func (s *WhatsAppService) GenerateAIReplyDraft(ctx context.Context, threadID, cl
 		historyText = fmt.Sprintf("Konsumen (%s) baru saja menyapa dan menanyakan produk %s.", contactName, productName)
 	}
 
-	systemPrompt := `Anda adalah AI Senior Sales Closer dan CS Konsultan Kesehatan Resmi Bionet Indonesia (Herbal Nano Bio-Propolis Trigona, Bio-Gluta White, legalitas BPOM TR 226012891, Halal MUI, dan program kemitraan).
+	systemPrompt := `Anda adalah AI Senior Sales Closer dan CS Konsultan Kesehatan Resmi SYNETIQ Indonesia (Herbal Nano Bio-Propolis Trigona, Bio-Gluta White, legalitas BPOM TR 226012891, Halal MUI, dan program kemitraan).
 Tugas Anda: Menghasilkan 1 pesan draf balasan WhatsApp yang persuasif, hangat, profesional, ramah, dan sangat berorientasi closing atau edukasi solutif.
 Pedoman Penulisan:
 1. Gunakan Bahasa Indonesia yang santun, luwes, dan bersahabat.
@@ -2223,11 +2223,11 @@ Pedoman Penulisan:
 	case "closing", "closing_deal", "order":
 		return fmt.Sprintf("Halo Kak %s! 🙏 Untuk pemesanan %s hari ini, kami ada promo subsidi ongkir dan bonus konsultasi kesehatan gratis. Boleh kami bantu data nama penerima dan alamat lengkap pengirimannya agar bisa langsung kami proses pengirimannya hari ini? 😊", contactName, productName), nil
 	case "bpom", "legalitas", "legality":
-		return fmt.Sprintf("Halo Kak %s! Tidak perlu khawatir ya, produk %s dari Bionet sudah 100%% terdaftar resmi di BPOM RI (POM TR 226012891) serta bersertifikat Halal MUI ID321100001234. Keasliannya bisa dicek langsung di aplikasi BPOM Mobile. Kualitas dan keamanannya sangat terjamin 🙏🌿", contactName, productName), nil
+		return fmt.Sprintf("Halo Kak %s! Tidak perlu khawatir ya, produk %s dari SYNETIQ sudah 100%% terdaftar resmi di BPOM RI (POM TR 226012891) serta bersertifikat Halal MUI ID321100001234. Keasliannya bisa dicek langsung di aplikasi BPOM Mobile. Kualitas dan keamanannya sangat terjamin 🙏🌿", contactName, productName), nil
 	case "repeat_order", "ro":
 		return fmt.Sprintf("Selamat siang Kak %s! Memasuki masa pemulihan rutin, bagaimana perkembangan kondisi kesehatannya? Mengingat persediaan botol sebelumnya sudah menipis, mau kami siapkan paket repeat order 2 botol hemat dengan gratis ongkir? 🌿", contactName), nil
 	default:
-		return fmt.Sprintf("Halo Kak %s! Terima kasih banyak sudah menghubungi Bionet. Bio-Propolis Trigona diformulasikan murni dengan teknologi nano sehingga lebih cepat diserap tubuh. Ada keluhan kesehatan spesifik yang ingin Kakak konsultasikan bersama tim kami? Kami siap mendampingi 🙏😊", contactName), nil
+		return fmt.Sprintf("Halo Kak %s! Terima kasih banyak sudah menghubungi SYNETIQ. Bio-Propolis Trigona diformulasikan murni dengan teknologi nano sehingga lebih cepat diserap tubuh. Ada keluhan kesehatan spesifik yang ingin Kakak konsultasikan bersama tim kami? Kami siap mendampingi 🙏😊", contactName), nil
 	}
 }
 
@@ -2273,7 +2273,7 @@ func (s *WhatsAppService) AnalyzeLeadScoreAndIntent(ctx context.Context, threadI
 		score = 88
 		intent = "hot_closing"
 		intentLabel = "🔥 Hot Lead (Siap Closing)"
-		recommendation = "Kirim rincian total pembayaran & nomor rekening resmi Bionet, kunci transaksi hari ini."
+		recommendation = "Kirim rincian total pembayaran & nomor rekening resmi SYNETIQ, kunci transaksi hari ini."
 	} else if strings.Contains(allCustomerText, "repeat") || strings.Contains(allCustomerText, "lagi") ||
 		strings.Contains(allCustomerText, "habis") || strings.Contains(allCustomerText, "botol kedua") {
 		score = 92
@@ -2286,7 +2286,7 @@ func (s *WhatsAppService) AnalyzeLeadScoreAndIntent(ctx context.Context, threadI
 		score = 85
 		intent = "partnership"
 		intentLabel = "⭐ Prospek Kemitraan"
-		recommendation = "Undang ke webinar Zoom BOP atau kirim PDF Marketing Plan Bionet."
+		recommendation = "Undang ke webinar Zoom BOP atau kirim PDF Marketing Plan SYNETIQ."
 	} else if strings.Contains(allCustomerText, "mahal") || strings.Contains(allCustomerText, "ragu") ||
 		strings.Contains(allCustomerText, "pikir") {
 		score = 45
@@ -2348,7 +2348,7 @@ func (s *WhatsAppService) GetInteractiveStoreConfig() models.WhatsAppInteractive
 	}
 
 	if cfg.StoreName == "" {
-		cfg.StoreName = "🌸 BIONET OFFICIAL HERBAL & PARTNER STORE 🌸"
+		cfg.StoreName = "🌸 SYNETIQ OFFICIAL HERBAL & PARTNER STORE 🌸"
 	}
 	if cfg.GreetingText == "" {
 		cfg.GreetingText = "👋 *Pilih Kategori Produk & Kemitraan*\nProduk herbal BPOM & paket join ready, dapat langsung dipesan otomatis 24/7."
@@ -2357,7 +2357,7 @@ func (s *WhatsAppService) GetInteractiveStoreConfig() models.WhatsAppInteractive
 		cfg.FooterText = "⚡ Proses Otomatis 24/7 • 🛡️ Transaksi Aman & BPOM Resmi"
 	}
 
-	// Jika kategori kosong, buat default kategori bisnis Bionet yang elegan
+	// Jika kategori kosong, buat default kategori bisnis SYNETIQ yang elegan
 	if len(cfg.Categories) == 0 {
 		cfg.Categories = []models.WhatsAppStoreCategory{
 			{
@@ -2366,7 +2366,7 @@ func (s *WhatsAppService) GetInteractiveStoreConfig() models.WhatsAppInteractive
 				Title:      "Paket Join Kemitraan",
 				Subtitle:   fmt.Sprintf("%d/%d paket ready", activePackageCount, activePackageCount),
 				ActionType: "package_list",
-				ReplyText: "📦 *PILIHAN PAKET JOIN KEMITRAAN BIONET*\n\n" +
+				ReplyText: "📦 *PILIHAN PAKET JOIN KEMITRAAN SYNETIQ*\n\n" +
 					"1. *Paket Gold (Favorit Mitra)* 🥇\n" +
 					"   • Harga: *Rp 500.000*\n" +
 					"   • Kuota Produk: 3 Poin / 3 Produk Herbal Pilihan\n" +
@@ -2390,7 +2390,7 @@ func (s *WhatsAppService) GetInteractiveStoreConfig() models.WhatsAppInteractive
 				Title:      "Produk Herbal BPOM",
 				Subtitle:   fmt.Sprintf("%d/%d produk ready", activeProductCount, activeProductCount),
 				ActionType: "product_list",
-				ReplyText: "🌿 *KATALOG PRODUK HERBAL UNGGULAN BIONET*\n\n" +
+				ReplyText: "🌿 *KATALOG PRODUK HERBAL UNGGULAN SYNETIQ*\n\n" +
 					"1. *Bio-Propolis Trigona 30ml*\n" +
 					"   • BPOM RI: POM TR 226012891\n" +
 					"   • Manfaat: Imunitas, regenerasi sel, atasi radang & kolesterol\n" +
@@ -2413,7 +2413,7 @@ func (s *WhatsAppService) GetInteractiveStoreConfig() models.WhatsAppInteractive
 				Title:      "Bonus & Komisi Harian",
 				Subtitle:   "Sponsor & Pasangan Aktif",
 				ActionType: "bonus_info",
-				ReplyText: "💰 *SISTEM BONUS & PENGHASILAN HARIAN BIONET*\n\n" +
+				ReplyText: "💰 *SISTEM BONUS & PENGHASILAN HARIAN SYNETIQ*\n\n" +
 					"1. *Bonus Sponsor Kilat (40%)*:\n" +
 					"   • Ajak mitra join Gold Rp 500rb -> Anda dapat *Rp 200.000* langsung!\n\n" +
 					"2. *Bonus Pasangan (Binary 1:1)*:\n" +
@@ -2431,7 +2431,7 @@ func (s *WhatsAppService) GetInteractiveStoreConfig() models.WhatsAppInteractive
 				Title:      "Legalitas & Sertifikasi BPOM",
 				Subtitle:   "100% Legal & Terdaftar",
 				ActionType: "legality",
-				ReplyText: "📋 *LEGALITAS RESMI PT BIONET NETWORK INDONESIA*\n\n" +
+				ReplyText: "📋 *LEGALITAS RESMI PT SYNETIQ NETWORK INDONESIA*\n\n" +
 					"• *Izin Operasional*: NIB 1289000192312 (KBLI Penjualan Langsung)\n" +
 					"• *Sertifikasi BPOM*: Seluruh produk memiliki izin edar resmi BPOM RI\n" +
 					"• *Sertifikasi Halal*: ID321100001234 (Kemenag RI & MUI)\n" +
@@ -2446,7 +2446,7 @@ func (s *WhatsAppService) GetInteractiveStoreConfig() models.WhatsAppInteractive
 				Title:      "Live Chat Customer Service",
 				Subtitle:   "Respon Cepat 24 Jam",
 				ActionType: "contact_cs",
-				ReplyText: "👤 *LAYANAN BANTUAN CUSTOMER SERVICE BIONET*\n\n" +
+				ReplyText: "👤 *LAYANAN BANTUAN CUSTOMER SERVICE SYNETIQ*\n\n" +
 					"Halo kak! Tim Customer Care kami siap membantu konsultasi produk, kendala sistem, atau panduan pendaftaran mitra:\n\n" +
 					"• CS Pendaftaran & Kemitraan: 0812-3456-7890\n" +
 					"• CS Pengiriman & Stok Produk: 0813-9876-5432\n" +
@@ -2461,7 +2461,7 @@ func (s *WhatsAppService) GetInteractiveStoreConfig() models.WhatsAppInteractive
 				Title:      "Home / Menu Utama",
 				Subtitle:   "Kembali ke Menu Awal",
 				ActionType: "home",
-				ReplyText:  "Ketik *MENU* atau *TOKO* kapan saja untuk menampilkan kembali daftar kategori produk & kemitraan Bionet.",
+				ReplyText:  "Ketik *MENU* atau *TOKO* kapan saja untuk menampilkan kembali daftar kategori produk & kemitraan SYNETIQ.",
 				IsActive:   true,
 				SortOrder:  6,
 			},
@@ -2525,5 +2525,5 @@ func (s *WhatsAppService) FormatStoreCatalogMessage(cfg models.WhatsAppInteracti
 func (s *WhatsAppService) SendInteractiveStoreCatalog(targetPhone string) error {
 	cfg := s.GetInteractiveStoreConfig()
 	msg := s.FormatStoreCatalogMessage(cfg)
-	return s.SendCustomMessage(targetPhone, "Pelanggan Bionet", msg)
+	return s.SendCustomMessage(targetPhone, "Pelanggan SYNETIQ", msg)
 }

@@ -3,7 +3,7 @@ import api from '../services/api';
 
 const DEFAULT_BRANDING = {
   id: 'default',
-  app_name: 'BIONET',
+  app_name: 'SYNETIQ',
   app_tagline: 'Mitra Enterprise Hub',
   logo_url: '',
   favicon_url: '',
@@ -90,7 +90,7 @@ const applyThemeVariables = (data) => {
 export function BrandingProvider({ children }) {
   const [branding, setBranding] = useState(() => {
     try {
-      const saved = localStorage.getItem('bionet_branding');
+      const saved = (localStorage.getItem('synetiq_branding') || localStorage.getItem('bionet_branding'));
       if (saved) {
         const parsed = JSON.parse(saved);
         applyThemeVariables(parsed);
@@ -114,6 +114,7 @@ export function BrandingProvider({ children }) {
         setBranding(data);
         applyThemeVariables(data);
         try {
+          localStorage.setItem('synetiq_branding', JSON.stringify(data));
           localStorage.setItem('bionet_branding', JSON.stringify(data));
         } catch {}
       }
@@ -129,6 +130,7 @@ export function BrandingProvider({ children }) {
       const next = { ...prev, ...updated };
       applyThemeVariables(next);
       try {
+        localStorage.setItem('synetiq_branding', JSON.stringify(next));
         localStorage.setItem('bionet_branding', JSON.stringify(next));
       } catch {}
       return next;

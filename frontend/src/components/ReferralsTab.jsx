@@ -101,7 +101,7 @@ export default function ReferralsTab() {
 
           <div className="flex items-center gap-2">
             <ExportButtons
-              filename="Direct_Referral_Bionet"
+              filename="Direct_Referral_SYNETIQ"
               title="DAFTAR MITRA SPONSOR LANGSUNG (DIRECT REFERRALS)"
               subtitle="Data mitra binaan yang mendaftar melalui link sponsor Anda"
               headers={['USERNAME', 'NAMA MITRA', 'KONTAK WHATSAPP', 'STATUS', 'TANGGAL BERGABUNG']}

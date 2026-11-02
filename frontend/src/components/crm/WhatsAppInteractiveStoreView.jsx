@@ -31,7 +31,7 @@ export default function WhatsAppInteractiveStoreView() {
 
   // Store Configuration
   const [storeConfig, setStoreConfig] = useState({
-    store_name: '🌸 BIONET OFFICIAL HERBAL & STORE 🌸',
+    store_name: '🌸 SYNETIQ OFFICIAL HERBAL & STORE 🌸',
     greeting_text: '👋 *Pilih Kategori Produk & Kemitraan*\nProduk herbal BPOM & paket join ready, dapat langsung dipesan otomatis 24/7.',
     footer_text: '⚡ Proses Otomatis 24/7 • 🛡️ Transaksi Aman & BPOM Resmi',
     is_active: true,
@@ -275,7 +275,7 @@ export default function WhatsAppInteractiveStoreView() {
                   type="text"
                   value={storeConfig.store_name}
                   onChange={(e) => setStoreConfig((p) => ({ ...p, store_name: e.target.value }))}
-                  placeholder="Contoh: 🌸 BIONET OFFICIAL HERBAL & STORE 🌸"
+                  placeholder="Contoh: 🌸 SYNETIQ OFFICIAL HERBAL & STORE 🌸"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 font-bold text-slate-800 focus:outline-none focus:border-emerald-500"
                 />
               </div>
@@ -458,7 +458,7 @@ export default function WhatsAppInteractiveStoreView() {
                     🌿
                   </div>
                   <div>
-                    <h4 className="font-bold text-xs leading-tight">Bionet Official Store</h4>
+                    <h4 className="font-bold text-xs leading-tight">SYNETIQ Official Store</h4>
                     <span className="text-[9px] text-emerald-200 flex items-center space-x-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       <span>Online 24/7 • Bot Store</span>
@@ -573,7 +573,7 @@ export default function WhatsAppInteractiveStoreView() {
                             {msg.text}
                           </p>
                           <div className="flex items-center justify-between text-[9px] text-slate-400 pt-1">
-                            <span className="text-emerald-700 font-bold">Bionet Bot 24/7</span>
+                            <span className="text-emerald-700 font-bold">SYNETIQ Bot 24/7</span>
                             <span>{msg.timestamp} ✓✓</span>
                           </div>
                         </div>

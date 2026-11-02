@@ -71,7 +71,7 @@ const GREETING_TEMPLATES = [
     title: 'Follow-Up Calon Pembeli Ragu',
     tag: 'Follow-Up Closing',
     rawScript:
-      'Halo {nama}, apa kabar hari ini? Semoga selalu sehat dan berkah rezekinya ya. Kemarin saya sempat ingat {nama} masih mempertimbangkan paket Bio-Propolis Bionet. Cuma mau mengabarkan kalau seluruh produk kita sudah lolos uji ketat BPOM dan halal MUI. Jadi insyaAllah sangat aman untuk ikhtiar kesehatan jangka panjang tanpa efek samping ke ginjal. Mau saya bantu siapkan paketnya hari ini dengan promo gratis ongkir?',
+      'Halo {nama}, apa kabar hari ini? Semoga selalu sehat dan berkah rezekinya ya. Kemarin saya sempat ingat {nama} masih mempertimbangkan paket Bio-Propolis SYNETIQ. Cuma mau mengabarkan kalau seluruh produk kita sudah lolos uji ketat BPOM dan halal MUI. Jadi insyaAllah sangat aman untuk ikhtiar kesehatan jangka panjang tanpa efek samping ke ginjal. Mau saya bantu siapkan paketnya hari ini dengan promo gratis ongkir?',
   },
   {
     id: 'edukasi_propolis',
@@ -85,14 +85,14 @@ const GREETING_TEMPLATES = [
     title: 'Ucapan Selamat Mitra Baru',
     tag: 'Mitra Baru',
     rawScript:
-      'Assalamu’alaikum {nama}, selamat datang di keluarga besar Bionet Herbal Network! Saya {sponsor} bangga sekali bisa bermitra dengan {nama}. Di sini kita akan bertumbuh bersama, saling dukung, dan saya siap dampingi {nama} langkah demi langkah sampai berhasil mencairkan bonus pasangan pertama. Nanti malam kita agendakan ngobrol santai 10 menit ya {nama}!',
+      'Assalamu’alaikum {nama}, selamat datang di keluarga besar SYNETIQ Herbal Network! Saya {sponsor} bangga sekali bisa bermitra dengan {nama}. Di sini kita akan bertumbuh bersama, saling dukung, dan saya siap dampingi {nama} langkah demi langkah sampai berhasil mencairkan bonus pasangan pertama. Nanti malam kita agendakan ngobrol santai 10 menit ya {nama}!',
   },
   {
     id: 'reminder_ro',
     title: 'Pengingat Repeat Order Habis',
     tag: 'Repeat Order',
     rawScript:
-      'Halo {nama}, salam hangat! Sekadar menyapa, sudah hampir 3 minggu sejak botol herbal Bionet terakhir diterima. Pasti isinya sudah mulai menipis ya? Agar proses pemulihan dan regenerasi sel tidak terputus, ada baiknya restock sebelum benar-benar habis. Kebetulan hari ini gudang lagi ada subsidi ongkir khusus konsumen setia kami. Kabari ya kalau mau dikirimkan hari ini!',
+      'Halo {nama}, salam hangat! Sekadar menyapa, sudah hampir 3 minggu sejak botol herbal SYNETIQ terakhir diterima. Pasti isinya sudah mulai menipis ya? Agar proses pemulihan dan regenerasi sel tidak terputus, ada baiknya restock sebelum benar-benar habis. Kebetulan hari ini gudang lagi ada subsidi ongkir khusus konsumen setia kami. Kabari ya kalau mau dikirimkan hari ini!',
   },
 ];
 
@@ -213,9 +213,9 @@ export default function AIVoiceNoteModal({ isOpen, onClose, currentUser }) {
     const rawNumber = prospectPhone.replace(/[^0-9]/g, '');
     const cleanNumber = rawNumber.startsWith('0') ? '62' + rawNumber.slice(1) : rawNumber;
 
-    let text = `🎙️ *[PESAN SUARA / VOICE NOTE DARI ${currentUser?.full_name ? currentUser.full_name.toUpperCase() : 'MITRA BIONET'}]*\n\n`;
+    let text = `🎙️ *[PESAN SUARA / VOICE NOTE DARI ${currentUser?.full_name ? currentUser.full_name.toUpperCase() : 'MITRA SYNETIQ'}]*\n\n`;
     text += `${customScript}\n\n`;
-    text += `_Dibuat dengan Bionet AI Audio Studio - Solusi Herbal Terpercaya BPOM RI._`;
+    text += `_Dibuat dengan SYNETIQ AI Audio Studio - Solusi Herbal Terpercaya BPOM RI._`;
 
     const msg = encodeURIComponent(text);
     const targetUrl = cleanNumber ? `https://wa.me/${cleanNumber}?text=${msg}` : `https://api.whatsapp.com/send?text=${msg}`;

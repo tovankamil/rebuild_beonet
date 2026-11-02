@@ -136,7 +136,7 @@ export default function AIObjectionHandlerModal({
           res.data.message_text ||
           ''
         );
-        setFramework(res.data.framework || 'Metodologi Closing Empati Bionet');
+        setFramework(res.data.framework || 'Metodologi Closing Empati SYNETIQ');
         setClosingTip(
           res.data.recommended_closing_tip ||
           'Tutup dengan pertanyaan alternatif pilihan paket.'
@@ -183,7 +183,7 @@ export default function AIObjectionHandlerModal({
           'Tampilkan herbal sebagai pendamping komplementer sinergis dengan jeda waktu 1-2 jam.'
         );
         setGeneratedText(
-          `Halo ${name}, kami sangat menghormati pengobatan dari dokter yang sedang dijalani ${name}! 🙏\n\nKabar baiknya, ${prod} bersifat komplementer (pendamping alami) yang aman dikonsumsi berdampingan dengan obat medis RS. Cukup beri jeda waktu 1 hingga 2 jam antara obat dokter dan herbal kami.\n\nObat dokter bekerja meredakan keluhan akut secara cepat, sedangkan herbal Bionet bekerja meregenerasi sel dan memperbaiki akar metabolisme tubuh. Banyak konsumen kami yang setelah beberapa minggu rutin, kondisi tubuhnya membaik sehingga dosis obat kimia mereka bisa diturunkan bertahap oleh dokter yang merawat.\n\nBoleh tahu obat resep apa yang sedang rutin dikonsumsi ${name} saat ini agar kami bantu aturkan jadwal minumnya? 😊📋`
+          `Halo ${name}, kami sangat menghormati pengobatan dari dokter yang sedang dijalani ${name}! 🙏\n\nKabar baiknya, ${prod} bersifat komplementer (pendamping alami) yang aman dikonsumsi berdampingan dengan obat medis RS. Cukup beri jeda waktu 1 hingga 2 jam antara obat dokter dan herbal kami.\n\nObat dokter bekerja meredakan keluhan akut secara cepat, sedangkan herbal SYNETIQ bekerja meregenerasi sel dan memperbaiki akar metabolisme tubuh. Banyak konsumen kami yang setelah beberapa minggu rutin, kondisi tubuhnya membaik sehingga dosis obat kimia mereka bisa diturunkan bertahap oleh dokter yang merawat.\n\nBoleh tahu obat resep apa yang sedang rutin dikonsumsi ${name} saat ini agar kami bantu aturkan jadwal minumnya? 😊📋`
         );
         break;
 
@@ -205,13 +205,13 @@ export default function AIObjectionHandlerModal({
           'Tegaskan bahwa konsumen tidak ada kewajiban rekrut atau target; murni pelanggan berhak atas kesembuhan.'
         );
         setGeneratedText(
-          `Halo ${name}, terima kasih atas keterbukaannya. ${name} tidak perlu khawatir sama sekali! 🙏\n\nDi Bionet, fokus nomor satu kami adalah mutu khasiat produk untuk kesembuhan konsumen. ${name} murni membeli sebagai pelanggan tercinta, tanpa kewajiban jualan, tanpa tutup poin, tanpa rekrut member, dan tanpa target apapun.\n\n${name} berhak mendapatkan produk asli bergaransi dengan harga resmi terbaik langsung dari pabrik. Kesehatan dan kenyamanan ${name} adalah prioritas utama kami.\n\nBoleh kami tahu keluhan apa yang saat ini paling ingin ${name} pulihkan agar kami siapkan paket yang paling tepat? 😊🤝`
+          `Halo ${name}, terima kasih atas keterbukaannya. ${name} tidak perlu khawatir sama sekali! 🙏\n\nDi SYNETIQ, fokus nomor satu kami adalah mutu khasiat produk untuk kesembuhan konsumen. ${name} murni membeli sebagai pelanggan tercinta, tanpa kewajiban jualan, tanpa tutup poin, tanpa rekrut member, dan tanpa target apapun.\n\n${name} berhak mendapatkan produk asli bergaransi dengan harga resmi terbaik langsung dari pabrik. Kesehatan dan kenyamanan ${name} adalah prioritas utama kami.\n\nBoleh kami tahu keluhan apa yang saat ini paling ingin ${name} pulihkan agar kami siapkan paket yang paling tepat? 😊🤝`
         );
         break;
 
       default:
         setGeneratedText(
-          `Halo ${name}, terima kasih banyak atas pertanyaannya yang sangat baik! Kami di Bionet siap mendampingi ikhtiar kesehatan ${name} dengan produk herbal berstandar BPOM resmi. 😊🌿`
+          `Halo ${name}, terima kasih banyak atas pertanyaannya yang sangat baik! Kami di SYNETIQ siap mendampingi ikhtiar kesehatan ${name} dengan produk herbal berstandar BPOM resmi. 😊🌿`
         );
     }
   };
@@ -245,7 +245,7 @@ export default function AIObjectionHandlerModal({
       const res = await api.post('/crm/whatsapp/send-direct', {
         lead_id: lead?.id || 0,
         phone: phone,
-        recipient: customerName || 'Konsumen Bionet',
+        recipient: customerName || 'Konsumen SYNETIQ',
         category: 'objection_closure',
         message: generatedText,
       });
@@ -264,7 +264,7 @@ export default function AIObjectionHandlerModal({
 
   const handleDownloadVCard = () => {
     downloadVCardContact({
-      name: customerName || 'Calon Prospek Bionet',
+      name: customerName || 'Calon Prospek SYNETIQ',
       phone: phone || '',
       city: lead?.city || '',
       notes: `Minat: ${productName}. Keberatan: ${selectedType}. ${framework}`,

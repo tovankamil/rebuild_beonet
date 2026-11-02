@@ -27,7 +27,7 @@ export default function ECertificateModal({
   const certId = currentUser?.id
     ? `BIO/CERT/2026/${currentUser.id.slice(0, 6).toUpperCase()}`
     : 'BIO/CERT/2026/MBR001';
-  const fullName = currentUser?.full_name || currentUser?.username || 'Mitra Bionet';
+  const fullName = currentUser?.full_name || currentUser?.username || 'Mitra SYNETIQ';
   const username = currentUser?.username || 'mitra';
   const verifyUrl = `${window.location.origin}/verify/cert/${currentUser?.id || 'demo'}`;
 
@@ -88,7 +88,7 @@ export default function ECertificateModal({
       ctx.fillStyle = '#065f46';
       ctx.font = 'bold 36px "Outfit", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('PT. BIONET NETWORK INDONESIA', w / 2, 140);
+      ctx.fillText('PT. SYNETIQ NETWORK INDONESIA', w / 2, 140);
 
       ctx.fillStyle = '#92400e';
       ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
@@ -128,7 +128,7 @@ export default function ECertificateModal({
       ctx.fillStyle = '#334155';
       ctx.font = '22px "Plus Jakarta Sans", sans-serif';
       ctx.fillText(
-        'Sebagai bukti kelayakan kemitraan dan sertifikasi Distributor Resmi & Konsultan Herbal Alami Bionet,',
+        'Sebagai bukti kelayakan kemitraan dan sertifikasi Distributor Resmi & Konsultan Herbal Alami SYNETIQ,',
         w / 2,
         610
       );
@@ -160,7 +160,7 @@ export default function ECertificateModal({
       ctx.fillText('Dr. H. Hendra Setiawan, M.Sc', leftSigX, sigY + 12);
       ctx.font = '16px "Plus Jakarta Sans", sans-serif';
       ctx.fillStyle = '#64748b';
-      ctx.fillText('Direktur Utama PT Bionet Network', leftSigX, sigY + 40);
+      ctx.fillText('Direktur Utama PT SYNETIQ Network', leftSigX, sigY + 40);
 
       // Right Signature: Head of Network
       ctx.fillStyle = '#0f172a';
@@ -213,7 +213,7 @@ export default function ECertificateModal({
       // Trigger Download
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
-      link.download = `Sertifikat_Bionet_${username.toUpperCase()}.png`;
+      link.download = `Sertifikat_SYNETIQ_${username.toUpperCase()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -265,7 +265,7 @@ export default function ECertificateModal({
             {/* Top Emblem & Brand */}
             <div className="text-center relative z-10">
               <div className="text-[11px] font-extrabold uppercase tracking-widest text-emerald-800">
-                PT. BIONET NETWORK INDONESIA
+                PT. SYNETIQ NETWORK INDONESIA
               </div>
               <div className="text-[9px] text-amber-800 font-semibold uppercase tracking-wider mt-0.5">
                 SIUPL &amp; BPOM RI COMPLIANCE
@@ -291,7 +291,7 @@ export default function ECertificateModal({
                 Nomor Sertifikat: {certId}
               </div>
               <p className="text-xs text-slate-600 max-w-lg mx-auto mt-3 leading-relaxed">
-                Sebagai bukti sah Distributor Resmi dan Konsultan Herbal Alami Bionet, telah memenuhi kualifikasi kode etik, integritas kemitraan, dan perizinan BPOM RI.
+                Sebagai bukti sah Distributor Resmi dan Konsultan Herbal Alami SYNETIQ, telah memenuhi kualifikasi kode etik, integritas kemitraan, dan perizinan BPOM RI.
               </p>
             </div>
 
@@ -325,7 +325,7 @@ export default function ECertificateModal({
                   Dr. H. Hendra Setiawan, M.Sc
                 </div>
                 <div className="text-[9px] text-slate-500">
-                  Direktur Utama PT Bionet
+                  Direktur Utama PT SYNETIQ
                 </div>
               </div>
             </div>

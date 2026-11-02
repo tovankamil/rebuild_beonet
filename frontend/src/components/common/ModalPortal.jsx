@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 
 /**
  * Universal Modal Portal & Backdrop Component
- * Memastikan semua modal / pop-up di Bionet:
+ * Memastikan semua modal / pop-up di SYNETIQ:
  * 1. Di-mount langsung ke document.body via React Portal (kebal dari transform/clipping container).
  * 2. Menutup 100% viewport layar penuh (w-screen h-screen min-h-dvh) dari ujung paling atas hingga bawah.
  * 3. Memiliki backdrop gelap konsisten (bg-slate-950/65) dengan efek frosted glass blur (backdrop-blur-md).

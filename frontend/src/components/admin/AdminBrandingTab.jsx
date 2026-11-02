@@ -45,7 +45,7 @@ const SECONDARY_PRESETS = [
 export default function AdminBrandingTab() {
   const { branding, updateBrandingState } = useBranding();
 
-  const [appName, setAppName] = useState(branding.app_name || 'BIONET');
+  const [appName, setAppName] = useState(branding.app_name || 'SYNETIQ');
   const [appTagline, setAppTagline] = useState(branding.app_tagline || 'Mitra Enterprise Hub');
   const [primaryColor, setPrimaryColor] = useState(branding.primary_color || '#059669');
   const [secondaryColor, setSecondaryColor] = useState(branding.secondary_color || '#06b6d4');
@@ -59,7 +59,7 @@ export default function AdminBrandingTab() {
   // Sync state when branding context changes
   useEffect(() => {
     if (branding) {
-      setAppName(branding.app_name || 'BIONET');
+      setAppName(branding.app_name || 'SYNETIQ');
       setAppTagline(branding.app_tagline || 'Mitra Enterprise Hub');
       setPrimaryColor(branding.primary_color || '#059669');
       setSecondaryColor(branding.secondary_color || '#06b6d4');
@@ -106,7 +106,7 @@ export default function AdminBrandingTab() {
   const handleRemoveLogo = () => {
     setLogoUrl('');
     updateBrandingState({ logo_url: '' });
-    setSuccessMsg('Logo diatur kembali ke ikon default Bionet.');
+    setSuccessMsg('Logo diatur kembali ke ikon default SYNETIQ.');
     setTimeout(() => setSuccessMsg(''), 3000);
   };
 
@@ -133,7 +133,7 @@ export default function AdminBrandingTab() {
   };
 
   const handleResetDefaults = () => {
-    setAppName('BIONET');
+    setAppName('SYNETIQ');
     setAppTagline('Mitra Enterprise Hub');
     setPrimaryColor('#059669');
     setSecondaryColor('#06b6d4');
@@ -142,7 +142,7 @@ export default function AdminBrandingTab() {
       ...branding,
       primary_color: '#059669',
       secondary_color: '#06b6d4',
-      app_name: 'BIONET',
+      app_name: 'SYNETIQ',
       logo_url: '',
     });
     setErrorMsg('');
@@ -213,7 +213,7 @@ export default function AdminBrandingTab() {
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-0.5 max-w-2xl leading-relaxed">
-                Kelola identitas visual aplikasi Bionet: perbarui logo resmi serta atur warna primer dan sekunder
+                Kelola identitas visual aplikasi SYNETIQ: perbarui logo resmi serta atur warna primer dan sekunder
                 dashboard secara real-time ke seluruh portal mitra.
               </p>
             </div>
@@ -302,7 +302,7 @@ export default function AdminBrandingTab() {
                 <div className="flex-1 space-y-2.5 text-center sm:text-left">
                   <div>
                     <h4 className="text-xs font-bold text-slate-800">
-                      {logoUrl ? 'Logo Kustom Terpasang' : 'Menggunakan Ikon Default Bionet'}
+                      {logoUrl ? 'Logo Kustom Terpasang' : 'Menggunakan Ikon Default SYNETIQ'}
                     </h4>
                     <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
                       Rekomendasi rasio 1:1 (persegi) atau horizontal proporsional dengan latar transparan (PNG/SVG) untuk
@@ -494,7 +494,7 @@ export default function AdminBrandingTab() {
                     type="text"
                     value={appName}
                     onChange={(e) => setAppName(e.target.value)}
-                    placeholder="BIONET"
+                    placeholder="SYNETIQ"
                     className="dash-input text-xs font-bold"
                     required
                   />
@@ -543,7 +543,7 @@ export default function AdminBrandingTab() {
                     <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-                    <span className="ml-2 font-mono text-slate-500 truncate">bionet.id/dashboard</span>
+                    <span className="ml-2 font-mono text-slate-500 truncate">synetiq.id/dashboard</span>
                   </div>
                   <span className="font-bold text-[9px] uppercase tracking-wider text-slate-400">Preview</span>
                 </div>
@@ -563,7 +563,7 @@ export default function AdminBrandingTab() {
                     </div>
                     <div>
                       <div className="font-heading font-extrabold text-xs text-white leading-none">
-                        {appName || 'BIONET'}
+                        {appName || 'SYNETIQ'}
                       </div>
                       <div className="text-[9px] text-slate-400 leading-tight">
                         {appTagline || 'Mitra Enterprise Hub'}

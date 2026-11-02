@@ -56,7 +56,7 @@ export default function AdminMonitoringTab({ setActiveTab }) {
   const [waStatus, setWaStatus] = useState(null);
   const [waLogs, setWaLogs] = useState([]);
   const [waPhone, setWaPhone] = useState('081234567890');
-  const [waRecipient, setWaRecipient] = useState('Mitra Bionet');
+  const [waRecipient, setWaRecipient] = useState('Mitra SYNETIQ');
   const [waCategory, setWaCategory] = useState('bonus');
   const [waAmount, setWaAmount] = useState(350000);
   const [waCustomMsg, setWaCustomMsg] = useState('');
@@ -259,7 +259,7 @@ export default function AdminMonitoringTab({ setActiveTab }) {
       case 'gudang':
         return <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700">Gudang &amp; Logistik</span>;
       default:
-        return <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">Mitra Bionet</span>;
+        return <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">Mitra SYNETIQ</span>;
     }
   };
 
@@ -1050,7 +1050,7 @@ export default function AdminMonitoringTab({ setActiveTab }) {
                             </div>
                             <div>
                               <div className="font-bold text-slate-900">{rt.title}</div>
-                              <div className="text-[10px] text-slate-400">Modul Antarmuka Bionet v6</div>
+                              <div className="text-[10px] text-slate-400">Modul Antarmuka SYNETIQ v6</div>
                             </div>
                           </div>
                         </td>
@@ -1121,7 +1121,7 @@ export default function AdminMonitoringTab({ setActiveTab }) {
                 className="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs md:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="all">Semua Role Pengguna</option>
-                <option value="member">Mitra Bionet</option>
+                <option value="member">Mitra SYNETIQ</option>
                 <option value="admin">Administrator</option>
                 <option value="keuangan">Tim Keuangan</option>
                 <option value="cs">Customer Service</option>
@@ -1344,7 +1344,7 @@ export default function AdminMonitoringTab({ setActiveTab }) {
                   <span>WhatsApp Gateway Engine v6 Active</span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-white">
-                  Otomatisasi Notifikasi WhatsApp Bionet
+                  Otomatisasi Notifikasi WhatsApp SYNETIQ
                 </h2>
                 <p className="text-xs text-emerald-200/80 max-w-xl leading-relaxed">
                   Pemberitahuan otomatis instan ke HP mitra saat bonus pasangan cair, approval penarikan saldo, serta pengiriman nomor resi ekspedisi 3PL.
@@ -1542,7 +1542,7 @@ export default function AdminMonitoringTab({ setActiveTab }) {
                 Apa Itu RAG (Retrieval-Augmented Generation)?
               </h2>
               <p className="text-sm md:text-base text-purple-100/90 leading-relaxed">
-                RAG menggabungkan <strong>pencarian data internal akurat (Retrieval)</strong> dengan <strong>kecerdasan model bahasa besar / LLM (Generation)</strong>. Alih-alih membiarkan AI menebak atau berhalusinasi, RAG terlebih dahulu mencari data riil dari database/dokumen Bionet, lalu memberikannya sebagai konteks faktual sebelum model menjawab.
+                RAG menggabungkan <strong>pencarian data internal akurat (Retrieval)</strong> dengan <strong>kecerdasan model bahasa besar / LLM (Generation)</strong>. Alih-alih membiarkan AI menebak atau berhalusinasi, RAG terlebih dahulu mencari data riil dari database/dokumen SYNETIQ, lalu memberikannya sebagai konteks faktual sebelum model menjawab.
               </p>
             </div>
           </div>
@@ -1554,7 +1554,7 @@ export default function AdminMonitoringTab({ setActiveTab }) {
               </div>
               <h3 className="font-bold text-slate-900 text-base mb-1">Retrieval (Pencarian Data)</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Saat pengguna bertanya, sistem mencari potongan informasi paling relevan dari database Bionet (Marketing Plan, FAQ produk, mutasi bonus) secara semantik.
+                Saat pengguna bertanya, sistem mencari potongan informasi paling relevan dari database SYNETIQ (Marketing Plan, FAQ produk, mutasi bonus) secara semantik.
               </p>
             </div>
 

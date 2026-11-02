@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Film, Network, Pause, Play, Sparkles } from 'lucide-react';
 
-export default function BionetAmbientBackground({ dimmed = false, activeMode = null, onModeChange = null }) {
+export default function SYNETIQAmbientBackground({ dimmed = false, activeMode = null, onModeChange = null }) {
   const [internalMode, setInternalMode] = useState(() => {
     return localStorage.getItem('bionet_ambient_mode') || 'luxury-biotech';
   });
@@ -71,7 +71,7 @@ export default function BionetAmbientBackground({ dimmed = false, activeMode = n
     };
     window.addEventListener('resize', handleResize);
 
-    // Titik node jaringan MLM Bionet (Kiri, Kanan, Leader, Bonus Pairing)
+    // Titik node jaringan MLM SYNETIQ (Kiri, Kanan, Leader, Bonus Pairing)
     const nodeCount = Math.min(width > 768 ? 45 : 25, 55);
     const nodes = [];
     const colors = ['#10b981', '#14b8a6', '#06b6d4', '#eab308', '#34d399'];
@@ -181,7 +181,7 @@ export default function BionetAmbientBackground({ dimmed = false, activeMode = n
         <div className="absolute inset-0 overflow-hidden">
           <img
             src="/assets/bionet_ambient_luxury.jpg"
-            alt="Bionet Luxury Biotech Background"
+            alt="SYNETIQ Luxury Biotech Background"
             className="absolute inset-0 w-full h-full object-cover opacity-90 scale-105 transition-transform duration-1000"
           />
           <canvas

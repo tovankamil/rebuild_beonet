@@ -53,21 +53,21 @@ export default function AIMarketingStudioTab({ user }) {
       product: 'Bio-Herbal Drops 30ml',
       tone: 'persuasif',
       title: 'Broadcast Edukasi Kolesterol & Gula Darah',
-      copy: `🌿 *IKHTIAR HERBAL KELUARGA SEHAT: BIO-HERBAL DROPS BPOM* 🌿\n\nAssalamu'alaikum & Salam Sejahtera Bapak/Ibu,\n\nSering merasa leher kaku, cepat lelah, atau kadar gula darah & kolesterol naik turun? Jangan dibiarkan berlarut-larut!\n\nKini hadir *Bio-Herbal Drops 30ml*, formula tetes konsentrat herbal alami nusantara bersertifikat resmi *BPOM RI (POM TR 226019881)* & Halal MUI.\n\n✨ *Keunggulan Utama Bio-Herbal Drops:*\n✅ Praktis tinggal tetes di air hangat setiap pagi & malam\n✅ Membantu melancarkan peredaran darah & metabolisme sel\n✅ Alami tanpa zat kimia sintetis berbahaya\n\n🎁 *PROMO KHUSUS HARI INI:*\nGratis Ongkir ke seluruh Indonesia + Garansi 100% Produk Original dari Toko Resmi Mitra Bionet!\n\n👉 Info selengkapnya & Pemesanan langsung:\nhttps://bionet.id/?store=${user?.username || 'mitra'}\n\nAtau balas pesan ini untuk konsultasi kesehatan gratis. Semoga sehat selalu! 🙏`,
+      copy: `🌿 *IKHTIAR HERBAL KELUARGA SEHAT: BIO-HERBAL DROPS BPOM* 🌿\n\nAssalamu'alaikum & Salam Sejahtera Bapak/Ibu,\n\nSering merasa leher kaku, cepat lelah, atau kadar gula darah & kolesterol naik turun? Jangan dibiarkan berlarut-larut!\n\nKini hadir *Bio-Herbal Drops 30ml*, formula tetes konsentrat herbal alami nusantara bersertifikat resmi *BPOM RI (POM TR 226019881)* & Halal MUI.\n\n✨ *Keunggulan Utama Bio-Herbal Drops:*\n✅ Praktis tinggal tetes di air hangat setiap pagi & malam\n✅ Membantu melancarkan peredaran darah & metabolisme sel\n✅ Alami tanpa zat kimia sintetis berbahaya\n\n🎁 *PROMO KHUSUS HARI INI:*\nGratis Ongkir ke seluruh Indonesia + Garansi 100% Produk Original dari Toko Resmi Mitra SYNETIQ!\n\n👉 Info selengkapnya & Pemesanan langsung:\nhttps://synetiq.id/?store=${user?.username || 'mitra'}\n\nAtau balas pesan ini untuk konsultasi kesehatan gratis. Semoga sehat selalu! 🙏`,
       createdAt: 'Kemarin, 14:20',
     },
     {
       id: 2,
       platform: 'tiktok',
-      product: 'Peluang Bisnis BOP Bionet',
+      product: 'Peluang Bisnis BOP SYNETIQ',
       tone: 'urgensi_promo',
       title: 'Script TikTok/Reels Bisnis Tambahan 10 Juta/Bulan',
-      copy: `[0-3 DETIK - HOOK VISUAL & KATA]\n(Kamera menatap tajam ke layar, memegang buku rekening/HP)\n"Pernah nggak sih mikir, gimana caranya punya penghasilan tambahan tanpa harus ninggalin jam kerja utama?"\n\n[3-15 DETIK - MASALAH]\nBanyak orang pengen mulai jualan online, tapi kepentok modal ratusan juta, stok numpuk di kamar, dan bingung cara pengiriman.\n\n[15-30 DETIK - SOLUSI BIONET]\nDi Bionet, semua mitra dapet Toko Afiliasi online gratis, materi promosi disiapin sama AI, dan produk herbalnya udah izin BPOM resmi. Plus bonus pairing harian langsung masuk rekening!\n\n[30-45 DETIK - CALL TO ACTION]\nSlot webinar mentoring minggu ini sisa 5 orang lagi. Klik link di bio akun saya sekarang sebelum kuota ditutup!`,
+      copy: `[0-3 DETIK - HOOK VISUAL & KATA]\n(Kamera menatap tajam ke layar, memegang buku rekening/HP)\n"Pernah nggak sih mikir, gimana caranya punya penghasilan tambahan tanpa harus ninggalin jam kerja utama?"\n\n[3-15 DETIK - MASALAH]\nBanyak orang pengen mulai jualan online, tapi kepentok modal ratusan juta, stok numpuk di kamar, dan bingung cara pengiriman.\n\n[15-30 DETIK - SOLUSI SYNETIQ]\nDi SYNETIQ, semua mitra dapet Toko Afiliasi online gratis, materi promosi disiapin sama AI, dan produk herbalnya udah izin BPOM resmi. Plus bonus pairing harian langsung masuk rekening!\n\n[30-45 DETIK - CALL TO ACTION]\nSlot webinar mentoring minggu ini sisa 5 orang lagi. Klik link di bio akun saya sekarang sebelum kuota ditutup!`,
       createdAt: '2 Hari lalu',
     },
   ]);
 
-  const affiliateLink = `https://bionet.id/?store=${user?.username || 'mitra'}`;
+  const affiliateLink = `https://synetiq.id/?store=${user?.username || 'mitra'}`;
 
   const platformOptions = [
     {
@@ -165,7 +165,7 @@ export default function AIMarketingStudioTab({ user }) {
     } catch (err) {
       console.error('Failed to generate copy:', err);
       // Fallback generator if offline
-      const fallback = `🔥 *PROMO SPESIAL HARI INI: ${product.toUpperCase()}* 🔥\n\nHalo kak! Mau info menarik buat yang lagi cari solusi herbal alami berizin BPOM resmi.\n\nSekarang belanja ${product} di Toko Resmi Bionet lagi ada *${highlightInfo}* lho!\n\nYuk langsung amankan pesanan sekarang sebelum promo ditutup:\n👉 ${affiliateLink}\n\nTerima kasih, salam sehat selalu dari ${user?.full_name || 'Mitra Bionet'}!`;
+      const fallback = `🔥 *PROMO SPESIAL HARI INI: ${product.toUpperCase()}* 🔥\n\nHalo kak! Mau info menarik buat yang lagi cari solusi herbal alami berizin BPOM resmi.\n\nSekarang belanja ${product} di Toko Resmi SYNETIQ lagi ada *${highlightInfo}* lho!\n\nYuk langsung amankan pesanan sekarang sebelum promo ditutup:\n👉 ${affiliateLink}\n\nTerima kasih, salam sehat selalu dari ${user?.full_name || 'Mitra SYNETIQ'}!`;
       setResult(fallback);
     } finally {
       setLoading(false);

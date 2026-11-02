@@ -256,7 +256,7 @@ export default function TikTokVideoModal({
         hookText = line.replace(/\[.*?\]|\*\*.*?\*\*|audio:|visual:/gi, '').trim().slice(0, 50) || hookText;
       } else if (lower.includes('masalah') || lower.includes('problem')) {
         probText = line.replace(/\[.*?\]|\*\*.*?\*\*|audio:|visual:/gi, '').trim().slice(0, 60) || probText;
-      } else if (lower.includes('solusi') || lower.includes('bionet') || lower.includes('herbal')) {
+      } else if (lower.includes('solusi') || lower.includes('synetiq') || lower.includes('bionet') || lower.includes('herbal')) {
         solText = line.replace(/\[.*?\]|\*\*.*?\*\*|audio:|visual:/gi, '').trim().slice(0, 50) || solText;
       } else if (lower.includes('call to action') || lower.includes('bio') || lower.includes('promo')) {
         ctaText = line.replace(/\[.*?\]|\*\*.*?\*\*|audio:|visual:/gi, '').trim().slice(0, 50) || ctaText;
@@ -609,7 +609,7 @@ export default function TikTokVideoModal({
     ctx.font = 'bold 22px system-ui, sans-serif';
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'left';
-    ctx.fillText(`@${mitraUsername} • Mitra Bionet Resmi`, 45, H - 120);
+    ctx.fillText(`@${mitraUsername} • Mitra SYNETIQ Resmi`, 45, H - 120);
 
     ctx.font = 'normal 19px system-ui, sans-serif';
     ctx.fillStyle = '#cbd5e1';
@@ -617,7 +617,7 @@ export default function TikTokVideoModal({
 
     ctx.font = 'bold 18px system-ui, sans-serif';
     ctx.fillStyle = '#34d399';
-    ctx.fillText('♫ Suara Asli - Bionet Herbal Tren 2026', 45, H - 60);
+    ctx.fillText('♫ Suara Asli - SYNETIQ Herbal Tren 2026', 45, H - 60);
 
     // Right Sidebar Fake TikTok Buttons (Social Proof)
     const rightX = W - 60;
@@ -1197,7 +1197,7 @@ export default function TikTokVideoModal({
                   <div className="space-y-2">
                     <a
                       href={downloadUrl}
-                      download={`Video_TikTok_${productName.replace(/\s+/g, '_')}_Bionet.webm`}
+                      download={`Video_TikTok_${productName.replace(/\s+/g, '_')}_SYNETIQ.webm`}
                       className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs transition shadow-xl shadow-emerald-950 flex items-center justify-center space-x-2 animate-bounce"
                     >
                       <Download size={16} />

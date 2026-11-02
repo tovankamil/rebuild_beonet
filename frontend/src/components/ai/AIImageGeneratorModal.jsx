@@ -38,16 +38,16 @@ const PRESETS = [
     id: 'herbal_drops_dew',
     title: '🌿 Bio-Herbal Drops Segar',
     category: 'Produk Herbal',
-    prompt: 'Botol tetes herbal Bionet di tengah dedaunan mint segar dan daun kelor tropis dengan bulir-bulir embun jernih, pencahayaan alami pagi hari',
+    prompt: 'Botol tetes herbal SYNETIQ di tengah dedaunan mint segar dan daun kelor tropis dengan bulir-bulir embun jernih, pencahayaan alami pagi hari',
     style: 'Fotorealistik Komersial',
     ratio: '3:4',
     previewUrl: '/marketing/bio_herbal_drops_poster.jpg',
   },
   {
     id: 'business_leader',
-    title: '💼 Wirausaha Sukses Bionet',
+    title: '💼 Wirausaha Sukses SYNETIQ',
     category: 'Peluang Bisnis',
-    prompt: 'Pebisnis muda Indonesia pria/wanita tersenyum percaya diri di kantor modern minimalis, memegang paket produk herbal Bionet, aura kesuksesan',
+    prompt: 'Pebisnis muda Indonesia pria/wanita tersenyum percaya diri di kantor modern minimalis, memegang paket produk herbal SYNETIQ, aura kesuksesan',
     style: 'Fotorealistik Komersial',
     ratio: '3:4',
     previewUrl: '/marketing/bionet_binary_business_poster.jpg',
@@ -124,7 +124,7 @@ const INITIAL_GALLERY = [
   },
   {
     imageUrl: '/marketing/bionet_binary_business_poster.jpg',
-    prompt: 'Peluang Kemitraan Bisnis Bionet Binary, passive income, kesuksesan modern',
+    prompt: 'Peluang Kemitraan Bisnis SYNETIQ Binary, passive income, kesuksesan modern',
     category: 'Peluang Bisnis',
     aspectRatio: '3:4',
   },
@@ -239,7 +239,7 @@ export default function AIImageGeneratorModal({ isOpen, onClose, currentUser, on
     try {
       const link = document.createElement('a');
       link.href = generatedResult.imageUrl;
-      link.download = `Bionet_AI_${Date.now()}.jpg`;
+      link.download = `SYNETIQ_AI_${Date.now()}.jpg`;
       link.target = '_blank';
       document.body.appendChild(link);
       link.click();

@@ -141,7 +141,7 @@ export default function TransactionsTab({ walletBalance }) {
 
           <div className="flex flex-wrap items-center gap-2">
             <ExportButtons
-              filename="Mutasi_Saldo_Bionet"
+              filename="Mutasi_Saldo_SYNETIQ"
               title="BUKU BESAR MUTASI SALDO DOMPET MITRA"
               subtitle="Rekapitulasi transaksi kredit (bonus) & debit (penarikan dana)"
               headers={['TANGGAL', 'TIPE', 'NOMINAL (RP)', 'SALDO AKHIR (RP)', 'DESKRIPSI']}

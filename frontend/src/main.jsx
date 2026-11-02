@@ -11,7 +11,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       for (const reg of registrations) {
         reg.unregister();
-        console.log('[Bionet SW] Service worker dibersihkan di mode development');
+        console.log('[SYNETIQ SW] Service worker dibersihkan di mode development');
       }
     });
     if ('caches' in window) {
@@ -27,10 +27,10 @@ if ('serviceWorker' in navigator) {
       navigator.serviceWorker
         .register('/sw.js')
         .then((reg) => {
-          console.log('[Bionet SW] Registered scope:', reg.scope);
+          console.log('[SYNETIQ SW] Registered scope:', reg.scope);
         })
         .catch((err) => {
-          console.warn('[Bionet SW] Registration failed:', err);
+          console.warn('[SYNETIQ SW] Registration failed:', err);
         });
     });
   }
@@ -48,7 +48,7 @@ class GlobalErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('[Bionet Global Error Boundary Caught]:', error, errorInfo);
+    console.error('[SYNETIQ Global Error Boundary Caught]:', error, errorInfo);
   }
 
   handleReset = () => {
@@ -83,7 +83,7 @@ class GlobalErrorBoundary extends React.Component {
           }}>
             <div style={{ fontSize: '42px', marginBottom: '12px' }}>🌿</div>
             <h2 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '8px', color: '#34d399' }}>
-              Bionet Mitra Hub
+              SYNETIQ Mitra Hub
             </h2>
             <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '20px', lineHeight: '1.5' }}>
               Terjadi pembaruan modul antarmuka atau sesi browser Anda memerlukan penyegaran.

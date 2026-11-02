@@ -205,7 +205,7 @@ export default function IndonesianRegionSelect({
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
           <MapPin size={14} className="text-emerald-600" />
-          <span>Wilayah Domisili (Database Kemendagri Bionet)</span>
+          <span>Wilayah Domisili (Database Kemendagri SYNETIQ)</span>
         </div>
         <button
           type="button"

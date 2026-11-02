@@ -26,8 +26,8 @@ const DEFAULT_ORDER_DATA = {
   order_id: '',
   gross_amount: 150000,
   item_name: 'Paket Repeat Order Bio-Propolis Trigona',
-  customer_name: 'Mitra Bionet',
-  customer_email: 'mitra@bionet.id',
+  customer_name: 'Mitra SYNETIQ',
+  customer_email: 'mitra@synetiq.id',
   customer_phone: '081234567890',
 };
 
@@ -79,9 +79,9 @@ export default function MidtransSnapModal({
       const res = await api.post('/payment/midtrans/token', {
         order_id: safeOrder?.order_id || `ORDER-${Date.now()}`,
         gross_amount: safeOrder?.gross_amount || 150000,
-        item_name: safeOrder?.item_name || 'Paket Produk Bionet',
-        customer_name: safeOrder?.customer_name || 'Mitra Bionet',
-        customer_email: safeOrder?.customer_email || 'mitra@bionet.id',
+        item_name: safeOrder?.item_name || 'Paket Produk SYNETIQ',
+        customer_name: safeOrder?.customer_name || 'Mitra SYNETIQ',
+        customer_email: safeOrder?.customer_email || 'mitra@synetiq.id',
         customer_phone: safeOrder?.customer_phone || '081234567890',
       });
 
@@ -186,7 +186,7 @@ export default function MidtransSnapModal({
         {/* Order Summary Card */}
         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 mb-4">
           <div className="text-xs text-slate-500 font-semibold mb-0.5">Rincian Pembayaran:</div>
-          <div className="text-sm font-bold text-slate-900 truncate">{safeOrder?.item_name || 'Paket Produk Bionet'}</div>
+          <div className="text-sm font-bold text-slate-900 truncate">{safeOrder?.item_name || 'Paket Produk SYNETIQ'}</div>
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-200">
             <span className="text-xs text-slate-600">Total Tagihan:</span>
             <span className="font-heading font-black text-lg text-emerald-700 font-mono">

@@ -749,8 +749,8 @@ export default function AdminUsersTab() {
 
             <div className="flex items-center gap-2 flex-wrap">
               <ExportButtons
-                filename="Direktori_Pengguna_Bionet"
-                title="DIREKTORI PENGGUNA & RBAC BIONET"
+                filename="Direktori_Pengguna_SYNETIQ"
+                title="DIREKTORI PENGGUNA & RBAC SYNETIQ"
                 subtitle="Data pengguna platform, alokasi role hak akses, dan status akun"
                 headers={['USERNAME', 'NAMA LENGKAP', 'ROLE', 'STATUS', 'SALDO (RP)', 'POIN KIRI', 'POIN KANAN', 'TANGGAL DAFTAR']}
                 rows={users.map((u) => [
@@ -1232,8 +1232,8 @@ export default function AdminUsersTab() {
 
             <div className="flex items-center gap-2 flex-wrap">
               <ExportButtons
-                filename="Audit_Logs_Bionet"
-                title="LOG AUDIT AKTIVITAS &amp; SOFT DELETE BIONET"
+                filename="Audit_Logs_SYNETIQ"
+                title="LOG AUDIT AKTIVITAS &amp; SOFT DELETE SYNETIQ"
                 subtitle="Rekaman jejak perubahan data dan soft delete oleh pengguna / admin"
                 headers={['WAKTU', 'EKSEKUTOR (USER ID)', 'AKSI', 'TABEL SASARAN', 'ID REKORD', 'NILAI LAMA', 'NILAI BARU', 'IP / AGENT']}
                 rows={auditLogs.map((log) => [

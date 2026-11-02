@@ -56,7 +56,7 @@ export default function AdminSystemGuideTab({ setActiveTab }) {
       icon: LayoutDashboard,
       badge: 'KPI Global',
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      desc: 'Pusat komando eksekutif platform Bionet yang menampilkan metrik agregat nasional secara real-time.',
+      desc: 'Pusat komando eksekutif platform SYNETIQ yang menampilkan metrik agregat nasional secara real-time.',
       features: [
         'Total omset nasional dan volume penjualan paket PIN hak usaha.',
         'Metrik total member aktif, pending withdrawal, dan saldo dompet beredar.',
@@ -288,28 +288,28 @@ export default function AdminSystemGuideTab({ setActiveTab }) {
         '1. Mitra mengetik pesan bantuan pada menu Live Chat.',
         '2. Notifikasi masuk ke dasbor Customer Service & Admin Pusat.',
         '3. Tim CS memberikan jawaban dan panduan teknis.',
-        '4. Seluruh percakapan tersimpan dalam log audit Bionet.',
+        '4. Seluruh percakapan tersimpan dalam log audit SYNETIQ.',
       ],
       dbTables: ['support_chats', 'chat_messages'],
       apiEndpoints: ['GET /api/chat/messages', 'POST /api/chat/send', 'GET /api/chat/unread-count'],
     },
     {
       id: 'ai-copilot',
-      name: 'Bionet AI Copilot & Bot Telegram',
+      name: 'SYNETIQ AI Copilot & Bot Telegram',
       category: 'ai-support',
       roles: ['member', 'admin'],
       icon: Bot,
       badge: 'Gemini 3.1 & Telegram',
       badgeColor: 'bg-violet-50 text-violet-700 border-violet-200',
-      desc: 'Asisten kecerdasan buatan Google Gemini 3.1 Flash-Lite terintegrasi database Bionet dan bot Telegram resmi.',
+      desc: 'Asisten kecerdasan buatan Google Gemini 3.1 Flash-Lite terintegrasi database SYNETIQ dan bot Telegram resmi.',
       features: [
-        'Didukung model AI Google Gemini 3.1 Flash-Lite dengan pengetahuan domain Bionet.',
+        'Didukung model AI Google Gemini 3.1 Flash-Lite dengan pengetahuan domain SYNETIQ.',
         'Bot Telegram resmi (@btfn_assistant_bot) yang aktif menerima perintah interaktif.',
         'Kemampuan mengecek status bonus, omset pairing, panduan aktivasi PIN, dan info herbal.',
         'Widget mengambang di pojok kanan bawah yang siap diakses dari halaman mana pun.',
       ],
       flow: [
-        '1. Member membuka widget Bionet AI Copilot atau mengirim pesan ke @btfn_assistant_bot.',
+        '1. Member membuka widget SYNETIQ AI Copilot atau mengirim pesan ke @btfn_assistant_bot.',
         '2. AI membaca konteks database dan memberikan jawaban terstruktur.',
         '3. Mempermudah edukasi mitra baru tanpa membebani tim CS manual.',
       ],
@@ -367,7 +367,7 @@ export default function AdminSystemGuideTab({ setActiveTab }) {
         <div className="relative z-10 max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold mb-4">
             <BookOpen size={14} />
-            <span>Pusat Dokumentasi &amp; Direktori Sistem Platform Bionet</span>
+            <span>Pusat Dokumentasi &amp; Direktori Sistem Platform SYNETIQ</span>
           </div>
 
           <h2 className="font-heading font-black text-2xl sm:text-3xl tracking-tight text-white mb-2">
@@ -579,7 +579,7 @@ export default function AdminSystemGuideTab({ setActiveTab }) {
       <div className="dash-card p-6 border-l-4 border-l-emerald-600">
         <h3 className="font-heading font-extrabold text-lg text-slate-900 mb-2 flex items-center gap-2">
           <Database size={20} className="text-emerald-600" />
-          <span>Arsitektur Khusus &amp; Fondasi Database Bionet v6</span>
+          <span>Arsitektur Khusus &amp; Fondasi Database SYNETIQ v6</span>
         </h3>
         <p className="text-xs text-slate-600 mb-4 leading-relaxed">
           Berikut adalah penjelasan mendalam mengenai teknologi utama yang menjamin keakuratan komisi, kecepatan query pohon jaringan, dan integritas data pengguna.
@@ -592,7 +592,7 @@ export default function AdminSystemGuideTab({ setActiveTab }) {
               <span>Closure Table (upline_paths)</span>
             </div>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              Alih-alih query rekursif lambat yang rawan timeout pada ribuan downline, Bionet menyimpan relasi hierarki multi-generasi pada tabel closure. Query upline dan downline berjalan pada kompleksitas waktu <strong>O(1)</strong> instan.
+              Alih-alih query rekursif lambat yang rawan timeout pada ribuan downline, SYNETIQ menyimpan relasi hierarki multi-generasi pada tabel closure. Query upline dan downline berjalan pada kompleksitas waktu <strong>O(1)</strong> instan.
             </p>
           </div>
 

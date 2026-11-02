@@ -20,12 +20,12 @@ export function formatPhoneInternational(phone) {
  * Menghasilkan string vCard 3.0 untuk 1 kontak
  */
 export function generateSingleVCard({
-  name = 'Prospek Bionet',
+  name = 'Prospek SYNETIQ',
   phone = '',
   email = '',
-  company = 'Bionet Juara Perkasa',
+  company = 'SYNETIQ Juara Perkasa',
   title = 'Prospek Kemitraan Herbal',
-  note = 'Kontak prospek resmi dari Bionet Network CRM',
+  note = 'Kontak prospek resmi dari SYNETIQ Network CRM',
   city = '',
 }) {
   const formattedPhone = formatPhoneInternational(phone);
@@ -34,7 +34,7 @@ export function generateSingleVCard({
   return [
     'BEGIN:VCARD',
     'VERSION:3.0',
-    `FN:${name.trim()} (Bionet)`,
+    `FN:${name.trim()} (SYNETIQ)`,
     `N:${name.trim()};;;;`,
     `ORG:${company}`,
     title ? `TITLE:${title}` : '',
@@ -56,11 +56,11 @@ export function downloadVCardContact(contact) {
   const vcfContent = generateSingleVCard(contact);
   const blob = new Blob([vcfContent], { type: 'text/vcard;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-  const sanitizedName = (contact.name || 'kontak_bionet').replace(/[^a-zA-Z0-9]/g, '_');
+  const sanitizedName = (contact.name || 'kontak_synetiq').replace(/[^a-zA-Z0-9]/g, '_');
 
   const link = document.createElement('a');
   link.href = url;
-  link.setAttribute('download', `${sanitizedName}_bionet.vcf`);
+  link.setAttribute('download', `${sanitizedName}_synetiq.vcf`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -70,7 +70,7 @@ export function downloadVCardContact(contact) {
 /**
  * Mengunduh file .vcf massal (Batch Export) berisi seluruh daftar kontak
  */
-export function downloadBatchVCard(contacts = [], batchTitle = 'semua_prospek_bionet') {
+export function downloadBatchVCard(contacts = [], batchTitle = 'semua_prospek_synetiq') {
   if (!contacts || contacts.length === 0) return;
 
   const allVcards = contacts
@@ -79,9 +79,9 @@ export function downloadBatchVCard(contacts = [], batchTitle = 'semua_prospek_bi
         name: c.name || c.full_name || c.username,
         phone: c.phone || c.whatsapp,
         email: c.email || '',
-        company: 'Bionet Network System',
-        title: c.product_interest || c.package_name || 'Prospek Herbal Bionet',
-        note: `Status: ${c.status || 'Active'} | Kota: ${c.city || 'Indonesia'} | Ditambahkan via CRM Bionet`,
+        company: 'SYNETIQ Network System',
+        title: c.product_interest || c.package_name || 'Prospek Herbal SYNETIQ',
+        note: `Status: ${c.status || 'Active'} | Kota: ${c.city || 'Indonesia'} | Ditambahkan via CRM SYNETIQ`,
         city: c.city || '',
       })
     )

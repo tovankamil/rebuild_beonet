@@ -1,6 +1,6 @@
 /**
  * exportUtils.js
- * Utilitas ekspor data laporan ke format Microsoft Excel (.xls) dan PDF untuk DashLite Bionet
+ * Utilitas ekspor data laporan ke format Microsoft Excel (.xls) dan PDF untuk DashLite SYNETIQ
  */
 
 /**
@@ -89,7 +89,7 @@ function cleanExportCell(val) {
  * @param {Array<Array<any>>} rows - Matriks data baris
  * @param {string} title - Judul laporan di bagian atas lembar kerja
  */
-export function exportToExcel(filename = 'Laporan-Bionet', headers = [], rows = [], title = 'LAPORAN DATA BIONET') {
+export function exportToExcel(filename = 'Laporan-SYNETIQ', headers = [], rows = [], title = 'LAPORAN DATA SYNETIQ') {
   const dateStr = new Date().toLocaleString('id-ID', {
     dateStyle: 'full',
     timeStyle: 'medium',
@@ -145,7 +145,7 @@ export function exportToExcel(filename = 'Laporan-Bionet', headers = [], rows = 
       <body>
         <table>
           <tr><td colspan="${headers.length}" class="header-title">${title}</td></tr>
-          <tr><td colspan="${headers.length}" class="header-meta">Diekspor pada: ${dateStr} | Sistem Bionet Enterprise Platform</td></tr>
+          <tr><td colspan="${headers.length}" class="header-meta">Diekspor pada: ${dateStr} | Sistem SYNETIQ Enterprise Platform</td></tr>
           <tr></tr>
           <thead>
             <tr>${headerCells}</tr>
@@ -176,7 +176,7 @@ export function exportToExcel(filename = 'Laporan-Bionet', headers = [], rows = 
  * @param {string[]} headers - Daftar judul kolom
  * @param {Array<Array<any>>} rows - Matriks data
  */
-export function exportToPDF(title = 'Laporan Bionet', subtitle = '', headers = [], rows = []) {
+export function exportToPDF(title = 'Laporan SYNETIQ', subtitle = '', headers = [], rows = []) {
   const dateStr = new Date().toLocaleString('id-ID', {
     dateStyle: 'full',
     timeStyle: 'medium',
@@ -203,7 +203,7 @@ export function exportToPDF(title = 'Laporan Bionet', subtitle = '', headers = [
     <html lang="id">
     <head>
       <meta charset="UTF-8">
-      <title>${title} - Ekspor PDF Bionet</title>
+      <title>${title} - Ekspor PDF SYNETIQ</title>
       <style>
         @page { size: A4 landscape; margin: 15mm; }
         * { box-sizing: border-box; }
@@ -293,7 +293,7 @@ export function exportToPDF(title = 'Laporan Bionet', subtitle = '', headers = [
     <body>
       <div class="header-brand">
         <div>
-          <div class="brand-logo">Bionet<span>Rebuild</span></div>
+          <div class="brand-logo">SYNETIQ<span>Rebuild</span></div>
           <div style="font-size: 11px; color: #10b981; font-weight: 600; margin-top: 2px;">Enterprise MLM Network & Multi-Bank Platform</div>
         </div>
         <div class="meta-box">
@@ -316,7 +316,7 @@ export function exportToPDF(title = 'Laporan Bionet', subtitle = '', headers = [
 
       <div class="footer-note">
         <div>Total Data: ${rows.length} Baris</div>
-        <div>Dicetak secara otomatis oleh Bionet Enterprise Portal</div>
+        <div>Dicetak secara otomatis oleh SYNETIQ Enterprise Portal</div>
       </div>
 
       <script>

@@ -15,10 +15,10 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
   const searchParams = new URLSearchParams(window.location.search);
   const urlTpl = searchParams.get('tpl');
 
-  const [shopName, setShopName] = useState('Toko Herbal Resmi Bionet');
+  const [shopName, setShopName] = useState('Toko Herbal Resmi SYNETIQ');
   const [whatsappNumber, setWhatsappNumber] = useState('');
   const [customMarkup, setCustomMarkup] = useState(50000);
-  const [activeTemplate, setActiveTemplate] = useState(() => urlTpl || localStorage.getItem('bionet_shop_template') || 'emerald');
+  const [activeTemplate, setActiveTemplate] = useState(() => urlTpl || (localStorage.getItem('synetiq_shop_template') || localStorage.getItem('bionet_shop_template')) || 'emerald');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [copied, setCopied] = useState(false);
 
@@ -36,10 +36,10 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
     }
 
     // Load local stored preferences if available
-    const savedName = localStorage.getItem('bionet_shop_name');
-    const savedWa = localStorage.getItem('bionet_shop_wa');
-    const savedMarkup = localStorage.getItem('bionet_shop_markup');
-    const savedTemplate = localStorage.getItem('bionet_shop_template');
+    const savedName = (localStorage.getItem('synetiq_shop_name') || localStorage.getItem('bionet_shop_name'));
+    const savedWa = (localStorage.getItem('synetiq_shop_wa') || localStorage.getItem('bionet_shop_wa'));
+    const savedMarkup = (localStorage.getItem('synetiq_shop_markup') || localStorage.getItem('bionet_shop_markup'));
+    const savedTemplate = (localStorage.getItem('synetiq_shop_template') || localStorage.getItem('bionet_shop_template'));
 
     if (savedName) setShopName(savedName);
     else if (storeUsername) setShopName(`Toko Resmi Herbal @${storeUsername}`);
@@ -53,7 +53,7 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
   const products = [
     {
       id: 'p1',
-      name: 'Bionet Bio-Herbal Drops 30ml',
+      name: 'SYNETIQ Bio-Herbal Drops 30ml',
       desc: 'Konsentrat herbal tetes kaya antioksidan dan mineral alami untuk meningkatkan daya tahan tubuh, menstabilkan gula darah, dan melancarkan metabolisme.',
       basePrice: 150000,
       memberPrice: 150000,
@@ -64,7 +64,7 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
     },
     {
       id: 'p2',
-      name: 'Bionet Royal Propolis Elixir 15ml',
+      name: 'SYNETIQ Royal Propolis Elixir 15ml',
       desc: 'Ekstrak propolis murni lebah trigona kualitas premium berkhasiat tinggi untuk regenerasi sel, imunitas maksimal, dan pemulihan stamina tubuh.',
       basePrice: 180000,
       memberPrice: 180000,
@@ -115,7 +115,7 @@ export default function PublicStorefrontPage({ storeUsername, onGoToLogin }) {
     } catch (_) {}
 
     const text = encodeURIComponent(
-      `Halo kak, saya baru saja melakukan pemesanan via Toko Online Bionet:\n\n` +
+      `Halo kak, saya baru saja melakukan pemesanan via Toko Online SYNETIQ:\n\n` +
       `📦 *Produk:* ${selectedProduct.name}\n` +
       `💰 *Total Harga:* Rp ${price.toLocaleString('id-ID')}\n` +
       `🚚 *Ekspedisi Pilihan:* ${courier}\n\n` +

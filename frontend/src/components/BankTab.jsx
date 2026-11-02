@@ -309,7 +309,7 @@ export default function BankTab({ onBankUpdated }) {
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center gap-1.5">
                 <span className="font-heading font-extrabold text-sm tracking-wider text-emerald-400">
-                  BIONET PAYOUT
+                  SYNETIQ PAYOUT
                 </span>
                 <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
                   PRIMARY
@@ -337,7 +337,7 @@ export default function BankTab({ onBankUpdated }) {
                   Pemilik Rekening
                 </span>
                 <span className="font-heading font-bold text-xs uppercase tracking-wide text-white">
-                  {primaryBank?.account_name || 'MITRA BIONET JUARA'}
+                  {primaryBank?.account_name || 'MITRA SYNETIQ JUARA'}
                 </span>
               </div>
               <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">

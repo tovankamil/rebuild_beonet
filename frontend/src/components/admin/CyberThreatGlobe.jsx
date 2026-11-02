@@ -61,7 +61,7 @@ const JAKARTA_HUB = {
   ip: '103.145.22.84',
   lat: -6.21,
   lon: 106.85,
-  threatType: 'Bionet Primary WAF Shield',
+  threatType: 'SYNETIQ Primary WAF Shield',
   severity: 'Secure',
   color: '#10b981',
 };

@@ -87,7 +87,7 @@ const TESTIMONIALS = [
     city: 'Jakarta Selatan',
     rating: 5,
     keluhan: 'Daya Tahan Tubuh Anak & Keluarga',
-    story: 'Kandungan bio-flavonoid dan CAPE pada propolis trigona Bionet murni tanpa alkohol. Terbukti secara empiris mempercepat pemulihan radang tenggorokan dan stamina kerja harian.',
+    story: 'Kandungan bio-flavonoid dan CAPE pada propolis trigona SYNETIQ murni tanpa alkohol. Terbukti secara empiris mempercepat pemulihan radang tenggorokan dan stamina kerja harian.',
     product: 'Bio-Propolis Trigona',
     verified: true,
   },
@@ -100,10 +100,11 @@ export default function PublicBioPage({ username: propUsername }) {
   const bioFromPath = pathParts[1] === 'bio' ? pathParts[2] : null;
   const username = propUsername || bioFromPath || urlParams.get('bio') || 'mitra_resmi';
 
-  // State
-  const storageKey = `bionet_biolink_${username}`;
-  const [partnerName, setPartnerName] = useState('Konsultan Herbal Bionet');
-  const [tagline, setTagline] = useState('Mitra Resmi Terverifikasi BPOM RI & PT Bionet Herbal Indonesia');
+  // State with dual fallback compatibility
+  const storageKey = `synetiq_biolink_${username}`;
+  const legacyStorageKey = `bionet_biolink_${username}`;
+  const [partnerName, setPartnerName] = useState('Konsultan Digital SYNETIQ');
+  const [tagline, setTagline] = useState('Mitra Resmi Terverifikasi & PT SYNETIQ Network Indonesia');
   const [waNumber, setWaNumber] = useState('');
   const [theme, setTheme] = useState('emerald');
 
@@ -119,11 +120,11 @@ export default function PublicBioPage({ username: propUsername }) {
   const [aiConsultModalOpen, setAiConsultModalOpen] = useState(false);
 
   useEffect(() => {
-    // Sync with local configuration if saved in browser or fetch partner
-    const savedName = localStorage.getItem(`${storageKey}_name`);
-    const savedTagline = localStorage.getItem(`${storageKey}_tagline`);
-    const savedWa = localStorage.getItem(`${storageKey}_wa`);
-    const savedTheme = localStorage.getItem(`${storageKey}_theme`);
+    // Sync with local configuration if saved in browser or fetch partner (dual fallback)
+    const savedName = localStorage.getItem(`${storageKey}_name`) || localStorage.getItem(`${legacyStorageKey}_name`);
+    const savedTagline = localStorage.getItem(`${storageKey}_tagline`) || localStorage.getItem(`${legacyStorageKey}_tagline`);
+    const savedWa = localStorage.getItem(`${storageKey}_wa`) || localStorage.getItem(`${legacyStorageKey}_wa`);
+    const savedTheme = localStorage.getItem(`${storageKey}_theme`) || localStorage.getItem(`${legacyStorageKey}_theme`);
 
     if (savedName) setPartnerName(savedName);
     else setPartnerName(`Mitra Resmi @${username}`);
@@ -131,7 +132,7 @@ export default function PublicBioPage({ username: propUsername }) {
     if (savedTagline) setTagline(savedTagline);
     if (savedWa) setWaNumber(savedWa);
     if (savedTheme) setTheme(savedTheme);
-  }, [username, storageKey]);
+  }, [username, storageKey, legacyStorageKey]);
 
   // Clean WhatsApp phone
   const cleanPhone = waNumber.replace(/[^0-9]/g, '');
@@ -182,7 +183,7 @@ export default function PublicBioPage({ username: propUsername }) {
   const openWhatsAppDirect = (productInterest = null) => {
     const text = productInterest
       ? `Halo ${partnerName}, saya membaca info di Bio-Link Anda dan ingin konsultasi / pesan produk *${productInterest}*. Boleh minta panduan lengkapnya?`
-      : `Halo ${partnerName}, salam sehat! Saya ingin konsultasi seputar produk herbal Bionet resmi BPOM.`;
+      : `Halo ${partnerName}, salam hangat! Saya ingin konsultasi seputar produk & kemitraan SYNETIQ resmi BPOM.`;
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -200,11 +201,11 @@ export default function PublicBioPage({ username: propUsername }) {
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black text-sm shadow-md shadow-emerald-500/20">
-              B
+              S
             </div>
             <div>
               <span className="font-heading font-black tracking-tight text-white text-sm block leading-none">
-                BIONET HERBAL
+                SYNETIQ ECOSYSTEM
               </span>
               <span className="text-[10px] text-emerald-400 font-medium">Official Partner Portal</span>
             </div>
@@ -214,7 +215,7 @@ export default function PublicBioPage({ username: propUsername }) {
             <button
               onClick={() => setAiConsultModalOpen(true)}
               className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs flex items-center space-x-1.5 transition shadow-sm border border-emerald-400/30"
-              title="Konsultasi Herbal dengan Kecerdasan Buatan AI Bionet"
+              title="Konsultasi Bisnis & Solusi dengan Kecerdasan Buatan AI SYNETIQ"
             >
               <Stethoscope size={14} />
               <span className="hidden sm:inline">Konsultasi AI</span>
@@ -376,7 +377,7 @@ export default function PublicBioPage({ username: propUsername }) {
             <div className="flex items-center space-x-2">
               <ShoppingBag size={18} className="text-emerald-400" />
               <h2 className="font-heading font-black text-lg text-white">
-                Produk Herbal Unggulan Bionet
+                Produk &amp; Lisensi Unggulan SYNETIQ
               </h2>
             </div>
             <span className="text-xs text-emerald-400 font-bold">100% Produk Asli</span>
@@ -507,7 +508,7 @@ export default function PublicBioPage({ username: propUsername }) {
               Form Konsultasi Kilat Bebas Biaya
             </h3>
             <p className="text-xs text-emerald-200/80 mt-1">
-              Dapatkan rekomendasi dosis pemakaian herbal Bionet yang tepat sesuai kondisi Anda.
+              Dapatkan rekomendasi dosis pemakaian &amp; solusi SYNETIQ yang tepat sesuai kondisi Anda.
             </p>
           </div>
 
@@ -580,7 +581,7 @@ export default function PublicBioPage({ username: propUsername }) {
                     <option value="Bio-Propolis Trigona 30ml">Bio-Propolis Trigona (Asam Urat/Imun)</option>
                     <option value="Bio-Herbal Drops 30ml">Bio-Herbal Drops (Gula Darah/Detoks)</option>
                     <option value="Bio-Energy Refresh Spray 100ml">Bio-Energy Spray (Kulit & Kesegaran)</option>
-                    <option value="Peluang Kemitraan & Bisnis Bionet">Ingin Jadi Mitra / Agen Resmi Bionet</option>
+                    <option value="Peluang Kemitraan & Bisnis SYNETIQ">Ingin Jadi Mitra / Agen Resmi SYNETIQ</option>
                   </select>
                 </div>
               </div>
@@ -641,9 +642,9 @@ export default function PublicBioPage({ username: propUsername }) {
               ISO 9001:2015
             </span>
           </div>
-          <p>© 2026 PT Bionet Herbal Indonesia. Hak Cipta Dilindungi Undang-Undang.</p>
+          <p>© 2026 PT SYNETIQ Network Indonesia. Hak Cipta Dilindungi Undang-Undang.</p>
           <p className="text-[11px] text-slate-600">
-            Halaman profil mitra resmi bionet.id/bio/{username}
+            Halaman profil mitra resmi synetiq.id/bio/{username}
           </p>
         </footer>
       </main>

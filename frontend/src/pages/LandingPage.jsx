@@ -729,17 +729,77 @@ export default function LandingPage({ onGoToLogin }) {
             </div>
           </div>
         </div>
+      </section>
 
-        {/* FULL-WIDTH SHOWCASE SLIDESHOW (Apple iPad Pro Tablet Frame) */}
-        <div id="tablet-showcase" className="w-full max-w-[96vw] xl:max-w-[1200px] 2xl:max-w-[1320px] mx-auto px-2 sm:px-4 mt-12 sm:mt-16 relative z-10">
-          <HeroShowcaseSlideshow
-            audioEnabled={audioEnabled}
-            triggerSound={triggerSound}
-            heroMitraCount={heroMitraCount}
-            setHeroMitraCount={setHeroMitraCount}
-            heroWalletBalance={heroWalletBalance}
-            setHeroWalletBalance={setHeroWalletBalance}
-          />
+      {/* ========================================================================= */}
+      {/* 02: TABLET SHOWCASE SECTION (Apple iPad Pro on Vibrant Golden Yellow #fed324) */}
+      {/* ========================================================================= */}
+      <section
+        id="tablet-showcase"
+        className="relative py-16 sm:py-24 px-4 bg-[#fed324] text-slate-950 overflow-hidden border-y-4 border-[#ecd02b] shadow-2xl"
+      >
+        {/* Subtle geometric dot pattern for depth */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-15"
+          style={{
+            backgroundImage: 'radial-gradient(#000 1.5px, transparent 1.5px)',
+            backgroundSize: '24px 24px',
+          }}
+        />
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Section Header with Semantic H2 for 100% SEO */}
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+            <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-950 text-[#fed324] text-xs sm:text-sm font-mono font-bold tracking-wide shadow-lg mb-4">
+              <span className="w-2 h-2 rounded-full bg-[#fed324] animate-ping" />
+              <span>DEMO INTERAKTIF TABLET IPAD PRO • LIVE EXPERIENCE</span>
+            </div>
+            
+            <h2 className="text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-tight">
+              Eksplorasi Antarmuka Aplikasi di Tablet iPad Pro
+            </h2>
+            
+            <p className="mt-3.5 text-base sm:text-lg text-slate-900 font-semibold max-w-2xl mx-auto">
+              Coba langsung fitur SYNETIQ di layar tablet: pantau pertumbuhan jaringan, hitung komisi otomatis, hingga keamanan saldo kas secara real-time.
+            </p>
+          </div>
+
+          {/* FULL-WIDTH SHOWCASE SLIDESHOW (Apple iPad Pro Tablet Frame) */}
+          <div className="w-full max-w-[96vw] xl:max-w-[1200px] 2xl:max-w-[1320px] mx-auto px-2 sm:px-4">
+            <HeroShowcaseSlideshow
+              audioEnabled={audioEnabled}
+              triggerSound={triggerSound}
+              heroMitraCount={heroMitraCount}
+              setHeroMitraCount={setHeroMitraCount}
+              heroWalletBalance={heroWalletBalance}
+              setHeroWalletBalance={setHeroWalletBalance}
+            />
+          </div>
+
+          {/* Direct CTA Consultation on Yellow Canvas */}
+          <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            <a
+              href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ,%20saya%20tertarik%20dengan%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20konsultasi%20demo%20tablet"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-sm sm:text-base transition-all duration-200 shadow-2xl flex items-center justify-center space-x-2.5 active:scale-95 group cursor-pointer"
+            >
+              <MessageSquare className="w-4 h-4 text-[#fed324] group-hover:scale-110 transition-transform" />
+              <span>Konsultasi Demo via WhatsApp</span>
+            </a>
+            
+            <button
+              type="button"
+              onClick={() => {
+                triggerSound('transition');
+                setShowDemoModal(true);
+              }}
+              className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-white/95 hover:bg-white text-slate-950 font-extrabold text-sm sm:text-base transition-all duration-200 border-2 border-black/15 shadow-lg flex items-center justify-center space-x-2 active:scale-95 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>Buka Demo Interaktif Penuh</span>
+            </button>
+          </div>
         </div>
       </section>
 

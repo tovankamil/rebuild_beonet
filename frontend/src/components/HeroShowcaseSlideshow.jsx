@@ -318,23 +318,14 @@ export default function HeroShowcaseSlideshow({
 
   return (
     <div className="relative w-full max-w-5xl mx-auto">
-      {/* Ambient Multi-Stop Light Halo behind tablet */}
-      <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 via-teal-500/15 to-cyan-500/20 rounded-[48px] blur-3xl opacity-75 pointer-events-none -z-10" />
-
       {/* ========================================================================= */}
-      {/* TABLET SHOWCASE CANVAS STAGE: VIBRANT YELLOW (Color-Matched to media_1793647753240_590bd423.jpg: #fed324) */}
+      {/* APPLE iPAD PRO TABLET ENCLOSURE (Aspect Ratio: 980 / 642 = 1.526)          */}
       {/* ========================================================================= */}
-      <div className="relative w-full rounded-[30px] sm:rounded-[42px] bg-[#fed324] p-2.5 sm:p-5 md:p-7 shadow-2xl shadow-amber-500/25 border-4 border-[#ecd02b] overflow-hidden">
-        {/* Subtle Ambient Radial Lighting for Studio Depth */}
-        <div className="absolute -top-12 -right-12 w-96 h-96 bg-white/30 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-12 -left-12 w-96 h-96 bg-amber-600/20 rounded-full blur-3xl pointer-events-none" />
-
-        {/* APPLE iPAD PRO TABLET ENCLOSURE (Aspect Ratio: 980 / 642 = 1.526) */}
-        <div
-          className="relative w-full aspect-[980/642] select-none shadow-2xl shadow-black/70 rounded-[24px] sm:rounded-[32px]"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
+      <div
+        className="relative w-full aspect-[980/642] select-none shadow-2xl shadow-black/80 rounded-[24px] sm:rounded-[36px]"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
         {/* INNER SCREEN DISPLAY (Under Tablet Bezel Overlay) */}
         {/* Exact calculated percentage bounds: left: 3.06%, top: 4.67%, width: 93.88%, height: 90.65% */}
         <div
@@ -1077,12 +1068,11 @@ export default function HeroShowcaseSlideshow({
           className="absolute inset-0 w-full h-full object-contain pointer-events-none z-20 drop-shadow-[0_25px_60px_rgba(0,0,0,0.85)]"
         />
       </div>
-    </div>
 
       {/* ========================================================================= */}
-      {/* 6 FLOATING FEATURE CARDS BELOW TABLET (BizNext / Triolla Style)            */}
+      {/* 6 FLOATING FEATURE CARDS BELOW TABLET (Gambar 2: Color Matched to Yellow)   */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 mt-4 sm:mt-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3.5 mt-6 sm:mt-8">
         {slides.map((s, idx) => {
           const Icon = s.icon;
           const isActive = idx === currentSlide;
@@ -1091,30 +1081,30 @@ export default function HeroShowcaseSlideshow({
               key={s.id}
               type="button"
               onClick={() => handleJumpToSlide(idx)}
-              className={`p-2.5 sm:p-3 rounded-2xl text-left border transition-all duration-200 flex flex-col justify-between group active:scale-95 ${
+              className={`p-3 sm:p-3.5 rounded-2xl text-left border-2 transition-all duration-200 flex flex-col justify-between group active:scale-95 shadow-xl ${
                 isActive
-                  ? 'bg-[#0f1d33] border-emerald-400 shadow-lg shadow-emerald-950/60 scale-[1.02] ring-1 ring-emerald-400'
-                  : 'bg-[#091120]/80 border-white/10 hover:border-white/20 hover:bg-[#0d172a]'
+                  ? 'bg-black border-slate-950 ring-4 ring-black/25 text-white scale-[1.03] shadow-2xl'
+                  : 'bg-[#090f1d] border-black/25 hover:border-black hover:bg-[#0f172a] text-white hover:shadow-2xl hover:scale-[1.01]'
               }`}
             >
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-2.5">
                 <div
                   className={`w-7 sm:w-8 h-7 sm:h-8 rounded-xl flex items-center justify-center transition ${
                     isActive
-                      ? 'bg-emerald-500/20 text-emerald-300'
-                      : 'bg-white/5 text-slate-400 group-hover:text-white'
+                      ? 'bg-[#fed324] text-slate-950 shadow-md font-bold'
+                      : 'bg-white/10 text-amber-300 group-hover:bg-[#fed324] group-hover:text-slate-950'
                   }`}
                 >
                   <Icon className="w-3.5 sm:w-4 h-3.5 sm:h-4" />
                 </div>
-                {isActive && <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />}
+                {isActive && <span className="w-2.5 h-2.5 rounded-full bg-[#fed324] animate-ping" />}
               </div>
 
               <div>
-                <div className="text-[11px] sm:text-xs font-bold text-white leading-tight">
+                <div className="text-[11px] sm:text-xs font-black text-white leading-tight">
                   {s.shortTitle}
                 </div>
-                <div className="text-[9px] sm:text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+                <div className="text-[9px] sm:text-[10px] text-[#fed324] font-mono font-bold mt-1 line-clamp-1">
                   {s.badge}
                 </div>
               </div>
@@ -1124,31 +1114,31 @@ export default function HeroShowcaseSlideshow({
       </div>
 
       {/* ========================================================================= */}
-      {/* KEY STATS COUNTER BAR (BizNext Style Proof Metrics)                       */}
+      {/* KEY STATS COUNTER BAR (Gambar 2: Color Matched to Yellow Background)       */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mt-6 sm:mt-8 p-4 sm:p-6 rounded-2xl bg-white/[0.02] border border-white/10">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mt-6 sm:mt-8 p-5 sm:p-7 rounded-3xl bg-[#090f1d] border-2 border-black/30 shadow-2xl shadow-black/40">
         <div className="text-center">
-          <div className="text-xl sm:text-3xl font-black text-emerald-400 font-mono">1.420+</div>
-          <div className="text-xs font-bold text-white mt-1">Mitra Aktif</div>
-          <div className="text-[10px] text-slate-400">Jaringan Tumbuh Otomatis</div>
+          <div className="text-2xl sm:text-4xl font-black text-[#fed324] font-mono tracking-tight">1.420+</div>
+          <div className="text-xs sm:text-sm font-extrabold text-white mt-1">Mitra Aktif</div>
+          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Jaringan Tumbuh Otomatis</div>
         </div>
 
-        <div className="text-center border-l md:border-x border-white/10">
-          <div className="text-xl sm:text-3xl font-black text-cyan-400 font-mono">1 Detik</div>
-          <div className="text-xs font-bold text-white mt-1">Hitung Komisi Cepat</div>
-          <div className="text-[10px] text-slate-400">Tanpa Rumus Excel Manual</div>
+        <div className="text-center border-l md:border-x border-white/15">
+          <div className="text-2xl sm:text-4xl font-black text-cyan-400 font-mono tracking-tight">1 Detik</div>
+          <div className="text-xs sm:text-sm font-extrabold text-white mt-1">Hitung Komisi Cepat</div>
+          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Tanpa Rumus Excel Manual</div>
         </div>
 
         <div className="text-center">
-          <div className="text-xl sm:text-3xl font-black text-teal-400 font-mono">24 Jam</div>
-          <div className="text-xs font-bold text-white mt-1">Robot WhatsApp Siaga</div>
-          <div className="text-[10px] text-slate-400">Balas Prospek &amp; Closing Nonstop</div>
+          <div className="text-2xl sm:text-4xl font-black text-emerald-400 font-mono tracking-tight">24 Jam</div>
+          <div className="text-xs sm:text-sm font-extrabold text-white mt-1">Robot WhatsApp Siaga</div>
+          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Balas Prospek &amp; Closing Nonstop</div>
         </div>
 
-        <div className="text-center border-l border-white/10">
-          <div className="text-xl sm:text-3xl font-black text-amber-400 font-mono">99.9%</div>
-          <div className="text-xs font-bold text-white mt-1">Waktu Aktif Sistem</div>
-          <div className="text-[10px] text-slate-400">Stabil Tanpa Gangguan Server</div>
+        <div className="text-center border-l border-white/15">
+          <div className="text-2xl sm:text-4xl font-black text-amber-300 font-mono tracking-tight">99.9%</div>
+          <div className="text-xs sm:text-sm font-extrabold text-white mt-1">Waktu Aktif Sistem</div>
+          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Stabil Tanpa Gangguan Server</div>
         </div>
       </div>
     </div>

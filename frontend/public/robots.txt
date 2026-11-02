@@ -1,0 +1,8 @@
+# robots.txt for SYNETIQ - https://synetiq.id/
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://synetiq.id/sitemap.xml

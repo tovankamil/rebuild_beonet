@@ -72,3 +72,4 @@ if (fs.existsSync(office3dDir)) {
   fs.rmSync(office3dDir, { recursive: true, force: true });
   console.log('frontend/src/components/office3d directory deleted successfully');
 }
+

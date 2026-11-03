@@ -1042,6 +1042,17 @@ export default function App() {
       {/* Module 9: Pembayaran Otomatis Midtrans Snap QRIS & VA */}
       
 
+      {/* TikTok Developer Sandbox & Lead Generation Modal */}
+      <TikTokIntegrationModal
+        isOpen={tikTokModalOpen}
+        onClose={() => setTikTokModalOpen(false)}
+        currentUser={user}
+        initialTab={tikTokModalTab}
+        onLeadInjected={() => {
+          fetchStats();
+        }}
+      />
+
       {midtransModalOpen && (
         <MidtransSnapModal
           isOpen={midtransModalOpen}

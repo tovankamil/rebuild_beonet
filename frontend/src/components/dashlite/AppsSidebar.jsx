@@ -111,6 +111,7 @@ function getRoleMenuModules(role) {
           { id: 'leads', subView: 'whatsapp-suite', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
           { id: 'leads', subView: 'ro-reminders', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
           { id: 'ai-marketing', title: 'Studio Konten AI & Generator Video', desc: 'Copywriting BPOM & video TikTok / Reels', icon: Video },
+          { id: 'leads', subView: 'tiktok-sandbox', title: 'Masuk TikTok (login_mlm)', desc: 'Login Kit & Sandbox sbawhzed8x3yk47hhl', icon: Video, action: 'open_tiktok_sandbox' },
         ],
       },
       {
@@ -447,6 +448,7 @@ function getRoleMenuModules(role) {
         { id: 'leads', subView: 'kanban', title: 'Pipeline Prospek Penjualan', desc: 'Kanban stage prospek dari toko online & webinar', icon: Target },
         { id: 'leads', subView: 'whatsapp-suite', title: 'Follow-up AI WhatsApp', desc: 'Pesan cerdas personal dengan Gemini AI', icon: Sparkles },
         { id: 'leads', subView: 'ro-reminders', title: 'Smart RO Reminder & Retensi', desc: 'Prediksi habisnya herbal & downline pasif', icon: Droplets },
+        { id: 'leads', subView: 'tiktok-sandbox', title: 'Masuk TikTok (login_mlm)', desc: 'Login Kit & Sandbox sbawhzed8x3yk47hhl', icon: Video, action: 'open_tiktok_sandbox' },
       ],
     },
     {
@@ -640,6 +642,10 @@ export default function AppsSidebar({
       if (onOpenRankRewards) onOpenRankRewards();
       else window.dispatchEvent(new Event('bionet:open-ranks'));
       setActiveTab('rank-rewards');
+        } else if (sub.action === 'open_tiktok_sandbox' || sub.subView === 'tiktok-sandbox') {
+      window.dispatchEvent(new CustomEvent('synetiq:open-tiktok-sandbox'));
+      setHoveredMenu(null);
+      return;
     } else if (sub.action === 'open_herbal_farm' || sub.id === 'herbal-farm') {
       if (userRole !== 'member') return;
       if (onOpenHerbalFarm) onOpenHerbalFarm();

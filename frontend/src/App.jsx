@@ -43,6 +43,7 @@ import SYNETIQRankRewardsModal from './components/gamification/BionetRankRewards
 import SYNETIQHerbalFarmModal from './components/gamification/BionetHerbalFarmModal';
 import MidtransSnapModal from './components/payment/MidtransSnapModal';
 import { VirtualOffice3DModal } from './components/office3d';
+import TikTokIntegrationModal from './components/crm/TikTokIntegrationModal';
 import PwaInstallBanner from './components/pwa/PwaInstallBanner';
 import LoginPage from './pages/LoginPage';
 import PublicStorefrontPage from './components/store/PublicStorefrontPage';
@@ -311,6 +312,8 @@ export default function App() {
   const [midtransModalOpen, setMidtransModalOpen] = useState(false);
   const [midtransPaymentData, setMidtransPaymentData] = useState(null);
   const [office3DOpen, setOffice3DOpen] = useState(false);
+  const [tikTokModalOpen, setTikTokModalOpen] = useState(false);
+  const [tikTokModalTab, setTikTokModalTab] = useState("sandbox-login");
 
   useEffect(() => {
     const handleOpenWheel = () => {
@@ -337,6 +340,13 @@ export default function App() {
     window.addEventListener('synetiq:open-farm', handleOpenFarm);
     window.addEventListener('bionet:open-farm', handleOpenFarm);
     window.addEventListener('synetiq:open-midtrans', handleOpenMidtrans);
+
+    const handleOpenTikTok = (e) => {
+      setTikTokModalTab(e?.detail?.tab || 'sandbox-login');
+      setTikTokModalOpen(true);
+    };
+    window.addEventListener('synetiq:open-tiktok-sandbox', handleOpenTikTok);
+    window.addEventListener('bionet:open-tiktok-sandbox', handleOpenTikTok);
     window.addEventListener('bionet:open-midtrans', handleOpenMidtrans);
     window.addEventListener('synetiq:open-office3d', handleOpenOffice3D);
     window.addEventListener('bionet:open-office3d', handleOpenOffice3D);
@@ -349,6 +359,8 @@ export default function App() {
       window.removeEventListener('synetiq:open-farm', handleOpenFarm);
       window.removeEventListener('bionet:open-farm', handleOpenFarm);
       window.removeEventListener('synetiq:open-midtrans', handleOpenMidtrans);
+      window.removeEventListener('synetiq:open-tiktok-sandbox', handleOpenTikTok);
+      window.removeEventListener('bionet:open-tiktok-sandbox', handleOpenTikTok);
       window.removeEventListener('bionet:open-midtrans', handleOpenMidtrans);
       window.removeEventListener('synetiq:open-office3d', handleOpenOffice3D);
       window.removeEventListener('bionet:open-office3d', handleOpenOffice3D);
@@ -757,6 +769,7 @@ export default function App() {
         onOpenRankRewards={() => setActiveTab('rank-rewards')}
         onOpenHerbalFarm={() => setActiveTab('herbal-farm')}
           onOpenOffice3D={() => setOffice3DOpen(true)}
+          onOpenTikTok={() => { setTikTokModalTab("sandbox-login"); setTikTokModalOpen(true); }}
         onOpenMidtrans={(data) => { setMidtransPaymentData(data || null); setMidtransModalOpen(true); }}
       />
 

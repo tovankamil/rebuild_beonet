@@ -22,6 +22,9 @@ import {
   Sliders,
   Smartphone,
   Eye,
+  EyeOff,
+  Globe,
+  Lock,
   Hash,
 } from 'lucide-react';
 import { playNotificationPing, playGoldCoinChime } from '../../utils/audioChime';
@@ -32,10 +35,21 @@ export default function TikTokIntegrationModal({
   onClose,
   currentUser,
   onLeadInjected,
+  initialTab = 'sandbox-login',
 }) {
-  const [activeTab, setActiveTab] = useState('webhook-guide'); // 'webhook-guide' | 'pixel-guide' | 'simulator'
+  const [activeTab, setActiveTab] = useState(initialTab || 'sandbox-login'); // 'sandbox-login' | 'webhook-guide' | 'pixel-guide' | 'simulator'
   const [copiedKey, setCopiedKey] = useState(null);
-  const [secretKey, setSecretKey] = useState('tiktok_sec_bionet_enterprise_99x');
+  const [clientKey, setClientKey] = useState('sbawhzed8x3yk47hhl');
+  const [secretKey, setSecretKey] = useState('q3Z0xEG82MWcIGEZH6alfkJ0gWbLWlX8');
+  const [secretVisible, setSecretVisible] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Sync activeTab when modal opens with explicit initialTab
+  React.useEffect(() => {
+    if (isOpen && initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
   const [webhookUrl] = useState('https://synetiq.id/api/public/leads/webhook?key=tiktok_ads');
   const [pixelId, setPixelId] = useState('CTIKTOK_BIONET_PRO_PIXEL_ID');
   const [accessToken, setAccessToken] = useState('tiktok_act_77bionet8923a10dfa902341bop');
@@ -95,6 +109,38 @@ export default function TikTokIntegrationModal({
     setCopiedKey(key);
     playNotificationPing();
     setTimeout(() => setCopiedKey(null), 2500);
+  };
+
+  const handleExecuteSandboxLogin = async () => {
+    setIsLoggingIn(true);
+    try {
+      const res = await api.post('/auth/login', { username: 'mitra01', password: 'synetiq123' });
+      if (res.data?.data) {
+        localStorage.setItem('synetiq_token', res.data.data.token);
+        localStorage.setItem('bionet_token', res.data.data.token);
+        const userData = {
+          ...res.data.data.user,
+          tiktok_connected: true,
+          tiktok_account: '@tovankamil.official',
+          tiktok_client_key: clientKey,
+        };
+        localStorage.setItem('synetiq_user', JSON.stringify(userData));
+        localStorage.setItem('bionet_user', JSON.stringify(userData));
+        playGoldCoinChime();
+        if (onClose) onClose();
+        window.location.reload();
+      }
+    } catch (err) {
+      alert('Login TikTok Sandbox gagal: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleOpenOfficialOAuth = () => {
+    const redirectUri = encodeURIComponent(`${window.location.origin}/#/auth/tiktok/callback`);
+    const oauthUrl = `https://www.tiktok.com/v2/auth/authorize/?client_key=${clientKey}&scope=user.info.basic&response_type=code&redirect_uri=${redirectUri}&state=synetiq_tiktok_sandbox`;
+    window.open(oauthUrl, '_blank', 'width=600,height=700');
   };
 
   const handleRunSimulator = async () => {
@@ -212,6 +258,21 @@ export default function TikTokIntegrationModal({
         {/* Navigation Tabs */}
         <div className="px-6 pt-3 bg-slate-900/60 border-b border-slate-800/80 flex items-center space-x-2 overflow-x-auto">
           <button
+            onClick={() => setActiveTab('sandbox-login')}
+            className={`px-4 py-2.5 text-xs font-bold rounded-t-xl transition flex items-center space-x-2 border-b-2 ${
+              activeTab === 'sandbox-login'
+                ? 'bg-slate-850 text-white border-cyan-400'
+                : 'text-slate-400 hover:text-slate-200 border-transparent hover:bg-slate-800/40'
+            }`}
+          >
+            <svg className="w-4 h-4 fill-current text-white drop-shadow-[1px_1px_0px_#00f2fe]" viewBox="0 0 24 24">
+              <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+            </svg>
+            <span>Masuk dengan TikTok (login_mlm)</span>
+            <span className="px-1.5 py-0.5 text-[9px] rounded-full bg-cyan-400/20 text-cyan-300 font-mono font-bold">Sandbox</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('webhook-guide')}
             className={`px-4 py-2.5 text-xs font-bold rounded-t-xl transition flex items-center space-x-2 border-b-2 ${
               activeTab === 'webhook-guide'
@@ -251,6 +312,187 @@ export default function TikTokIntegrationModal({
 
         {/* Modal Body Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* TAB 0: TIKTOK LOGIN KIT & SANDBOX (LOGIN_MLM) */}
+          {activeTab === 'sandbox-login' && (
+            <div className="space-y-6">
+              {/* Sandbox Hero Card */}
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-cyan-500/30 p-6 shadow-2xl">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-2xl bg-black border border-white/20 flex items-center justify-center shadow-xl shadow-black/80 flex-shrink-0">
+                      <svg className="w-8 h-8 fill-current drop-shadow-[1.5px_1.5px_0px_#00f2fe] text-white" viewBox="0 0 24 24">
+                        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-xl font-heading font-black text-white">TikTok Sandbox: login_mlm</h3>
+                        <span className="px-2.5 py-0.5 text-[10px] font-black uppercase rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-mono">
+                          Sandbox Ready
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-300 mt-1 max-w-xl">
+                        Aplikasi sandbox resmi TikTok untuk login mitra dan sinkronisasi otomatis Lead Generation TikTok Ads.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Sandbox CTA Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-2.5 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={handleExecuteSandboxLogin}
+                      disabled={isLoggingIn}
+                      className="px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-black text-xs tracking-wide shadow-lg shadow-cyan-950 flex items-center justify-center gap-2 cursor-pointer transition active:scale-95"
+                    >
+                      <Zap size={15} />
+                      <span>{isLoggingIn ? 'Mengautentikasi Sandbox...' : 'Uji Masuk Cepat (@mitra01)'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleOpenOfficialOAuth}
+                      className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition"
+                    >
+                      <ExternalLink size={14} className="text-rose-400" />
+                      <span>Buka Dialog OAuth Resmi</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Credentials & Details Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                  {/* Client Key */}
+                  <div className="p-4 rounded-2xl bg-black/50 border border-white/10 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400 font-semibold">Client Key (Sandbox):</span>
+                      <span className="text-[10px] text-cyan-400 font-mono">app_id</span>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-950 px-3 py-2 rounded-xl border border-white/5 font-mono text-xs text-cyan-300">
+                      <span>{clientKey}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(clientKey, 'ckey')}
+                        className="p-1 hover:text-white text-slate-400 transition cursor-pointer"
+                      >
+                        {copiedKey === 'ckey' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Client Secret */}
+                  <div className="p-4 rounded-2xl bg-black/50 border border-white/10 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400 font-semibold">Client Secret:</span>
+                      <button
+                        type="button"
+                        onClick={() => setSecretVisible(!secretVisible)}
+                        className="text-[10px] text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                      >
+                        {secretVisible ? <EyeOff size={12} /> : <Eye size={12} />}
+                        <span>{secretVisible ? 'Sembunyikan' : 'Lihat'}</span>
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between bg-slate-950 px-3 py-2 rounded-xl border border-white/5 font-mono text-xs text-slate-200">
+                      <span>{secretVisible ? secretKey : `${secretKey.slice(0, 10)}••••••••••••••••`}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(secretKey, 'csec')}
+                        className="p-1 hover:text-white text-slate-400 transition cursor-pointer"
+                      >
+                        {copiedKey === 'csec' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* URL Properties Guide (Matches user screenshot) */}
+                <div className="mt-6 pt-5 border-t border-white/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-2">
+                      <Code2 size={15} />
+                      <span>Isian Tombol "URL properties" di TikTok Console Anda:</span>
+                    </h4>
+                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-medium">
+                      Wajib Disimpan di Console
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 rounded-xl bg-slate-950/80 border border-white/10 space-y-1">
+                      <div className="text-[11px] text-slate-400 font-medium">Redirect URI / Callback URL:</div>
+                      <div className="flex items-center justify-between font-mono text-cyan-300 text-[11px]">
+                        <span className="truncate mr-2">{`${typeof window !== 'undefined' ? window.location.origin : 'https://localhost:5173'}/#/auth/tiktok/callback`}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(`${typeof window !== 'undefined' ? window.location.origin : 'https://localhost:5173'}/#/auth/tiktok/callback`, 'red_uri')}
+                          className="hover:text-white text-slate-400 flex-shrink-0 cursor-pointer"
+                        >
+                          {copiedKey === 'red_uri' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-950/80 border border-white/10 space-y-1">
+                      <div className="text-[11px] text-slate-400 font-medium">Webhook Callback URL:</div>
+                      <div className="flex items-center justify-between font-mono text-emerald-300 text-[11px]">
+                        <span className="truncate mr-2">https://synetiq.id/api/public/leads/webhook?key=tiktok_ads</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy('https://synetiq.id/api/public/leads/webhook?key=tiktok_ads', 'wh_uri')}
+                          className="hover:text-white text-slate-400 flex-shrink-0 cursor-pointer"
+                        >
+                          {copiedKey === 'wh_uri' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-950/80 border border-white/10 space-y-1">
+                      <div className="text-[11px] text-slate-400 font-medium">Privacy Policy URL:</div>
+                      <div className="flex items-center justify-between font-mono text-slate-300 text-[11px]">
+                        <span className="truncate mr-2">https://synetiq.id/#/privacy</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy('https://synetiq.id/#/privacy', 'priv_uri')}
+                          className="hover:text-white text-slate-400 flex-shrink-0 cursor-pointer"
+                        >
+                          {copiedKey === 'priv_uri' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-950/80 border border-white/10 space-y-1">
+                      <div className="text-[11px] text-slate-400 font-medium">Terms of Service URL:</div>
+                      <div className="flex items-center justify-between font-mono text-slate-300 text-[11px]">
+                        <span className="truncate mr-2">https://synetiq.id/#/terms</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy('https://synetiq.id/#/terms', 'terms_uri')}
+                          className="hover:text-white text-slate-400 flex-shrink-0 cursor-pointer"
+                        >
+                          {copiedKey === 'terms_uri' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Where to Find on LoginPage Info */}
+                <div className="mt-5 p-3.5 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 flex items-start gap-3 text-xs text-cyan-200">
+                  <Sparkles size={18} className="text-cyan-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-bold text-white mb-0.5">Letak Tombol di Halaman Login:</div>
+                    <p className="leading-relaxed text-slate-300">
+                      Jika Anda ingin melihat tombol ini di <strong>Halaman Login</strong>, pastikan Anda <strong>Logout</strong> terlebih dahulu (atau buka di browser mode Samaran / Incognito <code>Ctrl+Shift+N</code> ke <code>https://localhost:5173/</code>). Karena Anda saat ini sudah login, menu ini kami sediakan langsung di dalam Dashboard CRM dan Header agar mudah diakses kapan saja!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB 1: WEBHOOK PANDUAN STEP-BY-STEP */}
           {activeTab === 'webhook-guide' && (
             <div className="space-y-6">

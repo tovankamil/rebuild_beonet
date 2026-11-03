@@ -98,7 +98,7 @@ export default function HeroShowcaseSlideshow({
       tabTitle: 'Portal Admin & Leads',
       shortTitle: 'Admin & Leads CRM',
       route: 'app.synetiq.id/admin/leads',
-      badge: 'PORTAL ADMIN ASLI',
+      badge: 'KANBAN LEADS OTOMATIS',
       icon: LayoutDashboard,
       accent: 'emerald',
       realImage: '/assets/tablet_admin_leads_real.png',
@@ -706,10 +706,10 @@ export default function HeroShowcaseSlideshow({
               </div>
 
               <div>
-                <div className="text-xs sm:text-sm font-black text-white leading-tight">
+                <div className="text-xs sm:text-sm font-black text-white leading-tight min-h-[32px] flex items-center">
                   {s.shortTitle}
                 </div>
-                <div className="text-[9px] sm:text-[10px] text-[#fed324] font-mono font-bold mt-1 line-clamp-1">
+                <div className="text-[8.5px] sm:text-[9.5px] text-[#fed324] font-mono font-bold mt-1 leading-snug line-clamp-2">
                   {s.badge}
                 </div>
               </div>

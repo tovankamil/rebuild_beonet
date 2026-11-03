@@ -427,15 +427,6 @@ export default function HeroShowcaseSlideshow({
                     loading="eager"
                   />
 
-                  {/* Floating Live Verification Badge (Top Right) */}
-                  <div className="absolute top-2.5 right-2.5 sm:top-3.5 sm:right-3.5 z-30 pointer-events-none">
-                    <div className="px-2.5 py-1 rounded-full bg-black/85 backdrop-blur-md border border-emerald-400/50 text-white text-[9px] sm:text-xs font-mono font-bold flex items-center space-x-1.5 shadow-2xl">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-emerald-300 font-extrabold">Tampilan Sistem Asli</span>
-                      <span className="text-slate-400 hidden sm:inline">• Live Browser Capture</span>
-                    </div>
-                  </div>
-
                   {/* Floating Subtitle Bar on Screen (Bottom) */}
                   <div className="absolute bottom-2.5 left-2.5 right-2.5 sm:bottom-3.5 sm:left-3.5 sm:right-3.5 z-30 pointer-events-none">
                     <div className="px-3.5 py-2 rounded-2xl bg-black/80 backdrop-blur-md border border-white/15 text-white text-[10px] sm:text-xs flex items-center justify-between shadow-2xl">

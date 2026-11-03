@@ -31,3 +31,4 @@ if (!s.includes("sub.action === 'open_tiktok_sandbox'")) {
 
 fs.writeFileSync('frontend/src/components/dashlite/AppsSidebar.jsx', s, 'utf8');
 console.log('SUCCESS: AppsSidebar.jsx updated');
+

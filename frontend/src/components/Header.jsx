@@ -21,7 +21,6 @@ import {
   CreditCard,
   Calculator,
   Award,
-  Box,
 } from 'lucide-react';
 import api from '../services/api';
 import { playCoinChime } from '../utils/soundNotification';
@@ -39,7 +38,6 @@ export default function Header({
   onOpenCertificate,
   onOpenRankRewards,
   onOpenHerbalFarm,
-  onOpenOffice3D,
   onOpenMidtrans,
   onOpenTikTok,
 }) {
@@ -486,21 +484,7 @@ export default function Header({
           </button>
         )}
 
-        {/* Fitur Utama: Kantor Virtual 3D Eksekutif Mitra */}
-        {(onOpenOffice3D || onNavigate) && (
-          <button
-            type="button"
-            onClick={() => {
-              if (onOpenOffice3D) onOpenOffice3D();
-              else if (onNavigate) onNavigate('office-3d');
-            }}
-            title="Buka Kantor Virtual 3D Eksekutif Mitra (Penthouse 360°)"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-50 via-emerald-50 to-amber-50 hover:from-cyan-100 hover:to-emerald-100 text-cyan-950 border border-cyan-300 transition-all text-xs font-bold active:scale-95 shadow-xs"
-          >
-            <Box size={13} className="text-cyan-600 animate-pulse" />
-            <span className="hidden sm:inline">Kantor 3D</span>
-          </button>
-        )}
+        
         {/* TikTok Sandbox Quick Trigger */}
         <button
           type="button"

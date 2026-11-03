@@ -115,3 +115,4 @@ if (!app.includes('<TikTokIntegrationModal')) {
 
 fs.writeFileSync('frontend/src/App.jsx', app, 'utf8');
 console.log('App.jsx updated successfully!');
+

@@ -510,35 +510,6 @@ export default function OverviewTab({
         </div>
       </div>
 
-      {/* Virtual Office 3D Penthouse Executive Showcase Banner */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-950 via-cyan-950/60 to-emerald-950/80 border border-cyan-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl text-white">
-        <div className="flex items-center space-x-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shrink-0 shadow-lg shadow-cyan-500/20">
-            <span className="text-2xl animate-pulse">🏢</span>
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <h4 className="text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-2">
-                Kantor Virtual 3D Eksekutif Mitra
-              </h4>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-400/20 text-cyan-300 border border-cyan-400/40">
-                Penthouse 360° WebGL
-              </span>
-            </div>
-            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-              Jelajahi ruang kantor pribadi Anda: Meja Eksekutif, Hologram Jaringan Binary, Lemari Trofi Prestasi, Cyber Vault Komisi, dan Layar Leads TikTok Ads.
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new Event('synetiq:open-office3d'))}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-emerald-500 to-teal-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-extrabold text-xs tracking-wide shadow-lg shadow-cyan-500/25 transition self-start sm:self-auto flex items-center space-x-2 shrink-0 cursor-pointer active:scale-95"
-        >
-          <span>🚀 Masuk Kantor 3D</span>
-        </button>
-      </div>
-
       {/* Intermezo Mini Game Banner (Usia 25-60 Tahun) */}
       <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border border-amber-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center space-x-3.5">

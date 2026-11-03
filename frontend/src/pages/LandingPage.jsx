@@ -855,8 +855,17 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="hero"
-        className="relative pt-32 pb-16 md:pt-40 md:pb-24 px-4 overflow-hidden bg-[#03060a]"
+        className="relative pt-36 pb-24 md:pt-44 md:pb-28 lg:pt-52 lg:pb-36 xl:pt-56 xl:pb-40 px-4 sm:px-6 lg:px-8 overflow-hidden bg-[#03060a]"
       >
+        {/* Emerald Constellation Tech Pattern */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-25"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(16, 185, 129, 0.28) 1.2px, transparent 1.2px)',
+            backgroundSize: '32px 32px',
+          }}
+        />
+
         {/* Emerald Aurora Radial Glow */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[480px] bg-gradient-to-b from-emerald-500/20 via-teal-500/10 to-transparent blur-[140px] rounded-full pointer-events-none" />
         <div className="absolute top-1/3 left-1/4 w-[360px] h-[360px] bg-cyan-500/10 blur-[110px] rounded-full pointer-events-none" />
@@ -870,7 +879,7 @@ export default function LandingPage({ onGoToLogin }) {
           </div>
 
           {/* Centered Headline (Bahasa Manusia yang Mudah Dipahami) */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.15] max-w-4xl mx-auto mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.15] max-w-4xl mx-auto mb-8 lg:mb-10">
             Aplikasi Bisnis Jaringan Otomatis:{' '}
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 bg-clip-text text-transparent">
               Kerja Lebih Ringan, Member Senang,
@@ -879,14 +888,14 @@ export default function LandingPage({ onGoToLogin }) {
           </h1>
 
           {/* Centered Subheadline (Menjawab Kebutuhan Pemilik Bisnis) */}
-          <p className="text-slate-300 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-8 font-normal">
+          <p className="text-slate-300 text-base sm:text-lg md:text-xl leading-relaxed max-w-3xl mx-auto mb-10 lg:mb-14 font-normal">
             Gak perlu lagi tunggu cut-off 24 jam seperti sistem kompetitor atau pusing rekap manual larut malam.
             Dari pendaftaran member baru, perhitungan bonus instan dalam hitungan detik, hingga robot WhatsApp yang
             melayani calon pembeli nonstop—semua sudah siap pakai untuk brand Anda.
           </p>
 
           {/* Centered Direct CTA Buttons (Triolla Style) */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 lg:mb-16 w-full sm:w-auto">
             <a
               href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ%2C%20saya%20tertarik%20dengan%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20konsultasi%20langsung"
               target="_blank"
@@ -935,7 +944,7 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="tablet-showcase"
-        className="relative py-16 sm:py-24 px-4 bg-[#fed324] text-slate-950 overflow-hidden border-y-4 border-[#ecd02b] shadow-2xl"
+        className="relative py-24 sm:py-32 lg:py-40 xl:py-48 px-4 sm:px-6 lg:px-8 bg-[#fed324] text-slate-950 overflow-hidden border-y-4 border-[#ecd02b] shadow-2xl"
       >
         {/* Subtle geometric dot pattern for depth */}
         <div
@@ -948,7 +957,7 @@ export default function LandingPage({ onGoToLogin }) {
 
         <div className="max-w-7xl mx-auto relative z-10">
           {/* Section Header with Semantic H2 for 100% SEO */}
-          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 lg:mb-20">
             <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-950 text-[#fed324] text-xs sm:text-sm font-mono font-bold tracking-wide shadow-lg mb-4">
               <span className="w-2 h-2 rounded-full bg-[#fed324] animate-ping" />
               <span>DEMO INTERAKTIF TABLET IPAD PRO • LIVE EXPERIENCE</span>
@@ -976,7 +985,7 @@ export default function LandingPage({ onGoToLogin }) {
           </div>
 
           {/* Direct CTA Consultation on Yellow Canvas */}
-          <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+          <div className="mt-12 sm:mt-16 lg:mt-20 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
             <a
               href="https://wa.me/6281234567890?text=Halo%20Admin%20SYNETIQ,%20saya%20tertarik%20dengan%20aplikasi%20bisnis%20jaringan%20dan%20ingin%20konsultasi%20demo%20tablet"
               target="_blank"
@@ -1005,7 +1014,15 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       {/* 03: LIVE ARCHITECTURE TELEMETRY BAR (Theme: Cyber Carbon #080d16)        */}
       {/* ========================================================================= */}
-      <section className="border-y border-white/10 bg-[#080d16] py-3 relative overflow-hidden w-full max-w-full select-none">
+      <section className="border-y border-white/10 bg-[#080d16] py-5 lg:py-7 relative overflow-hidden w-full max-w-full select-none">
+        {/* Cyber Carbon Micro-Grid Pattern */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px)',
+            backgroundSize: '36px 36px',
+          }}
+        />
         {/* Subtle Edge Fade Masks for High-End Cinematic Polish */}
         <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-16 bg-gradient-to-r from-[#080d16] to-transparent z-10" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-16 bg-gradient-to-l from-[#080d16] to-transparent z-10" />
@@ -1086,7 +1103,7 @@ export default function LandingPage({ onGoToLogin }) {
         </div>
 
         {/* DESKTOP (xl: 1280px+): High-Density Spanned Telemetry Grid */}
-        <div className="hidden xl:flex max-w-7xl mx-auto items-center justify-between text-xs font-mono text-slate-400 px-4">
+        <div className="hidden xl:flex max-w-7xl mx-auto items-center justify-between gap-8 lg:gap-14 xl:gap-16 text-xs font-mono text-slate-400 px-4">
           <div className="flex items-center space-x-2 whitespace-nowrap shrink-0">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
             <span className="font-bold text-emerald-400">SISTEM AKTIF 24/7</span>
@@ -1113,8 +1130,17 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="problem-solution"
-        className="py-20 px-4 bg-[#050b14] border-b border-white/10 relative overflow-hidden"
+        className="py-24 sm:py-32 lg:py-40 xl:py-48 px-4 sm:px-6 lg:px-8 bg-[#050b14] border-b border-white/10 relative overflow-hidden"
       >
+        {/* Amber Radar Audit Pattern */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(245, 158, 11, 0.22) 1.4px, transparent 1.4px)',
+            backgroundSize: '30px 30px',
+          }}
+        />
+
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
             <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold">
@@ -1242,8 +1268,17 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="brainstorming"
-        className="py-24 px-4 bg-gradient-to-b from-[#06111f] via-[#091b33] to-[#06111f] border-t border-cyan-500/20 overflow-hidden"
+        className="py-24 sm:py-32 lg:py-40 xl:py-48 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#06111f] via-[#091b33] to-[#06111f] border-t border-cyan-500/20 relative overflow-hidden"
       >
+        {/* Sapphire Neural Node Grid */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(56, 189, 248, 0.22) 1.4px, transparent 1.4px)',
+            backgroundSize: '32px 32px',
+          }}
+        />
+
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
@@ -1843,8 +1878,17 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="features"
-        className="py-24 px-4 bg-gradient-to-b from-[#0b101b] via-[#0e1626] to-[#0b101b] border-t border-white/10 overflow-hidden"
+        className="py-24 sm:py-32 lg:py-40 xl:py-48 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0b101b] via-[#0e1626] to-[#0b101b] border-t border-white/10 relative overflow-hidden"
       >
+        {/* Multi-spectral Blueprint Grid */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(147, 197, 253, 0.20) 1.2px, transparent 1.2px)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
@@ -1957,11 +2001,20 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="security"
-        className="py-24 px-4 bg-gradient-to-b from-[#120609] via-[#1c0a0f] to-[#120609] border-t border-rose-500/40 relative overflow-hidden"
+        className="py-24 sm:py-32 lg:py-40 xl:py-48 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#120609] via-[#1c0a0f] to-[#120609] border-t border-rose-500/40 relative overflow-hidden"
       >
         {/* Ruby Ambient Lights */}
         <div className="absolute top-1/2 left-10 w-96 h-96 bg-rose-600/10 blur-[130px] rounded-full pointer-events-none" />
         <div className="absolute top-1/2 right-10 w-96 h-96 bg-red-600/10 blur-[130px] rounded-full pointer-events-none" />
+
+        {/* DEFCON Crimson Defense Matrix */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(244, 63, 94, 0.25) 1.4px, transparent 1.4px)',
+            backgroundSize: '30px 30px',
+          }}
+        />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="bg-[#0d0406]/90 border border-rose-500/40 rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden backdrop-blur-xl">
@@ -2031,13 +2084,22 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="process"
-        className="py-24 px-4 bg-gradient-to-b from-white via-slate-50 to-white text-slate-900 border-t border-slate-200 relative overflow-hidden"
+        className="py-24 sm:py-32 lg:py-40 xl:py-48 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-slate-50 to-white text-slate-900 border-t border-slate-200 relative overflow-hidden"
       >
         {/* Subtle decorative ambient glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none opacity-40">
           <div className="absolute top-12 left-10 w-96 h-96 bg-pink-100 rounded-full blur-3xl" />
           <div className="absolute top-40 right-10 w-96 h-96 bg-amber-100 rounded-full blur-3xl" />
         </div>
+
+        {/* Modern Slate Technical Dots */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-25"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(15, 23, 42, 0.18) 1.4px, transparent 1.4px)',
+            backgroundSize: '30px 30px',
+          }}
+        />
 
         <div className="max-w-7xl mx-auto relative z-10">
           {/* Section Header (Triolla Aesthetic with Vibrant Gradient Text) */}
@@ -2280,10 +2342,19 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="digital-products"
-        className="py-24 px-4 bg-gradient-to-b from-[#04140e] via-[#072418] to-[#04140e] border-t border-emerald-500/30 relative overflow-hidden"
+        className="py-24 sm:py-32 lg:py-40 xl:py-48 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#04140e] via-[#072418] to-[#04140e] border-t border-emerald-500/30 relative overflow-hidden"
       >
         {/* Jade Ambient Lights */}
         <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-emerald-500/10 blur-[130px] rounded-full pointer-events-none" />
+
+        {/* Jade Emerald Constellation Grid */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(16, 185, 129, 0.25) 1.3px, transparent 1.3px)',
+            backgroundSize: '28px 28px',
+          }}
+        />
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
@@ -2436,10 +2507,19 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="cta"
-        className="py-24 px-4 bg-gradient-to-b from-[#080415] via-[#0f0926] to-[#080415] border-t border-purple-500/30 relative overflow-hidden text-center"
+        className="py-24 sm:py-32 lg:py-40 xl:py-48 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#080415] via-[#0f0926] to-[#080415] border-t border-purple-500/30 relative overflow-hidden text-center"
       >
         {/* Electric Emerald Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-gradient-to-r from-purple-600/20 via-emerald-500/15 to-cyan-500/20 blur-[130px] rounded-full pointer-events-none" />
+
+        {/* Royal Violet Starlight Grid */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(192, 132, 252, 0.22) 1.4px, transparent 1.4px)',
+            backgroundSize: '30px 30px',
+          }}
+        />
 
         <div className="max-w-4xl mx-auto relative z-10 space-y-8">
           <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-purple-950/70 border border-purple-400/40 text-purple-200 text-xs font-bold shadow-lg shadow-purple-950/50">
@@ -2510,8 +2590,17 @@ export default function LandingPage({ onGoToLogin }) {
       {/* ========================================================================= */}
       <section
         id="consultation"
-        className="py-24 px-4 bg-gradient-to-b from-[#0c1424] to-[#080e1a] border-t border-white/10 overflow-hidden"
+        className="py-24 sm:py-32 lg:py-40 xl:py-48 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#0c1424] to-[#080e1a] border-t border-white/10 relative overflow-hidden"
       >
+        {/* Bio-herbal Mint Mesh Pattern */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(52, 211, 153, 0.22) 1.2px, transparent 1.2px)',
+            backgroundSize: '28px 28px',
+          }}
+        />
+
         <div className="max-w-4xl mx-auto">
           <div className="bg-[#0e1726]/90 border border-white/15 rounded-3xl p-5 sm:p-10 shadow-2xl relative">
             <div className="text-center max-w-xl mx-auto space-y-2 mb-8">

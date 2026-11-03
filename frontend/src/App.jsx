@@ -681,6 +681,9 @@ export default function App() {
   // SYNETIQ Autonomous Commerce Landing Page (Publicly accessible)
   const landingSectionHashes = new Set([
     'hero',
+    'tablet-showcase',
+    'anti-crash-engine',
+    'problem-solution',
     'brainstorming',
     'studio',
     'features',

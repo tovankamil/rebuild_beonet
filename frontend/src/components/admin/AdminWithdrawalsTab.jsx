@@ -4,6 +4,8 @@ import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
 import ExportButtons from '../dashlite/ExportButtons';
 import { formatExportDate } from '../../utils/exportUtils';
+import InstantPayoutModal from '../payment/InstantPayoutModal';
+import { Zap } from 'lucide-react';
 
 export default function AdminWithdrawalsTab() {
   const [withdrawals, setWithdrawals] = useState([]);
@@ -11,6 +13,7 @@ export default function AdminWithdrawalsTab() {
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const [instantPayoutOpen, setInstantPayoutOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -73,6 +76,13 @@ export default function AdminWithdrawalsTab() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => setInstantPayoutOpen(true)}
+            className="px-3.5 py-2 rounded-lg bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-emerald-950/20 transition-all"
+          >
+            <Zap size={14} className="fill-amber-300 text-amber-300" />
+            <span>Instant Payout 1-Klik (0 Detik)</span>
+          </button>
           <ExportButtons
             filename="Approval_Pencairan_SYNETIQ"
             title="DAFTAR PENGAJUAN PENCAIRAN DANA (WITHDRAWAL)"
@@ -237,6 +247,11 @@ export default function AdminWithdrawalsTab() {
           onPageSizeChange={setPageSize}
         />
       </div>
+      <InstantPayoutModal
+        isOpen={instantPayoutOpen}
+        onClose={() => setInstantPayoutOpen(false)}
+        onPayoutCompleted={fetchWithdrawals}
+      />
     </div>
   );
 }

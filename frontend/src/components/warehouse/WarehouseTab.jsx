@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
+import ShippingLogisticsModal from './ShippingLogisticsModal';
 
 export default function WarehouseTab() {
   const [data, setData] = useState(null);
@@ -25,6 +26,7 @@ export default function WarehouseTab() {
   const [adjustAmount, setAdjustAmount] = useState(25);
   const [actionLoading, setActionLoading] = useState(false);
   const [notification, setNotification] = useState('');
+  const [shippingModalOpen, setShippingModalOpen] = useState(false);
 
   const fetchWarehouseData = async () => {
     setLoading(true);
@@ -122,14 +124,23 @@ export default function WarehouseTab() {
           </p>
         </div>
 
-        <button
-          onClick={fetchWarehouseData}
-          disabled={loading}
-          className="self-start sm:self-auto px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
-        >
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => setShippingModalOpen(true)}
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-600 hover:from-cyan-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-cyan-950/20 transition-all"
+          >
+            <Truck size={14} className="text-white" />
+            <span>Multi-Ekspedisi &amp; Cetak Resi Thermal</span>
+          </button>
+          <button
+            onClick={fetchWarehouseData}
+            disabled={loading}
+            className="px-3.5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
+          >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           <span>Refresh Stok</span>
-        </button>
+          </button>
+        </div>
       </div>
 
       {notification && (
@@ -379,6 +390,11 @@ export default function WarehouseTab() {
           />
         </div>
       </div>
+      <ShippingLogisticsModal
+        isOpen={shippingModalOpen}
+        onClose={() => setShippingModalOpen(false)}
+        onAwbGenerated={fetchWarehouseData}
+      />
     </div>
   );
 }

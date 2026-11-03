@@ -39,6 +39,8 @@ import TestimonialVaultView from './TestimonialVaultView';
 import CrmWebhookView from './CrmWebhookView';
 import WhatsAppMessengerSuite from './WhatsAppMessengerSuite';
 import TikTokAnalyticsTab from './TikTokAnalyticsTab';
+import TikTokIntegrationModal from './TikTokIntegrationModal';
+import WhatsAppDripCampaignModal from './WhatsAppDripCampaignModal';
 import { downloadVCardContact, downloadBatchVCard } from '../../utils/vCardGenerator';
 
 export default function LeadsCRMTab({ user }) {
@@ -89,6 +91,8 @@ export default function LeadsCRMTab({ user }) {
 
   // AI Objection Handler Modal State
   const [objectionModalOpen, setObjectionModalOpen] = useState(false);
+  const [tikTokModalOpen, setTikTokModalOpen] = useState(false);
+  const [dripCampaignModalOpen, setDripCampaignModalOpen] = useState(false);
   const [objectionLead, setObjectionLead] = useState(null);
 
   // AI Follow-up Modal State
@@ -443,6 +447,26 @@ export default function LeadsCRMTab({ user }) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+            {/* Header Action: TikTok Ads & Webhook Integration */}
+            <button
+              onClick={() => setTikTokModalOpen(true)}
+              className="px-3.5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 border border-rose-500/40 text-rose-300 font-bold text-xs transition flex items-center space-x-1.5 shadow-md shadow-rose-950/20"
+              title="Panduan dan Simulator Integrasi TikTok Lead Gen dan CAPI"
+            >
+              <Video className="w-4 h-4 text-rose-400" />
+              <span>Integrasi TikTok Ads</span>
+            </button>
+
+            {/* Header Action: WhatsApp Drip Nurturing */}
+            <button
+              onClick={() => setDripCampaignModalOpen(true)}
+              className="px-3.5 py-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-800 border border-emerald-500/40 text-emerald-300 font-bold text-xs transition flex items-center space-x-1.5 shadow-md shadow-emerald-950/20"
+              title="Otomatisasi WhatsApp Drip Nurturing Siklus 3-7-14-25 Hari"
+            >
+              <Droplets className="w-4 h-4 text-emerald-400" />
+              <span>Drip 3-25 Hari</span>
+            </button>
+
             {/* Header Action: Buka WhatsApp Suite */}
             <button
               onClick={() => setViewMode('whatsapp-suite')}
@@ -1233,6 +1257,19 @@ export default function LeadsCRMTab({ user }) {
       {/* ============================================================== */}
       {/* MODAL 4: AI OBJECTION HANDLING ASSISTANT (ASISTEN PENJUAL) */}
       {/* ============================================================== */}
+      <TikTokIntegrationModal
+        isOpen={tikTokModalOpen}
+        onClose={() => setTikTokModalOpen(false)}
+        currentUser={user}
+        onLeadInjected={() => fetchLeads()}
+      />
+
+      <WhatsAppDripCampaignModal
+        isOpen={dripCampaignModalOpen}
+        onClose={() => setDripCampaignModalOpen(false)}
+        currentUser={user}
+      />
+
       <AIObjectionHandlerModal
         isOpen={objectionModalOpen}
         onClose={() => {

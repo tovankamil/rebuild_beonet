@@ -42,11 +42,11 @@ import {
 
 export default function HeroShowcaseSlideshow({
   audioEnabled = true,
-  triggerSound = () => {},
+  triggerSound = () => { },
   heroMitraCount = 1420,
-  setHeroMitraCount = () => {},
+  setHeroMitraCount = () => { },
   heroWalletBalance = 4850000,
-  setHeroWalletBalance = () => {},
+  setHeroWalletBalance = () => { },
 }) {
   // Slideshow Navigation & Timer State
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -384,11 +384,10 @@ export default function HeroShowcaseSlideshow({
                   triggerSound('click');
                   setIsPaused(!isPaused);
                 }}
-                className={`px-2 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-mono font-bold border transition flex items-center space-x-1 ${
-                  isPaused
+                className={`px-2 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-mono font-bold border transition flex items-center space-x-1 ${isPaused
                     ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                     : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
-                }`}
+                  }`}
               >
                 {isPaused ? <Pause className="w-2.5 h-2.5" /> : <Play className="w-2.5 h-2.5 fill-current" />}
                 <span className="hidden sm:inline">{isPaused ? 'PAUSED' : 'AUTO 5S'}</span>
@@ -497,22 +496,20 @@ export default function HeroShowcaseSlideshow({
                           <button
                             type="button"
                             onClick={() => handleSelectWaMenu('catalog')}
-                            className={`p-1.5 rounded-lg text-[9px] sm:text-[11px] font-bold text-center border transition ${
-                              waSelected === 'catalog'
+                            className={`p-1.5 rounded-lg text-[9px] sm:text-[11px] font-bold text-center border transition ${waSelected === 'catalog'
                                 ? 'bg-emerald-500/30 border-emerald-400 text-emerald-300'
                                 : 'bg-white/5 border-white/10 text-slate-300'
-                            }`}
+                              }`}
                           >
                             📦 Lihat Paket Usaha
                           </button>
                           <button
                             type="button"
                             onClick={() => handleSelectWaMenu('register')}
-                            className={`p-1.5 rounded-lg text-[9px] sm:text-[11px] font-bold text-center border transition ${
-                              waSelected === 'register'
+                            className={`p-1.5 rounded-lg text-[9px] sm:text-[11px] font-bold text-center border transition ${waSelected === 'register'
                                 ? 'bg-emerald-500/30 border-emerald-400 text-emerald-300'
                                 : 'bg-white/5 border-white/10 text-slate-300'
-                            }`}
+                              }`}
                           >
                             📝 Form Daftar Otomatis
                           </button>
@@ -589,11 +586,10 @@ export default function HeroShowcaseSlideshow({
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-2.5 sm:gap-4 items-stretch">
                     {/* Left: Interactive Simulated QR Code */}
                     <div
-                      className={`md:col-span-7 p-3 rounded-2xl border transition-all flex items-center space-x-3 sm:space-x-4 ${
-                        qrisFlashed
+                      className={`md:col-span-7 p-3 rounded-2xl border transition-all flex items-center space-x-3 sm:space-x-4 ${qrisFlashed
                           ? 'bg-amber-950/60 border-amber-400 scale-[1.02] shadow-xl shadow-amber-500/30'
                           : 'bg-[#080d1a] border-white/10'
-                      }`}
+                        }`}
                     >
                       <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl p-1.5 flex items-center justify-center shrink-0 shadow-md">
                         <QrCode className="w-full h-full text-slate-950" />
@@ -686,19 +682,17 @@ export default function HeroShowcaseSlideshow({
               key={s.id}
               type="button"
               onClick={() => handleJumpToSlide(idx)}
-              className={`p-3.5 sm:p-4 lg:p-5 rounded-2xl text-left border-2 transition-all duration-200 flex flex-col justify-between group active:scale-95 shadow-xl ${
-                isActive
+              className={`p-3.5 sm:p-4 lg:p-5 rounded-2xl text-left border-2 transition-all duration-200 flex flex-col justify-between group active:scale-95 shadow-xl ${isActive
                   ? 'bg-black border-slate-950 ring-4 ring-black/25 text-white scale-[1.03] shadow-2xl'
                   : 'bg-[#090f1d] border-black/25 hover:border-black hover:bg-[#0f172a] text-white hover:shadow-2xl hover:scale-[1.01]'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between mb-3">
                 <div
-                  className={`w-8 sm:w-9 h-8 sm:h-9 rounded-xl flex items-center justify-center transition ${
-                    isActive
+                  className={`w-8 sm:w-9 h-8 sm:h-9 rounded-xl flex items-center justify-center transition ${isActive
                       ? 'bg-[#fed324] text-slate-950 shadow-md font-bold'
                       : 'bg-white/10 text-amber-300 group-hover:bg-[#fed324] group-hover:text-slate-950'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 sm:w-4.5 h-4 sm:h-4.5" />
                 </div>
@@ -706,46 +700,46 @@ export default function HeroShowcaseSlideshow({
               </div>
 
               <div>
-                <div className="text-xs sm:text-sm font-black text-white leading-tight min-h-[32px] flex items-center">
-                  {s.shortTitle}
+                  <div className="text-xs sm:text-sm font-black text-white leading-tight min-h-[32px] flex items-center">
+                    {s.shortTitle}
+                  </div>
+                    <div className="text-[8.5px] sm:text-[9.5px] text-[#fed324] font-mono font-bold mt-1 leading-snug line-clamp-2">
+                      {s.badge}
+                    </div>
+                  </div>
+                </button>
+                );
+        })}
+              </div>
+
+              {/* ========================================================================= */}
+              {/* KEY STATS COUNTER BAR (Gambar 2: Color Matched to Yellow Background)       */}
+              {/* ========================================================================= */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mt-8 sm:mt-10 lg:mt-14 p-6 sm:p-8 lg:p-10 rounded-3xl bg-[#090f1d] border-2 border-black/30 shadow-2xl shadow-black/40">
+                <div className="text-center">
+                  <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#fed324] font-mono tracking-tight">1.420+</div>
+                  <div className="text-xs sm:text-sm font-extrabold text-white mt-1.5">Mitra Aktif</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Jaringan Tumbuh Otomatis</div>
                 </div>
-                <div className="text-[8.5px] sm:text-[9.5px] text-[#fed324] font-mono font-bold mt-1 leading-snug line-clamp-2">
-                  {s.badge}
+
+                <div className="text-center border-l md:border-x border-white/15">
+                  <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-cyan-400 font-mono tracking-tight">1 Detik</div>
+                  <div className="text-xs sm:text-sm font-extrabold text-white mt-1.5">Hitung Bonus Instan</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Kompetitor Butuh 24 Jam+</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-400 font-mono tracking-tight">24 Jam</div>
+                  <div className="text-xs sm:text-sm font-extrabold text-white mt-1.5">Robot WhatsApp Siaga</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Balas Prospek &amp; Closing Nonstop</div>
+                </div>
+
+                <div className="text-center border-l border-white/15">
+                  <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-amber-300 font-mono tracking-tight">99.9%</div>
+                  <div className="text-xs sm:text-sm font-extrabold text-white mt-1.5">Waktu Aktif Sistem</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Stabil Tanpa Gangguan Server</div>
                 </div>
               </div>
-            </button>
+            </div>
           );
-        })}
-      </div>
-
-      {/* ========================================================================= */}
-      {/* KEY STATS COUNTER BAR (Gambar 2: Color Matched to Yellow Background)       */}
-      {/* ========================================================================= */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 mt-8 sm:mt-10 lg:mt-14 p-6 sm:p-8 lg:p-10 rounded-3xl bg-[#090f1d] border-2 border-black/30 shadow-2xl shadow-black/40">
-        <div className="text-center">
-          <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#fed324] font-mono tracking-tight">1.420+</div>
-          <div className="text-xs sm:text-sm font-extrabold text-white mt-1.5">Mitra Aktif</div>
-          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Jaringan Tumbuh Otomatis</div>
-        </div>
-
-        <div className="text-center border-l md:border-x border-white/15">
-          <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-cyan-400 font-mono tracking-tight">1 Detik</div>
-          <div className="text-xs sm:text-sm font-extrabold text-white mt-1.5">Hitung Bonus Instan</div>
-          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Kompetitor Butuh 24 Jam+</div>
-        </div>
-
-        <div className="text-center">
-          <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-emerald-400 font-mono tracking-tight">24 Jam</div>
-          <div className="text-xs sm:text-sm font-extrabold text-white mt-1.5">Robot WhatsApp Siaga</div>
-          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Balas Prospek &amp; Closing Nonstop</div>
-        </div>
-
-        <div className="text-center border-l border-white/15">
-          <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-amber-300 font-mono tracking-tight">99.9%</div>
-          <div className="text-xs sm:text-sm font-extrabold text-white mt-1.5">Waktu Aktif Sistem</div>
-          <div className="text-[10px] sm:text-[11px] text-slate-300 font-medium mt-0.5">Stabil Tanpa Gangguan Server</div>
-        </div>
-      </div>
-    </div>
-  );
-}
+        }

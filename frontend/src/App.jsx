@@ -42,6 +42,7 @@ import SYNETIQLuckyWheelModal from './components/gamification/BionetLuckyWheelMo
 import SYNETIQRankRewardsModal from './components/gamification/BionetRankRewardsModal';
 import SYNETIQHerbalFarmModal from './components/gamification/BionetHerbalFarmModal';
 import MidtransSnapModal from './components/payment/MidtransSnapModal';
+import { VirtualOffice3DModal } from './components/office3d';
 import PwaInstallBanner from './components/pwa/PwaInstallBanner';
 import LoginPage from './pages/LoginPage';
 import PublicStorefrontPage from './components/store/PublicStorefrontPage';
@@ -59,6 +60,8 @@ export const MODAL_TABS = new Set([
   'certificate',
   'e-certificate',
   'prospect-calculator',
+  'office-3d',
+  'virtual-office',
 ]);
 
 export const KNOWN_BASE_TABS = new Set([
@@ -307,6 +310,7 @@ export default function App() {
   const [herbalFarmOpen, setHerbalFarmOpen] = useState(false);
   const [midtransModalOpen, setMidtransModalOpen] = useState(false);
   const [midtransPaymentData, setMidtransPaymentData] = useState(null);
+  const [office3DOpen, setOffice3DOpen] = useState(false);
 
   useEffect(() => {
     const handleOpenWheel = () => {
@@ -317,6 +321,9 @@ export default function App() {
     };
     const handleOpenFarm = () => {
       if (user?.role === 'member') setHerbalFarmOpen(true);
+    };
+    const handleOpenOffice3D = () => {
+      setOffice3DOpen(true);
     };
     const handleOpenMidtrans = (e) => {
       setMidtransPaymentData(e?.detail || null);
@@ -331,6 +338,8 @@ export default function App() {
     window.addEventListener('bionet:open-farm', handleOpenFarm);
     window.addEventListener('synetiq:open-midtrans', handleOpenMidtrans);
     window.addEventListener('bionet:open-midtrans', handleOpenMidtrans);
+    window.addEventListener('synetiq:open-office3d', handleOpenOffice3D);
+    window.addEventListener('bionet:open-office3d', handleOpenOffice3D);
 
     return () => {
       window.removeEventListener('synetiq:open-wheel', handleOpenWheel);
@@ -341,6 +350,8 @@ export default function App() {
       window.removeEventListener('bionet:open-farm', handleOpenFarm);
       window.removeEventListener('synetiq:open-midtrans', handleOpenMidtrans);
       window.removeEventListener('bionet:open-midtrans', handleOpenMidtrans);
+      window.removeEventListener('synetiq:open-office3d', handleOpenOffice3D);
+      window.removeEventListener('bionet:open-office3d', handleOpenOffice3D);
     };
   }, [user?.role]);
 
@@ -354,6 +365,7 @@ export default function App() {
         else if (activeTab === 'digital-card') setDigitalCardOpen(true);
         else if (activeTab === 'certificate' || activeTab === 'e-certificate') setCertificateOpen(true);
         else if (activeTab === 'prospect-calculator') setProspectCalculatorOpen(true);
+        else if (activeTab === 'office-3d' || activeTab === 'virtual-office') setOffice3DOpen(true);
       }
 
       const restoreTab =
@@ -744,6 +756,7 @@ export default function App() {
         onOpenCertificate={() => setActiveTab('certificate')}
         onOpenRankRewards={() => setActiveTab('rank-rewards')}
         onOpenHerbalFarm={() => setActiveTab('herbal-farm')}
+          onOpenOffice3D={() => setOffice3DOpen(true)}
         onOpenMidtrans={(data) => { setMidtransPaymentData(data || null); setMidtransModalOpen(true); }}
       />
 
@@ -762,6 +775,7 @@ export default function App() {
           onOpenCertificate={() => setActiveTab('certificate')}
           onOpenRankRewards={() => setActiveTab('rank-rewards')}
           onOpenHerbalFarm={() => setActiveTab('herbal-farm')}
+          onOpenOffice3D={() => setOffice3DOpen(true)}
           onOpenMidtrans={(data) => { setMidtransPaymentData(data || null); setMidtransModalOpen(true); }}
         />
 
@@ -1027,6 +1041,20 @@ export default function App() {
       )}
 
       {/* Module 9: Pembayaran Otomatis Midtrans Snap QRIS & VA */}
+      {/* Executive 3D Virtual Office Penthouse Modal */}
+      <VirtualOffice3DModal
+        isOpen={office3DOpen}
+        onClose={() => setOffice3DOpen(false)}
+        currentUser={user}
+        onNavigate={(tab) => {
+          setOffice3DOpen(false);
+          handleTabChange(tab);
+        }}
+        onOpenRankRewards={() => {
+          setRankRewardsOpen(true);
+        }}
+      />
+
       {midtransModalOpen && (
         <MidtransSnapModal
           isOpen={midtransModalOpen}

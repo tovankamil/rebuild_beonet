@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import DashPagination from '../dashlite/DashPagination';
+import NusantaraOmsetHeatmapModal from './NusantaraOmsetHeatmapModal';
 
 export default function AdminOverviewTab({ setActiveTab }) {
   const [data, setData] = useState(null);
@@ -28,6 +29,7 @@ export default function AdminOverviewTab({ setActiveTab }) {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [heatmapModalOpen, setHeatmapModalOpen] = useState(false);
 
   const fetchOverview = async () => {
     setLoading(true);
@@ -461,6 +463,10 @@ export default function AdminOverviewTab({ setActiveTab }) {
           </div>
         </div>
       </div>
+      <NusantaraOmsetHeatmapModal
+        isOpen={heatmapModalOpen}
+        onClose={() => setHeatmapModalOpen(false)}
+      />
     </div>
   );
 }

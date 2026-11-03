@@ -54,6 +54,7 @@ import api from '../services/api';
 import ModalPortal from './common/ModalPortal';
 import LocalVideoStream from './meeting/LocalVideoStream';
 import RemoteVideoStream from './meeting/RemoteVideoStream';
+import LiveBopWebinarModal from './meeting/LiveBopWebinarModal';
 
 const ICE_SERVERS = {
   iceServers: [
@@ -67,6 +68,7 @@ export default function MeetingTab({ user, setActiveTab }) {
   const [meetings, setMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [liveBopModalOpen, setLiveBopModalOpen] = useState(false);
   const [activeMeeting, setActiveMeeting] = useState(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -1824,6 +1826,13 @@ export default function MeetingTab({ user, setActiveTab }) {
 
           <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
             <button
+              onClick={() => setLiveBopModalOpen(true)}
+              className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-rose-600 via-amber-600 to-rose-600 hover:from-rose-500 hover:to-amber-500 text-white font-bold text-xs shadow-lg shadow-rose-950 transition flex items-center space-x-1.5"
+            >
+              <Radio className="w-4 h-4 animate-pulse text-amber-300" />
+              <span>Studio Live BOP (1.428 Mitra)</span>
+            </button>
+            <button
               onClick={() => setCreateModalOpen(true)}
               className="px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-950 transition flex items-center space-x-1.5"
             >
@@ -2195,6 +2204,11 @@ export default function MeetingTab({ user, setActiveTab }) {
           </div>
         </ModalPortal>
       )}
+      <LiveBopWebinarModal
+        isOpen={liveBopModalOpen}
+        onClose={() => setLiveBopModalOpen(false)}
+        currentUser={user}
+      />
     </div>
   );
 }

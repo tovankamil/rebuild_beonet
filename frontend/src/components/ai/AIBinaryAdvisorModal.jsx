@@ -32,8 +32,8 @@ export default function AIBinaryAdvisorModal({
   if (!isOpen) return null;
 
   // Actual or high-quality realistic fallback stats
-  const pointLeft = stats?.point_balance?.point_left ?? 1420;
-  const pointRight = stats?.point_balance?.point_right ?? 860;
+  const pointLeft = stats?.point_left ?? stats?.point_balance?.point_left ?? 0;
+  const pointRight = stats?.point_right ?? stats?.point_balance?.point_right ?? 0;
   const totalPoints = pointLeft + pointRight || 1;
   const leftPct = Math.round((pointLeft / totalPoints) * 100);
   const rightPct = 100 - leftPct;

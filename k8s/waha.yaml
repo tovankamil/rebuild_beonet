@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: synetiq-waha
+  namespace: synetiq
+  labels:
+    app: synetiq-waha
+    app.kubernetes.io/name: waha
+    app.kubernetes.io/part-of: synetiq-platform
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: synetiq-waha
+  template:
+    metadata:
+      labels:
+        app: synetiq-waha
+    spec:
+      containers:
+        - name: waha
+          image: devlikeapro/waha:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: WAHA_API_KEY
+              value: 'synetiq_waha_key_2026'
+            - name: WAHA_DASHBOARD_ENABLED
+              value: 'true'
+            - name: WAHA_DASHBOARD_USERNAME
+              value: 'admin'
+            - name: WAHA_DASHBOARD_PASSWORD
+              value: 'synetiq_waha_2026'
+            - name: WHATSAPP_SWAGGER_USERNAME
+              value: 'admin'
+            - name: WHATSAPP_SWAGGER_PASSWORD
+              value: 'synetiq_waha_2026'
+            - name: WHATSAPP_DEFAULT_ENGINE
+              value: 'NOWEB'
+            - name: WHATSAPP_START_SESSION
+              value: 'default'
+            - name: WHATSAPP_RESTART_ALL_SESSIONS
+              value: 'true'
+            - name: WHATSAPP_HOOK_URL
+              value: 'http://synetiq-app:8081/api/crm/whatsapp/webhook'
+            - name: WHATSAPP_HOOK_EVENTS
+              value: 'message,message.any,state.change,message.ack'
+            - name: WAHA_PRINT_QR
+              value: 'true'
+            - name: WAHA_ZIP_LOGS
+              value: 'false'
+          volumeMounts:
+            - name: waha-sessions
+              mountPath: /app/.sessions
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1024Mi
+      volumes:
+        - name: waha-sessions
+          hostPath:
+            path: /opt/synetiq/waha_sessions
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: synetiq-waha
+  namespace: synetiq
+  labels:
+    app: synetiq-waha
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+  selector:
+    app: synetiq-waha
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: synetiq-waha-nodeport
+  namespace: synetiq
+  labels:
+    app: synetiq-waha
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      nodePort: 30300
+  selector:
+    app: synetiq-waha

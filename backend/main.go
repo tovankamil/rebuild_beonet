@@ -1281,6 +1281,9 @@ func main() {
 		}
 	}
 
+	// Mount embedded React Single Page Application (No Node.js needed in production)
+	setupEmbeddedFrontend(r)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

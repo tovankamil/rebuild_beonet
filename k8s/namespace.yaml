@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: synetiq
+  labels:
+    app.kubernetes.io/name: synetiq
+    app.kubernetes.io/part-of: synetiq-platform
+

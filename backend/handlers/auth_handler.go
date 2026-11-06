@@ -58,7 +58,16 @@ func (h *AuthHandler) GetMe(c *gin.Context) {
 		return
 	}
 
-	user, err := h.authRepo.FindByUsername(username.(string))
+	usernameStr, ok := username.(string)
+	if !ok || usernameStr == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status":  "error",
+			"message": "Sesi tidak ditemukan atau token tidak valid",
+		})
+		return
+	}
+
+	user, err := h.authRepo.FindByUsername(usernameStr)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  "error",

@@ -17,6 +17,8 @@ build/
 *.dylib
 bionet-backend.exe
 backend/bionet-backend.exe
+k8s-dashboard-bin
+*-bin
 
 # Environment & credentials
 .env

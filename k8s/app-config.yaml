@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: synetiq-config
+  namespace: synetiq
+  labels:
+    app: synetiq-app
+data:
+  PORT: "8081"
+  GIN_MODE: "release"
+  DB_PORT: "3306"
+  DB_NAME: "bionetv6"
+  GEMINI_MODEL: "gemini-3.1-flash-lite"
+  WAHA_BASE_URL: "http://synetiq-waha:3000"
+  MIDTRANS_IS_PRODUCTION: "false"
+  TELEGRAM_ADMIN_CHAT_ID: "402813227"

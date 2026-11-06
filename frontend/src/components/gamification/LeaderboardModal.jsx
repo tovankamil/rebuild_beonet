@@ -91,9 +91,9 @@ const DREAM_REWARDS = [
 export default function LeaderboardModal({ user, stats, onClose }) {
   const [activeLeaderTab, setActiveLeaderTab] = useState('sponsor'); // 'sponsor' | 'omset' | 'pairing' | 'rewards'
 
-  // User PV balance (fallback to 125 left / 98 right if not yet in stats)
-  const pointLeft = stats?.point_balance?.point_left ?? 125;
-  const pointRight = stats?.point_balance?.point_right ?? 98;
+  // User PV balance (fallback to real or 0 if not yet in stats)
+  const pointLeft = stats?.point_left ?? stats?.point_balance?.point_left ?? 0;
+  const pointRight = stats?.point_right ?? stats?.point_balance?.point_right ?? 0;
   const currentPair = Math.min(pointLeft, pointRight);
 
   let activeData = TOP_SPONSORS;

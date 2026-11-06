@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYNETIQ Kubernetes Master & Gemini DevOps Copilot</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            },
+            gemini: {
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090d16; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.3);
+    }
+    .glow-blue {
+      box-shadow: 0 0 20px -5px rgba(59, 130, 246, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-[#080c14] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- ========================================== -->
+  <!-- AUTHENTICATION LOGIN OVERLAY               -->
+  <!-- ========================================== -->
+  <div id="login-overlay" class="fixed inset-0 z-50 bg-[#060911]/95 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-md rounded-3xl border border-slate-800 p-8 shadow-2xl relative overflow-hidden">
+      <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Login Header -->
+      <div class="text-center space-y-3 mb-6 relative">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-tr from-brand-600 via-emerald-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <i data-lucide="shield-check" class="w-7 h-7 text-slate-950 font-bold"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-white tracking-tight">SYNETIQ Kubernetes Portal</h2>
+          <p class="text-xs text-slate-400 mt-1">Masuk untuk mengelola klaster & DevOps Copilot</p>
+        </div>
+      </div>
+
+      <!-- Login Error Alert -->
+      <div id="login-error-alert" class="hidden mb-4 p-3 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 text-red-400 shrink-0"></i>
+        <span id="login-error-text">Username atau password salah!</span>
+      </div>
+
+      <!-- Login Form -->
+      <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Username</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+            <input type="text" id="login-username" required placeholder="Masukkan username" value="admin" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Password</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+            <input type="password" id="login-password" required placeholder="Masukkan password" value="synetiqadmin123" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30">
+          </div>
+        </div>
+
+        <!-- Default Credentials Hint -->
+        <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
+          <div class="flex items-center justify-between text-slate-300 font-medium">
+            <span>Kredensial Default Awal:</span>
+            <span class="text-emerald-400 mono">Aktif</span>
+          </div>
+          <p class="mono text-slate-400">Username: <span class="text-white">admin</span> | Password: <span class="text-white">synetiqadmin123</span></p>
+        </div>
+
+        <button type="submit" id="btn-login-submit" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+          Masuk ke Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOP NAVIGATION HEADER -->
+  <header class="glass-panel sticky top-0 z-40 border-b border-slate-800/80 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-emerald-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+        <i data-lucide="boxes" class="w-5 h-5 text-slate-950 font-bold"></i>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+            SYNETIQ K8S MASTER
+            <span class="text-xs font-mono font-medium px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+              v1.29.15 ONLINE
+            </span>
+          </h1>
+        </div>
+        <p class="text-xs text-slate-400 mono">Master IP: 103.172.205.41 &bull; Worker Target: 103.187.147.187</p>
+      </div>
+    </div>
+
+    <!-- Center Navigation Tabs -->
+    <nav class="hidden md:flex items-center bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+      <button onclick="switchTab('overview')" id="tab-btn-overview" class="tab-btn px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 bg-slate-800 text-white shadow-sm">
+        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+        Overview
+      </button>
+      <button onclick="switchTab('nodes')" id="tab-btn-nodes" class="tab-btn px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+        <i data-lucide="server" class="w-3.5 h-3.5"></i>
+        Nodes
+      </button>
+      <button onclick="switchTab('workloads')" id="tab-btn-workloads" class="tab-btn px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+        <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+        Workloads
+      </button>
+      <button onclick="switchTab('networking')" id="tab-btn-networking" class="tab-btn px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+        <i data-lucide="network" class="w-3.5 h-3.5"></i>
+        Services
+      </button>
+      <button onclick="switchTab('yaml')" id="tab-btn-yaml" class="tab-btn px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+        <i data-lucide="file-code-2" class="w-3.5 h-3.5"></i>
+        YAML Studio
+      </button>
+      <button onclick="switchTab('terminal')" id="tab-btn-terminal" class="tab-btn px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+        <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+        CLI Runner
+      </button>
+      <button onclick="switchTab('gemini')" id="tab-btn-gemini" class="tab-btn px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 text-blue-400 hover:text-blue-300 bg-blue-950/40 border border-blue-500/30">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-blue-400 animate-pulse"></i>
+        Gemini AI
+      </button>
+      <button onclick="switchTab('users')" id="tab-btn-users" class="tab-btn px-3 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-1.5 text-slate-400 hover:text-white">
+        <i data-lucide="users" class="w-3.5 h-3.5 text-purple-400"></i>
+        User Mgmt
+      </button>
+    </nav>
+
+    <!-- Top Right Actions & User Profile -->
+    <div class="flex items-center space-x-3">
+      <button onclick="openJoinModal()" class="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-emerald-600/20 transition-all">
+        <i data-lucide="link" class="w-3.5 h-3.5"></i>
+        Join Worker
+      </button>
+      <button onclick="refreshAll()" class="p-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 transition-all" title="Refresh Cluster Data">
+        <i data-lucide="refresh-cw" id="refresh-icon" class="w-4 h-4"></i>
+      </button>
+
+      <!-- User Profile Badge & Logout -->
+      <div class="flex items-center pl-2 border-l border-slate-800 space-x-2">
+        <div class="text-right hidden sm:block">
+          <p id="top-user-name" class="text-xs font-semibold text-white">admin</p>
+          <span id="top-user-role" class="text-[10px] mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">ADMIN</span>
+        </div>
+        <button onclick="openChangePasswordModal()" class="p-2 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg border border-slate-800" title="Ganti Password">
+          <i data-lucide="key" class="w-4 h-4"></i>
+        </button>
+        <button onclick="handleLogout()" class="p-2 bg-red-950/60 hover:bg-red-900/60 text-red-400 hover:text-red-300 rounded-lg border border-red-500/30" title="Keluar / Logout">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: CLUSTER OVERVIEW                   -->
+    <!-- ========================================== -->
+    <section id="tab-overview" class="tab-content space-y-6">
+      <!-- High Level Metrics Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Nodes Metric -->
+        <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400">Total Nodes</span>
+            <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+              <i data-lucide="server" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="metric-nodes-ready" class="text-2xl font-bold text-white">0</span>
+            <span class="text-xs text-slate-400">/ <span id="metric-nodes-total">0</span> Ready</span>
+          </div>
+          <div class="mt-2 text-[11px] text-emerald-400 flex items-center gap-1">
+            <i data-lucide="check-circle" class="w-3 h-3"></i>
+            Klaster Aktif & Berjalan
+          </div>
+        </div>
+
+        <!-- Pods Metric -->
+        <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group hover:border-blue-500/40 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400">Total Pods</span>
+            <div class="p-2 rounded-xl bg-blue-500/10 text-blue-400">
+              <i data-lucide="box" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="metric-pods-running" class="text-2xl font-bold text-white">0</span>
+            <span class="text-xs text-slate-400">/ <span id="metric-pods-total">0</span> Running</span>
+          </div>
+          <div class="mt-2 text-[11px] text-slate-400 flex items-center gap-1.5">
+            <span id="metric-pods-pending" class="text-amber-400 font-mono">0</span> Pending &bull;
+            <span id="metric-pods-failed" class="text-red-400 font-mono">0</span> Failed
+          </div>
+        </div>
+
+        <!-- Workloads Metric -->
+        <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group hover:border-purple-500/40 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400">Deployments & Services</span>
+            <div class="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+              <i data-lucide="layers" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="metric-deploys" class="text-2xl font-bold text-white">0</span>
+            <span class="text-xs text-slate-400">Deployments</span>
+          </div>
+          <div class="mt-2 text-[11px] text-purple-400 flex items-center gap-1">
+            <i data-lucide="network" class="w-3 h-3"></i>
+            <span id="metric-services">0</span> Services Expose
+          </div>
+        </div>
+
+        <!-- Master Memory Metric -->
+        <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group hover:border-cyan-500/40 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400">Master Host RAM</span>
+            <div class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span id="metric-mem-percent" class="text-2xl font-bold text-white">0%</span>
+            <span id="metric-mem-used" class="text-xs text-slate-400">0 / 0 MB</span>
+          </div>
+          <div class="mt-2 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div id="metric-mem-bar" class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-1.5 rounded-full" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Cards & Copilot Banner -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Gemini Copilot Hero Card -->
+        <div class="lg:col-span-2 glass-panel p-6 rounded-3xl relative overflow-hidden border border-blue-500/30 glow-blue flex flex-col justify-between">
+          <div class="absolute -right-16 -top-16 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 text-[11px] font-semibold border border-blue-500/30 flex items-center gap-1.5">
+                <i data-lucide="sparkles" class="w-3 h-3"></i>
+                DevOps Copilot AI (gemini-3.1-flash-lite)
+              </span>
+              <span class="text-xs text-slate-400 mono">Model Online</span>
+            </div>
+            <h2 class="text-xl font-bold text-white mt-2">Pusat Kendali Otomasi Kubernetes dengan Gemini AI</h2>
+            <p class="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
+              Ketik instruksi apa saja dalam Bahasa Indonesia di tab Gemini Copilot. AI akan menganalisis kondisi klaster, memberikan rekomendasi, dan membuat tombol perintah 1-klik untuk eksekusi langsung di server.
+            </p>
+          </div>
+          <div class="mt-6 flex flex-wrap items-center gap-2">
+            <button onclick="promptGeminiQuick('Tolong cek seluruh kondisi pod dan laporkan apakah ada yang pending atau error')" class="text-xs bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+              <i data-lucide="stethoscope" class="w-3.5 h-3.5 text-blue-400"></i>
+              Diagnosa Klaster
+            </button>
+            <button onclick="promptGeminiQuick('Sambungkan worker node 103.187.147.187 ke master klaster ini sekarang')" class="text-xs bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+              <i data-lucide="link-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+              Sambungkan Worker Node
+            </button>
+            <button onclick="promptGeminiQuick('Deploy web server Nginx 2 replika dengan NodePort')" class="text-xs bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+              <i data-lucide="rocket" class="w-3.5 h-3.5 text-purple-400"></i>
+              Deploy Nginx
+            </button>
+            <button onclick="switchTab('gemini')" class="text-xs bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-1.5 rounded-lg shadow-md transition ml-auto flex items-center gap-1.5">
+              Buka Chat Copilot &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Worker Connection Status Card -->
+        <div class="glass-panel p-6 rounded-3xl relative flex flex-col justify-between border border-slate-800">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+                <i data-lucide="hard-drive" class="w-4 h-4 text-emerald-400"></i>
+                Status Node Worker
+              </span>
+              <span id="worker-badge-status" class="text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                CONNECTED
+              </span>
+            </div>
+            <div class="space-y-2 mt-4 text-xs">
+              <div class="flex justify-between text-slate-400">
+                <span>Worker IP:</span>
+                <span class="text-slate-200 mono">103.187.147.187</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>SSH Key Auth:</span>
+                <span class="text-emerald-400 mono">Verified (Passwordless)</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Master Public API:</span>
+                <span class="text-slate-200 mono">103.172.205.41:6443</span>
+              </div>
+              <div class="flex justify-between text-slate-400">
+                <span>Kubelet Status:</span>
+                <span class="text-emerald-400 mono">Ready</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-800/80">
+            <button onclick="openJoinModal()" class="w-full py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              Setup / Sync Ulang Worker
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Cluster Events Section -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <i data-lucide="bell" class="w-4 h-4 text-slate-400"></i>
+            <h3 class="text-sm font-semibold text-white">Event Log Klaster Terbaru</h3>
+          </div>
+          <button onclick="loadEvents()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Refresh Events
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="text-[11px] uppercase text-slate-400 bg-slate-900/60 border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-3">Tipe</th>
+                <th class="py-2.5 px-3">Namespace</th>
+                <th class="py-2.5 px-3">Objek</th>
+                <th class="py-2.5 px-3">Alasan</th>
+                <th class="py-2.5 px-3">Pesan</th>
+                <th class="py-2.5 px-3">Waktu</th>
+              </tr>
+            </thead>
+            <tbody id="events-table-body" class="divide-y divide-slate-800/60">
+              <tr><td colspan="6" class="py-6 text-center text-slate-500">Memuat event...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: NODES MANAGEMENT                   -->
+    <!-- ========================================== -->
+    <section id="tab-nodes" class="tab-content hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i data-lucide="server" class="w-5 h-5 text-emerald-400"></i>
+            Node Klaster Kubernetes
+          </h2>
+          <p class="text-xs text-slate-400">Kelola master control-plane dan worker nodes.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="untaintMaster()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-medium flex items-center gap-1.5 transition">
+            <i data-lucide="unlock" class="w-3.5 h-3.5 text-amber-400"></i>
+            Untaint Master (Izinkan Pod di Master)
+          </button>
+          <button onclick="openJoinModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+            Tambah / Hubungkan Worker
+          </button>
+        </div>
+      </div>
+
+      <!-- Nodes Cards Container -->
+      <div id="nodes-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Loaded via JS -->
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: WORKLOADS (PODS & DEPLOYMENTS)     -->
+    <!-- ========================================== -->
+    <section id="tab-workloads" class="tab-content hidden space-y-6">
+      <!-- Top Filters -->
+      <div class="glass-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-medium text-slate-400">Namespace:</span>
+          <select id="workload-namespace-select" onchange="loadWorkloads()" class="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-500">
+            <option value="all">Semua Namespace (All)</option>
+            <option value="default">default</option>
+            <option value="kube-system">kube-system</option>
+            <option value="staging">staging</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <div class="relative w-full sm:w-64">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5"></i>
+            <input type="text" id="pod-search-input" onkeyup="filterPods()" placeholder="Cari pod berdasarkan nama..." class="w-full bg-slate-900/90 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+          </div>
+          <button onclick="loadWorkloads()" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Deployments Table -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-purple-400"></i>
+            Deployments
+          </h3>
+          <span id="deployments-count-badge" class="text-xs mono px-2 py-0.5 rounded bg-purple-950/60 border border-purple-500/30 text-purple-300">0 Total</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="text-[11px] uppercase text-slate-400 bg-slate-900/60 border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-3">Nama Deployment</th>
+                <th class="py-2.5 px-3">Namespace</th>
+                <th class="py-2.5 px-3">Replika (Ready / Desired)</th>
+                <th class="py-2.5 px-3">Container Image</th>
+                <th class="py-2.5 px-3 text-right">Aksi Manajemen</th>
+              </tr>
+            </thead>
+            <tbody id="deployments-table-body" class="divide-y divide-slate-800/60">
+              <tr><td colspan="5" class="py-6 text-center text-slate-500">Memuat data deployment...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pods Table -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+            <i data-lucide="box" class="w-4 h-4 text-emerald-400"></i>
+            Daftar Pods
+          </h3>
+          <span id="pods-count-badge" class="text-xs mono px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-500/30 text-emerald-300">0 Total</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="text-[11px] uppercase text-slate-400 bg-slate-900/60 border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-3">Nama Pod</th>
+                <th class="py-2.5 px-3">Namespace</th>
+                <th class="py-2.5 px-3">Status</th>
+                <th class="py-2.5 px-3">Ready</th>
+                <th class="py-2.5 px-3">Restarts</th>
+                <th class="py-2.5 px-3">Node</th>
+                <th class="py-2.5 px-3">Pod IP</th>
+                <th class="py-2.5 px-3 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="pods-table-body" class="divide-y divide-slate-800/60">
+              <tr><td colspan="8" class="py-6 text-center text-slate-500">Memuat pods...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: NETWORKING (SERVICES & INGRESS)    -->
+    <!-- ========================================== -->
+    <section id="tab-networking" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+            <i data-lucide="network" class="w-4 h-4 text-cyan-400"></i>
+            Layanan Jaringan Klaster (Services)
+          </h3>
+          <button onclick="loadServices()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+            <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Refresh Services
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="text-[11px] uppercase text-slate-400 bg-slate-900/60 border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-3">Nama Service</th>
+                <th class="py-2.5 px-3">Namespace</th>
+                <th class="py-2.5 px-3">Tipe</th>
+                <th class="py-2.5 px-3">Cluster IP</th>
+                <th class="py-2.5 px-3">Port (Internal:NodePort)</th>
+                <th class="py-2.5 px-3">Selector</th>
+                <th class="py-2.5 px-3 text-right">Akses Publik</th>
+              </tr>
+            </thead>
+            <tbody id="services-table-body" class="divide-y divide-slate-800/60">
+              <tr><td colspan="7" class="py-6 text-center text-slate-500">Memuat services...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: YAML STUDIO                         -->
+    <!-- ========================================== -->
+    <section id="tab-yaml" class="tab-content hidden space-y-4">
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+              <i data-lucide="file-code-2" class="w-4 h-4 text-amber-400"></i>
+              Kubernetes YAML Studio & Resource Applier
+            </h3>
+            <p class="text-xs text-slate-400">Deploy atau hapus resource apa saja dengan memasukkan manifes YAML di bawah ini.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="yaml-template-select" onchange="loadYamlTemplate()" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-3 py-1.5 focus:outline-none">
+              <option value="">-- Pilih Template Manifes --</option>
+              <option value="nginx">Nginx Web App (Deployment + Service)</option>
+              <option value="redis">Redis Standalone Cache</option>
+              <option value="configmap">ConfigMap Contoh</option>
+            </select>
+            <button onclick="applyYaml()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+              Terapkan (`kubectl apply`)
+            </button>
+            <button onclick="deleteYaml()" class="px-3 py-1.5 bg-red-600/80 hover:bg-red-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              Hapus Resource
+            </button>
+          </div>
+        </div>
+
+        <div class="relative">
+          <textarea id="yaml-editor" rows="18" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-xs font-mono text-emerald-300 focus:outline-none focus:border-emerald-500/50 selection:bg-slate-800 selection:text-white leading-relaxed" placeholder="# Tempel atau ketik manifes Kubernetes YAML di sini..."></textarea>
+        </div>
+
+        <div id="yaml-output-panel" class="hidden p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-mono">
+          <div class="text-slate-400 font-semibold mb-1 flex items-center justify-between">
+            <span>Hasil Eksekusi:</span>
+            <span id="yaml-exit-badge" class="px-2 py-0.5 rounded text-[10px]"></span>
+          </div>
+          <pre id="yaml-output-text" class="text-slate-200 whitespace-pre-wrap"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 6: WEB TERMINAL / CLI RUNNER          -->
+    <!-- ========================================== -->
+    <section id="tab-terminal" class="tab-content hidden space-y-4">
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+              <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+              Kubectl Interactive CLI Terminal
+            </h3>
+            <p class="text-xs text-slate-400">Eksekusi perintah terminal kubectl secara langsung di node master.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearTerminal()" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg text-xs border border-slate-800 transition">
+              Clear Console
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Command Chips -->
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span class="text-slate-500 text-[11px] font-medium">Shortcut Cepat:</span>
+          <button onclick="runQuickCmd('kubectl get all -A')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 mono">kubectl get all -A</button>
+          <button onclick="runQuickCmd('kubectl get nodes -o wide')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 mono">kubectl get nodes</button>
+          <button onclick="runQuickCmd('kubectl cluster-info')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 mono">cluster-info</button>
+          <button onclick="runQuickCmd('kubectl get events -A --sort-by=.metadata.creationTimestamp')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 mono">get events</button>
+          <button onclick="runQuickCmd('free -h; uptime')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg border border-slate-800 mono">host memory & uptime</button>
+        </div>
+
+        <!-- Command Input Form -->
+        <form onsubmit="runCustomCmd(event)" class="flex gap-2">
+          <div class="relative flex-1">
+            <span class="absolute left-3 top-2.5 text-emerald-400 mono text-xs font-bold">$</span>
+            <input type="text" id="terminal-input" placeholder="Masukkan perintah (misal: kubectl get pods -n kube-system)" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-4 py-2 text-xs mono text-emerald-300 focus:outline-none focus:border-emerald-500/50">
+          </div>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl shadow transition flex items-center gap-1.5">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+            Eksekusi
+          </button>
+        </form>
+
+        <!-- Terminal Output Window -->
+        <div class="relative bg-slate-950 rounded-2xl border border-slate-800 p-4 font-mono text-xs overflow-hidden">
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-900 text-slate-500 text-[11px]">
+            <span>STDOUT / STDERR STREAM</span>
+            <span id="term-status" class="text-emerald-400">READY</span>
+          </div>
+          <pre id="terminal-output" class="whitespace-pre-wrap text-slate-200 min-h-[300px] max-h-[500px] overflow-y-auto leading-relaxed">Selamat datang di Kubectl Master Web CLI Runner.
+Silakan klik tombol shortcut di atas atau ketik perintah kustom Anda.</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 7: GEMINI COPILOT FULL VIEW           -->
+    <!-- ========================================== -->
+    <section id="tab-gemini" class="tab-content hidden space-y-4">
+      <div class="glass-panel p-6 rounded-3xl border border-blue-500/30 glow-blue space-y-4 flex flex-col h-[750px]">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                Gemini DevOps Copilot
+                <span class="text-[10px] mono px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                  gemini-3.1-flash-lite
+                </span>
+              </h2>
+              <p class="text-xs text-slate-400">Tanya jawab, analisis arsitektur, atau instruksikan konfigurasi klaster dengan prompt bahasa alami.</p>
+            </div>
+          </div>
+          <button onclick="clearChat()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+            <i data-lucide="trash" class="w-3.5 h-3.5"></i> Bersihkan Chat
+          </button>
+        </div>
+
+        <div id="gemini-chat-thread" class="flex-1 overflow-y-auto space-y-4 pr-2">
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-500/40 flex items-center justify-center shrink-0">
+              <i data-lucide="bot" class="w-4 h-4 text-blue-400"></i>
+            </div>
+            <div class="space-y-2 max-w-2xl">
+              <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-200 leading-relaxed space-y-2">
+                <p class="font-semibold text-white">Halo! Saya Antigravity K8s DevOps Copilot yang terhubung langsung ke Master Kubernetes server Anda.</p>
+                <p>Saya dapat membantu Anda mengonfigurasi worker node, memeriksa pod yang error, melakukan scale replika, restart service, hingga membuat manifes aplikasi baru.</p>
+                <p class="text-slate-400">Silakan tanyakan apa saja atau klik salah satu rekomendasi cepat di bawah ini:</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Prompts Chips -->
+        <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+          <span class="text-[11px] text-slate-500 font-medium">Prompt Cepat:</span>
+          <button onclick="promptGeminiQuick('Bagaimana cara menyambungkan worker node 103.187.147.187 ke master klaster ini? Tolong berikan langkah dan perintahnya')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] rounded-lg border border-slate-800 transition">
+            🔌 Sambungkan Worker
+          </button>
+          <button onclick="promptGeminiQuick('Periksa status pod di namespace default dan kube-system, apakah ada masalah?')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] rounded-lg border border-slate-800 transition">
+            🔍 Audit Kesehatan Pod
+          </button>
+          <button onclick="promptGeminiQuick('Bagaimana cara membuat pod Nginx dengan service NodePort 30080?')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] rounded-lg border border-slate-800 transition">
+            🚀 Deploy NodePort Nginx
+          </button>
+          <button onclick="promptGeminiQuick('Jelaskan penggunaan memori server master dan saran optimasi')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 text-[11px] rounded-lg border border-slate-800 transition">
+            📊 Optimasi Resource
+          </button>
+        </div>
+
+        <form onsubmit="sendGeminiMessage(event)" class="flex gap-2">
+          <input type="text" id="gemini-input" placeholder="Ketik prompt Anda ke Gemini (misal: 'Tolong restart deployment nginx' atau 'Cek pod crash')..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500/60 shadow-inner">
+          <button type="submit" id="gemini-send-btn" class="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-blue-500/20 transition flex items-center gap-1.5 shrink-0">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            Kirim
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 8: USER MANAGEMENT                     -->
+    <!-- ========================================== -->
+    <section id="tab-users" class="tab-content hidden space-y-6">
+      <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="users" class="w-5 h-5 text-purple-400"></i>
+              Manajemen Pengguna (User Management)
+            </h3>
+            <p class="text-xs text-slate-400">Kelola kredensial akses dan hak otorisasi akun pengguna dashboard.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openCreateUserModal()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg transition flex items-center gap-1.5">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              Tambah Pengguna Baru
+            </button>
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="text-[11px] uppercase text-slate-400 bg-slate-900/60 border-b border-slate-800">
+              <tr>
+                <th class="py-3 px-4">Username</th>
+                <th class="py-3 px-4">Role Akses</th>
+                <th class="py-3 px-4">Waktu Dibuat</th>
+                <th class="py-3 px-4">Login Terakhir</th>
+                <th class="py-3 px-4 text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body" class="divide-y divide-slate-800/60">
+              <tr><td colspan="5" class="py-6 text-center text-slate-500">Memuat data pengguna...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CREATE NEW USER                     -->
+  <!-- ========================================== -->
+  <div id="create-user-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-md rounded-3xl border border-purple-500/30 p-6 flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <div class="p-2 rounded-xl bg-purple-500/10 text-purple-400">
+            <i data-lucide="user-plus" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-base font-bold text-white">Tambah Pengguna Baru</h3>
+        </div>
+        <button onclick="closeCreateUserModal()" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleCreateUserSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-300 mb-1 font-semibold">Username:</label>
+          <input type="text" id="new-user-name" required placeholder="misal: devops, tovan, operator" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 mono focus:outline-none focus:border-purple-500/60">
+        </div>
+        <div>
+          <label class="block text-slate-300 mb-1 font-semibold">Password Awal:</label>
+          <input type="password" id="new-user-pass" required placeholder="Minimal 4 karakter" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 mono focus:outline-none focus:border-purple-500/60">
+        </div>
+        <div>
+          <label class="block text-slate-300 mb-1 font-semibold">Role Akses:</label>
+          <select id="new-user-role" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-purple-500/60">
+            <option value="admin">Administrator (Akses Penuh & Manajemen Pengguna)</option>
+            <option value="operator" selected>Operator (Kelola Pods, Deployments & Terminal)</option>
+            <option value="viewer">Viewer (Hanya Lihat / Read-Only)</option>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeCreateUserModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium">Batal</button>
+          <button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold text-xs rounded-xl shadow-lg transition">
+            Simpan Pengguna
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CHANGE PASSWORD                     -->
+  <!-- ========================================== -->
+  <div id="change-pass-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-md rounded-3xl border border-slate-700 p-6 flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <div class="p-2 rounded-xl bg-slate-800 text-amber-400">
+            <i data-lucide="key" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Ganti Password</h3>
+            <p class="text-xs text-slate-400">Target User: <span id="change-pass-target-user" class="text-white font-mono font-semibold"></span></p>
+          </div>
+        </div>
+        <button onclick="closeChangePasswordModal()" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleChangePasswordSubmit(event)" class="space-y-4 text-xs">
+        <input type="hidden" id="change-pass-username">
+        
+        <div id="field-old-password">
+          <label class="block text-slate-300 mb-1 font-semibold">Password Lama:</label>
+          <input type="password" id="change-pass-old" placeholder="Masukkan password saat ini" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 mono focus:outline-none focus:border-amber-500/60">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 mb-1 font-semibold">Password Baru:</label>
+          <input type="password" id="change-pass-new" required placeholder="Minimal 4 karakter" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 mono focus:outline-none focus:border-amber-500/60">
+        </div>
+
+        <div>
+          <label class="block text-slate-300 mb-1 font-semibold">Konfirmasi Password Baru:</label>
+          <input type="password" id="change-pass-confirm" required placeholder="Ulangi password baru" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 mono focus:outline-none focus:border-amber-500/60">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeChangePasswordModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium">Batal</button>
+          <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs rounded-xl shadow-lg transition">
+            Perbarui Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: POD LOGS VIEWER                     -->
+  <!-- ========================================== -->
+  <div id="logs-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-4xl rounded-3xl border border-slate-700 p-6 flex flex-col max-h-[85vh]">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <i data-lucide="file-text" class="w-5 h-5 text-emerald-400"></i>
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              Pod Container Logs: <span id="modal-pod-name" class="mono text-emerald-300"></span>
+            </h3>
+            <p class="text-xs text-slate-400">Namespace: <span id="modal-pod-namespace" class="mono"></span></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <select id="modal-log-tail" onchange="fetchPodLogsNow()" class="bg-slate-900 border border-slate-700 text-xs text-slate-300 rounded-lg px-2.5 py-1">
+            <option value="100">100 Baris</option>
+            <option value="250" selected>250 Baris</option>
+            <option value="500">500 Baris</option>
+            <option value="1000">1000 Baris</option>
+          </select>
+          <button onclick="fetchPodLogsNow()" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg" title="Refresh Logs">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+          <button onclick="closeLogsModal()" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+      <div class="mt-4 flex-1 bg-slate-950 rounded-2xl border border-slate-800 p-4 overflow-y-auto">
+        <pre id="modal-logs-content" class="text-xs font-mono text-slate-300 whitespace-pre-wrap leading-relaxed">Memuat log...</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: JOIN WORKER AUTOMATION              -->
+  <!-- ========================================== -->
+  <div id="join-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="glass-panel w-full max-w-2xl rounded-3xl border border-emerald-500/30 p-6 flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <i data-lucide="link" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Hubungkan Worker Node ke Klaster</h3>
+            <p class="text-xs text-slate-400">Otomasi pembuatan token join di master dan eksekusi join ke worker via SSH.</p>
+          </div>
+        </div>
+        <button onclick="closeJoinModal()" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-400 mb-1">Target Worker IP:</label>
+          <input type="text" id="join-worker-ip" value="103.187.147.187" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 mono">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">SSH User:</label>
+          <input type="text" id="join-worker-user" value="tovan" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 mono">
+        </div>
+        <div>
+          <label class="block text-slate-400 mb-1">Master Public API Endpoint:</label>
+          <input type="text" value="103.172.205.41:6443" disabled class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-slate-500 mono">
+        </div>
+      </div>
+
+      <div id="join-progress-box" class="hidden p-3.5 bg-slate-950 rounded-xl border border-slate-800 mono text-xs space-y-1">
+        <div class="flex items-center gap-2 text-emerald-400 font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span id="join-status-title">Memulai proses join...</span>
+        </div>
+        <pre id="join-log-text" class="text-slate-300 whitespace-pre-wrap max-h-48 overflow-y-auto mt-2 text-[11px]"></pre>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+        <button onclick="closeJoinModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium">Batal</button>
+        <button onclick="executeWorkerJoin()" id="btn-execute-join" class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs rounded-xl shadow-lg transition flex items-center gap-2">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          Mulai Eksekusi Join Sekarang
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- APPLICATION JAVASCRIPT LOGIC               -->
+  <!-- ========================================== -->
+  <script>
+    let currentTab = 'overview';
+    let chatHistory = [];
+    let currentLogPod = { name: '', namespace: 'default' };
+    let currentUser = null;
+    let authToken = localStorage.getItem('k8s_token') || '';
+
+    function refreshIcons() {
+      lucide.createIcons();
+    }
+
+    // Unified API Fetch wrapper with Auth header
+    async function apiFetch(url, options = {}) {
+      options.headers = options.headers || {};
+      if (authToken) {
+        options.headers['Authorization'] = 'Bearer ' + authToken;
+      }
+      try {
+        const res = await fetch(url, options);
+        if (res.status === 401) {
+          showLoginOverlay("Sesi telah berakhir atau Anda belum login.");
+          throw new Error("Unauthorized");
+        }
+        return res;
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    // Auth & Session Check
+    async function checkAuth() {
+      try {
+        const res = await apiFetch('/api/auth/me');
+        if (res.ok) {
+          const data = await res.json();
+          currentUser = data.user;
+          updateUserUI();
+          hideLoginOverlay();
+          refreshAll();
+        } else {
+          showLoginOverlay();
+        }
+      } catch (e) {
+        showLoginOverlay();
+      }
+    }
+
+    function showLoginOverlay(errMsg = '') {
+      document.getElementById('login-overlay').classList.remove('hidden');
+      document.getElementById('login-overlay').classList.add('flex');
+      const errBox = document.getElementById('login-error-alert');
+      if (errMsg) {
+        errBox.classList.remove('hidden');
+        document.getElementById('login-error-text').innerText = errMsg;
+      } else {
+        errBox.classList.add('hidden');
+      }
+      refreshIcons();
+    }
+
+    function hideLoginOverlay() {
+      document.getElementById('login-overlay').classList.add('hidden');
+      document.getElementById('login-overlay').classList.remove('flex');
+    }
+
+    function updateUserUI() {
+      if (!currentUser) return;
+      document.getElementById('top-user-name').innerText = currentUser.username;
+      const roleBadge = document.getElementById('top-user-role');
+      roleBadge.innerText = currentUser.role.toUpperCase();
+      if (currentUser.role === 'admin') {
+        roleBadge.className = 'text-[10px] mono px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30';
+        document.getElementById('tab-btn-users').classList.remove('hidden');
+      } else {
+        roleBadge.className = 'text-[10px] mono px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30';
+        document.getElementById('tab-btn-users').classList.add('hidden');
+      }
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const user = document.getElementById('login-username').value.trim();
+      const pass = document.getElementById('login-password').value;
+      const btn = document.getElementById('btn-login-submit');
+      const errBox = document.getElementById('login-error-alert');
+      const errText = document.getElementById('login-error-text');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Memverifikasi...';
+      errBox.classList.add('hidden');
+      refreshIcons();
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username: user, password: pass })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          authToken = data.token;
+          localStorage.setItem('k8s_token', data.token);
+          currentUser = data.user;
+          updateUserUI();
+          hideLoginOverlay();
+          refreshAll();
+        } else {
+          errBox.classList.remove('hidden');
+          errText.innerText = data.error || 'Username atau password salah!';
+        }
+      } catch (err) {
+        errBox.classList.remove('hidden');
+        errText.innerText = 'Koneksi gagal: ' + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="log-in" class="w-4 h-4"></i> Masuk ke Dashboard';
+        refreshIcons();
+      }
+    }
+
+    async function handleLogout() {
+      if (!confirm('Apakah Anda yakin ingin keluar dari dashboard?')) return;
+      try {
+        await apiFetch('/api/auth/logout', { method: 'POST' });
+      } catch (e) {}
+      authToken = '';
+      currentUser = null;
+      localStorage.removeItem('k8s_token');
+      showLoginOverlay('Anda telah berhasil keluar.');
+    }
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-slate-800', 'text-white', 'shadow-sm');
+        btn.classList.add('text-slate-400');
+      });
+
+      const targetSection = document.getElementById('tab-' + tabId);
+      const targetBtn = document.getElementById('tab-btn-' + tabId);
+      if (targetSection) targetSection.classList.remove('hidden');
+      if (targetBtn) {
+        targetBtn.classList.remove('text-slate-400');
+        targetBtn.classList.add('bg-slate-800', 'text-white', 'shadow-sm');
+      }
+
+      if (tabId === 'overview') loadOverview();
+      else if (tabId === 'nodes') loadNodes();
+      else if (tabId === 'workloads') loadWorkloads();
+      else if (tabId === 'networking') loadServices();
+      else if (tabId === 'users') loadUsers();
+      else if (tabId === 'terminal' || tabId === 'gemini') { refreshIcons(); }
+    }
+
+    async function refreshAll() {
+      const icon = document.getElementById('refresh-icon');
+      if (icon) icon.classList.add('animate-spin');
+      try {
+        await Promise.all([
+          loadOverview(),
+          loadEvents()
+        ]);
+      } catch (err) {
+        console.error("Refresh error:", err);
+      } finally {
+        setTimeout(() => {
+          if (icon) icon.classList.remove('animate-spin');
+        }, 600);
+      }
+    }
+
+    // 1. Overview Loader
+    async function loadOverview() {
+      try {
+        const res = await apiFetch('/api/overview');
+        const data = await res.json();
+
+        document.getElementById('metric-nodes-ready').innerText = data.nodes?.ready ?? 0;
+        document.getElementById('metric-nodes-total').innerText = data.nodes?.total ?? 0;
+        document.getElementById('metric-pods-running').innerText = data.pods?.running ?? 0;
+        document.getElementById('metric-pods-total').innerText = data.pods?.total ?? 0;
+        document.getElementById('metric-pods-pending').innerText = data.pods?.pending ?? 0;
+        document.getElementById('metric-pods-failed').innerText = data.pods?.failed ?? 0;
+        document.getElementById('metric-deploys').innerText = data.deployments_count ?? 0;
+        document.getElementById('metric-services').innerText = data.services_count ?? 0;
+
+        const mem = data.master_memory || {};
+        document.getElementById('metric-mem-percent').innerText = (mem.percent || 0) + '%';
+        document.getElementById('metric-mem-used').innerText = `${mem.used_mb || 0} / ${mem.total_mb || 0} MB`;
+        document.getElementById('metric-mem-bar').style.width = `${mem.percent || 0}%`;
+
+        const workerNode = (data.nodes?.items || []).find(n => n.role.includes('worker') || n.name.includes('worker'));
+        const workerBadge = document.getElementById('worker-badge-status');
+        if (workerNode && workerNode.ready) {
+          workerBadge.className = 'text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+          workerBadge.innerText = 'CONNECTED (READY)';
+        } else if (workerNode) {
+          workerBadge.className = 'text-[10px] mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30';
+          workerBadge.innerText = 'JOINED (NOT READY)';
+        } else {
+          workerBadge.className = 'text-[10px] mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+          workerBadge.innerText = 'NOT JOINED';
+        }
+
+        refreshIcons();
+      } catch (err) {
+        console.error("Load overview error:", err);
+      }
+    }
+
+    // 2. Events Loader
+    async function loadEvents() {
+      try {
+        const res = await apiFetch('/api/events');
+        const data = await res.json();
+        const tbody = document.getElementById('events-table-body');
+        if (!data.items || data.items.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-500">Belum ada event tercatat.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.items.map(ev => {
+          const typeBadge = ev.type === 'Warning' 
+            ? '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 mono text-[10px]">Warning</span>'
+            : '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 mono text-[10px]">Normal</span>';
+          return `
+            <tr class="hover:bg-slate-900/40">
+              <td class="py-2 px-3">${typeBadge}</td>
+              <td class="py-2 px-3 mono text-slate-400">${ev.namespace}</td>
+              <td class="py-2 px-3 mono font-semibold text-slate-200">${ev.object}</td>
+              <td class="py-2 px-3 text-slate-300">${ev.reason}</td>
+              <td class="py-2 px-3 text-slate-400 max-w-md truncate" title="${ev.message}">${ev.message}</td>
+              <td class="py-2 px-3 text-slate-500 mono text-[11px]">${ev.time ? ev.time.replace('T', ' ').replace('Z', '') : '-'}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (err) {
+        console.error("Load events error:", err);
+      }
+    }
+
+    // 3. Nodes Loader
+    async function loadNodes() {
+      try {
+        const res = await apiFetch('/api/nodes');
+        const data = await res.json();
+        const container = document.getElementById('nodes-container');
+
+        if (!data.items || data.items.length === 0) {
+          container.innerHTML = '<div class="col-span-2 text-center text-slate-500 py-8">Tidak ada node terdeteksi.</div>';
+          return;
+        }
+
+        container.innerHTML = data.items.map(node => {
+          const isMaster = node.role.includes('control-plane');
+          const isReady = node.ready;
+          const statusBadge = isReady 
+            ? '<span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono text-xs flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Ready</span>'
+            : '<span class="px-2.5 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 font-mono text-xs flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> NotReady</span>';
+
+          const taintBadge = node.taints && node.taints.length > 0
+            ? '<span class="px-2 py-0.5 rounded bg-amber-950/60 text-amber-400 border border-amber-500/30 mono text-[10px]">Tainted (NoSchedule)</span>'
+            : '<span class="px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 mono text-[10px]">No Taints (Workloads Allowed)</span>';
+
+          return `
+            <div class="glass-panel p-6 rounded-3xl border ${isMaster ? 'border-emerald-500/30' : 'border-slate-800'} space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                  <div class="p-2.5 rounded-2xl ${isMaster ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}">
+                    <i data-lucide="${isMaster ? 'cpu' : 'server'}" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white mono">${node.name}</h3>
+                    <p class="text-xs text-slate-400 mono">Role: <span class="text-slate-200 font-semibold">${node.role}</span></p>
+                  </div>
+                </div>
+                ${statusBadge}
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 text-[11px]">IP Internal:</span>
+                  <p class="font-mono text-slate-200 font-semibold mt-0.5">${node.ip}</p>
+                </div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 text-[11px]">Kubelet Version:</span>
+                  <p class="font-mono text-slate-200 font-semibold mt-0.5">${node.node_info?.kubeletVersion || '-'}</p>
+                </div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 text-[11px]">Container Runtime:</span>
+                  <p class="font-mono text-slate-200 font-semibold mt-0.5 truncate">${node.node_info?.containerRuntimeVersion || '-'}</p>
+                </div>
+                <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                  <span class="text-slate-400 text-[11px]">Operating System:</span>
+                  <p class="font-mono text-slate-200 font-semibold mt-0.5 truncate">${node.node_info?.osImage || '-'}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-xs text-slate-400">Status Penjadwalan:</span>
+                ${taintBadge}
+              </div>
+
+              <div class="pt-3 border-t border-slate-800 flex items-center justify-end gap-2">
+                ${node.unschedulable 
+                  ? `<button onclick="uncordonNode('${node.name}')" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-medium transition">Uncordon</button>`
+                  : `<button onclick="cordonNode('${node.name}')" class="px-3 py-1.5 bg-amber-700 hover:bg-amber-600 text-white rounded-lg text-xs font-medium transition">Cordon</button>`
+                }
+                <button onclick="drainNode('${node.name}')" class="px-3 py-1.5 bg-red-800 hover:bg-red-700 text-white rounded-lg text-xs font-medium transition">Drain</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        refreshIcons();
+      } catch (err) {
+        console.error("Load nodes error:", err);
+      }
+    }
+
+    async function cordonNode(nodeName) {
+      if (!confirm(`Apakah Anda yakin ingin melakukan Cordon pada node ${nodeName}?`)) return;
+      const res = await apiFetch('/api/nodes/cordon', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ node: nodeName })
+      });
+      const data = await res.json();
+      alert(data.output || 'Selesai');
+      loadNodes();
+    }
+
+    async function uncordonNode(nodeName) {
+      const res = await apiFetch('/api/nodes/uncordon', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ node: nodeName })
+      });
+      const data = await res.json();
+      alert(data.output || 'Selesai');
+      loadNodes();
+    }
+
+    async function drainNode(nodeName) {
+      if (!confirm(`PERINGATAN: Drain akan memindahkan semua pod dari ${nodeName}. Lanjutkan?`)) return;
+      const res = await apiFetch('/api/nodes/drain', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ node: nodeName })
+      });
+      const data = await res.json();
+      alert(data.output || 'Selesai');
+      loadNodes();
+    }
+
+    async function untaintMaster() {
+      const res = await apiFetch('/api/terminal/run', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ command: 'kubectl taint nodes kubernetesmaster node-role.kubernetes.io/control-plane:NoSchedule-' })
+      });
+      const data = await res.json();
+      alert(data.stdout || data.stderr || 'Untaint command executed');
+      loadNodes();
+    }
+
+    // 4. Workloads Loader
+    let cachedPods = [];
+    async function loadWorkloads() {
+      const ns = document.getElementById('workload-namespace-select').value;
+      try {
+        const [podsRes, deploysRes] = await Promise.all([
+          apiFetch(`/api/pods?namespace=${ns}`),
+          apiFetch(`/api/deployments?namespace=${ns}`)
+        ]);
+        const podsData = await podsRes.json();
+        const deploysData = await deploysRes.json();
+
+        cachedPods = podsData.items || [];
+        renderPods(cachedPods);
+        renderDeployments(deploysData.items || []);
+        refreshIcons();
+      } catch (err) {
+        console.error("Load workloads error:", err);
+      }
+    }
+
+    function renderDeployments(deploys) {
+      const tbody = document.getElementById('deployments-table-body');
+      document.getElementById('deployments-count-badge').innerText = `${deploys.length} Total`;
+
+      if (deploys.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-500">Tidak ada deployment di namespace ini.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = deploys.map(d => {
+        return `
+          <tr class="hover:bg-slate-900/40">
+            <td class="py-3 px-3 mono font-bold text-white">${d.name}</td>
+            <td class="py-3 px-3 mono text-slate-400">${d.namespace}</td>
+            <td class="py-3 px-3 mono">
+              <span class="${d.ready === d.replicas ? 'text-emerald-400' : 'text-amber-400'} font-bold">${d.ready}</span> / ${d.replicas}
+            </td>
+            <td class="py-3 px-3 text-slate-300 mono text-[11px] truncate max-w-xs">${(d.images || []).join(', ')}</td>
+            <td class="py-3 px-3 text-right">
+              <div class="inline-flex items-center gap-1.5">
+                <button onclick="scaleDeployment('${d.name}', '${d.namespace}', ${Math.max(0, d.replicas - 1)})" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs" title="Kurangi 1 Replika">-</button>
+                <span class="px-2 mono text-xs font-semibold">${d.replicas}</span>
+                <button onclick="scaleDeployment('${d.name}', '${d.namespace}', ${d.replicas + 1})" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs" title="Tambah 1 Replika">+</button>
+                <button onclick="restartDeployment('${d.name}', '${d.namespace}')" class="ml-2 px-2.5 py-1 bg-purple-950/60 hover:bg-purple-900/60 text-purple-300 border border-purple-500/40 rounded-lg text-xs font-medium transition flex items-center gap-1">
+                  <i data-lucide="rotate-cw" class="w-3 h-3"></i> Rollout Restart
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderPods(pods) {
+      const tbody = document.getElementById('pods-table-body');
+      document.getElementById('pods-count-badge').innerText = `${pods.length} Total`;
+
+      if (pods.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="py-6 text-center text-slate-500">Tidak ada pods ditemukan.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = pods.map(p => {
+        let statusBadge = '<span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 mono text-[10px]">Running</span>';
+        if (p.status === 'Pending') {
+          statusBadge = '<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 mono text-[10px]">Pending</span>';
+        } else if (p.status.includes('Crash') || p.status.includes('Error')) {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 mono text-[10px]">${p.status}</span>`;
+        } else if (p.status !== 'Running') {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 mono text-[10px]">${p.status}</span>`;
+        }
+
+        return `
+          <tr class="hover:bg-slate-900/40">
+            <td class="py-2.5 px-3 mono font-semibold text-white max-w-xs truncate" title="${p.name}">${p.name}</td>
+            <td class="py-2.5 px-3 mono text-slate-400">${p.namespace}</td>
+            <td class="py-2.5 px-3">${statusBadge}</td>
+            <td class="py-2.5 px-3 mono text-slate-300">${p.ready}</td>
+            <td class="py-2.5 px-3 mono ${p.restarts > 0 ? 'text-amber-400 font-bold' : 'text-slate-400'}">${p.restarts}</td>
+            <td class="py-2.5 px-3 mono text-slate-400 text-[11px]">${p.node}</td>
+            <td class="py-2.5 px-3 mono text-slate-400 text-[11px]">${p.ip}</td>
+            <td class="py-2.5 px-3 text-right">
+              <div class="inline-flex items-center gap-1.5">
+                <button onclick="viewPodLogs('${p.name}', '${p.namespace}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs flex items-center gap-1 transition" title="Lihat Log Container">
+                  <i data-lucide="file-text" class="w-3 h-3 text-emerald-400"></i> Logs
+                </button>
+                <button onclick="deletePod('${p.name}', '${p.namespace}')" class="px-2 py-1 bg-red-950/60 hover:bg-red-900/60 text-red-300 border border-red-500/30 rounded text-xs flex items-center gap-1 transition" title="Restart / Hapus Pod">
+                  <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterPods() {
+      const q = document.getElementById('pod-search-input').value.toLowerCase();
+      const filtered = cachedPods.filter(p => p.name.toLowerCase().includes(q) || p.namespace.toLowerCase().includes(q) || p.status.toLowerCase().includes(q));
+      renderPods(filtered);
+      refreshIcons();
+    }
+
+    async function scaleDeployment(name, namespace, replicas) {
+      const res = await apiFetch('/api/deployments/scale', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, namespace, replicas })
+      });
+      loadWorkloads();
+    }
+
+    async function restartDeployment(name, namespace) {
+      if (!confirm(`Lakukan Rollout Restart untuk deployment ${name}?`)) return;
+      const res = await apiFetch('/api/deployments/restart', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, namespace })
+      });
+      const data = await res.json();
+      alert(data.output || 'Rollout restart dimulai!');
+      loadWorkloads();
+    }
+
+    async function deletePod(name, namespace) {
+      if (!confirm(`Hapus pod ${name} di namespace ${namespace}? (Deployment akan otomatis membuatnya ulang jika berada dalam replika)`)) return;
+      await apiFetch('/api/pods/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ name, namespace })
+      });
+      loadWorkloads();
+    }
+
+    // 5. Pod Logs Viewer
+    function viewPodLogs(name, namespace) {
+      currentLogPod = { name, namespace };
+      document.getElementById('modal-pod-name').innerText = name;
+      document.getElementById('modal-pod-namespace').innerText = namespace;
+      document.getElementById('logs-modal').classList.remove('hidden');
+      document.getElementById('logs-modal').classList.add('flex');
+      fetchPodLogsNow();
+      refreshIcons();
+    }
+
+    function closeLogsModal() {
+      document.getElementById('logs-modal').classList.add('hidden');
+      document.getElementById('logs-modal').classList.remove('flex');
+    }
+
+    async function fetchPodLogsNow() {
+      const pre = document.getElementById('modal-logs-content');
+      pre.innerText = "Mengambil log...";
+      const tail = document.getElementById('modal-log-tail').value;
+      try {
+        const res = await apiFetch(`/api/pods/logs?name=${currentLogPod.name}&namespace=${currentLogPod.namespace}&tail=${tail}`);
+        const data = await res.json();
+        pre.innerText = data.logs || "(Log kosong atau container belum menulis output)";
+        pre.scrollTop = pre.scrollHeight;
+      } catch (err) {
+        pre.innerText = "Error mengambil log: " + err.message;
+      }
+    }
+
+    // 6. Services Loader
+    async function loadServices() {
+      try {
+        const res = await apiFetch('/api/services?namespace=all');
+        const data = await res.json();
+        const tbody = document.getElementById('services-table-body');
+
+        if (!data.items || data.items.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" class="py-6 text-center text-slate-500">Tidak ada services ditemukan.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.items.map(s => {
+          let testLink = '<span class="text-slate-600">-</span>';
+          const nodePortMatch = s.ports.match(/:(\d+)/);
+          if (nodePortMatch && nodePortMatch[1]) {
+            const portNum = nodePortMatch[1];
+            testLink = `<a href="http://103.172.205.41:${portNum}" target="_blank" class="px-2 py-1 rounded bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 hover:text-emerald-300 font-mono text-[11px] inline-flex items-center gap-1">Buka :${portNum} &rarr;</a>`;
+          }
+
+          return `
+            <tr class="hover:bg-slate-900/40">
+              <td class="py-3 px-3 mono font-bold text-white">${s.name}</td>
+              <td class="py-3 px-3 mono text-slate-400">${s.namespace}</td>
+              <td class="py-3 px-3 mono">
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-cyan-500/30 text-[10px]">${s.type}</span>
+              </td>
+              <td class="py-3 px-3 mono text-slate-300">${s.cluster_ip}</td>
+              <td class="py-3 px-3 mono text-slate-200">${s.ports}</td>
+              <td class="py-3 px-3 mono text-slate-400 text-[11px] max-w-xs truncate">${JSON.stringify(s.selector)}</td>
+              <td class="py-3 px-3 text-right">${testLink}</td>
+            </tr>
+          `;
+        }).join('');
+        refreshIcons();
+      } catch (err) {
+        console.error("Load services error:", err);
+      }
+    }
+
+    // 7. YAML Studio Logic
+    const YAML_TEMPLATES = {
+      nginx: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-web
+  namespace: default
+  labels:
+    app: nginx-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx-web
+  template:
+    metadata:
+      labels:
+        app: nginx-web
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-web-svc
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    app: nginx-web
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30080`,
+      redis: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cache
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-cache
+  template:
+    metadata:
+      labels:
+        app: redis-cache
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379`,
+      configmap: `apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-env-config
+  namespace: default
+data:
+  APP_ENV: "production"
+  CLUSTER_NAME: "synetiq-k8s-master"`
+    };
+
+    function loadYamlTemplate() {
+      const key = document.getElementById('yaml-template-select').value;
+      if (key && YAML_TEMPLATES[key]) {
+        document.getElementById('yaml-editor').value = YAML_TEMPLATES[key];
+      }
+    }
+
+    async function applyYaml() {
+      const yaml = document.getElementById('yaml-editor').value.trim();
+      if (!yaml) return alert('Silakan masukkan manifes YAML terlebih dahulu.');
+      
+      const panel = document.getElementById('yaml-output-panel');
+      const text = document.getElementById('yaml-output-text');
+      const badge = document.getElementById('yaml-exit-badge');
+      panel.classList.remove('hidden');
+      text.innerText = 'Menerapkan manifes dengan kubectl apply...';
+
+      try {
+        const res = await apiFetch('/api/yaml/apply', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ yaml })
+        });
+        const data = await res.json();
+        text.innerText = data.output || 'Sukses diaplikasikan.';
+        badge.innerText = data.exit_code === 0 ? 'STATUS: SUCCESS (0)' : 'STATUS: ERROR (' + data.exit_code + ')';
+        badge.className = data.exit_code === 0 ? 'px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300' : 'px-2 py-0.5 rounded text-[10px] bg-red-500/20 text-red-300';
+      } catch (err) {
+        text.innerText = 'Error: ' + err.message;
+      }
+    }
+
+    async function deleteYaml() {
+      const yaml = document.getElementById('yaml-editor').value.trim();
+      if (!yaml) return alert('Silakan masukkan manifes YAML.');
+      if (!confirm('Apakah Anda yakin ingin menghapus resource yang didefinisikan dalam YAML ini?')) return;
+
+      const panel = document.getElementById('yaml-output-panel');
+      const text = document.getElementById('yaml-output-text');
+      panel.classList.remove('hidden');
+      text.innerText = 'Menghapus resource...';
+
+      try {
+        const res = await apiFetch('/api/terminal/run', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ command: `echo '${yaml.replace(/'/g, "'\\''")}' | kubectl delete -f -` })
+        });
+        const data = await res.json();
+        text.innerText = data.stdout || data.stderr || 'Selesai dihapus.';
+      } catch (err) {
+        text.innerText = 'Error: ' + err.message;
+      }
+    }
+
+    // 8. Terminal CLI Runner Logic
+    async function executeCommand(cmd) {
+      const out = document.getElementById('terminal-output');
+      const status = document.getElementById('term-status');
+      status.innerText = "RUNNING...";
+      status.className = "text-amber-400 animate-pulse";
+      out.innerText += `\n\n$ ${cmd}\n`;
+      out.scrollTop = out.scrollHeight;
+
+      try {
+        const res = await apiFetch('/api/terminal/run', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ command: cmd })
+        });
+        const data = await res.json();
+        out.innerText += data.stdout || "";
+        if (data.stderr) {
+          out.innerText += "\n[STDERR]: " + data.stderr;
+        }
+        status.innerText = data.exit_code === 0 ? "SUCCESS (0)" : "EXIT (" + data.exit_code + ")";
+        status.className = data.exit_code === 0 ? "text-emerald-400" : "text-red-400";
+      } catch (err) {
+        out.innerText += "\n[Error]: " + err.message;
+        status.innerText = "FAILED";
+        status.className = "text-red-400";
+      }
+      out.scrollTop = out.scrollHeight;
+    }
+
+    function runQuickCmd(cmd) {
+      document.getElementById('terminal-input').value = cmd;
+      executeCommand(cmd);
+    }
+
+    function runCustomCmd(e) {
+      e.preventDefault();
+      const input = document.getElementById('terminal-input');
+      const cmd = input.value.trim();
+      if (!cmd) return;
+      executeCommand(cmd);
+      input.value = '';
+    }
+
+    function clearTerminal() {
+      document.getElementById('terminal-output').innerText = 'Terminal dibersihkan.\n';
+      document.getElementById('term-status').innerText = 'READY';
+      document.getElementById('term-status').className = 'text-emerald-400';
+    }
+
+    // 9. Gemini AI DevOps Copilot Logic
+    function promptGeminiQuick(text) {
+      switchTab('gemini');
+      document.getElementById('gemini-input').value = text;
+      sendGeminiMessage(new Event('submit'));
+    }
+
+    async function sendGeminiMessage(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById('gemini-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const thread = document.getElementById('gemini-chat-thread');
+      const sendBtn = document.getElementById('gemini-send-btn');
+
+      thread.innerHTML += `
+        <div class="flex gap-3 justify-end">
+          <div class="p-3.5 rounded-2xl bg-blue-600 text-white text-xs max-w-xl shadow-md">
+            ${escapeHtml(text)}
+          </div>
+          <div class="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center shrink-0">
+            <i data-lucide="user" class="w-4 h-4 text-blue-300"></i>
+          </div>
+        </div>
+      `;
+      thread.scrollTop = thread.scrollHeight;
+      input.value = '';
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
+      refreshIcons();
+
+      const typingId = 'typing-' + Date.now();
+      thread.innerHTML += `
+        <div id="${typingId}" class="flex gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-500/40 flex items-center justify-center shrink-0">
+            <i data-lucide="bot" class="w-4 h-4 text-blue-400"></i>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-400 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
+            Gemini sedang menganalisis klaster dan memproses jawaban...
+          </div>
+        </div>
+      `;
+      thread.scrollTop = thread.scrollHeight;
+      refreshIcons();
+
+      try {
+        const res = await apiFetch('/api/gemini/chat', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            message: text,
+            history: chatHistory
+          })
+        });
+        const data = await res.json();
+        
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+
+        let formattedReply = formatMarkdown(data.reply || "Maaf, tidak ada respon.");
+        
+        let actionButtonsHtml = '';
+        if (data.commands && data.commands.length > 0) {
+          actionButtonsHtml = data.commands.map((cmd, idx) => {
+            const escapedCmd = cmd.replace(/"/g, '&quot;');
+            return `
+              <div class="mt-3 p-3 rounded-xl bg-slate-950 border border-emerald-500/40 mono text-[11px] space-y-2">
+                <div class="flex items-center justify-between text-slate-400">
+                  <span class="font-semibold text-emerald-400 flex items-center gap-1.5">
+                    <i data-lucide="terminal" class="w-3.5 h-3.5"></i> Perintah yang Direkomendasikan Gemini:
+                  </span>
+                  <span class="text-[10px]">Siap Eksekusi</span>
+                </div>
+                <pre class="text-slate-200 whitespace-pre-wrap">${escapeHtml(cmd)}</pre>
+                <div class="pt-1 flex items-center gap-2">
+                  <button onclick="executeGeminiAction(this, '${escapedCmd}')" class="px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-lg shadow text-xs flex items-center gap-1.5 transition">
+                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+                    ⚡ Jalankan Perintah Ini Sekarang
+                  </button>
+                </div>
+                <div class="action-result-box hidden mt-2 pt-2 border-t border-slate-800 text-slate-300"></div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        thread.innerHTML += `
+          <div class="flex gap-3">
+            <div class="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-500/40 flex items-center justify-center shrink-0">
+              <i data-lucide="bot" class="w-4 h-4 text-blue-400"></i>
+            </div>
+            <div class="space-y-2 max-w-2xl">
+              <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-200 leading-relaxed space-y-2">
+                ${formattedReply}
+                ${actionButtonsHtml}
+              </div>
+            </div>
+          </div>
+        `;
+
+        chatHistory.push({ role: 'user', text: text });
+        chatHistory.push({ role: 'model', text: data.reply || '' });
+
+      } catch (err) {
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+        thread.innerHTML += `
+          <div class="p-3 bg-red-950/60 border border-red-500/40 text-red-300 text-xs rounded-xl">
+            Gagal berkomunikasi dengan Gemini: ${err.message}
+          </div>
+        `;
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '<i data-lucide="send" class="w-4 h-4"></i> Kirim';
+        thread.scrollTop = thread.scrollHeight;
+        refreshIcons();
+      }
+    }
+
+    async function executeGeminiAction(btn, cmd) {
+      btn.disabled = true;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Menjalankan...';
+      refreshIcons();
+
+      const container = btn.closest('.space-y-2');
+      const resultBox = container.querySelector('.action-result-box');
+      resultBox.classList.remove('hidden');
+      resultBox.innerHTML = '<span class="text-amber-400">Sedang mengeksekusi di server master...</span>';
+
+      try {
+        const res = await apiFetch('/api/terminal/run', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ command: cmd })
+        });
+        const data = await res.json();
+        const isSuccess = data.exit_code === 0;
+        resultBox.innerHTML = `
+          <div class="flex items-center gap-2 mb-1">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isSuccess ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}">
+              ${isSuccess ? 'BERHASIL DIEKSEKUSI (0)' : 'EXIT ERROR (' + data.exit_code + ')'}
+            </span>
+          </div>
+          <pre class="text-[11px] text-slate-300 whitespace-pre-wrap max-h-48 overflow-y-auto">${escapeHtml(data.stdout || data.stderr || 'Selesai tanpa output.')}</pre>
+        `;
+        btn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i> Selesai';
+        btn.classList.remove('from-emerald-600', 'to-teal-600');
+        btn.classList.add('bg-slate-800', 'text-slate-400');
+      } catch (err) {
+        resultBox.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+      refreshIcons();
+    }
+
+    function clearChat() {
+      chatHistory = [];
+      document.getElementById('gemini-chat-thread').innerHTML = `
+        <div class="flex gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-600/30 border border-blue-500/40 flex items-center justify-center shrink-0">
+            <i data-lucide="bot" class="w-4 h-4 text-blue-400"></i>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-200">
+            Chat telah dibersihkan. Silakan ajukan pertanyaan atau instruksi baru.
+          </div>
+        </div>
+      `;
+      refreshIcons();
+    }
+
+    // 10. User Management Logic
+    async function loadUsers() {
+      try {
+        const res = await apiFetch('/api/users');
+        const data = await res.json();
+        const tbody = document.getElementById('users-table-body');
+
+        if (!data.items || data.items.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-500">Tidak ada data pengguna.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.items.map(u => {
+          let roleBadge = '<span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 mono text-[10px]">OPERATOR</span>';
+          if (u.role === 'admin') {
+            roleBadge = '<span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 mono text-[10px] font-bold">ADMINISTRATOR</span>';
+          } else if (u.role === 'viewer') {
+            roleBadge = '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 mono text-[10px]">VIEWER</span>';
+          }
+
+          const isSelf = currentUser && currentUser.username === u.username;
+
+          return `
+            <tr class="hover:bg-slate-900/40">
+              <td class="py-3 px-4 mono font-bold text-white flex items-center gap-2">
+                <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+                ${escapeHtml(u.username)}
+                ${isSelf ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 mono">(Saya)</span>' : ''}
+              </td>
+              <td class="py-3 px-4">${roleBadge}</td>
+              <td class="py-3 px-4 mono text-slate-400 text-[11px]">${u.created_at ? u.created_at.replace('T', ' ').substring(0, 19) : '-'}</td>
+              <td class="py-3 px-4 mono text-slate-400 text-[11px]">${u.last_login ? u.last_login.replace('T', ' ').substring(0, 19) : '-'}</td>
+              <td class="py-3 px-4 text-right">
+                <div class="inline-flex items-center gap-2">
+                  <button onclick="openChangePasswordModal('${escapeHtml(u.username)}')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs flex items-center gap-1 transition" title="Ganti Password">
+                    <i data-lucide="key" class="w-3 h-3 text-amber-400"></i> Reset Password
+                  </button>
+                  ${!isSelf ? `
+                    <button onclick="deleteUser('${escapeHtml(u.username)}')" class="px-2.5 py-1 bg-red-950/60 hover:bg-red-900/60 text-red-300 border border-red-500/30 rounded text-xs flex items-center gap-1 transition" title="Hapus User">
+                      <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus
+                    </button>
+                  ` : ''}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+        refreshIcons();
+      } catch (err) {
+        console.error("Load users error:", err);
+      }
+    }
+
+    function openCreateUserModal() {
+      document.getElementById('create-user-modal').classList.remove('hidden');
+      document.getElementById('create-user-modal').classList.add('flex');
+      document.getElementById('new-user-name').value = '';
+      document.getElementById('new-user-pass').value = '';
+      refreshIcons();
+    }
+
+    function closeCreateUserModal() {
+      document.getElementById('create-user-modal').classList.add('hidden');
+      document.getElementById('create-user-modal').classList.remove('flex');
+    }
+
+    async function handleCreateUserSubmit(e) {
+      e.preventDefault();
+      const username = document.getElementById('new-user-name').value.trim();
+      const password = document.getElementById('new-user-pass').value;
+      const role = document.getElementById('new-user-role').value;
+
+      try {
+        const res = await apiFetch('/api/users/create', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username, password, role })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert(data.message || 'Pengguna berhasil dibuat!');
+          closeCreateUserModal();
+          loadUsers();
+        } else {
+          alert('Gagal: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function deleteUser(username) {
+      if (!confirm(`Apakah Anda yakin ingin menghapus pengguna '${username}'?`)) return;
+      try {
+        const res = await apiFetch('/api/users/delete', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ username })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert(data.message || 'Pengguna dihapus.');
+          loadUsers();
+        } else {
+          alert('Gagal menghapus: ' + (data.error || 'Terjadi kesalahan'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    // Change Password Logic
+    function openChangePasswordModal(username = '') {
+      const targetUser = username || (currentUser ? currentUser.username : 'admin');
+      document.getElementById('change-pass-username').value = targetUser;
+      document.getElementById('change-pass-target-user').innerText = targetUser;
+      document.getElementById('change-pass-old').value = '';
+      document.getElementById('change-pass-new').value = '';
+      document.getElementById('change-pass-confirm').value = '';
+
+      const isAdmin = currentUser && currentUser.role === 'admin';
+      const isSelf = currentUser && currentUser.username === targetUser;
+      // If admin is resetting someone else's password, old password is not required
+      if (isAdmin && !isSelf) {
+        document.getElementById('field-old-password').classList.add('hidden');
+      } else {
+        document.getElementById('field-old-password').classList.remove('hidden');
+      }
+
+      document.getElementById('change-pass-modal').classList.remove('hidden');
+      document.getElementById('change-pass-modal').classList.add('flex');
+      refreshIcons();
+    }
+
+    function closeChangePasswordModal() {
+      document.getElementById('change-pass-modal').classList.add('hidden');
+      document.getElementById('change-pass-modal').classList.remove('flex');
+    }
+
+    async function handleChangePasswordSubmit(e) {
+      e.preventDefault();
+      const username = document.getElementById('change-pass-username').value;
+      const oldPass = document.getElementById('change-pass-old').value;
+      const newPass = document.getElementById('change-pass-new').value;
+      const confirmPass = document.getElementById('change-pass-confirm').value;
+
+      if (newPass !== confirmPass) {
+        alert('Konfirmasi password baru tidak cocok!');
+        return;
+      }
+      if (newPass.length < 4) {
+        alert('Password baru minimal 4 karakter!');
+        return;
+      }
+
+      try {
+        const res = await apiFetch('/api/users/change-password', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            username: username,
+            old_password: oldPass,
+            new_password: newPass
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert(data.message || 'Password berhasil diperbarui!');
+          closeChangePasswordModal();
+        } else {
+          alert('Gagal: ' + (data.error || 'Password lama salah'));
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    // 11. Join Worker Modal
+    function openJoinModal() {
+      document.getElementById('join-modal').classList.remove('hidden');
+      document.getElementById('join-modal').classList.add('flex');
+      refreshIcons();
+    }
+
+    function closeJoinModal() {
+      document.getElementById('join-modal').classList.add('hidden');
+      document.getElementById('join-modal').classList.remove('flex');
+    }
+
+    async function executeWorkerJoin() {
+      const btn = document.getElementById('btn-execute-join');
+      const box = document.getElementById('join-progress-box');
+      const title = document.getElementById('join-status-title');
+      const logs = document.getElementById('join-log-text');
+      const workerIp = document.getElementById('join-worker-ip').value.trim();
+      const workerUser = document.getElementById('join-worker-user').value.trim();
+
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Menghubungkan...';
+      box.classList.remove('hidden');
+      title.innerText = "Membuat token join di master dan mereset worker via SSH...";
+      logs.innerText = `Menghubungkan ke ${workerUser}@${workerIp}...\n`;
+      refreshIcons();
+
+      try {
+        const res = await apiFetch('/api/worker/join', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ worker_ip: workerIp, worker_user: workerUser })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          title.innerText = "✅ Worker Berhasil Terhubung ke Master!";
+          title.className = "text-emerald-400 font-bold";
+          logs.innerText += `Perintah Join: ${data.join_command}\n\nOutput Worker:\n${data.worker_output}\n\nWorker sekarang telah bergabung ke klaster!`;
+        } else {
+          title.innerText = "⚠️ Terjadi Kendala saat Join";
+          title.className = "text-red-400 font-bold";
+          logs.innerText += `Error:\n${data.worker_error || data.error || 'Gagal mengeksekusi'}\n\nOutput:\n${data.worker_output || ''}`;
+        }
+      } catch (err) {
+        title.innerText = "Error: " + err.message;
+        logs.innerText += err.stack || err.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="zap" class="w-4 h-4"></i> Mulai Eksekusi Join Ulang';
+        refreshIcons();
+        loadOverview();
+      }
+    }
+
+    // Helpers
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function formatMarkdown(text) {
+      if (!text) return '';
+      let html = escapeHtml(text);
+      html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-800 text-emerald-300 mono text-[11px]">$1</code>');
+      html = html.replace(/^\s*-\s+(.*)$/gm, '<li class="ml-4 list-disc">$1</li>');
+      html = html.replace(/\n\n/g, '<br/><br/>');
+      return html;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      refreshIcons();
+      setInterval(() => {
+        if (currentTab === 'overview' && currentUser) loadOverview();
+      }, 15000);
+    });
+  </script>
+</body>
+</html>

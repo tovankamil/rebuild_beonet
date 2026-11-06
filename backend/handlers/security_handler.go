@@ -142,20 +142,51 @@ func (h *SecurityHandler) UnblockIP(c *gin.Context) {
 	})
 }
 
-// TestSecurityAlert menguji konektivitas saluran alert Telegram & WhatsApp tanpa mencemari log ancaman riil
+// TestSecurityAlert menguji konektivitas saluran alert Telegram & WhatsApp atau menjalankan simulasi ancaman
 // POST /api/admin/security/test-alert
 func (h *SecurityHandler) TestSecurityAlert(c *gin.Context) {
+	var req models.TestAlertRequest
+	_ = c.ShouldBindJSON(&req)
+
 	tgSuccess := false
 	waSuccess := false
 
 	testMsg := "🔍 *[DIAGNOSTIK SISTEM SOC BIONET]*\n" +
 		"Pengujian koneksi saluran alert keamanan berhasil.\n" +
 		"WAF & Security Shield beroperasi normal pada mode aktif."
+	if req.ThreatType != "" {
+		testMsg = fmt.Sprintf("⚠️ *[SIMULASI INSIDEN SOC BIONET]*\nJenis Ancaman: %s\nIP: %s\nKota: %s\nPayload: %s",
+			req.ThreatType, req.IPAddress, req.City, req.Payload)
+	}
 
 	if services.GlobalTelegramService != nil {
 		if err := services.GlobalTelegramService.NotifyAdmin(testMsg); err == nil {
 			tgSuccess = true
 		}
+	}
+
+	// Jika pemanggilan membawa simulasi ancaman spesifik (misal dari simulation testing / SOC probe test)
+	if req.ThreatType != "" {
+		simulatedLog := models.SecurityThreatLog{
+			ThreatType:   req.ThreatType,
+			IPAddress:    req.IPAddress,
+			City:         req.City,
+			Payload:      req.Payload,
+			Severity:     "high",
+			Endpoint:     "/api/admin/security/test-alert",
+			Method:       "POST",
+			Blocked:      false,
+			ActionTaken:  "simulated",
+			RequestCount: 1,
+			CreatedAt:    time.Now(),
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "success",
+			"message": "Uji diagnostik koneksi saluran alert berhasil dikirimkan",
+			"data":    simulatedLog,
+		})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{

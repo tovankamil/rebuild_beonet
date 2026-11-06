@@ -5,6 +5,10 @@ type DashboardStatsResponse struct {
 	WalletBalance        float64             `json:"wallet_balance"`
 	PointLeft            float64             `json:"point_left"`
 	PointRight           float64             `json:"point_right"`
+	WaitingLeft          float64             `json:"waiting_left"`
+	WaitingRight         float64             `json:"waiting_right"`
+	PairedPoints         float64             `json:"paired_points"`
+	PointBalance         *PointBalance       `json:"point_balance,omitempty"`
 	TotalBonusMonth      float64             `json:"total_bonus_month"`
 	DirectReferralsCount int64               `json:"direct_referrals_count"`
 	TotalNetworkCount    int64               `json:"total_network_count"`

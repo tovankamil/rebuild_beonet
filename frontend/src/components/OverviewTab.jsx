@@ -91,8 +91,8 @@ export default function OverviewTab({
     }).format(val || 0);
   };
 
-  const pointLeft = stats?.point_balance?.point_left || 125;
-  const pointRight = stats?.point_balance?.point_right || 98;
+  const pointLeft = stats?.point_left ?? stats?.point_balance?.point_left ?? 0;
+  const pointRight = stats?.point_right ?? stats?.point_balance?.point_right ?? 0;
   const totalPoints = pointLeft + pointRight || 1;
   const leftPct = Math.round((pointLeft / totalPoints) * 100);
   const rightPct = 100 - leftPct;

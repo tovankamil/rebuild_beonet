@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm/clause"
 )
 
 // PaymentHandler handles Midtrans Snap token generation, webhooks, payment configs, and Iris payouts
@@ -429,15 +430,35 @@ func (h *PaymentHandler) ProcessAutoDisbursement(c *gin.Context) {
 	adminID := c.GetString("user_id")
 
 	var wd models.Withdrawal
-	if err := config.DB.Preload("Bank").Preload("User").Where("id = ?", withdrawalID).First(&wd).Error; err != nil {
+
+	// 1. Atomic state check & transition to 'processing' with Pessimistic Row Lock (FOR UPDATE)
+	tx := config.DB.Begin()
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Preload("Bank").Preload("User").Where("id = ?", withdrawalID).First(&wd).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusNotFound, gin.H{"status": "error", "message": "Data penarikan dana tidak ditemukan"})
 		return
 	}
 
 	if wd.Status == "completed" {
+		tx.Rollback()
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Penarikan dana sudah berhasil dicairkan sebelumnya"})
 		return
 	}
+
+	if wd.Status == "processing" {
+		tx.Rollback()
+		c.JSON(http.StatusConflict, gin.H{"status": "error", "message": "Penarikan dana sedang dalam proses pencairan Midtrans Iris"})
+		return
+	}
+
+	oldStatus := wd.Status
+	wd.Status = "processing"
+	if err := tx.Save(&wd).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal mengunci status penarikan dana"})
+		return
+	}
+	tx.Commit()
 
 	bankName := ""
 	accountNumber := ""
@@ -465,6 +486,7 @@ func (h *PaymentHandler) ProcessAutoDisbursement(c *gin.Context) {
 	}
 
 	if bankName == "" || accountNumber == "" {
+		config.DB.Model(&wd).Update("status", oldStatus)
 		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Informasi rekening bank tujuan belum lengkap"})
 		return
 	}
@@ -477,13 +499,14 @@ func (h *PaymentHandler) ProcessAutoDisbursement(c *gin.Context) {
 		}
 	}
 
+	// 2. Call Midtrans Iris Payout API with Idempotency Key = wd.ID
 	payoutID, payoutStatus, err := h.midtransService.CreatePayout(wd.ID, disbAmount, bankName, accountNumber, recipientName)
 	if err != nil {
+		config.DB.Model(&wd).Update("status", "failed")
 		c.JSON(http.StatusInternalServerError, gin.H{"status": "error", "message": "Gagal memproses pencairan Midtrans Iris: " + err.Error()})
 		return
 	}
 
-	oldStatus := wd.Status
 	wd.Status = "completed"
 	wd.FlipTransactionID = &payoutID
 	config.DB.Save(&wd)

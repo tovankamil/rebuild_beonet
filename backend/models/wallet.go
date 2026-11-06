@@ -50,11 +50,12 @@ func (wt *WalletTransaction) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 type PointBalance struct {
-	ID         string    `gorm:"type:char(36);primaryKey" json:"id"`
-	UserID     string    `gorm:"type:char(36);not null;index" json:"user_id"`
-	PointLeft  float64   `gorm:"type:decimal(15,2);default:0.00" json:"point_left"`
-	PointRight float64   `gorm:"type:decimal(15,2);default:0.00" json:"point_right"`
-	UpdatedAt  time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	ID           string    `gorm:"type:char(36);primaryKey" json:"id"`
+	UserID       string    `gorm:"type:char(36);not null;index" json:"user_id"`
+	PointLeft    float64   `gorm:"type:decimal(15,2);default:0.00" json:"point_left"`
+	PointRight   float64   `gorm:"type:decimal(15,2);default:0.00" json:"point_right"`
+	PairedPoints float64   `gorm:"type:decimal(15,2);default:0.00" json:"paired_points"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 
 	User *User `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"user,omitempty"`
 }

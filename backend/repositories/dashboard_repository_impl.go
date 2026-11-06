@@ -3,6 +3,7 @@ package repositories
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -39,10 +40,14 @@ func (r *dashboardRepositoryImpl) GetStats(userID string) (*models.DashboardStat
 	// 2. Point Balance
 	var point models.PointBalance
 	var pointLeft, pointRight float64 = 0.0, 0.0
+	var pairedPoints float64 = 0.0
 	if err := r.db.Where("user_id = ?", userID).First(&point).Error; err == nil {
 		pointLeft = point.PointLeft
 		pointRight = point.PointRight
+		pairedPoints = point.PairedPoints
 	}
+	waitingLeft := math.Max(0, pointLeft-pairedPoints)
+	waitingRight := math.Max(0, pointRight-pairedPoints)
 
 	// 3. Total Bonus This Month
 	now := time.Now()
@@ -77,6 +82,10 @@ func (r *dashboardRepositoryImpl) GetStats(userID string) (*models.DashboardStat
 		WalletBalance:        balance,
 		PointLeft:            pointLeft,
 		PointRight:           pointRight,
+		WaitingLeft:          waitingLeft,
+		WaitingRight:         waitingRight,
+		PairedPoints:         pairedPoints,
+		PointBalance:         &point,
 		TotalBonusMonth:      totalBonusMonth,
 		DirectReferralsCount: directCount,
 		TotalNetworkCount:    networkCount,
@@ -385,10 +394,11 @@ func addPointBalance(tx *gorm.DB, userID string, points float64, position string
 	var pb models.PointBalance
 	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("user_id = ?", userID).First(&pb).Error; err != nil {
 		pb = models.PointBalance{
-			ID:         uuid.New().String(),
-			UserID:     userID,
-			PointLeft:  0,
-			PointRight: 0,
+			ID:           uuid.New().String(),
+			UserID:       userID,
+			PointLeft:    0,
+			PointRight:   0,
+			PairedPoints: 0,
 		}
 		if position == "kiri" {
 			pb.PointLeft = points
@@ -398,17 +408,97 @@ func addPointBalance(tx *gorm.DB, userID string, points float64, position string
 		if err := tx.Create(&pb).Error; err != nil {
 			// If concurrent transaction created it first, fallback to atomic increment
 			if position == "kiri" {
-				return tx.Model(&models.PointBalance{}).Where("user_id = ?", userID).Update("point_left", gorm.Expr("point_left + ?", points)).Error
+				if err := tx.Model(&models.PointBalance{}).Where("user_id = ?", userID).Update("point_left", gorm.Expr("point_left + ?", points)).Error; err != nil {
+					return err
+				}
+			} else {
+				if err := tx.Model(&models.PointBalance{}).Where("user_id = ?", userID).Update("point_right", gorm.Expr("point_right + ?", points)).Error; err != nil {
+					return err
+				}
 			}
-			return tx.Model(&models.PointBalance{}).Where("user_id = ?", userID).Update("point_right", gorm.Expr("point_right + ?", points)).Error
 		}
+	} else {
+		if position == "kiri" {
+			if err := tx.Model(&pb).Update("point_left", gorm.Expr("point_left + ?", points)).Error; err != nil {
+				return err
+			}
+		} else {
+			if err := tx.Model(&pb).Update("point_right", gorm.Expr("point_right + ?", points)).Error; err != nil {
+				return err
+			}
+		}
+	}
+
+	return processRealtimePairing(tx, userID)
+}
+
+func processRealtimePairing(tx *gorm.DB, userID string) error {
+	var pb models.PointBalance
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("user_id = ?", userID).First(&pb).Error; err != nil {
 		return nil
 	}
 
-	if position == "kiri" {
-		return tx.Model(&pb).Update("point_left", gorm.Expr("point_left + ?", points)).Error
+	eligiblePairs := math.Floor(math.Min(pb.PointLeft, pb.PointRight))
+	newPairs := eligiblePairs - pb.PairedPoints
+	if newPairs <= 0 {
+		return nil
 	}
-	return tx.Model(&pb).Update("point_right", gorm.Expr("point_right + ?", points)).Error
+
+	// Default Silver pairing bonus: Rp 20.000 / pair
+	pairingRate := 20000.0
+	var pin models.Pin
+	if err := tx.Preload("Package").Where("used_by_id = ? OR owner_id = ?", userID, userID).Order("created_at DESC").First(&pin).Error; err == nil && pin.Package != nil && pin.Package.PairingBonus > 0 {
+		pairingRate = pin.Package.PairingBonus
+	}
+
+	totalBonus := newPairs * pairingRate
+
+	if err := tx.Model(&pb).Update("paired_points", eligiblePairs).Error; err != nil {
+		return err
+	}
+
+	var wallet models.Wallet
+	if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("user_id = ?", userID).First(&wallet).Error; err != nil {
+		wallet = models.Wallet{
+			ID:      uuid.New().String(),
+			UserID:  userID,
+			Balance: 0.00,
+		}
+		if err := tx.Create(&wallet).Error; err != nil {
+			return err
+		}
+	}
+
+	newBalance := wallet.Balance + totalBonus
+	if err := tx.Model(&wallet).Update("balance", newBalance).Error; err != nil {
+		return err
+	}
+
+	wt := models.WalletTransaction{
+		ID:              uuid.New().String(),
+		UserID:          userID,
+		Type:            "credit",
+		Amount:          totalBonus,
+		BalanceAfter:    newBalance,
+		Description:     fmt.Sprintf("Bonus Pasangan (%d Pasang @ Rp %.0f)", int64(newPairs), pairingRate),
+		TransactionDate: time.Now(),
+	}
+	if err := tx.Create(&wt).Error; err != nil {
+		return err
+	}
+
+	notif := models.Notification{
+		ID:        uuid.New().String(),
+		UserID:    userID,
+		Title:     "Bonus Pasangan Cair!",
+		Message:   fmt.Sprintf("Bonus pasangan realtime senilai Rp %.0f (%d pasang) telah masuk ke saldo dompet Anda.", totalBonus, int64(newPairs)),
+		Type:      "transaction",
+		Link:      "/overview",
+		CreatedAt: time.Now(),
+	}
+	_ = tx.Create(&notif)
+
+	return nil
 }
 
 func (r *dashboardRepositoryImpl) RegisterDownline(sponsorUserID string, req models.RegisterDownlineRequest) (*models.RegisterDownlineResponse, error) {

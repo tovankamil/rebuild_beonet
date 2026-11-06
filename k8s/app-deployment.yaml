@@ -22,9 +22,11 @@ spec:
       labels:
         app: synetiq-app
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: app
-          image: ghcr.io/tovankamil/synetiq-app:latest
+          image: ghcr.io/tovankamil/rebuild_beonet:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
@@ -48,14 +50,14 @@ spec:
             httpGet:
               path: /api/ping
               port: 8081
-            initialDelaySeconds: 5
+            initialDelaySeconds: 15
             periodSeconds: 10
             timeoutSeconds: 3
           livenessProbe:
             httpGet:
               path: /api/ping
               port: 8081
-            initialDelaySeconds: 15
+            initialDelaySeconds: 25
             periodSeconds: 20
             timeoutSeconds: 5
       volumes:

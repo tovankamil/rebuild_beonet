@@ -62,12 +62,22 @@ jobs:
         run: |
           echo "Applying Kubernetes manifests..."
           kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/mysql.yaml
           kubectl apply -f k8s/waha.yaml
           kubectl apply -f k8s/app-config.yaml
+
+          echo "Configuring GitHub Container Registry Secret in cluster..."
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username="${{ github.actor }}" \
+            --docker-password="${{ secrets.GITHUB_TOKEN }}" \
+            --dry-run=client -o yaml -n synetiq | kubectl apply -f -
+
           kubectl apply -f k8s/app-deployment.yaml
 
-          echo "Triggering zero-downtime rolling update..."
-          kubectl set image deployment/synetiq-app app=ghcr.io/${{ github.repository }}:latest -n synetiq
-          kubectl rollout restart deployment/synetiq-app -n synetiq
-          kubectl rollout status deployment/synetiq-app -n synetiq --timeout=180s
+          echo "Triggering rolling update to ${{ github.sha }}..."
+          kubectl set image deployment/synetiq-app app=ghcr.io/${{ github.repository }}:${{ github.sha }} -n synetiq
+
+          echo "Waiting for rollout to finish..."
+          kubectl rollout status deployment/synetiq-app -n synetiq --timeout=300s
 

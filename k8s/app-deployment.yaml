@@ -27,7 +27,7 @@ spec:
       containers:
         - name: app
           image: ghcr.io/tovankamil/rebuild_beonet:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
               name: http

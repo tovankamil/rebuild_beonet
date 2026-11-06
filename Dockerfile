@@ -16,11 +16,11 @@ COPY frontend/ ./
 RUN npm run build
 
 # STAGE 2: Build Golang Server with Embedded Frontend
-FROM golang:1.22-alpine AS backend-builder
+FROM golang:alpine AS backend-builder
 WORKDIR /app/backend
 
 # Install build essentials if needed for static compilation
-RUN apk add --no-cache git
+RUN apk add --no-cache git ca-certificates
 
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download

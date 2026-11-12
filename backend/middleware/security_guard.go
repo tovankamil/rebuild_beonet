@@ -62,17 +62,8 @@ func SecurityGuardMiddleware() gin.HandlerFunc {
 		}
 
 		// 3. Flooding / DDoS Detection (Rate-limiting per IP)
-		// warning > 60 req/min, blocking otomatis > 120 req/min dengan HTTP 429
-		isRateBlocked, isRateWarning, reqCount := securityService.CheckRateLimit(clientIP)
-		if isRateBlocked {
-			c.JSON(http.StatusTooManyRequests, gin.H{
-				"status":        "error",
-				"message":       "Terlalu banyak permintaan (Flooding / DDoS Attack Protection). Akses IP Anda diblokir sementara.",
-				"request_count": reqCount,
-			})
-			c.Abort()
-			return
-		}
+		// Mode Warning Saja: traffic tinggi (>60 atau >120 req/min) hanya disematkan header peringatan, akses tetap diizinkan
+		_, isRateWarning, reqCount := securityService.CheckRateLimit(clientIP)
 		if isRateWarning {
 			c.Header("X-RateLimit-Warning", fmt.Sprintf("High request rate: %d reqs/min", reqCount))
 		}

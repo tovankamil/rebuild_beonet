@@ -10,7 +10,9 @@ frontend/dist/
 build/
 
 # Binaries & executables
+synetiq-server-linux
 *.exe
+synetiq-server-linux
 *.exe~
 *.dll
 *.so

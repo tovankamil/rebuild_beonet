@@ -2709,12 +2709,12 @@ export default function WhatsAppMessengerSuite({ user, onOpenObjectionModal }) {
 
                 <div className="pt-1">
                   <a
-                    href="http://localhost:3000/dashboard"
+                    href={typeof window !== 'undefined' ? `${window.location.protocol}//${window.location.hostname}:30300/dashboard/` : 'http://103.172.205.41:30300/dashboard/'}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center space-x-1.5 text-xs font-bold text-slate-600 hover:text-emerald-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl transition"
                   >
-                    <span>Buka WAHA Docker Dashboard (Port 3000)</span>
+                    <span>Buka WAHA Gateway Dashboard (Port 30300)</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>

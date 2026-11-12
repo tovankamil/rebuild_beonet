@@ -234,6 +234,30 @@ type RORetentionResponse struct {
 }
 
 // ============================================================================
+// 10. Agentic AI & LangChain-style Autonomous Multi-Agent Workflows
+// ============================================================================
+
+type AgenticStep struct {
+	StepNumber  int    `json:"step_number"`
+	Subagent    string `json:"subagent"`
+	Action      string `json:"action"`
+	Output      string `json:"output"`
+	Status      string `json:"status"`
+}
+
+type AgenticWorkflowRequest struct {
+	Goal        string `json:"goal" binding:"required"`
+	ContextData string `json:"context_data"`
+}
+
+type AgenticWorkflowResponse struct {
+	Status             string        `json:"status"`
+	Goal               string        `json:"goal"`
+	ExecutionSteps     []AgenticStep `json:"execution_steps"`
+	ExecutiveSynthesis string        `json:"executive_synthesis"`
+}
+
+// ============================================================================
 // 9. AI Commercial Product Image Generator (Gemini + FLUX)
 // ============================================================================
 

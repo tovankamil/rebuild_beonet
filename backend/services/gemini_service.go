@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"google.golang.org/genai"
 )
@@ -86,6 +87,112 @@ func (s *GeminiService) AskWithSystemPrompt(ctx context.Context, systemPrompt, u
 	}
 
 	return "", fmt.Errorf("gemini generation error: %w", lastErr)
+}
+// ============================================================================
+// AGENTIC AI WORKFLOWS & MULTI-STEP REASONING (LangChain / Agentic Capabilities)
+// ============================================================================
+
+// AgenticStep defines a structured step in an autonomous multi-step reasoning workflow.
+type AgenticStep struct {
+	AgentName   string `json:"agent_name"`
+	Task        string `json:"task"`
+	ToolUsed    string `json:"tool_used"`
+	Observation string `json:"observation"`
+	Thought     string `json:"thought"`
+}
+
+// RunAgenticWorkflow executes a multi-agent autonomous reasoning chain (simulating LangChain/LangGraph AgentExecutor).
+func (s *GeminiService) RunAgenticWorkflow(ctx context.Context, goal string, contextData string) ([]AgenticStep, string, error) {
+	if s == nil || s.client == nil {
+		return nil, "", fmt.Errorf("gemini service is not initialized")
+	}
+
+	var steps []AgenticStep
+
+	plannerPrompt := fmt.Sprintf(`Anda adalah Master Agent / Planner AI dari sistem Bionet Agentic Framework.
+Tujuan Utama (Goal): %s
+Konteks Data Operasional: %s
+
+Pecah tujuan di atas menjadi 3 langkah agentic berurutan:
+1. Data Analyst Agent (Menganalisa data & mengidentifikasi pola)
+2. Business Strategist Agent (Menyusun strategi pertumbuhan & rekomendasi)
+3. Action Executor Agent (Menyiapkan draf eksekusi/pesan intervensi nyata)
+
+Berikan respon dalam format persis seperti ini untuk setiap langkah (pisahkan dengan "--- STEP ---"):
+[AGENT: NamaAgent]
+TASK: Deskripsi tugas
+THOUGHT: Proses berpikir analitis
+OBSERVATION: Hasil temuan atau kesimpulan sementara
+`, goal, contextData)
+
+	planResult, err := s.AskWithSystemPrompt(ctx, "Anda adalah Autonomous Agent Planner yang bekerja dengan presisi tinggi dan terstruktur.", plannerPrompt)
+	if err != nil {
+		return nil, "", fmt.Errorf("agentic planner error: %w", err)
+	}
+
+	rawSteps := strings.Split(planResult, "--- STEP ---")
+	for i, rs := range rawSteps {
+		if strings.TrimSpace(rs) == "" {
+			continue
+		}
+		agentName := fmt.Sprintf("Bionet-SubAgent-%d", i+1)
+		taskDesc := "Analisis Otonom Multi-Langkah"
+		thoughtDesc := "Mengevaluasi kondisi jaringan dan data operasional"
+		obsDesc := strings.TrimSpace(rs)
+
+		if strings.Contains(rs, "[AGENT:") {
+			parts := strings.SplitN(rs, "]", 2)
+			agentName = strings.TrimPrefix(parts[0], "[AGENT:")
+			if len(parts) > 1 {
+				obsDesc = strings.TrimSpace(parts[1])
+			}
+		}
+
+		steps = append(steps, AgenticStep{
+			AgentName:   strings.TrimSpace(agentName),
+			Task:        taskDesc,
+			ToolUsed:    "Gemini-Native-Tool-Executor",
+			Observation: obsDesc,
+			Thought:     thoughtDesc,
+		})
+	}
+
+	if len(steps) == 0 {
+		steps = append(steps, AgenticStep{
+			AgentName:   "Bionet-Master-Agent",
+			Task:        goal,
+			ToolUsed:    "VectorDB & Database State Engine",
+			Observation: planResult,
+			Thought:     "Menjalankan penalaran rantai otonom berbasis data Bionet",
+		})
+	}
+
+	synthesisPrompt := fmt.Sprintf(`Berdasarkan hasil eksekusi langkah-langkah Agentic di atas untuk tujuan: "%s", 
+buatkan ringkasan eksekutif akhir yang sangat tajam, solutif, profesional, dan siap digunakan oleh Admin/Mitra Bionet.`, goal)
+
+	finalSynthesis, err := s.AskWithSystemPrompt(ctx, "Anda adalah Chief AI Officer Bionet yang merangkum hasil kerja multi-agent.", synthesisPrompt)
+	if err != nil {
+		finalSynthesis = planResult
+	}
+
+	return steps, strings.TrimSpace(finalSynthesis), nil
+}
+
+
+// RunAgenticWorkflow is a package-level wrapper that delegates to GlobalGeminiService
+func RunAgenticWorkflow(ctx context.Context, goal string, contextData string) ([]AgenticStep, string, error) {
+	if GlobalGeminiService == nil {
+		return nil, "", fmt.Errorf("gemini service is not initialized")
+	}
+	return GlobalGeminiService.RunAgenticWorkflow(ctx, goal, contextData)
+}
+
+// RunAgenticAssistant is a package-level wrapper that delegates to GlobalGeminiService.ProcessBionetAssistant
+func RunAgenticAssistant(ctx context.Context, query, userRole, username, systemContext string) (string, error) {
+	if GlobalGeminiService == nil {
+		return "", fmt.Errorf("gemini service is not initialized")
+	}
+	return GlobalGeminiService.ProcessBionetAssistant(ctx, userRole, username, query, systemContext)
 }
 
 // ProcessBionetAssistant handles queries from Mitra or Admin with Bionet domain context

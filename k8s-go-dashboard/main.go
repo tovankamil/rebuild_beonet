@@ -28,7 +28,7 @@ var staticFS embed.FS
 var (
 	port           = getEnv("PORT", "8080")
 	geminiApiKey   = getEnv("GEMINI_API_KEY", "")
-	geminiModel    = getEnv("GEMINI_MODEL", "gemini-3.1-flash-lite")
+	geminiModel    = getEnv("GEMINI_MODEL", "gemini-3.5-flash")
 	usersFilePath  = getEnv("USERS_FILE", "/home/tovan/k8s-dashboard-users.json")
 	workerIP       = "103.187.147.187"
 	workerUser     = "tovan"
@@ -1194,14 +1194,31 @@ func handleWorkerJoin(w http.ResponseWriter, r *http.Request) {
 }
 
 // -------------------------------------------------------------
-// Gemini DevOps Copilot Handler
+// Gemini DevOps Copilot Handler (Multimodal: Text + Image)
 // -------------------------------------------------------------
 type GeminiChatRequest struct {
-	Message string `json:"message"`
-	History []struct {
+	Message     string `json:"message"`
+	ImageBase64 string `json:"image_base64,omitempty"`
+	ImageMime   string `json:"image_mime,omitempty"`
+	History     []struct {
 		Role string `json:"role"`
 		Text string `json:"text"`
 	} `json:"history"`
+}
+
+type GeminiInlineData struct {
+	MimeType string `json:"mimeType"`
+	Data     string `json:"data"`
+}
+
+type GeminiContentPart struct {
+	Text       string            `json:"text,omitempty"`
+	InlineData *GeminiInlineData `json:"inlineData,omitempty"`
+}
+
+type GeminiContentItem struct {
+	Role  string              `json:"role"`
+	Parts []GeminiContentPart `json:"parts"`
 }
 
 type GeminiAPIRequest struct {
@@ -1210,12 +1227,7 @@ type GeminiAPIRequest struct {
 			Text string `json:"text"`
 		} `json:"parts"`
 	} `json:"system_instruction"`
-	Contents []struct {
-		Role  string `json:"role"`
-		Parts []struct {
-			Text string `json:"text"`
-		} `json:"parts"`
-	} `json:"contents"`
+	Contents         []GeminiContentItem `json:"contents"`
 	GenerationConfig struct {
 		Temperature     float64 `json:"temperature"`
 		MaxOutputTokens int     `json:"maxOutputTokens"`
@@ -1224,9 +1236,40 @@ type GeminiAPIRequest struct {
 
 func handleGeminiChat(w http.ResponseWriter, r *http.Request) {
 	var body GeminiChatRequest
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil || strings.TrimSpace(body.Message) == "" {
-		sendJSON(w, http.StatusBadRequest, map[string]string{"error": "No message provided"})
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sendJSON(w, http.StatusBadRequest, map[string]string{"error": "Format request tidak valid"})
 		return
+	}
+
+	msgTrimmed := strings.TrimSpace(body.Message)
+	imgBase64 := strings.TrimSpace(body.ImageBase64)
+	imgMime := strings.TrimSpace(body.ImageMime)
+
+	if msgTrimmed == "" && imgBase64 == "" {
+		sendJSON(w, http.StatusBadRequest, map[string]string{"error": "Harap masukkan pesan atau upload gambar"})
+		return
+	}
+
+	// Default prompt jika pengguna hanya mengunggah gambar tanpa teks
+	if msgTrimmed == "" && imgBase64 != "" {
+		msgTrimmed = "Tolong periksa dan analisis gambar/tangkapan layar sistem atau pesan error berikut ini, lalu jelaskan akar masalahnya dan berikan rekomendasi perintah kubectl atau solusinya."
+	}
+
+	// Normalisasi base64 data jika membawa header data:image/...;base64,
+	if imgBase64 != "" {
+		if commaIdx := strings.Index(imgBase64, ","); commaIdx != -1 {
+			header := imgBase64[:commaIdx]
+			imgBase64 = imgBase64[commaIdx+1:]
+			if imgMime == "" && strings.HasPrefix(header, "data:") {
+				headerClean := strings.TrimPrefix(header, "data:")
+				if semiIdx := strings.Index(headerClean, ";"); semiIdx != -1 {
+					imgMime = headerClean[:semiIdx]
+				}
+			}
+		}
+		if imgMime == "" {
+			imgMime = "image/png"
+		}
 	}
 
 	overview := getClusterOverview()
@@ -1238,7 +1281,12 @@ func handleGeminiChat(w http.ResponseWriter, r *http.Request) {
 	podsInfo := fmt.Sprintf("Total: %d, Running: %d, Pending: %d, Failed: %d",
 		overview.Pods.Total, overview.Pods.Running, overview.Pods.Pending, overview.Pods.Failed)
 
-	systemInstruction := fmt.Sprintf(`Anda adalah Antigravity AI DevOps Copilot & Kubernetes Administrator untuk server klaster SYNETIQ.
+	// Ambil data riil resource klaster saat ini untuk mencegah salah nama atau salah port
+	_, liveSvc, _ := runCmd("kubectl get svc -A --no-headers 2>/dev/null | awk '{print $1\"/\"$2\":\"$5}' | head -n 25", 4*time.Second)
+	_, liveDeploy, _ := runCmd("kubectl get deployments -A --no-headers 2>/dev/null | awk '{print $1\"/\"$2}' | head -n 25", 4*time.Second)
+	_, livePods, _ := runCmd("kubectl get pods -A --no-headers 2>/dev/null | awk '{print $1\"/\"$2\":\"$3\":\"$4}' | head -n 30", 4*time.Second)
+
+	systemInstruction := fmt.Sprintf(`Anda adalah Antigravity AI Autonomous DevOps Copilot & Kubernetes Administrator untuk server klaster SYNETIQ.
 Klaster Kubernetes v1.29.15:
 - Server Master: %s (Hostname: kubernetesmaster)
 - Server Worker: %s (User: %s)
@@ -1246,17 +1294,34 @@ Klaster Kubernetes v1.29.15:
 - Status Pods: [%s]
 - Memory Master: %dMB / %dMB (%.1f%%)
 
-TUGAS ANDA:
-1. Bantu pengguna mengelola, mendiagnosis, dan mengonfigurasi Kubernetes klaster secara mudah dan solutif dalam Bahasa Indonesia.
-2. Setiap kali Anda memberikan solusi yang membutuhkan eksekusi bash atau kubectl, SELALU sertakan blok perintah yang siap dieksekusi dengan sintaks:
-`+"```bash-exec\n<perintah yang valid>\n```"+`
-Sistem dashboard kami memiliki tombol '⚡ Jalankan Perintah' yang mendeteksi blok bash-exec ini sehingga pengguna dapat langsung mengeksekusinya dengan 1 klik!
-3. Jika pengguna meminta untuk 'sambungkan worker' atau 'setup worker %s':
-Jelaskan bahwa master dapat mengeksekusi reset dan kubeadm join ke worker %s via SSH, dan sertakan perintah yang sesuai atau sarankan tombol 1-Click Join di dashboard.
-4. Jawab dengan ramah, rapi, profesional, dan gunakan poin-poin penjelasan yang jelas.`,
+RESOURCE NYATA DI KLASTER SAAT INI (GUNAKAN NAMA DAN NAMESPACE INI, JANGAN MENGARANG):
+- SERVICES & PORTS AKTIF:
+%s
+- DEPLOYMENTS AKTIF:
+%s
+- PODS AKTIF:
+%s
+
+PRINSIP UTAMA: PERBAIKAN HARUS 100%% TUNTAS, TERVERIFIKASI, DAN LANGSUNG EKSEKUSI!
+Pengguna menginginkan masalahnya BENAR-BENAR SELESAI sampai tuntas. Ikuti aturan mutlak ini:
+1. DILARANG mengajukan pertanyaan balik. Langsung ambil tindakan penyelesaian menyeluruh.
+2. DILARANG menggunakan placeholder manual seperti <PORT>, <NAMA_POD>, <IP>, <SERVICE_NAME>. Perintah Anda HARUS mandiri (self-contained) dan otomatis mengambil port dinamis menggunakan jsonpath atau ekspresi bash.
+3. SETIAP PERBAIKAN WAJIB MEMILIKI TAHAP VERIFIKASI AKHIR dalam satu alur skrip:
+   a. Pastikan pod/deployment berstatus Ready ('kubectl rollout status ... --timeout=30s').
+   b. Ambil NodePort secara pasti:
+      NODE_PORT=$(kubectl get svc <nama-svc> -n <ns> -o jsonpath='{.spec.ports[0].nodePort}')
+      echo "=== NODEPORT TERDETEKSI: $NODE_PORT ==="
+      sudo ufw allow ${NODE_PORT}/tcp 2>/dev/null || true
+   c. UJI KONEKSI AKHIR: Lakukan curl lokal untuk membuktikan layanan merespons:
+      curl -s -o /dev/null -w "STATUS KONEKSI HTTP: %%{http_code}\n" http://127.0.0.1:${NODE_PORT} || echo "GAGAL TERHUBUNG"
+4. SELALU sertakan blok perintah yang siap dieksekusi dengan sintaks:
+` + "```bash-exec\n<perintah yang valid, mandiri, dan terverifikasi>\n```" + `
+Sistem backend dashboard kami LANGSUNG MENGEKSEKUSI setiap blok perintah bash-exec ini ke server secara otomatis!
+5. Jika ada screenshot/gambar terlampir: analisis gambar tersebut, temukan akar masalahnya, dan berikan skrip perbaikan yang tuntas.
+6. Berikan penjelasan singkat (1-2 kalimat) mengenai apa yang diperbaiki, lalu sertakan blok bash-exec.`,
 		masterPublicIP, workerIP, workerUser, nodesSummary, podsInfo,
 		overview.MasterMemory.UsedMB, overview.MasterMemory.TotalMB, overview.MasterMemory.Percent,
-		workerIP, workerIP)
+		strings.TrimSpace(liveSvc), strings.TrimSpace(liveDeploy), strings.TrimSpace(livePods))
 
 	var reqBody GeminiAPIRequest
 	reqBody.SystemInstruction.Parts = []struct {
@@ -1265,62 +1330,106 @@ Jelaskan bahwa master dapat mengeksekusi reset dan kubeadm join ke worker %s via
 	reqBody.GenerationConfig.Temperature = 0.4
 	reqBody.GenerationConfig.MaxOutputTokens = 2048
 
+	// Sertakan riwayat obrolan terdahulu (VALIDASI: abaikan jika kosong atau berupa error HTTP)
 	for _, h := range body.History {
+		cleanText := strings.TrimSpace(h.Text)
+		if cleanText == "" || strings.HasPrefix(cleanText, "Gemini HTTP") || strings.HasPrefix(cleanText, "Gagal berkomunikasi") {
+			continue // Mencegah payload part kosong {} yang menyebabkan error 400
+		}
 		role := "user"
 		if h.Role == "model" {
 			role = "model"
 		}
-		reqBody.Contents = append(reqBody.Contents, struct {
-			Role  string `json:"role"`
-			Parts []struct {
-				Text string `json:"text"`
-			} `json:"parts"`
-		}{
+		reqBody.Contents = append(reqBody.Contents, GeminiContentItem{
 			Role: role,
-			Parts: []struct {
-				Text string `json:"text"`
-			}{{Text: h.Text}},
+			Parts: []GeminiContentPart{
+				{Text: cleanText},
+			},
 		})
 	}
 
-	reqBody.Contents = append(reqBody.Contents, struct {
-		Role  string `json:"role"`
-		Parts []struct {
-			Text string `json:"text"`
-		} `json:"parts"`
-	}{
-		Role: "user",
-		Parts: []struct {
-			Text string `json:"text"`
-		}{{Text: body.Message}},
+	// Susun bagian konten pengguna saat ini (mendukung teks + gambar)
+	var currentUserParts []GeminiContentPart
+	if imgBase64 != "" {
+		currentUserParts = append(currentUserParts, GeminiContentPart{
+			InlineData: &GeminiInlineData{
+				MimeType: imgMime,
+				Data:     imgBase64,
+			},
+		})
+	}
+	if msgTrimmed != "" {
+		currentUserParts = append(currentUserParts, GeminiContentPart{
+			Text: msgTrimmed,
+		})
+	} else if imgBase64 == "" {
+		currentUserParts = append(currentUserParts, GeminiContentPart{
+			Text: "Tolong periksa dan bantu konfigurasi klaster Kubernetes ini.",
+		})
+	}
+
+	reqBody.Contents = append(reqBody.Contents, GeminiContentItem{
+		Role:  "user",
+		Parts: currentUserParts,
 	})
 
-	apiURL := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", geminiModel, geminiApiKey)
+	// Model fallback list untuk mencegah error 503 / 429
+	candidateModels := []string{geminiModel, "gemini-3.5-flash", "gemini-flash-lite-latest", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"}
+	seen := make(map[string]bool)
+	var modelsList []string
+	for _, m := range candidateModels {
+		m = strings.TrimSpace(m)
+		if m != "" && !seen[m] {
+			seen[m] = true
+			modelsList = append(modelsList, m)
+		}
+	}
+
+	var respBytes []byte
+	var lastStatus int
+	var success bool
+	var activeModelUsed string
+
+	client := &http.Client{Timeout: 40 * time.Second}
 	jsonPayload, _ := json.Marshal(reqBody)
 
-	httpReq, err := http.NewRequestWithContext(context.Background(), "POST", apiURL, bytes.NewBuffer(jsonPayload))
-	if err != nil {
-		sendJSON(w, http.StatusInternalServerError, map[string]interface{}{"success": false, "reply": err.Error()})
-		return
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
+	for _, m := range modelsList {
+		apiURL := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", m, geminiApiKey)
+		httpReq, err := http.NewRequestWithContext(context.Background(), "POST", apiURL, bytes.NewBuffer(jsonPayload))
+		if err != nil {
+			continue
+		}
+		httpReq.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{Timeout: 35 * time.Second}
-	resp, err := client.Do(httpReq)
-	if err != nil {
-		sendJSON(w, http.StatusInternalServerError, map[string]interface{}{"success": false, "reply": fmt.Sprintf("Gemini API Error: %v", err)})
-		return
-	}
-	defer resp.Body.Close()
+		resp, err := client.Do(httpReq)
+		if err != nil {
+			continue
+		}
+		b, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			continue
+		}
 
-	respBytes, _ := io.ReadAll(resp.Body)
-	if resp.StatusCode != http.StatusOK {
+		lastStatus = resp.StatusCode
+		respBytes = b
+
+		if resp.StatusCode == http.StatusOK {
+			success = true
+			activeModelUsed = m
+			break
+		}
+		log.Printf("Gemini model %s returned HTTP %d. Mencoba model cadangan berikutnya...", m, resp.StatusCode)
+	}
+
+	if !success {
 		sendJSON(w, http.StatusOK, map[string]interface{}{
 			"success": false,
-			"reply":   fmt.Sprintf("Gemini HTTP %d: %s", resp.StatusCode, string(respBytes)),
+			"reply":   fmt.Sprintf("Semua model Gemini sedang sibuk di server Google (HTTP %d): %s", lastStatus, string(respBytes)),
 		})
 		return
 	}
+	_ = activeModelUsed
 
 	var geminiResp struct {
 		Candidates []struct {
@@ -1347,10 +1456,96 @@ Jelaskan bahwa master dapat mengeksekusi reset dan kubeadm join ke worker %s via
 		}
 	}
 
+	type CommandExecutionResult struct {
+		Command  string `json:"command"`
+		ExitCode int    `json:"exit_code"`
+		Stdout   string `json:"stdout"`
+		Stderr   string `json:"stderr"`
+	}
+
+	var executionResults []CommandExecutionResult
+	hasFailure := false
+	var failureOutput string
+
+	for _, cmd := range commands {
+		code, stdout, stderr := runCmd(cmd, 60*time.Second)
+		executionResults = append(executionResults, CommandExecutionResult{
+			Command:  cmd,
+			ExitCode: code,
+			Stdout:   stdout,
+			Stderr:   stderr,
+		})
+		combined := strings.ToLower(stdout + " " + stderr)
+		if code != 0 || strings.Contains(combined, "error") || strings.Contains(combined, "not found") || strings.Contains(combined, "gagal") {
+			hasFailure = true
+			failureOutput += fmt.Sprintf("\nCommand: %s\nExitCode: %d\nOutput: %s %s\n", cmd, code, stdout, stderr)
+		}
+	}
+
+	// JIKA TERJADI KEGAGALAN: Lakukan Autonomous Self-Healing Turn sampai tuntas
+	if hasFailure && len(commands) > 0 {
+		healPrompt := fmt.Sprintf("Eksekusi sebelumnya belum tuntas atau mengalami kendala error berikut:\n%s\nTolong buatkan skrip perbaikan lanjutan yang presisi hingga masalah ini benar-benar selesai dan terverifikasi.", failureOutput)
+
+		reqBody.Contents = append(reqBody.Contents, GeminiContentItem{
+			Role:  "model",
+			Parts: []GeminiContentPart{{Text: replyText}},
+		})
+		reqBody.Contents = append(reqBody.Contents, GeminiContentItem{
+			Role:  "user",
+			Parts: []GeminiContentPart{{Text: healPrompt}},
+		})
+
+		healPayload, _ := json.Marshal(reqBody)
+		for _, m := range modelsList {
+			apiURL := fmt.Sprintf("https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s", m, geminiApiKey)
+			httpReq, err := http.NewRequestWithContext(context.Background(), "POST", apiURL, bytes.NewBuffer(healPayload))
+			if err != nil {
+				continue
+			}
+			httpReq.Header.Set("Content-Type", "application/json")
+			resp, err := client.Do(httpReq)
+			if err != nil {
+				continue
+			}
+			b, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
+			if resp.StatusCode == http.StatusOK {
+				var healResp struct {
+					Candidates []struct {
+						Content struct {
+							Parts []struct {
+								Text string `json:"text"`
+							} `json:"parts"`
+						} `json:"content"`
+					} `json:"candidates"`
+				}
+				if err := json.Unmarshal(b, &healResp); err == nil && len(healResp.Candidates) > 0 && len(healResp.Candidates[0].Content.Parts) > 0 {
+					healReply := healResp.Candidates[0].Content.Parts[0].Text
+					healMatches := reCmd.FindAllStringSubmatch(healReply, -1)
+					for _, hm := range healMatches {
+						if len(hm) > 1 && strings.TrimSpace(hm[1]) != "" {
+							hCmd := strings.TrimSpace(hm[1])
+							hCode, hStdout, hStderr := runCmd(hCmd, 60*time.Second)
+							executionResults = append(executionResults, CommandExecutionResult{
+								Command:  hCmd,
+								ExitCode: hCode,
+								Stdout:   hStdout,
+								Stderr:   hStderr,
+							})
+							replyText += "\n\n---\n**Tindakan Perbaikan Mandiri (Self-Healing):**\n" + healReply
+						}
+					}
+					break
+				}
+			}
+		}
+	}
+
 	sendJSON(w, http.StatusOK, map[string]interface{}{
-		"success":  true,
-		"reply":    replyText,
-		"commands": commands,
+		"success":    true,
+		"reply":      replyText,
+		"commands":   commands,
+		"executions": executionResults,
 	})
 }
 

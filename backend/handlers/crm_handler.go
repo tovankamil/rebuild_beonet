@@ -1494,29 +1494,27 @@ func (h *CRMHandler) UploadWhatsAppAttachment(c *gin.Context) {
 		return
 	}
 
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	allowedExts := map[string]string{
-		".jpg":  "image",
-		".jpeg": "image",
-		".png":  "image",
-		".webp": "image",
-		".gif":  "image",
-		".pdf":  "document",
-		".doc":  "document",
-		".docx": "document",
-		".xls":  "document",
-		".xlsx": "document",
-		".txt":  "document",
-		".mp3":  "audio",
-		".ogg":  "audio",
-		".wav":  "audio",
-		".mp4":  "video",
+	// Enterprise File Security Scanner (Anti-Hack / Anti-Crack / Web Shell / Magic Bytes)
+	scanner := services.GetFileSecurityScanner()
+	scanRes, scanErr := scanner.ScanUploadedFile(header, c.ClientIP(), []services.FileCategory{services.CategoryImages, services.CategoryDocuments, services.CategoryAudio, services.CategoryVideo})
+	if scanErr != nil || !scanRes.IsValid {
+		msg := "Berkas lampiran ditolak oleh sistem keamanan"
+		if scanRes != nil && scanRes.Reason != "" {
+			msg = scanRes.Reason
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": msg})
+		return
 	}
 
-	fileType, allowed := allowedExts[ext]
-	if !allowed {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Format berkas tidak didukung. Format yang diizinkan: JPG, PNG, WEBP, GIF, PDF, DOCX, XLSX, TXT, MP3, MP4"})
-		return
+	ext := scanRes.CleanExt
+	fileType := "document"
+	switch ext {
+	case ".jpg", ".jpeg", ".png", ".webp", ".gif":
+		fileType = "image"
+	case ".mp3", ".ogg", ".wav", ".m4a":
+		fileType = "audio"
+	case ".mp4", ".webm", ".mov":
+		fileType = "video"
 	}
 
 	uploadDir := "./uploads/whatsapp"

@@ -12,6 +12,7 @@ import (
 
 	"bionet-backend/config"
 	"bionet-backend/models"
+	"bionet-backend/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -157,22 +158,22 @@ func (h *BrandingHandler) UploadLogo(c *gin.Context) {
 		return
 	}
 
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	allowed := map[string]bool{
-		".png":  true,
-		".jpg":  true,
-		".jpeg": true,
-		".svg":  true,
-		".webp": true,
-		".ico":  true,
-	}
-	if !allowed[ext] {
+	// Enterprise File Security Scanner (Anti-Hack, Anti-Crack, Web Shell, Magic Bytes)
+	scanner := services.GetFileSecurityScanner()
+	scanRes, scanErr := scanner.ScanUploadedFile(header, c.ClientIP(), []services.FileCategory{services.CategoryImages})
+	if scanErr != nil || !scanRes.IsValid {
+		msg := "File logo ditolak oleh sistem keamanan"
+		if scanRes != nil && scanRes.Reason != "" {
+			msg = scanRes.Reason
+		}
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
-			"message": "Format file tidak didukung. Harap upload PNG, JPG, SVG, WebP, atau ICO",
+			"message": msg,
 		})
 		return
 	}
+
+	ext := scanRes.CleanExt
 
 	// Proteksi XSS pada file SVG (Anti Stored XSS)
 	if ext == ".svg" {

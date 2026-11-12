@@ -121,7 +121,12 @@ func (s *SecurityService) IsIPBlocked(ip string) (bool, string) {
 
 // BlockIP memblokir IP secara manual atau otomatis
 func (s *SecurityService) BlockIP(ip, reason, threatType, blockedBy string, duration time.Duration) models.BlockedIP {
-	if ip == "127.0.0.1" || ip == "::1" || ip == "localhost" || ip == "" {
+	// Whitelist internal cluster / private networks agar NAT / Calico IP tidak terblokir
+	if ip == "127.0.0.1" || ip == "::1" || ip == "localhost" || ip == "" ||
+		strings.HasPrefix(ip, "10.") || strings.HasPrefix(ip, "192.168.") ||
+		strings.HasPrefix(ip, "172.16.") || strings.HasPrefix(ip, "172.17.") ||
+		strings.HasPrefix(ip, "172.18.") || strings.HasPrefix(ip, "172.19.") ||
+		strings.HasPrefix(ip, "172.2") || strings.HasPrefix(ip, "172.3") {
 		return models.BlockedIP{IPAddress: ip, Reason: reason, ThreatType: threatType, IsActive: false}
 	}
 	var expiresAt *time.Time
@@ -235,32 +240,30 @@ func (s *SecurityService) CheckRateLimit(ip string) (isBlocked bool, isWarning b
 	count := len(validTimestamps)
 	s.mu.Unlock()
 
-	// 1. Flooding threshold: > 120 req/min -> AUTO BLOCK
+	// 1. Flooding threshold: > 120 req/min -> Warning Alert Mode Only (Tanpa pemblokiran / banning IP)
 	if count > 120 {
-		s.BlockIP(ip, "Flooding / DDoS Attack (Rate limit > 120 req/min)", "flooding", "system", 30*time.Minute)
-
 		loc := s.geoService.ResolveIP(ip)
 		threatLog := models.SecurityThreatLog{
 			IPAddress:    ip,
 			ThreatType:   "flooding",
-			Severity:     "high",
-			Payload:      fmt.Sprintf("Rate limit exceeded: %d reqs/min", count),
+			Severity:     "medium",
+			Payload:      fmt.Sprintf("Rate limit warning alert: %d reqs/min", count),
 			Endpoint:     "Multiple Endpoints (Flooding)",
 			Method:       "BURST",
-			UserAgent:    "DDoS / Flooding Agent",
+			UserAgent:    "High Traffic Client",
 			Country:      loc.Country,
 			Province:     loc.Province,
 			City:         loc.City,
 			ISP:          loc.ISP,
 			Latitude:     loc.Latitude,
 			Longitude:    loc.Longitude,
-			Blocked:      true,
-			ActionTaken:  "blocked",
+			Blocked:      false,
+			ActionTaken:  "warning",
 			RequestCount: count,
 			CreatedAt:    now,
 		}
 		s.RecordThreat(threatLog)
-		return true, true, count
+		return false, true, count
 	}
 
 	// 2. Warning threshold: > 60 req/min

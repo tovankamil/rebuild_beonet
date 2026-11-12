@@ -22,10 +22,22 @@ spec:
       labels:
         app: synetiq-app
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
       imagePullSecrets:
         - name: ghcr-secret
       containers:
         - name: app
+          command: ["/opt/synetiq/bin/synetiq-server"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
           image: ghcr.io/tovankamil/rebuild_beonet:latest
           imagePullPolicy: IfNotPresent
           ports:
@@ -39,6 +51,8 @@ spec:
           volumeMounts:
             - name: app-uploads
               mountPath: /app/uploads
+            - name: app-bin
+              mountPath: /opt/synetiq/bin
           resources:
             requests:
               cpu: 100m
@@ -64,6 +78,10 @@ spec:
         - name: app-uploads
           hostPath:
             path: /opt/synetiq/uploads
+            type: DirectoryOrCreate
+        - name: app-bin
+          hostPath:
+            path: /opt/synetiq/bin
             type: DirectoryOrCreate
 ---
 apiVersion: v1

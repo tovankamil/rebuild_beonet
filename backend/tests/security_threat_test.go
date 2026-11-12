@@ -236,31 +236,35 @@ func TestSecurity_FloodingRateLimit_AutoBlock(t *testing.T) {
 		t.Errorf("Expected X-RateLimit-Warning header after >60 requests")
 	}
 
-	// Flood up to 125 requests -> should trigger 429 Too Many Requests and auto-block
-	var blockedCode int
+	// Flood up to 125 requests -> should continue to allow access with warning header (Warning Only Mode)
+	var finalCode int
+	var hasFloodWarning bool
 	for i := 66; i <= 125; i++ {
 		req, _ := http.NewRequest(http.MethodGet, "/api/ping", nil)
 		req.RemoteAddr = fmt.Sprintf("%s:1234", floodIP)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
-		blockedCode = w.Code
-		if blockedCode == http.StatusTooManyRequests {
-			break
+		finalCode = w.Code
+		if w.Header().Get("X-RateLimit-Warning") != "" {
+			hasFloodWarning = true
 		}
 	}
 
-	if blockedCode != http.StatusTooManyRequests {
-		t.Fatalf("Expected 429 Too Many Requests when flooding >120 req/min, got %d", blockedCode)
+	if finalCode != http.StatusOK {
+		t.Fatalf("Expected 200 OK when flooding in Warning Only mode, got %d", finalCode)
+	}
+	if !hasFloodWarning {
+		t.Errorf("Expected X-RateLimit-Warning header during high traffic")
 	}
 
-	// Verify the IP is now blocked (subsequent request returns 403 Forbidden)
+	// Verify the IP is NOT blocked (subsequent request still returns 200 OK)
 	reqAfter, _ := http.NewRequest(http.MethodGet, "/api/ping", nil)
 	reqAfter.RemoteAddr = fmt.Sprintf("%s:1234", floodIP)
 	wAfter := httptest.NewRecorder()
 	router.ServeHTTP(wAfter, reqAfter)
 
-	if wAfter.Code != http.StatusForbidden {
-		t.Errorf("Expected 403 Forbidden after auto-blocking, got %d", wAfter.Code)
+	if wAfter.Code != http.StatusOK {
+		t.Errorf("Expected 200 OK in warning-only mode, got %d", wAfter.Code)
 	}
 }
 

@@ -949,7 +949,7 @@ func main() {
 		})
 
 		// ==============================================
-		// BIONET AI SUITE: 8 Core AI Capabilities
+		// BIONET AI SUITE: 8 Core AI Capabilities & Agentic AI / Subagents (LangChain-style)
 		// ==============================================
 		api.POST("/ai/health-consult", aiHandler.HealthConsult)
 		api.POST("/ai/objection-handler", aiHandler.ObjectionHandler)
@@ -960,6 +960,10 @@ func main() {
 		api.POST("/ai/fraud-scan", aiHandler.FraudScan)
 		api.GET("/ai/ro-retention", aiHandler.RORetention)
 		api.POST("/ai/generate-image", aiHandler.GenerateImage)
+
+		// Agentic AI & Multi-Step Subagent Workflows
+		api.POST("/ai/agentic/workflow", handlers.HandleAgenticWorkflow)
+		api.POST("/ai/agentic/assistant", handlers.HandleAgenticAssistant)
 
 		// Auth
 		api.POST("/auth/login", authHandler.Login)

@@ -9,6 +9,7 @@ import (
 
 	"bionet-backend/config"
 	"bionet-backend/models"
+	"bionet-backend/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -52,25 +53,22 @@ func (h *ChatHandler) UploadAttachment(c *gin.Context) {
 		return
 	}
 
-	ext := strings.ToLower(filepath.Ext(header.Filename))
-	allowedExts := map[string]string{
-		".jpg":  "image",
-		".jpeg": "image",
-		".png":  "image",
-		".webp": "image",
-		".gif":  "image",
-		".pdf":  "document",
-		".doc":  "document",
-		".docx": "document",
-		".xls":  "document",
-		".xlsx": "document",
-		".txt":  "document",
+	// Enterprise File Security Scanner (Anti-Hack / Anti-Crack / Web Shell / Magic Bytes)
+	scanner := services.GetFileSecurityScanner()
+	scanRes, scanErr := scanner.ScanUploadedFile(header, c.ClientIP(), []services.FileCategory{services.CategoryImages, services.CategoryDocuments})
+	if scanErr != nil || !scanRes.IsValid {
+		msg := "Berkas ditolak oleh sistem keamanan"
+		if scanRes != nil && scanRes.Reason != "" {
+			msg = scanRes.Reason
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": msg})
+		return
 	}
 
-	fileType, allowed := allowedExts[ext]
-	if !allowed {
-		c.JSON(http.StatusBadRequest, gin.H{"status": "error", "message": "Format berkas tidak didukung. Format yang diizinkan: JPG, PNG, WEBP, GIF, PDF, DOC/DOCX, XLS/XLSX, TXT"})
-		return
+	ext := scanRes.CleanExt
+	fileType := "document"
+	if ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".webp" || ext == ".gif" {
+		fileType = "image"
 	}
 
 	uploadDir := "./uploads/chat"

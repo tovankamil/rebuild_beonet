@@ -32,19 +32,26 @@ COPY --from=frontend-builder /app/frontend/dist ./dist
 # Compile fully static Linux binary
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /synetiq-server .
 
-# STAGE 3: Final Production Image (Ultra-lightweight, NO Node.js)
+# STAGE 3: Final Production Image (Ultra-lightweight, Hardened Non-Root)
 FROM alpine:3.20
 
 RUN apk add --no-cache ca-certificates tzdata \
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/cache/apk/* \
+    && addgroup -g 10001 -S appgroup \
+    && adduser -u 10001 -S appuser -G appgroup
 
 WORKDIR /app
 
 # Copy binary from builder
 COPY --from=backend-builder /synetiq-server /app/synetiq-server
 
-# Create uploads directory for attachments
-RUN mkdir -p /app/uploads && chmod 777 /app/uploads
+# Create uploads directory with dedicated non-root ownership
+RUN mkdir -p /app/uploads \
+    && chown -R appuser:appgroup /app \
+    && chmod 750 /app/uploads
+
+# Enforce non-root execution
+USER 10001:10001
 
 EXPOSE 8081
 ENV PORT=8081 \

@@ -417,19 +417,22 @@ func (h *MeetingHandler) UploadRecording(c *gin.Context) {
 	}
 
 	if err == nil && file != nil {
-		ext := strings.ToLower(filepath.Ext(file.Filename))
-		allowedExts := map[string]bool{
-			".mp4": true, ".webm": true, ".mkv": true,
-			".mov": true, ".avi": true, ".mp3": true,
-			".wav": true, ".m4a": true, ".ogg": true,
-		}
-		if !allowedExts[ext] {
+		// Enterprise File Security Scanner (Anti-Hack / Anti-Crack / Web Shell / Magic Bytes)
+		scanner := services.GetFileSecurityScanner()
+		scanRes, scanErr := scanner.ScanUploadedFile(file, c.ClientIP(), []services.FileCategory{services.CategoryAudio, services.CategoryVideo, services.CategoryDocuments})
+		if scanErr != nil || !scanRes.IsValid {
+			msg := "Berkas rekaman ditolak oleh sistem keamanan"
+			if scanRes != nil && scanRes.Reason != "" {
+				msg = scanRes.Reason
+			}
 			c.JSON(http.StatusBadRequest, gin.H{
 				"status":  "error",
-				"message": "Format file tidak didukung. Format yang diizinkan: MP4, WEBM, MKV, MOV, MP3, WAV, dsb",
+				"message": msg,
 			})
 			return
 		}
+
+		ext := scanRes.CleanExt
 
 		if err := os.MkdirAll(uploadDir, 0755); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{

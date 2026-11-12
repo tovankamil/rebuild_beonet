@@ -10,6 +10,7 @@ import (
 
 	"bionet-backend/config"
 	"bionet-backend/models"
+	"bionet-backend/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -279,22 +280,22 @@ func (h *ProductHandler) UploadProductImage(c *gin.Context) {
 		return
 	}
 
-	// Validasi ekstensi
-	ext := strings.ToLower(filepath.Ext(file.Filename))
-	allowed := map[string]bool{
-		".jpg":  true,
-		".jpeg": true,
-		".png":  true,
-		".webp": true,
-		".svg":  true,
-	}
-	if !allowed[ext] {
+	// Enterprise File Security Scanner (Anti-Hack / Anti-Crack / Web Shell / Magic Bytes)
+	scanner := services.GetFileSecurityScanner()
+	scanRes, scanErr := scanner.ScanUploadedFile(file, c.ClientIP(), []services.FileCategory{services.CategoryImages})
+	if scanErr != nil || !scanRes.IsValid {
+		msg := "File gambar produk ditolak oleh sistem keamanan"
+		if scanRes != nil && scanRes.Reason != "" {
+			msg = scanRes.Reason
+		}
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
-			"message": "Format file tidak didukung. Harap gunakan format JPG, PNG, WEBP, atau SVG",
+			"message": msg,
 		})
 		return
 	}
+
+	ext := scanRes.CleanExt
 
 	// Buat direktori jika belum ada
 	targetDir := filepath.Join(h.uploadDir, "products")

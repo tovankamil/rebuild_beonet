@@ -38,6 +38,7 @@ jobs:
             type=sha,format=short
 
       - name: Build and push Docker image
+        id: docker_build
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -47,6 +48,25 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # --- TRIVY SECURITY AUDIT STAGES ---
+      - name: Run Trivy Vulnerability & Secret Scanner (Codebase & Configs)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          scanners: 'vuln,secret,misconfig'
+          exit-code: '0' # Catat peringatan temuan konfigurasi & dependency
+
+      - name: Run Trivy Container Image Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0' # Ganti '1' untuk memblokir deployment jika ditemukan CVE CRITICAL
 
       - name: Set up Kubectl
         uses: azure/setup-kubectl@v3

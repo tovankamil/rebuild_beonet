@@ -19,6 +19,13 @@ spec:
       labels:
         app: synetiq-waha
     spec:
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      nodeSelector:
+        kubernetes.io/hostname: kubernetesmaster
       containers:
         - name: waha
           image: devlikeapro/waha:latest
@@ -40,7 +47,9 @@ spec:
             - name: WHATSAPP_SWAGGER_PASSWORD
               value: 'synetiq_waha_2026'
             - name: WHATSAPP_DEFAULT_ENGINE
-              value: 'NOWEB'
+              value: 'GOWS'
+            - name: NODE_OPTIONS
+              value: '--dns-result-order=ipv4first'
             - name: WHATSAPP_START_SESSION
               value: 'default'
             - name: WHATSAPP_RESTART_ALL_SESSIONS

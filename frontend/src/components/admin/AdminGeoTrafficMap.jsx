@@ -540,139 +540,10 @@ const PROVINCE_BREAKDOWN = [
 ];
 
 // Initial Live Visitors Feed
-const INITIAL_ACTIVE_VISITORS = [
-  {
-    id: 'VIS-991',
-    name: 'H. Sudirman Santoso',
-    username: 'sudirman_synetiq',
-    role: 'Mitra Platinum',
-    city: 'Surabaya',
-    province: 'Jawa Timur',
-    device: 'iPhone 15 Pro',
-    os: 'iOS 18.1',
-    deviceType: 'mobile',
-    ip: '180.252.14.88',
-    isp: 'Telkomsel Flash 5G',
-    currentPage: 'Toko Herbal RO (Repeat Order)',
-    ping: '16ms',
-    lastSeen: 'Aktif 3 detik lalu',
-  },
-  {
-    id: 'VIS-990',
-    name: 'Siti Rahmawati S.Farm',
-    username: 'siti_apoteker',
-    role: 'Stockist Daerah',
-    city: 'Jakarta Selatan',
-    province: 'DKI Jakarta',
-    device: 'MacBook Pro M3',
-    os: 'macOS Sequoia',
-    deviceType: 'desktop',
-    ip: '103.28.14.22',
-    isp: 'Biznet Fiber Ultra',
-    currentPage: 'Pohon Jaringan Binary',
-    ping: '12ms',
-    lastSeen: 'Aktif 8 detik lalu',
-  },
-  {
-    id: 'VIS-989',
-    name: 'Budi Hartono',
-    username: 'budi_herbal77',
-    role: 'Mitra Gold',
-    city: 'Bandung',
-    province: 'Jawa Barat',
-    device: 'Samsung Galaxy S24 Ultra',
-    os: 'Android 15',
-    deviceType: 'mobile',
-    ip: '36.85.201.44',
-    isp: 'Indihome Fiber',
-    currentPage: 'Kalkulator Simulasi Bonus',
-    ping: '19ms',
-    lastSeen: 'Aktif 14 detik lalu',
-  },
-  {
-    id: 'VIS-988',
-    name: 'dr. Andi Pratama',
-    username: 'dr_pratama',
-    role: 'Mitra Silver',
-    city: 'Medan',
-    province: 'Sumatera Utara',
-    device: 'Windows 11 PC',
-    os: 'Windows 11 / Chrome',
-    deviceType: 'desktop',
-    ip: '114.125.99.10',
-    isp: 'FirstMedia Megabroadband',
-    currentPage: 'Direktori Produk Herbal BPOM',
-    ping: '22ms',
-    lastSeen: 'Aktif 22 detik lalu',
-  },
-  {
-    id: 'VIS-987',
-    name: 'Nurul Hidayati',
-    username: 'nurul_makassar',
-    role: 'Mitra Gold',
-    city: 'Makassar',
-    province: 'Sulawesi Selatan',
-    device: 'Xiaomi 14 Pro',
-    os: 'HyperOS / Chrome Mobile',
-    deviceType: 'mobile',
-    ip: '182.1.209.77',
-    isp: 'XL Axiata Axiata 4G LTE',
-    currentPage: 'Pusat Leads & WhatsApp AI Follow-up',
-    ping: '28ms',
-    lastSeen: 'Aktif 30 detik lalu',
-  },
-  {
-    id: 'VIS-986',
-    name: 'I Wayan Gede Arthawa',
-    username: 'wayan_bali',
-    role: 'Mitra Platinum',
-    city: 'Denpasar',
-    province: 'Bali',
-    device: 'iPad Pro M2',
-    os: 'iPadOS Safari',
-    deviceType: 'mobile',
-    ip: '103.111.45.66',
-    isp: 'CBN Fiber Optic',
-    currentPage: 'E-Sertifikat Kemitraan Digital',
-    ping: '21ms',
-    lastSeen: 'Aktif 45 detik lalu',
-  },
-  {
-    id: 'VIS-985',
-    name: 'Calon Mitra (Tamu Toko RO)',
-    username: 'guest_store_712',
-    role: 'Tamu Publik',
-    city: 'Semarang',
-    province: 'Jawa Tengah',
-    device: 'Oppo Reno 11 5G',
-    os: 'Android 14',
-    deviceType: 'mobile',
-    ip: '180.244.112.9',
-    isp: 'Tri Indonesia / Indosat',
-    currentPage: 'Public Store Bio Herbal (Landing Page)',
-    ping: '18ms',
-    lastSeen: 'Aktif 1 mnt lalu',
-  },
-  {
-    id: 'VIS-984',
-    name: 'Ahmad Fauzi',
-    username: 'fauzi_kaltim',
-    role: 'Mitra Silver',
-    city: 'Balikpapan',
-    province: 'Kalimantan Timur',
-    device: 'Windows 11 Laptop',
-    os: 'Windows 11 / Edge',
-    deviceType: 'desktop',
-    ip: '110.138.80.12',
-    isp: 'Telkom Indihome',
-    currentPage: 'Buku Besar & Riwayat Dompet Bonus',
-    ping: '27ms',
-    lastSeen: 'Aktif 2 mnt lalu',
-  },
-];
+const INITIAL_ACTIVE_VISITORS = [];
 
 export default function AdminGeoTrafficMap({ setActiveTab }) {
-  const [activeVisitors, setActiveVisitors] = useState(INITIAL_ACTIVE_VISITORS);
+  const [activeVisitors, setActiveVisitors] = useState([]);
   const [hoveredHub, setHoveredHub] = useState(null);
   const [selectedHub, setSelectedHub] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -713,7 +584,7 @@ export default function AdminGeoTrafficMap({ setActiveTab }) {
             ping: `${12 + (idx % 18)}ms`,
             lastSeen: 'Baru saja',
           }));
-          setActiveVisitors([...mappedLogs, ...INITIAL_ACTIVE_VISITORS.slice(mappedLogs.length)]);
+          setActiveVisitors(mappedLogs);
           return;
         }
       } catch (eGeo) {
@@ -752,7 +623,7 @@ export default function AdminGeoTrafficMap({ setActiveTab }) {
         });
 
         // Merge mapped with seed data for rich presentation
-        setActiveVisitors([...mapped, ...INITIAL_ACTIVE_VISITORS.slice(mapped.length)]);
+        setActiveVisitors(mapped);
       }
     } catch (err) {
       console.warn('Backend live visitors polling note:', err);
